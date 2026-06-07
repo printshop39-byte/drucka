@@ -13,13 +13,24 @@ interface Props {
 export default function CartItem({ line, onInc, onDec, onRemove }: Props) {
   return (
     <div className="flex gap-4 py-[18px] border-b border-brand-border last:border-b-0">
-      <div className="w-[86px] h-[86px] shrink-0 rounded-[14px] bg-brand-mint flex items-center justify-center text-[2.4rem] overflow-hidden">
+      <div className="relative w-[86px] h-[86px] shrink-0 rounded-[14px] bg-brand-mint flex items-center justify-center text-[2.4rem] overflow-hidden">
+        {/* product mockup as base */}
         <MockImage
           src={line.image}
           alt={line.name}
           emoji={line.fallbackEmoji}
           className="w-full h-full object-contain p-2"
         />
+        {/* uploaded custom design overlaid on top (if present) */}
+        {line.designImage && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={line.designImage}
+            alt={`${line.name} custom design`}
+            className="absolute max-w-[60%] max-h-[60%] object-contain rounded-[3px] pointer-events-none"
+            style={{ transform: `rotate(${line.rotation ?? 0}deg)` }}
+          />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-[10px]">

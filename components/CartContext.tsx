@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 export interface CartLine {
+  lineId: string;    // unique per cart line (stable id for remove/qty)
   id: string;        // product id
   name: string;
   price: number;
@@ -11,13 +12,19 @@ export interface CartLine {
   size?: string;
   meta?: string;     // e.g. "Custom design"
   qty: number;
+  // --- optional customization preview (all optional for backward compatibility) ---
+  designImage?: string | null; // user's uploaded image as a data URL
+  rotation?: number;           // degrees
+  designSize?: number;         // % scale used in the studio
+  position?: string;           // POS key (tl, c, br, ...)
+  text?: string;               // overlay text
 }
 
 interface CartContextValue {
   items: CartLine[];
-  addItem: (line: Omit<CartLine, "qty">, qty?: number) => void;
-  removeItem: (id: string) => void;
-  setQty: (id: string, qty: number) => void;
+  addItem: (line: Omit<CartLine, "qty" | "lineId">, qty?: number) => void;
+  removeItem: (lineId: string) => void;
+  setQty: (lineId: string, qty: number) => void;
   clear: () => void;
   count: number;
   subtotal: number;
@@ -28,9 +35,13 @@ const STORAGE_KEY = "drucka_cart_v1";
 
 // Seed sample items so the cart page is populated on first visit (demo).
 const SEED: CartLine[] = [
-  { id: "tshirt", name: "Premium T-Shirt", price: 599, image: "/assets/tshirt-mockup.png", fallbackEmoji: "👕", size: "M", meta: "Custom design", qty: 1 },
-  { id: "mug", name: "Photo Mug", price: 299, image: "/assets/mug-mockup.png", fallbackEmoji: "☕", meta: "Custom photo", qty: 1 },
+  { lineId: "seed-tshirt", id: "tshirt", name: "Premium T-Shirt", price: 599, image: "/assets/tshirt-mockup.png", fallbackEmoji: "👕", size: "M", meta: "Custom design", qty: 1 },
+  { lineId: "seed-mug", id: "mug", name: "Photo Mug", price: 299, image: "/assets/mug-mockup.png", fallbackEmoji: "☕", meta: "Custom photo", qty: 1 },
 ];
+
+function makeLineId() {
+  return "line-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8);
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartLine[]>([]);
@@ -43,7 +54,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (raw === null) {
         setItems(SEED);
       } else {
-        setItems(JSON.parse(raw));
+        const parsed: CartLine[] = JSON.parse(raw);
+        // migrate legacy items that predate lineId
+        setItems(parsed.map((i) => (i.lineId ? i : { ...i, lineId: makeLineId() })));
       }
     } catch {
       setItems(SEED);
@@ -51,29 +64,45 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setLoaded(true);
   }, []);
 
-  // persist
+  // persist (guarded: base64 design images can be large and may exceed quota)
   useEffect(() => {
-    if (loaded) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    if (!loaded) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // quota exceeded — persist without the heavy design images so the cart still survives reloads
+      try {
+        const slim = items.map(({ designImage, ...rest }) => rest);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+      } catch {
+        /* give up on persistence; in-memory cart still works this session */
+      }
+    }
   }, [items, loaded]);
 
   const addItem: CartContextValue["addItem"] = (line, qty = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === line.id && i.size === line.size);
+      // Customized items (with an uploaded design) are always distinct lines.
+      // Only plain items of the same product + size merge their quantity.
+      const mergeable = !line.designImage;
+      const existing = mergeable
+        ? prev.find((i) => i.id === line.id && i.size === line.size && !i.designImage)
+        : undefined;
       if (existing) {
         return prev.map((i) =>
           i === existing ? { ...i, qty: i.qty + qty } : i
         );
       }
-      return [...prev, { ...line, qty }];
+      return [...prev, { ...line, qty, lineId: makeLineId() }];
     });
   };
 
-  const removeItem = (id: string) =>
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = (lineId: string) =>
+    setItems((prev) => prev.filter((i) => i.lineId !== lineId));
 
-  const setQty = (id: string, qty: number) =>
+  const setQty = (lineId: string, qty: number) =>
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, qty: Math.max(1, qty) } : i))
+      prev.map((i) => (i.lineId === lineId ? { ...i, qty: Math.max(1, qty) } : i))
     );
 
   const clear = () => setItems([]);

@@ -78,11 +78,11 @@ export default function CartPage() {
               ) : (
                 items.map((line) => (
                   <CartItem
-                    key={line.id + (line.size ?? "")}
+                    key={line.lineId}
                     line={line}
-                    onInc={() => setQty(line.id, line.qty + 1)}
-                    onDec={() => setQty(line.id, line.qty - 1)}
-                    onRemove={() => removeItem(line.id)}
+                    onInc={() => setQty(line.lineId, line.qty + 1)}
+                    onDec={() => setQty(line.lineId, line.qty - 1)}
+                    onRemove={() => removeItem(line.lineId)}
                   />
                 ))
               )}

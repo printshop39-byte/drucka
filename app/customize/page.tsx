@@ -68,6 +68,12 @@ function StudioInner() {
         image: product.image,
         fallbackEmoji: product.fallbackEmoji,
         meta: [state.uploadedImage && `Custom image${state.rotation !== 0 ? ` (rotated ${state.rotation}°)` : ""}`, state.text.trim() && "Custom text"].filter(Boolean).join(" + ") || "Custom design",
+        // customization preview data (used for the cart thumbnail overlay)
+        designImage: state.uploadedImage,
+        rotation: state.rotation,
+        designSize: state.imgScale,
+        position: state.pos,
+        text: state.text.trim() || undefined,
       },
       qty
     );
