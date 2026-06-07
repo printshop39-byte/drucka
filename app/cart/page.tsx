@@ -9,15 +9,27 @@ import { useCart } from "@/components/CartContext";
 
 const FREE_SHIP_THRESHOLD = 999;
 const SHIP_FEE = 49;
+// DRUCKA WhatsApp business number (digits only, country code, no +).
+const WHATSAPP_NUMBER = "917083811355";
 const fmt = (n: number) => "₹" + n.toLocaleString("en-IN");
 
+interface Delivery {
+  name: string; phone: string; email: string; address: string; city: string; pincode: string;
+}
+const EMPTY_DELIVERY: Delivery = { name: "", phone: "", email: "", address: "", city: "", pincode: "" };
+
 export default function CartPage() {
-  const { items, setQty, removeItem, subtotal, clear } = useCart();
+  const { items, setQty, removeItem, subtotal } = useCart();
   const [coupon, setCoupon] = useState("");
   const [couponApplied, setCouponApplied] = useState(false);
   const [couponMsg, setCouponMsg] = useState<"ok" | "bad" | null>(null);
   const [pay, setPay] = useState("upi");
   const [placed, setPlaced] = useState(false);
+  const [delivery, setDelivery] = useState<Delivery>(EMPTY_DELIVERY);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const setField = (k: keyof Delivery) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setDelivery((d) => ({ ...d, [k]: e.target.value }));
 
   const sub = subtotal;
   const freeShip = sub >= FREE_SHIP_THRESHOLD || sub === 0;
@@ -36,8 +48,51 @@ export default function CartPage() {
 
   function placeOrder() {
     if (items.length === 0) return;
+
+    // --- validation (email optional) ---
+    const required: [keyof Delivery, string][] = [
+      ["name", "Full Name"], ["phone", "Phone"], ["address", "Address"],
+      ["city", "City"], ["pincode", "Pincode"],
+    ];
+    const missing = required.filter(([k]) => !delivery[k].trim()).map(([, label]) => label);
+    if (missing.length) {
+      setFormError(`Please fill: ${missing.join(", ")}.`);
+      return;
+    }
+    setFormError(null);
+
+    // --- build order summary message ---
+    const lines: string[] = [];
+    lines.push("*New DRUCKA Order*");
+    lines.push("");
+    lines.push("*Customer:*");
+    lines.push(`Name: ${delivery.name}`);
+    lines.push(`Phone: ${delivery.phone}`);
+    if (delivery.email.trim()) lines.push(`Email: ${delivery.email}`);
+    lines.push(`Address: ${delivery.address}, ${delivery.city} - ${delivery.pincode}`);
+    lines.push("");
+    lines.push("*Items:*");
+    items.forEach((it, idx) => {
+      lines.push(
+        `${idx + 1}. ${it.name}${it.size ? ` (Size ${it.size})` : ""} × ${it.qty} — ${fmt(it.price * it.qty)}`
+      );
+      if (it.meta) lines.push(`   • ${it.meta}`);
+    });
+    lines.push("");
+    lines.push(`Subtotal: ${fmt(sub)}`);
+    lines.push(`Shipping: ${freeShip && sub > 0 ? "FREE" : fmt(shipping)}`);
+    lines.push(`Discount: -${fmt(discount)}`);
+    lines.push(`*Total: ${fmt(total)}*`);
+    lines.push(`Payment: ${pay.toUpperCase()}`);
+
+    const message = encodeURIComponent(lines.join("\n"));
+    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
+
+    // open WhatsApp (new tab); cart is intentionally NOT cleared yet
+    window.open(url, "_blank");
+
     setPlaced(true);
-    setTimeout(() => setPlaced(false), 2000);
+    setTimeout(() => setPlaced(false), 4000);
   }
 
   return (
@@ -93,12 +148,12 @@ export default function CartPage() {
               <h3 className="font-heading text-[1.3rem] mb-1">Delivery Details</h3>
               <p className="text-brand-muted text-[0.86rem] mb-[18px]">Where should we ship your gift?</p>
               <form className="grid grid-cols-2 max-[680px]:grid-cols-1 gap-4" onSubmit={(e) => e.preventDefault()}>
-                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Full Name</label><input className="input-premium" placeholder="Sagar Patil" /></div>
-                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Phone</label><input className="input-premium" placeholder="+91 70838 11355" /></div>
-                <div className="flex flex-col col-span-full"><label className="text-[0.82rem] font-bold mb-[7px]">Email</label><input className="input-premium" type="email" placeholder="you@example.com" /></div>
-                <div className="flex flex-col col-span-full"><label className="text-[0.82rem] font-bold mb-[7px]">Address</label><input className="input-premium" placeholder="House / Flat, Street, Area" /></div>
-                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">City</label><input className="input-premium" placeholder="Kolhapur" /></div>
-                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Pincode</label><input className="input-premium" placeholder="416001" /></div>
+                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Full Name *</label><input className="input-premium" placeholder="Sagar Patil" value={delivery.name} onChange={setField("name")} /></div>
+                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Phone *</label><input className="input-premium" type="tel" placeholder="+91 70838 11355" value={delivery.phone} onChange={setField("phone")} /></div>
+                <div className="flex flex-col col-span-full"><label className="text-[0.82rem] font-bold mb-[7px]">Email</label><input className="input-premium" type="email" placeholder="you@example.com" value={delivery.email} onChange={setField("email")} /></div>
+                <div className="flex flex-col col-span-full"><label className="text-[0.82rem] font-bold mb-[7px]">Address *</label><input className="input-premium" placeholder="House / Flat, Street, Area" value={delivery.address} onChange={setField("address")} /></div>
+                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">City *</label><input className="input-premium" placeholder="Kolhapur" value={delivery.city} onChange={setField("city")} /></div>
+                <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Pincode *</label><input className="input-premium" placeholder="416001" value={delivery.pincode} onChange={setField("pincode")} /></div>
               </form>
             </div>
 
@@ -141,8 +196,17 @@ export default function CartPage() {
               </div>
 
               <button onClick={placeOrder} className="btn-primary w-full mt-[18px]" style={placed ? { background: "linear-gradient(135deg,#08483B,#06382F)" } : undefined}>
-                {placed ? "✓ Order Placed" : "Place Order →"}
+                {placed ? "✓ Order sent" : "Place Order via WhatsApp →"}
               </button>
+
+              {formError && (
+                <p className="text-red-600 text-[0.82rem] mt-[10px]">{formError}</p>
+              )}
+              {placed && (
+                <p className="text-brand-primary text-[0.82rem] font-semibold mt-[10px]">
+                  ✓ WhatsApp opened with your order details.
+                </p>
+              )}
 
               <div className="grid grid-cols-2 gap-[10px] mt-[18px]">
                 {[["🔒", "Secure Payment"], ["🚚", "Fast Delivery"], ["⭐", "Premium Print"], ["💬", "WhatsApp Support"]].map(([e, t]) => (
