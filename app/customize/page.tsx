@@ -63,10 +63,10 @@ function StudioInner() {
   async function addToCart() {
     setAdding(true);
 
-    // Upload the design to storage to get a shareable public URL.
-    // NOTE: uploadDesignImage is currently a no-op stub (returns the data URL,
-    // uploaded:false). Once Cloudinary/Supabase is wired in lib/uploadDesign.ts,
-    // this will return a real public https URL with no changes needed here.
+    // Upload the design to Cloudinary to get a shareable public URL.
+    // (See lib/uploadDesign.ts — uses NEXT_PUBLIC_CLOUDINARY_* env vars.)
+    // If the upload fails or env vars are missing, designImageUrl stays null and
+    // the WhatsApp message shows a "pending upload" placeholder instead.
     let designImageUrl: string | null = null;
     if (state.uploadedImage) {
       try {

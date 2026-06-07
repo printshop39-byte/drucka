@@ -71,11 +71,18 @@ export async function uploadDesignImage(dataUrl: string): Promise<UploadResult> 
 
   // No Cloudinary configured yet — keep local-only behavior.
   if (!CLOUD_NAME || !UPLOAD_PRESET) {
+    console.warn(
+      "[uploadDesign] Cloudinary env vars missing — falling back to local data URL.",
+      { CLOUD_NAME, UPLOAD_PRESET }
+    );
     return { url: dataUrl, uploaded: false };
   }
 
   const blob = dataUrlToBlob(dataUrl);
-  if (!blob) return { url: dataUrl, uploaded: false };
+  if (!blob) {
+    console.warn("[uploadDesign] could not convert data URL to Blob.");
+    return { url: dataUrl, uploaded: false };
+  }
 
   try {
     const form = new FormData();
@@ -88,15 +95,23 @@ export async function uploadDesignImage(dataUrl: string): Promise<UploadResult> 
       { method: "POST", body: form }
     );
 
-    if (!res.ok) return { url: dataUrl, uploaded: false };
+    const json = await res.json().catch(() => null);
 
-    const json = await res.json();
-    if (json && typeof json.secure_url === "string") {
+    if (!res.ok || !json) {
+      console.error("[uploadDesign] Cloudinary upload failed:", res.status, json);
+      return { url: dataUrl, uploaded: false };
+    }
+
+    if (typeof json.secure_url === "string") {
+      console.info("[uploadDesign] uploaded:", json.secure_url);
       return { url: json.secure_url, uploaded: true };
     }
+
+    console.error("[uploadDesign] no secure_url in response:", json);
     return { url: dataUrl, uploaded: false };
-  } catch {
+  } catch (err) {
     // network error, CORS, etc. — never block the user's flow
+    console.error("[uploadDesign] upload threw:", err);
     return { url: dataUrl, uploaded: false };
   }
 }
