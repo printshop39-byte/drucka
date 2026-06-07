@@ -13,6 +13,17 @@ const SHIP_FEE = 49;
 const WHATSAPP_NUMBER = "917083811355";
 const fmt = (n: number) => "₹" + n.toLocaleString("en-IN");
 
+// Order reference: DRK-YYYYMMDD-XXXX (XXXX = random 4-char base36, uppercase)
+function makeOrderRef() {
+  const d = new Date();
+  const ymd =
+    d.getFullYear().toString() +
+    String(d.getMonth() + 1).padStart(2, "0") +
+    String(d.getDate()).padStart(2, "0");
+  const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `DRK-${ymd}-${rand}`;
+}
+
 interface Delivery {
   name: string; phone: string; email: string; address: string; city: string; pincode: string;
 }
@@ -25,6 +36,7 @@ export default function CartPage() {
   const [couponMsg, setCouponMsg] = useState<"ok" | "bad" | null>(null);
   const [pay, setPay] = useState("upi");
   const [placed, setPlaced] = useState(false);
+  const [orderRef, setOrderRef] = useState<string | null>(null);
   const [delivery, setDelivery] = useState<Delivery>(EMPTY_DELIVERY);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -61,9 +73,13 @@ export default function CartPage() {
     }
     setFormError(null);
 
+    // --- generate order reference ---
+    const ref = makeOrderRef();
+
     // --- build order summary message ---
     const lines: string[] = [];
     lines.push("*New DRUCKA Order*");
+    lines.push(`Order Ref: ${ref}`);
     lines.push("");
     lines.push("*Customer:*");
     lines.push(`Name: ${delivery.name}`);
@@ -91,8 +107,8 @@ export default function CartPage() {
     // open WhatsApp (new tab); cart is intentionally NOT cleared yet
     window.open(url, "_blank");
 
+    setOrderRef(ref);
     setPlaced(true);
-    setTimeout(() => setPlaced(false), 4000);
   }
 
   return (
@@ -202,10 +218,18 @@ export default function CartPage() {
               {formError && (
                 <p className="text-red-600 text-[0.82rem] mt-[10px]">{formError}</p>
               )}
-              {placed && (
-                <p className="text-brand-primary text-[0.82rem] font-semibold mt-[10px]">
-                  ✓ WhatsApp opened with your order details.
-                </p>
+              {placed && orderRef && (
+                <div className="mt-[12px] bg-brand-mint border border-brand-border rounded-[0.9rem] p-[12px_14px]">
+                  <p className="text-brand-primary text-[0.84rem] font-semibold">
+                    ✓ WhatsApp opened. Your order reference is{" "}
+                    <span className="font-bold">{orderRef}</span>
+                  </p>
+                  <p className="text-brand-muted text-[0.78rem] mt-[6px]">
+                    Save this reference. You can{" "}
+                    <Link href="/track-order" className="text-brand-primary font-semibold underline">track your order</Link>{" "}
+                    anytime.
+                  </p>
+                </div>
               )}
 
               <div className="grid grid-cols-2 gap-[10px] mt-[18px]">

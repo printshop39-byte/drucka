@@ -22,6 +22,7 @@ export default function Footer() {
             <li><Link href="/#products" className="text-white/70 text-[0.88rem] hover:text-brand-gold">Mugs &amp; Frames</Link></li>
             <li><Link href="/customize" className="text-white/70 text-[0.88rem] hover:text-brand-gold">Design Studio</Link></li>
             <li><Link href="/cart" className="text-white/70 text-[0.88rem] hover:text-brand-gold">Cart</Link></li>
+            <li><Link href="/track-order" className="text-white/70 text-[0.88rem] hover:text-brand-gold">Track Order</Link></li>
           </ul>
         </div>
         <div>
