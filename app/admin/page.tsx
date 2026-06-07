@@ -13,6 +13,7 @@
 // TODO (orders): fetch real orders by their reference (DRK-YYYYMMDD-XXXX),
 //   ideally written to the DB at the moment the WhatsApp order is placed.
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -20,6 +21,13 @@ import { getProducts } from "@/data/products";
 import { getDesigns } from "@/data/designs";
 
 const WHATSAPP_NUMBER = "917083811355";
+
+// Simple front-end admin password.
+// TODO: replace this gate with real Supabase/Auth (server-verified) before
+// production. This is a lightweight client-side guard only — anyone who reads
+// the bundle can find the password, so do not treat it as real security.
+const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || "drucka-admin";
+const UNLOCK_KEY = "drucka_admin_unlocked";
 
 // Order status options (used for badges). Later these come from the DB.
 type OrderStatus = "New" | "In Design Review" | "Printing" | "Ready to Ship" | "Delivered";
@@ -40,7 +48,71 @@ const SAMPLE_ORDERS: {
   { ref: "DRK-20260607-8U78", customer: "Rohan Kulkarni", product: "Framed Print", total: "₹948", status: "In Design Review" },
 ];
 
+// ---------------------------------------------------------------------------
+// Password gate (default export). Shows a login card until unlocked, then the
+// dashboard. Unlock state is kept in sessionStorage so it clears when the tab
+// closes. TODO: swap for real auth later.
+// ---------------------------------------------------------------------------
 export default function AdminPage() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [pw, setPw] = useState("");
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setUnlocked(sessionStorage.getItem(UNLOCK_KEY) === "true");
+    setReady(true);
+  }, []);
+
+  function unlock() {
+    if (pw === ADMIN_PASSWORD) {
+      sessionStorage.setItem(UNLOCK_KEY, "true");
+      setUnlocked(true);
+      setError(false);
+    } else {
+      setError(true);
+    }
+  }
+
+  // avoid a flash of the login card before sessionStorage is read
+  if (!ready) return null;
+
+  if (unlocked) return <AdminDashboard />;
+
+  return (
+    <>
+      <Navbar />
+      <main className="flex items-center justify-center px-[22px] py-16 min-h-[70vh]">
+        <div className="w-full max-w-[420px] bg-white border border-brand-border rounded-premium shadow-soft p-[36px_30px]">
+          <span className="eyebrow">Restricted</span>
+          <h1 className="text-[1.7rem] my-[14px_4px]">Admin Access</h1>
+          <p className="text-brand-muted text-[0.92rem] mb-6">Enter the admin password to manage DRUCKA.</p>
+
+          <label className="block text-[0.82rem] font-bold mb-2" htmlFor="adminPw">Password</label>
+          <input
+            id="adminPw"
+            className="input-premium"
+            type="password"
+            placeholder="••••••••"
+            value={pw}
+            onChange={(e) => { setPw(e.target.value); setError(false); }}
+            onKeyDown={(e) => { if (e.key === "Enter") unlock(); }}
+            autoComplete="current-password"
+          />
+          {error && <p className="text-red-600 text-[0.82rem] mt-[10px]">Incorrect password.</p>}
+
+          <button className="btn-primary w-full mt-4" onClick={unlock}>Unlock Admin</button>
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// The actual dashboard (unchanged), now rendered only after unlock.
+// ---------------------------------------------------------------------------
+function AdminDashboard() {
   const productCount = getProducts().length;
   const designCount = getDesigns().length;
 
