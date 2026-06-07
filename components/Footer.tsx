@@ -36,6 +36,9 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10 py-[18px] text-center text-white/60 text-[0.82rem]">
         © 2026 Drucka — Print it. Gift it. Feel it. · All rights reserved.
+        {" · "}
+        {/* Admin link in footer only (not main navbar). TODO: add auth before production. */}
+        <Link href="/admin" className="hover:text-brand-gold">Admin</Link>
       </div>
     </footer>
   );
