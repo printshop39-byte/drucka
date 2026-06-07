@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import CustomizePreview, { PreviewState, POS_MAP } from "@/components/CustomizePreview";
 import { getCustomizableProducts, getProductById } from "@/data/products";
 import { useCart } from "@/components/CartContext";
+import { uploadDesignImage } from "@/lib/uploadDesign";
 
 const AI_IDEAS = [
   "<b>Birthday:</b> a photo collage on a mug with the name in gold script.",
@@ -59,7 +60,23 @@ function StudioInner() {
     reader.readAsDataURL(file);
   }
 
-  function addToCart() {
+  async function addToCart() {
+    setAdding(true);
+
+    // Upload the design to storage to get a shareable public URL.
+    // NOTE: uploadDesignImage is currently a no-op stub (returns the data URL,
+    // uploaded:false). Once Cloudinary/Supabase is wired in lib/uploadDesign.ts,
+    // this will return a real public https URL with no changes needed here.
+    let designImageUrl: string | null = null;
+    if (state.uploadedImage) {
+      try {
+        const res = await uploadDesignImage(state.uploadedImage);
+        designImageUrl = res.uploaded ? res.url : null;
+      } catch {
+        designImageUrl = null; // upload failure shouldn't block adding to cart
+      }
+    }
+
     addItem(
       {
         id: product.id,
@@ -69,7 +86,8 @@ function StudioInner() {
         fallbackEmoji: product.fallbackEmoji,
         meta: [state.uploadedImage && `Custom image${state.rotation !== 0 ? ` (rotated ${state.rotation}°)` : ""}`, state.text.trim() && "Custom text"].filter(Boolean).join(" + ") || "Custom design",
         // customization preview data (used for the cart thumbnail overlay)
-        designImage: state.uploadedImage,
+        designImage: state.uploadedImage,        // base64 data URL — LOCAL preview only
+        designImageUrl,                          // public URL after upload (null until storage is wired)
         rotation: state.rotation,
         designSize: state.imgScale,
         position: state.pos,
@@ -77,7 +95,6 @@ function StudioInner() {
       },
       qty
     );
-    setAdding(true);
     setTimeout(() => router.push("/cart"), 800);
   }
 

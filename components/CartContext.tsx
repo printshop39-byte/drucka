@@ -13,11 +13,12 @@ export interface CartLine {
   meta?: string;     // e.g. "Custom design"
   qty: number;
   // --- optional customization preview (all optional for backward compatibility) ---
-  designImage?: string | null; // user's uploaded image as a data URL
-  rotation?: number;           // degrees
-  designSize?: number;         // % scale used in the studio
-  position?: string;           // POS key (tl, c, br, ...)
-  text?: string;               // overlay text
+  designImage?: string | null;    // user's uploaded image as a base64 data URL (LOCAL preview only)
+  designImageUrl?: string | null; // PUBLIC url after upload to storage (Cloudinary/Supabase); null until uploaded
+  rotation?: number;              // degrees
+  designSize?: number;            // % scale used in the studio
+  position?: string;              // POS key (tl, c, br, ...)
+  text?: string;                  // overlay text
 }
 
 interface CartContextValue {

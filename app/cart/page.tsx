@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartItem from "@/components/CartItem";
 import { useCart } from "@/components/CartContext";
+import { designImageLine } from "@/lib/uploadDesign";
 
 const FREE_SHIP_THRESHOLD = 999;
 const SHIP_FEE = 49;
@@ -93,6 +94,11 @@ export default function CartPage() {
         `${idx + 1}. ${it.name}${it.size ? ` (Size ${it.size})` : ""} × ${it.qty} — ${fmt(it.price * it.qty)}`
       );
       if (it.meta) lines.push(`   • ${it.meta}`);
+      // Include the design image: a public URL once storage is wired, otherwise
+      // a clear pending note (customer shares the image in the chat for now).
+      if (it.designImage) {
+        lines.push(`   • ${designImageLine(it.designImageUrl, !!it.designImageUrl)}`);
+      }
     });
     lines.push("");
     lines.push(`Subtotal: ${fmt(sub)}`);
