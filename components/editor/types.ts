@@ -27,11 +27,20 @@ export const AREAS: { id: EditorArea; label: string }[] = [
   { id: "neckInner", label: "Neck label inner" },
 ];
 
-export const COLORS: { id: TshirtColor; label: string; hex: string }[] = [
-  { id: "white", label: "White", hex: "#FFFFFF" },
-  { id: "black", label: "Black", hex: "#1A1A1A" },
-  { id: "grey", label: "Grey", hex: "#9AA0A6" },
+// `filter` tints the white mockup to simulate dyed fabric (CSS filter, no Three.js).
+export const COLORS: { id: TshirtColor; label: string; hex: string; filter: string }[] = [
+  { id: "white", label: "White", hex: "#FFFFFF", filter: "none" },
+  { id: "black", label: "Black", hex: "#1A1A1A", filter: "invert(1) brightness(0.28)" },
+  { id: "grey", label: "Grey", hex: "#9AA0A6", filter: "brightness(0.78) saturate(0.6)" },
 ];
+
+// 3D canvas view modes (CSS transforms — front, back, orbit).
+export type ViewMode = "front" | "back" | "orbit";
+export const VIEW_TRANSFORM: Record<ViewMode, string> = {
+  front: "rotateY(0deg) rotateX(0deg)",
+  back: "rotateY(180deg) rotateX(0deg)",
+  orbit: "rotateY(38deg) rotateX(12deg)",
+};
 
 export const SIZES: TshirtSize[] = ["S", "M", "L", "XL", "XXL"];
 

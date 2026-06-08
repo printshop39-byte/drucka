@@ -16,7 +16,7 @@ import VariantSelector from "@/components/editor/VariantSelector";
 import LayersPanel from "@/components/editor/LayersPanel";
 import {
   AREAS, COLORS, newLayerId,
-  type EditorArea, type EditorLayer, type TshirtColor, type TshirtSize,
+  type EditorArea, type EditorLayer, type TshirtColor, type TshirtSize, type ViewMode,
 } from "@/components/editor/types";
 
 const TSHIRT = { id: "tshirt", name: "Premium T-Shirt", price: 599, image: "/assets/tshirt-mockup.png", fallbackEmoji: "👕" };
@@ -29,6 +29,7 @@ export default function TshirtEditorPage() {
   // ---- Editor state ----
   const [tool, setTool] = useState<ToolId>("upload");
   const [area, setArea] = useState<EditorArea>("front");
+  const [view, setView] = useState<ViewMode>("front");
   const [color, setColor] = useState<TshirtColor>("white");
   const [size, setSize] = useState<TshirtSize>("M");
   const [layers, setLayers] = useState<EditorLayer[]>([]);
@@ -154,9 +155,24 @@ export default function TshirtEditorPage() {
         toolRail={!preview ? <ToolRail active={tool} onSelect={onTool} /> : <div />}
         canvas={
           <>
+            {/* 3D view-mode switch */}
+            <div className="flex items-center justify-center gap-1.5 mb-3">
+              {([["front", "Front View"], ["back", "Back View"], ["orbit", "3D Orbit"]] as [ViewMode, string][]).map(([v, label]) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`px-3.5 py-[0.45rem] rounded-[0.6rem] text-[0.78rem] font-semibold transition border ${
+                    view === v ? "bg-brand-primary text-white border-brand-primary" : "bg-white text-brand-muted border-brand-border hover:border-brand-gold/50"
+                  }`}
+                >
+                  {v === "orbit" ? "🧊 " : ""}{label}
+                </button>
+              ))}
+            </div>
             <TshirtCanvas
               area={area}
               color={color}
+              view={view}
               layers={areaLayers}
               selectedId={selectedId}
               preview={preview}
