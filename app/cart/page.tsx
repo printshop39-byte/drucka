@@ -196,7 +196,7 @@ export default function CartPage() {
                 <div className="text-center py-10 px-[10px] text-brand-muted">
                   <div className="text-[2.6rem]">🛒</div>
                   <p className="my-[10px_18px]">Your cart is empty.</p>
-                  <Link href="/#products" className="btn-primary">Browse Products →</Link>
+                  <Link href="/catalog" className="btn-primary">Browse Products →</Link>
                 </div>
               ) : (
                 items.map((line) => (

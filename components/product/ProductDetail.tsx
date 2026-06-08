@@ -152,7 +152,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           {/* CTAs */}
           <div className="flex flex-wrap gap-3 mt-9">
             <Link href={customizeHref} className="btn-primary flex-1 min-w-[180px] justify-center">
-              {product.id === "tshirt" ? "Open Editor →" : "Customize →"}
+              Customize →
             </Link>
             <button onClick={addToCart} className="btn-secondary flex-1 min-w-[160px] justify-center">
               {added ? "✓ Added to Cart" : "Add to Cart"}
