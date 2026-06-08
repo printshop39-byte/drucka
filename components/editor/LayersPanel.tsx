@@ -8,12 +8,14 @@ export default function LayersPanel({
   onSelect,
   onToggleVisible,
   onDelete,
+  onDuplicate,
 }: {
   layers: EditorLayer[];
   selectedId: string | null;
   onSelect: (id: string) => void;
   onToggleVisible: (id: string) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
 }) {
   if (layers.length === 0) {
     return (
@@ -31,7 +33,7 @@ export default function LayersPanel({
           <div
             key={l.id}
             className={`flex items-center gap-2 rounded-[0.7rem] border p-2 transition cursor-pointer ${
-              selected ? "border-brand-gold/60 bg-brand-mint" : "border-brand-border bg-white hover:border-brand-gold/40"
+              selected ? "border-brand-gold bg-brand-goldSoft/40 shadow-glow" : "border-brand-border bg-white hover:border-brand-gold/40"
             }`}
             onClick={() => onSelect(l.id)}
           >
@@ -55,6 +57,13 @@ export default function LayersPanel({
               className="w-7 h-7 rounded-[0.4rem] hover:bg-white text-[0.95rem]"
             >
               {l.visible ? "👁️" : "🚫"}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDuplicate(l.id); }}
+              aria-label="Duplicate layer"
+              className="w-7 h-7 rounded-[0.4rem] hover:bg-white text-brand-muted hover:text-brand-primary text-[0.85rem]"
+            >
+              ⧉
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onDelete(l.id); }}

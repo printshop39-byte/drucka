@@ -115,8 +115,8 @@ export default function HomePage() {
       </section>
 
       {/* TRUST / BENEFITS */}
-      <section className="py-16 max-[680px]:py-12">
-        <div className="wrap">
+      <section className="section-padding">
+        <div className="container-page">
           <div className="grid gap-[18px] grid-cols-4 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
             {[
               { i: "🚚", t: "Fast Delivery", s: "2–4 days across India" },
@@ -124,7 +124,7 @@ export default function HomePage() {
               { i: "🔒", t: "Secure Checkout", s: "100% safe payment" },
               { i: "🎁", t: "Gift-Ready Packaging", s: "Made for gifting" },
             ].map((x) => (
-              <div key={x.t} className="bg-white border border-brand-border rounded-premium p-[24px_18px] text-center transition hover:-translate-y-1 hover:border-brand-gold/45">
+              <div key={x.t} className="card-standard card-hover p-[24px_18px] text-center">
                 <div className="text-[1.8rem]">{x.i}</div>
                 <b className="block mt-[10px] text-[0.96rem]">{x.t}</b>
                 <span className="text-[0.82rem] text-brand-muted">{x.s}</span>

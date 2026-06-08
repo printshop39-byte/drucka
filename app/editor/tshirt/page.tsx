@@ -69,6 +69,27 @@ export default function TshirtEditorPage() {
   function toggleVisible(id: string) {
     setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, visible: !l.visible } : l)));
   }
+  function moveLayer(id: string, x: number, y: number) {
+    setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, x, y } : l)));
+  }
+  function duplicateLayer(id: string) {
+    setLayers((ls) => {
+      const src = ls.find((l) => l.id === id);
+      if (!src) return ls;
+      const copyId = newLayerId();
+      setSelectedId(copyId);
+      return [...ls, { ...src, id: copyId, name: `${src.name} copy`, x: Math.min(90, src.x + 6), y: Math.min(90, src.y + 6) }];
+    });
+  }
+  function renameLayer(id: string, name: string) {
+    setLayers((ls) => ls.map((l) => (l.id === id ? { ...l, name } : l)));
+  }
+  // Switch area + sync the canvas view so the design is visible on its print area.
+  function selectArea(a: EditorArea) {
+    setArea(a);
+    if (a === "front") setView("front");
+    else if (a === "back") setView("back");
+  }
 
   // ---- Upload ----
   function handleFile(file: File) {
@@ -102,11 +123,15 @@ export default function TshirtEditorPage() {
       }
     }
 
+    const areasUsed = (["front", "back"] as EditorArea[]).filter((a) => layers.some((l) => l.area === a));
+    const areaSummary = areasUsed
+      .map((a) => `${a === "front" ? "Front" : "Back"} (${layerCounts[a]})`)
+      .join(", ");
     const metaParts = [
       `Color ${COLORS.find((c) => c.id === color)?.label ?? color}`,
       firstImage ? "Custom image" : null,
       textLayers.length ? `Text: ${textLayers.map((t) => `“${t.text}”`).join(", ")}` : null,
-      "Area: Front",
+      areaSummary ? `Areas: ${areaSummary}` : "Area: Front",
     ].filter(Boolean);
 
     addItem(
@@ -137,16 +162,23 @@ export default function TshirtEditorPage() {
       <EditorShell
         topBar={
           <div className="flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Link href="/catalog" className="btn-ghost !px-[0.9rem] !py-[0.45rem] !text-[0.82rem]">← Back to Catalog</Link>
-              <button className="btn-ghost !px-[0.9rem] !py-[0.45rem] !text-[0.82rem]" title="Coming soon" disabled>Apply to all areas</button>
-              <button className="btn-ghost !px-[0.9rem] !py-[0.45rem] !text-[0.82rem]" title="Coming soon" disabled>Save as template</button>
+            <div className="flex items-center gap-3 flex-wrap min-w-0">
+              <Link href="/catalog" className="btn-ghost !px-[0.9rem] !py-[0.45rem] !text-[0.82rem]">← Catalog</Link>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-[1.3rem]">👕</span>
+                <div className="min-w-0">
+                  <div className="font-bold text-[0.9rem] text-brand-ink leading-tight truncate">{TSHIRT.name}</div>
+                  <div className="text-[0.74rem] text-brand-muted leading-tight">
+                    {COLORS.find((c) => c.id === color)?.label} · Size {size} · ₹{TSHIRT.price}
+                  </div>
+                </div>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <button onClick={() => setPreview((p) => !p)} className="btn-ghost !px-[1rem] !py-[0.5rem] !text-[0.82rem]">
                 {preview ? "✎ Edit" : "👁 Preview"}
               </button>
-              <button onClick={addToCart} disabled={adding} className="btn-primary !px-[1.2rem] !py-[0.55rem] !text-[0.86rem] disabled:opacity-100" style={adding ? { background: "linear-gradient(135deg,#08483B,#06382F)" } : undefined}>
+              <button onClick={addToCart} disabled={adding} className="btn-primary !px-[1.2rem] !py-[0.55rem] !text-[0.86rem] disabled:opacity-100 max-[760px]:hidden" style={adding ? { background: "linear-gradient(135deg,#08483B,#06382F)" } : undefined}>
                 {adding ? "✓ Added" : "Add to Cart →"}
               </button>
             </div>
@@ -177,11 +209,12 @@ export default function TshirtEditorPage() {
               selectedId={selectedId}
               preview={preview}
               onSelectLayer={setSelectedId}
+              onMoveLayer={moveLayer}
             />
             <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
           </>
         }
-        areaTabs={<ProductAreaTabs active={area} onSelect={setArea} layerCounts={layerCounts} />}
+        areaTabs={<ProductAreaTabs active={area} onSelect={selectArea} layerCounts={layerCounts} />}
         rightPanel={
           preview ? (
             <div className="text-center py-6">
@@ -210,18 +243,46 @@ export default function TshirtEditorPage() {
               {/* Selected layer controls */}
               {selected && (
                 <div className="border-t border-brand-border pt-4">
-                  <div className="eyebrow mb-3">Selected Layer</div>
+                  <div className="eyebrow mb-3">Selected Layer Controls</div>
+
+                  {/* rename */}
+                  <label className="block text-[0.78rem] font-bold mb-1">Layer name</label>
+                  <input className="input-premium !py-[0.5rem] !text-[0.84rem] mb-3" value={selected.name} maxLength={30} onChange={(e) => renameLayer(selected.id, e.target.value)} />
+
                   {selected.type === "text" && (
                     <div className="mb-3">
                       <label className="block text-[0.78rem] font-bold mb-1">Text</label>
-                      <input className="input-premium !py-[0.5rem] !text-[0.84rem]" value={selected.text ?? ""} maxLength={40} onChange={(e) => updateSelected({ text: e.target.value, name: e.target.value.slice(0, 20) || "Text" })} />
+                      <input className="input-premium !py-[0.5rem] !text-[0.84rem]" value={selected.text ?? ""} maxLength={40} onChange={(e) => updateSelected({ text: e.target.value })} />
                     </div>
                   )}
-                  <SliderRow label="Design Size" value={selected.scale} min={40} max={200} suffix="%" onChange={(v) => updateSelected({ scale: v })} />
+
+                  {/* quick scale + rotate buttons */}
+                  <div className="grid grid-cols-2 gap-2 mb-3">
+                    <div className="flex items-center justify-between bg-brand-mint border border-brand-border rounded-[0.6rem] px-2 py-1">
+                      <span className="text-[0.72rem] font-bold text-brand-muted">Scale</span>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => updateSelected({ scale: Math.max(40, selected.scale - 10) })} className="w-6 h-6 rounded bg-white border border-brand-border text-brand-primary font-bold">−</button>
+                        <button onClick={() => updateSelected({ scale: Math.min(200, selected.scale + 10) })} className="w-6 h-6 rounded bg-white border border-brand-border text-brand-primary font-bold">+</button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between bg-brand-mint border border-brand-border rounded-[0.6rem] px-2 py-1">
+                      <span className="text-[0.72rem] font-bold text-brand-muted">Rotate</span>
+                      <div className="flex items-center gap-1">
+                        <button onClick={() => updateSelected({ rotation: selected.rotation - 15 })} className="w-6 h-6 rounded bg-white border border-brand-border text-brand-primary font-bold" aria-label="Rotate left">↺</button>
+                        <button onClick={() => updateSelected({ rotation: selected.rotation + 15 })} className="w-6 h-6 rounded bg-white border border-brand-border text-brand-primary font-bold" aria-label="Rotate right">↻</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <SliderRow label="Scale" value={selected.scale} min={40} max={200} suffix="%" onChange={(v) => updateSelected({ scale: v })} />
                   <SliderRow label="Rotation" value={selected.rotation} min={-180} max={180} suffix="°" onChange={(v) => updateSelected({ rotation: v })} />
-                  <SliderRow label="Horizontal" value={selected.x} min={0} max={100} suffix="%" onChange={(v) => updateSelected({ x: v })} />
-                  <SliderRow label="Vertical" value={selected.y} min={0} max={100} suffix="%" onChange={(v) => updateSelected({ y: v })} />
-                  <button onClick={() => deleteLayer(selected.id)} className="btn-ghost w-full mt-2 !text-[0.84rem] !text-red-600 hover:!border-red-300">🗑 Delete Selected Layer</button>
+                  <SliderRow label="X position" value={selected.x} min={0} max={100} suffix="%" onChange={(v) => updateSelected({ x: v })} />
+                  <SliderRow label="Y position" value={selected.y} min={0} max={100} suffix="%" onChange={(v) => updateSelected({ y: v })} />
+
+                  <div className="grid grid-cols-2 gap-2 mt-2">
+                    <button onClick={() => duplicateLayer(selected.id)} className="btn-ghost !text-[0.82rem]">⧉ Duplicate</button>
+                    <button onClick={() => deleteLayer(selected.id)} className="btn-ghost !text-[0.82rem] !text-red-600 hover:!border-red-300">🗑 Delete</button>
+                  </div>
                 </div>
               )}
 
@@ -234,12 +295,24 @@ export default function TshirtEditorPage() {
                   onSelect={setSelectedId}
                   onToggleVisible={toggleVisible}
                   onDelete={deleteLayer}
+                  onDuplicate={duplicateLayer}
                 />
               </div>
             </div>
           )
         }
       />
+
+      {/* Mobile sticky Add to Cart */}
+      <div className="hidden max-[760px]:flex fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur border-t border-brand-border p-3 items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="font-bold text-[0.86rem] truncate">{TSHIRT.name}</div>
+          <div className="text-[0.74rem] text-brand-muted">Size {size} · ₹{TSHIRT.price}</div>
+        </div>
+        <button onClick={addToCart} disabled={adding} className="btn-primary !px-[1.3rem] !py-[0.6rem] !text-[0.86rem] shrink-0">
+          {adding ? "✓ Added" : "Add to Cart →"}
+        </button>
+      </div>
 
       <Footer />
     </>
