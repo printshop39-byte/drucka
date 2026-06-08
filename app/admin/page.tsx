@@ -20,8 +20,8 @@ import Footer from "@/components/Footer";
 import { getProducts } from "@/data/products";
 import { getDesigns } from "@/data/designs";
 import { getOrders, updateOrderStatus, type OrderRow, type OrderItem, type OrderStatus as DbOrderStatus } from "@/lib/orders";
-
-const WHATSAPP_NUMBER = "917083811355";
+import AdminSidebar, { type AdminSection } from "@/components/AdminSidebar";
+import StatCard, { type Stat } from "@/components/StatCard";
 
 // The exact status options shown in the admin status control.
 const STATUS_OPTIONS: OrderStatus[] = [
@@ -142,6 +142,7 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const [savingRef, setSavingRef] = useState<string | null>(null);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [selectedRef, setSelectedRef] = useState<string | null>(null); // open modal
+  const [section, setSection] = useState<AdminSection>("dashboard"); // sidebar tab
 
   async function loadOrders() {
     setRefreshing(true);
@@ -190,69 +191,23 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
   const selectedOrder = selectedRef ? rawOrders.find((o) => o.order_ref === selectedRef) ?? null : null;
 
-  const stats = [
-    { icon: "🛍️", label: "Products", value: String(productCount), href: "/#products", note: "in catalogue" },
-    { icon: "🎨", label: "Design Templates", value: String(designCount), href: "/customize", note: "available" },
-    { icon: "📦", label: "Orders", value: String(orders.length), href: "#orders", note: usingReal ? "live" : "sample data" },
-    { icon: "💰", label: "Revenue", value: revenue !== null ? `₹${revenue.toLocaleString("en-IN")}` : "₹1,696", note: usingReal ? "live total" : "sample total" },
+  // Count orders by status (from the display list, which mirrors live or sample).
+  const countBy = (s: OrderStatus) => orders.filter((o) => o.status === s).length;
+  const processing = countBy("In Design Review") + countBy("Printing");
+  const revenueText = revenue !== null ? `₹${revenue.toLocaleString("en-IN")}` : "₹1,696";
+
+  const stats: Stat[] = [
+    { icon: "📥", label: "Orders Received", value: String(orders.length), note: usingReal ? "live" : "sample" },
+    { icon: "🛠️", label: "Processing", value: String(processing), note: "in design / printing" },
+    { icon: "📦", label: "Ready to Ship", value: String(countBy("Ready to Ship")), note: "packed" },
+    { icon: "✅", label: "Delivered", value: String(countBy("Delivered")), note: "completed" },
+    { icon: "💰", label: "Total Revenue", value: revenueText, note: usingReal ? "live total" : "sample", accent: true },
+    { icon: "📈", label: "Monthly Sales", value: revenueText, note: "this period (placeholder)" },
   ];
 
-  return (
-    <>
-      <Navbar />
-
-      {/* HEADER */}
-      <div className="pt-[34px] pb-[10px]">
-        <div className="wrap flex items-start justify-between gap-4">
-          <div>
-            <span className="eyebrow">Admin</span>
-            <h1 className="text-[clamp(1.9rem,4vw,2.6rem)] mt-3">DRUCKA Admin</h1>
-            <p className="text-brand-muted mt-[6px]">Manage products, designs, and orders.</p>
-          </div>
-          <button onClick={onLogout} className="btn-ghost !px-[1rem] !py-[0.5rem] !text-[0.84rem] shrink-0 mt-1">↩ Logout</button>
-        </div>
-      </div>
-
-      <div className="wrap pb-16">
-        {/* QUICK ACTIONS */}
-        <div className="flex flex-wrap gap-3 py-[18px]">
-          {/* TODO: wire Add Product / Add Design to real admin forms once a DB exists. */}
-          <Link href="/#products" className="btn-primary">➕ Add Product</Link>
-          <Link href="/customize" className="btn-secondary">🎨 Add Design</Link>
-          <a href="#orders" className="btn-ghost">📦 View Orders</a>
-          <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-ghost"
-          >
-            💬 Open WhatsApp
-          </a>
-        </div>
-
-        {/* STAT CARDS */}
-        <div className="grid gap-[18px] grid-cols-4 max-[900px]:grid-cols-2 max-[560px]:grid-cols-1 mt-2">
-          {stats.map((s) => {
-            const card = (
-              <div className="bg-white border border-brand-border rounded-premium shadow-soft p-[22px] transition hover:-translate-y-1 hover:shadow-premium hover:border-brand-gold/45 h-full">
-                <div className="flex items-center justify-between">
-                  <span className="w-11 h-11 rounded-full bg-brand-mint flex items-center justify-center text-[1.4rem]">{s.icon}</span>
-                  <span className="font-heading text-[1.9rem] font-extrabold text-brand-primary leading-none">{s.value}</span>
-                </div>
-                <div className="mt-[14px] font-bold text-[0.98rem]">{s.label}</div>
-                <div className="text-brand-muted text-[0.8rem]">{s.note}</div>
-              </div>
-            );
-            return s.href ? (
-              <Link key={s.label} href={s.href} className="block">{card}</Link>
-            ) : (
-              <div key={s.label}>{card}</div>
-            );
-          })}
-        </div>
-
-        {/* RECENT ORDERS */}
-        <div id="orders" className="bg-white border border-brand-border rounded-premium shadow-soft p-6 mt-7">
+  // ---- Reusable orders card (used in Dashboard + Orders sections) ----
+  const ordersCard = (
+        <div id="orders" className="bg-white border border-brand-border rounded-premium shadow-soft p-6">
           <div className="flex items-center justify-between gap-3 flex-wrap mb-1">
             <h3 className="font-heading text-[1.3rem]">Recent Orders</h3>
             <div className="flex items-center gap-2">
@@ -368,15 +323,91 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             ))}
           </div>
         </div>
+  );
 
-        {/* FOUNDATION NOTE */}
-        <div className="bg-gradient-to-br from-white to-brand-mint border border-brand-border rounded-premium shadow-soft p-6 mt-7">
-          <h3 className="font-heading text-[1.2rem] mb-1">This is a foundation</h3>
-          <p className="text-brand-muted text-[0.88rem]">
-            Front-end only for now. Coming next: real authentication, a database
-            (Supabase/Firebase), live order tracking by reference, and product /
-            design management forms.
-          </p>
+  const SECTION_TITLES: Record<AdminSection, { title: string; subtitle: string }> = {
+    dashboard: { title: "Dashboard Overview", subtitle: "Your store at a glance." },
+    orders: { title: "Orders", subtitle: "Manage and fulfil customer orders." },
+    products: { title: "Products", subtitle: "Your product catalogue." },
+    designs: { title: "Design Templates", subtitle: "Ready-made designs customers can use." },
+    payouts: { title: "Payouts", subtitle: "Earnings and settlement summary." },
+    settings: { title: "Store Settings", subtitle: "Brand, contact and store configuration." },
+  };
+
+  return (
+    <>
+      <Navbar />
+      <div className="wrap py-6">
+        <div className="grid md:[grid-template-columns:240px_1fr] gap-6 items-start">
+          {/* SIDEBAR */}
+          <AdminSidebar active={section} onSelect={setSection} onLogout={onLogout} />
+
+          {/* MAIN */}
+          <main className="min-w-0">
+            <div className="flex items-end justify-between gap-4 flex-wrap mb-6">
+              <div>
+                <span className="eyebrow">Admin</span>
+                <h1 className="text-[clamp(1.6rem,3.5vw,2.2rem)] mt-2">{SECTION_TITLES[section].title}</h1>
+                <p className="text-brand-muted text-[0.92rem] mt-1">{SECTION_TITLES[section].subtitle}</p>
+              </div>
+              {section === "orders" && usingReal && (
+                <button onClick={loadOrders} disabled={refreshing} className="btn-ghost !px-[1rem] !py-[0.5rem] !text-[0.84rem] disabled:opacity-60">
+                  {refreshing ? "Refreshing…" : "↻ Refresh Orders"}
+                </button>
+              )}
+            </div>
+
+            {/* DASHBOARD */}
+            {section === "dashboard" && (
+              <>
+                <div className="grid gap-[16px] grid-cols-3 max-[900px]:grid-cols-2 max-[520px]:grid-cols-1">
+                  {stats.map((s) => <StatCard key={s.label} stat={s} />)}
+                </div>
+                <div className="mt-7">{ordersCard}</div>
+              </>
+            )}
+
+            {/* ORDERS */}
+            {section === "orders" && ordersCard}
+
+            {/* PRODUCTS placeholder */}
+            {section === "products" && (
+              <PlaceholderSection
+                icon="🛍️"
+                title="Product catalogue management"
+                lines={[`${productCount} products are live on the store, defined in data/products.ts.`, "Add/edit/remove products and prices here once a products table is added to Supabase."]}
+                cta={{ label: "View live products ↗", href: "/#products" }}
+              />
+            )}
+
+            {/* DESIGNS placeholder */}
+            {section === "designs" && (
+              <PlaceholderSection
+                icon="🎨"
+                title="Design templates"
+                lines={[`${designCount} design templates available, defined in data/designs.ts.`, "Manage ready-made design templates customers can apply, once a designs table is added."]}
+                cta={{ label: "Open Design Studio ↗", href: "/customize" }}
+              />
+            )}
+
+            {/* PAYOUTS placeholder */}
+            {section === "payouts" && (
+              <PlaceholderSection
+                icon="💰"
+                title="Payout summary"
+                lines={[`Current period revenue: ${revenueText} (from live/sample orders).`, "Settlement schedule, bank details and payout history will appear here once payments are integrated."]}
+              />
+            )}
+
+            {/* SETTINGS placeholder */}
+            {section === "settings" && (
+              <PlaceholderSection
+                icon="⚙️"
+                title="Store settings"
+                lines={["Brand name: DRUCKA · WhatsApp: +91 70838 11355 · Email: hello@drucka.in", "Editable store profile, shipping rules, coupon management and admin accounts will live here."]}
+              />
+            )}
+          </main>
         </div>
       </div>
 
@@ -391,6 +422,29 @@ function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
       <Footer />
     </>
+  );
+}
+
+// Simple front-end placeholder card for not-yet-built admin sections.
+function PlaceholderSection({
+  icon, title, lines, cta,
+}: {
+  icon: string; title: string; lines: string[]; cta?: { label: string; href: string };
+}) {
+  return (
+    <div className="bg-gradient-to-br from-white to-brand-mint border border-brand-border rounded-premium shadow-soft p-8 text-center">
+      <div className="w-14 h-14 mx-auto rounded-full bg-white border border-brand-border flex items-center justify-center text-[1.8rem]">{icon}</div>
+      <h3 className="font-heading text-[1.3rem] mt-4">{title}</h3>
+      {lines.map((l, i) => (
+        <p key={i} className="text-brand-muted text-[0.9rem] mt-2 max-w-[520px] mx-auto">{l}</p>
+      ))}
+      <span className="badge badge-gold mt-4 inline-flex">Coming soon</span>
+      {cta && (
+        <div className="mt-5">
+          <Link href={cta.href} className="btn-ghost">{cta.label}</Link>
+        </div>
+      )}
+    </div>
   );
 }
 
