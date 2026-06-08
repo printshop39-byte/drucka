@@ -19,9 +19,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getProducts } from "@/data/products";
 import { getDesigns } from "@/data/designs";
-import { getOrders, type OrderRow, type OrderStatus as DbOrderStatus } from "@/lib/orders";
+import { getOrders, updateOrderStatus, type OrderRow, type OrderStatus as DbOrderStatus } from "@/lib/orders";
 
 const WHATSAPP_NUMBER = "917083811355";
+
+// The exact status options shown in the admin status control.
+const STATUS_OPTIONS: OrderStatus[] = [
+  "New", "In Design Review", "Printing", "Ready to Ship", "Delivered",
+];
 
 // Simple front-end admin password.
 // TODO: replace this gate with real Supabase/Auth (server-verified) before
@@ -126,26 +131,50 @@ function AdminDashboard() {
   const [orders, setOrders] = useState<DisplayOrder[]>(SAMPLE_ORDERS);
   const [usingReal, setUsingReal] = useState(false);
   const [revenue, setRevenue] = useState<number | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [savingRef, setSavingRef] = useState<string | null>(null);
+  const [statusError, setStatusError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let active = true;
-    getOrders(20).then((rows: OrderRow[] | null) => {
-      if (!active || !rows) return; // null => not configured / failed => keep sample
-      const mapped: DisplayOrder[] = rows.map((r) => ({
-        ref: r.order_ref,
-        customer: r.customer_name,
-        product: r.items?.[0]?.name
-          ? `${r.items[0].name}${r.items.length > 1 ? ` +${r.items.length - 1}` : ""}`
-          : "—",
-        total: `₹${Number(r.total).toLocaleString("en-IN")}`,
-        status: (r.status as DbOrderStatus) ?? "New",
-      }));
-      setOrders(mapped);
-      setUsingReal(true);
-      setRevenue(rows.reduce((s, r) => s + Number(r.total || 0), 0));
-    });
-    return () => { active = false; };
-  }, []);
+  async function loadOrders() {
+    setRefreshing(true);
+    const rows = await getOrders(20);
+    setRefreshing(false);
+    if (!rows) return; // null => not configured / failed => keep sample
+    const mapped: DisplayOrder[] = rows.map((r) => ({
+      ref: r.order_ref,
+      customer: r.customer_name,
+      product: r.items?.[0]?.name
+        ? `${r.items[0].name}${r.items.length > 1 ? ` +${r.items.length - 1}` : ""}`
+        : "—",
+      total: `₹${Number(r.total).toLocaleString("en-IN")}`,
+      status: (r.status as DbOrderStatus) ?? "New",
+    }));
+    setOrders(mapped);
+    setUsingReal(true);
+    setRevenue(rows.reduce((s, r) => s + Number(r.total || 0), 0));
+  }
+
+  useEffect(() => { loadOrders(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
+  // Change a live order's status: optimistic UI, then persist; revert on failure.
+  async function changeStatus(ref: string, next: OrderStatus) {
+    if (!usingReal || savingRef) return;
+    const prev = orders;
+    setStatusError(null);
+    setSavingRef(ref);
+    setOrders((list) => list.map((o) => (o.ref === ref ? { ...o, status: next } : o)));
+
+    const res = await updateOrderStatus(ref, next);
+    setSavingRef(null);
+    if (!res.ok) {
+      setOrders(prev); // revert optimistic change
+      setStatusError(
+        res.skipped
+          ? "Supabase not configured — status not saved."
+          : `Couldn't update ${ref}. Please try again.`
+      );
+    }
+  }
 
   const stats = [
     { icon: "🛍️", label: "Products", value: String(productCount), href: "/#products", note: "in catalogue" },
@@ -209,11 +238,27 @@ function AdminDashboard() {
         <div id="orders" className="bg-white border border-brand-border rounded-premium shadow-soft p-6 mt-7">
           <div className="flex items-center justify-between gap-3 flex-wrap mb-1">
             <h3 className="font-heading text-[1.3rem]">Recent Orders</h3>
-            <span className="badge badge-gold">{usingReal ? "Live data" : "Sample data"}</span>
+            <div className="flex items-center gap-2">
+              <span className="badge badge-gold">{usingReal ? "Live data" : "Sample data"}</span>
+              {usingReal && (
+                <button
+                  onClick={loadOrders}
+                  disabled={refreshing}
+                  className="btn-ghost !px-[0.9rem] !py-[0.45rem] !text-[0.82rem] disabled:opacity-60"
+                >
+                  {refreshing ? "Refreshing…" : "↻ Refresh Orders"}
+                </button>
+              )}
+            </div>
           </div>
           <p className="text-brand-muted text-[0.86rem] mb-[18px]">
             {usingReal ? "Orders from Supabase, newest first." : "Placeholder orders — connect Supabase to see live orders."}
           </p>
+          {statusError && (
+            <p className="text-red-600 text-[0.82rem] mb-[14px] bg-red-50 border border-red-200 rounded-[0.6rem] p-[8px_10px]">
+              ⚠️ {statusError}
+            </p>
+          )}
 
           {/* Desktop table */}
           <div className="overflow-x-auto max-[680px]:hidden">
@@ -234,7 +279,23 @@ function AdminDashboard() {
                     <td className="py-[14px] pr-3 text-[0.9rem]">{o.customer}</td>
                     <td className="py-[14px] pr-3 text-brand-muted text-[0.9rem]">{o.product}</td>
                     <td className="py-[14px] pr-3 font-bold text-brand-primary text-[0.9rem]">{o.total}</td>
-                    <td className="py-[14px]"><span className={`badge ${STATUS_STYLES[o.status]}`}>{o.status}</span></td>
+                    <td className="py-[14px]">
+                      {usingReal ? (
+                        <select
+                          value={o.status}
+                          disabled={savingRef === o.ref}
+                          onChange={(e) => changeStatus(o.ref, e.target.value as OrderStatus)}
+                          className="input-premium !py-[0.4rem] !px-[0.7rem] !text-[0.82rem] !rounded-[0.6rem] max-w-[170px] disabled:opacity-60 cursor-pointer"
+                          aria-label={`Status for ${o.ref}`}
+                        >
+                          {STATUS_OPTIONS.map((st) => (
+                            <option key={st} value={st}>{st}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className={`badge ${STATUS_STYLES[o.status]}`}>{o.status}</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -245,13 +306,26 @@ function AdminDashboard() {
           <div className="hidden max-[680px]:flex flex-col gap-3">
             {orders.map((o) => (
               <div key={o.ref} className="border border-brand-border rounded-[0.9rem] p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2">
                   <span className="font-bold text-brand-ink text-[0.9rem]">{o.ref}</span>
-                  <span className={`badge ${STATUS_STYLES[o.status]}`}>{o.status}</span>
+                  {!usingReal && <span className={`badge ${STATUS_STYLES[o.status]}`}>{o.status}</span>}
                 </div>
                 <div className="text-[0.88rem] mt-2">{o.customer}</div>
                 <div className="text-brand-muted text-[0.82rem]">{o.product}</div>
                 <div className="font-bold text-brand-primary text-[0.9rem] mt-1">{o.total}</div>
+                {usingReal && (
+                  <select
+                    value={o.status}
+                    disabled={savingRef === o.ref}
+                    onChange={(e) => changeStatus(o.ref, e.target.value as OrderStatus)}
+                    className="input-premium !py-[0.5rem] !px-[0.7rem] !text-[0.84rem] !rounded-[0.6rem] mt-3 disabled:opacity-60 cursor-pointer"
+                    aria-label={`Status for ${o.ref}`}
+                  >
+                    {STATUS_OPTIONS.map((st) => (
+                      <option key={st} value={st}>{st}</option>
+                    ))}
+                  </select>
+                )}
               </div>
             ))}
           </div>

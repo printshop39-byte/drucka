@@ -134,3 +134,35 @@ export async function getOrderByRef(
     return { configured: true, found: false };
   }
 }
+
+/**
+ * Update an order's status by its reference. Never throws.
+ * - Supabase not configured -> { ok:false, skipped:true }
+ * - DB error                -> { ok:false, error }
+ * - Success                 -> { ok:true }
+ */
+export async function updateOrderStatus(
+  orderRef: string,
+  status: OrderStatus
+): Promise<{ ok: boolean; error?: string; skipped?: boolean }> {
+  const supabase = getSupabase();
+  if (!supabase) {
+    console.warn("[orders] Supabase not configured, status not updated");
+    return { ok: false, skipped: true };
+  }
+
+  try {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status })
+      .eq("order_ref", orderRef.trim());
+    if (error) {
+      console.error("[orders] updateOrderStatus failed:", error.message);
+      return { ok: false, error: error.message };
+    }
+    return { ok: true };
+  } catch (e) {
+    console.error("[orders] updateOrderStatus threw:", e);
+    return { ok: false, error: String(e) };
+  }
+}
