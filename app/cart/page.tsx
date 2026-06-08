@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import CartItem from "@/components/CartItem";
 import { useCart } from "@/components/CartContext";
 import { designImageLine } from "@/lib/uploadDesign";
+import { saveOrder, type NewOrder } from "@/lib/orders";
 
 const FREE_SHIP_THRESHOLD = 999;
 const SHIP_FEE = 49;
@@ -40,6 +41,8 @@ export default function CartPage() {
   const [orderRef, setOrderRef] = useState<string | null>(null);
   const [delivery, setDelivery] = useState<Delivery>(EMPTY_DELIVERY);
   const [formError, setFormError] = useState<string | null>(null);
+  const [saveWarning, setSaveWarning] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const setField = (k: keyof Delivery) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setDelivery((d) => ({ ...d, [k]: e.target.value }));
@@ -59,8 +62,8 @@ export default function CartPage() {
     }
   }
 
-  function placeOrder() {
-    if (items.length === 0) return;
+  async function placeOrder() {
+    if (items.length === 0 || submitting) return;
 
     // --- validation (email optional) ---
     const required: [keyof Delivery, string][] = [
@@ -73,6 +76,8 @@ export default function CartPage() {
       return;
     }
     setFormError(null);
+    setSaveWarning(false);
+    setSubmitting(true);
 
     // --- generate order reference ---
     const ref = makeOrderRef();
@@ -110,11 +115,48 @@ export default function CartPage() {
     const message = encodeURIComponent(lines.join("\n"));
     const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
 
+    // --- save to Supabase BEFORE opening WhatsApp (non-blocking) ---
+    // If Supabase isn't configured or the save fails, we still open WhatsApp;
+    // we just flag a soft warning so the user knows it wasn't recorded online.
+    const newOrder: NewOrder = {
+      order_ref: ref,
+      customer_name: delivery.name,
+      customer_phone: delivery.phone,
+      customer_email: delivery.email.trim() || null,
+      customer_address: delivery.address,
+      customer_city: delivery.city,
+      customer_pincode: delivery.pincode,
+      items: items.map((it) => ({
+        id: it.id,
+        name: it.name,
+        size: it.size,
+        qty: it.qty,
+        price: it.price,
+        meta: it.meta,
+        designImageUrl: it.designImageUrl ?? null,
+        rotation: it.rotation,
+        designSize: it.designSize,
+        position: it.position,
+        text: it.text,
+      })),
+      subtotal: sub,
+      shipping,
+      discount,
+      total,
+      payment_method: pay.toUpperCase(),
+      whatsapp_sent: true,
+    };
+
+    const result = await saveOrder(newOrder);
+    // result.skipped => Supabase not configured (silent). result.ok=false (not skipped) => real failure.
+    if (!result.ok && !result.skipped) setSaveWarning(true);
+
     // open WhatsApp (new tab); cart is intentionally NOT cleared yet
     window.open(url, "_blank");
 
     setOrderRef(ref);
     setPlaced(true);
+    setSubmitting(false);
   }
 
   return (
@@ -217,12 +259,17 @@ export default function CartPage() {
                 <span className="font-heading text-[1.8rem] font-extrabold text-brand-primary">{fmt(total)}</span>
               </div>
 
-              <button onClick={placeOrder} className="btn-primary w-full mt-[18px]" style={placed ? { background: "linear-gradient(135deg,#08483B,#06382F)" } : undefined}>
-                {placed ? "✓ Order sent" : "Place Order via WhatsApp →"}
+              <button onClick={placeOrder} disabled={submitting} className="btn-primary w-full mt-[18px] disabled:opacity-70" style={placed ? { background: "linear-gradient(135deg,#08483B,#06382F)" } : undefined}>
+                {submitting ? "Placing order…" : placed ? "✓ Order sent" : "Place Order via WhatsApp →"}
               </button>
 
               {formError && (
                 <p className="text-red-600 text-[0.82rem] mt-[10px]">{formError}</p>
+              )}
+              {saveWarning && (
+                <p className="text-brand-dark text-[0.8rem] mt-[10px] bg-brand-goldSoft border border-brand-gold/40 rounded-[0.6rem] p-[8px_10px]">
+                  ⚠️ We couldn&apos;t save your order online, but WhatsApp still opened — please send the message so we receive your order.
+                </p>
               )}
               {placed && orderRef && (
                 <div className="mt-[12px] bg-brand-mint border border-brand-border rounded-[0.9rem] p-[12px_14px]">

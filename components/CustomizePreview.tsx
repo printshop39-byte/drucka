@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import MockImage from "./MockImage";
 import type { Product } from "@/data/products";
 
@@ -25,9 +26,36 @@ export default function CustomizePreview({
   product: Product;
   state: PreviewState;
 }) {
+  // Client-side mounted guard. The server and the FIRST client render show only
+  // the stable base (product mockup + hint). The dynamic overlays — which depend
+  // on uploaded image / text / rotation / position that only exist after the
+  // user interacts in the browser — render after mount, avoiding the hydration
+  // mismatch ("Did not expect server HTML to contain a <div> in <div>").
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const [top, left] = POS_MAP[state.pos] ?? POS_MAP.c;
   const overlaySize = Math.round((140 * state.imgScale) / 110);
   const hasContent = state.uploadedImage || state.text.trim();
+
+  // Stable preview: rendered identically on server and first client paint.
+  if (!mounted) {
+    return (
+      <div className="relative bg-brand-mint rounded-2xl h-[420px] max-[680px]:h-[320px] flex items-center justify-center overflow-hidden">
+        <MockImage
+          key={product.id}
+          src={product.image}
+          alt={`${product.name} mockup`}
+          emoji={product.fallbackEmoji}
+          className="max-w-[88%] max-h-[88%] object-contain drop-shadow-[0_12px_24px_rgba(6,56,47,0.18)]"
+          emojiClassName="text-[11rem] max-[680px]:text-[8rem] leading-none drop-shadow-[0_12px_24px_rgba(6,56,47,0.18)]"
+        />
+        <div className="absolute bottom-[14px] left-1/2 -translate-x-1/2 text-[0.8rem] text-brand-muted bg-white/80 px-3 py-[5px] rounded-full">
+          Upload a design or add text to see it here
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative bg-brand-mint rounded-2xl h-[420px] max-[680px]:h-[320px] flex items-center justify-center overflow-hidden">

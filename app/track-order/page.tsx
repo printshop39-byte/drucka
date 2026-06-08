@@ -3,17 +3,35 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getOrderByRef, type OrderRow } from "@/lib/orders";
 
 // DRUCKA WhatsApp business number (digits only, country code, no +).
 const WHATSAPP_NUMBER = "917083811355";
 
+type LookupState =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "found"; order: OrderRow }
+  | { kind: "notfound" }        // Supabase configured but no matching order
+  | { kind: "manual" };          // Supabase not configured — manual tracking
+
 export default function TrackOrderPage() {
   const [ref, setRef] = useState("");
   const [checked, setChecked] = useState(false);
+  const [lookup, setLookup] = useState<LookupState>({ kind: "idle" });
 
-  function checkStatus() {
+  async function checkStatus() {
     if (!ref.trim()) return;
     setChecked(true);
+    setLookup({ kind: "loading" });
+    const res = await getOrderByRef(ref);
+    if (!res.configured) {
+      setLookup({ kind: "manual" });   // no DB -> manual tracking message
+    } else if (res.found && res.order) {
+      setLookup({ kind: "found", order: res.order });
+    } else {
+      setLookup({ kind: "notfound" });
+    }
   }
 
   const waUrl =
@@ -58,27 +76,64 @@ export default function TrackOrderPage() {
             </div>
           </div>
 
-          {/* STATUS CARD (placeholder) */}
+          {/* STATUS CARD */}
           {checked && (
             <div className="bg-white border border-brand-border rounded-premium shadow-soft p-6 mb-6">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="w-11 h-11 rounded-full bg-brand-mint flex items-center justify-center text-[1.4rem]">
-                  📦
-                </span>
-                <div>
-                  <div className="font-bold text-[1.05rem]">
-                    {ref.trim() || "Your order"}
+              {lookup.kind === "loading" && (
+                <p className="text-brand-muted text-[0.9rem]">Looking up your order…</p>
+              )}
+
+              {lookup.kind === "found" && (
+                <>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="w-11 h-11 rounded-full bg-brand-mint flex items-center justify-center text-[1.4rem]">📦</span>
+                    <div>
+                      <div className="font-bold text-[1.05rem]">{lookup.order.order_ref}</div>
+                      <span className="badge badge-green mt-1">Status: {lookup.order.status}</span>
+                    </div>
                   </div>
-                  <span className="badge badge-gold mt-1">Status: Processing</span>
-                </div>
-              </div>
-              <p className="text-brand-muted text-[0.88rem]">
-                Tracking is currently manual. Please contact us on WhatsApp with your
-                order reference and we&apos;ll share the latest status of your order.
-              </p>
-              <a href={waUrl} className="btn-primary w-full mt-4" target="_blank" rel="noopener noreferrer">
-                💬 Contact us on WhatsApp
-              </a>
+                  <p className="text-brand-muted text-[0.88rem]">
+                    Placed for {lookup.order.customer_name} · Total ₹{Number(lookup.order.total).toLocaleString("en-IN")}.
+                  </p>
+                  <a href={waUrl} className="btn-ghost w-full mt-4" target="_blank" rel="noopener noreferrer">
+                    💬 Questions? Contact us on WhatsApp
+                  </a>
+                </>
+              )}
+
+              {lookup.kind === "notfound" && (
+                <>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="w-11 h-11 rounded-full bg-brand-mint flex items-center justify-center text-[1.4rem]">🔍</span>
+                    <div className="font-bold text-[1.05rem]">Order not found</div>
+                  </div>
+                  <p className="text-brand-muted text-[0.88rem]">
+                    Order not found. Please contact us on WhatsApp.
+                  </p>
+                  <a href={waUrl} className="btn-primary w-full mt-4" target="_blank" rel="noopener noreferrer">
+                    💬 Contact us on WhatsApp
+                  </a>
+                </>
+              )}
+
+              {lookup.kind === "manual" && (
+                <>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="w-11 h-11 rounded-full bg-brand-mint flex items-center justify-center text-[1.4rem]">📦</span>
+                    <div>
+                      <div className="font-bold text-[1.05rem]">{ref.trim() || "Your order"}</div>
+                      <span className="badge badge-gold mt-1">Status: Processing</span>
+                    </div>
+                  </div>
+                  <p className="text-brand-muted text-[0.88rem]">
+                    Tracking is currently manual. Please contact us on WhatsApp with your
+                    order reference and we&apos;ll share the latest status of your order.
+                  </p>
+                  <a href={waUrl} className="btn-primary w-full mt-4" target="_blank" rel="noopener noreferrer">
+                    💬 Contact us on WhatsApp
+                  </a>
+                </>
+              )}
             </div>
           )}
 

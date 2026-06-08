@@ -19,6 +19,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { getProducts } from "@/data/products";
 import { getDesigns } from "@/data/designs";
+import { getOrders, type OrderRow, type OrderStatus as DbOrderStatus } from "@/lib/orders";
 
 const WHATSAPP_NUMBER = "917083811355";
 
@@ -112,16 +113,45 @@ export default function AdminPage() {
 // ---------------------------------------------------------------------------
 // The actual dashboard (unchanged), now rendered only after unlock.
 // ---------------------------------------------------------------------------
+// Unified display row (works for both sample and Supabase data).
+interface DisplayOrder {
+  ref: string; customer: string; product: string; total: string; status: OrderStatus;
+}
+
 function AdminDashboard() {
   const productCount = getProducts().length;
   const designCount = getDesigns().length;
 
-  // TODO: orders + revenue come from the DB later; static for now.
+  // Try Supabase; fall back to SAMPLE_ORDERS if env missing or fetch fails.
+  const [orders, setOrders] = useState<DisplayOrder[]>(SAMPLE_ORDERS);
+  const [usingReal, setUsingReal] = useState(false);
+  const [revenue, setRevenue] = useState<number | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getOrders(20).then((rows: OrderRow[] | null) => {
+      if (!active || !rows) return; // null => not configured / failed => keep sample
+      const mapped: DisplayOrder[] = rows.map((r) => ({
+        ref: r.order_ref,
+        customer: r.customer_name,
+        product: r.items?.[0]?.name
+          ? `${r.items[0].name}${r.items.length > 1 ? ` +${r.items.length - 1}` : ""}`
+          : "—",
+        total: `₹${Number(r.total).toLocaleString("en-IN")}`,
+        status: (r.status as DbOrderStatus) ?? "New",
+      }));
+      setOrders(mapped);
+      setUsingReal(true);
+      setRevenue(rows.reduce((s, r) => s + Number(r.total || 0), 0));
+    });
+    return () => { active = false; };
+  }, []);
+
   const stats = [
     { icon: "🛍️", label: "Products", value: String(productCount), href: "/#products", note: "in catalogue" },
     { icon: "🎨", label: "Design Templates", value: String(designCount), href: "/customize", note: "available" },
-    { icon: "📦", label: "Orders", value: String(SAMPLE_ORDERS.length), href: "#orders", note: "sample data" },
-    { icon: "💰", label: "Revenue", value: "₹1,696", note: "sample total" },
+    { icon: "📦", label: "Orders", value: String(orders.length), href: "#orders", note: usingReal ? "live" : "sample data" },
+    { icon: "💰", label: "Revenue", value: revenue !== null ? `₹${revenue.toLocaleString("en-IN")}` : "₹1,696", note: usingReal ? "live total" : "sample total" },
   ];
 
   return (
@@ -179,10 +209,10 @@ function AdminDashboard() {
         <div id="orders" className="bg-white border border-brand-border rounded-premium shadow-soft p-6 mt-7">
           <div className="flex items-center justify-between gap-3 flex-wrap mb-1">
             <h3 className="font-heading text-[1.3rem]">Recent Orders</h3>
-            <span className="badge badge-gold">Sample data</span>
+            <span className="badge badge-gold">{usingReal ? "Live data" : "Sample data"}</span>
           </div>
           <p className="text-brand-muted text-[0.86rem] mb-[18px]">
-            Placeholder orders. {/* TODO: fetch real orders by reference from the backend. */}
+            {usingReal ? "Orders from Supabase, newest first." : "Placeholder orders — connect Supabase to see live orders."}
           </p>
 
           {/* Desktop table */}
@@ -198,7 +228,7 @@ function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {SAMPLE_ORDERS.map((o) => (
+                {orders.map((o) => (
                   <tr key={o.ref} className="border-b border-brand-border last:border-b-0">
                     <td className="py-[14px] pr-3 font-bold text-brand-ink text-[0.9rem]">{o.ref}</td>
                     <td className="py-[14px] pr-3 text-[0.9rem]">{o.customer}</td>
@@ -213,7 +243,7 @@ function AdminDashboard() {
 
           {/* Mobile cards */}
           <div className="hidden max-[680px]:flex flex-col gap-3">
-            {SAMPLE_ORDERS.map((o) => (
+            {orders.map((o) => (
               <div key={o.ref} className="border border-brand-border rounded-[0.9rem] p-4">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-brand-ink text-[0.9rem]">{o.ref}</span>
