@@ -8,6 +8,9 @@ import CustomizePreview, { PreviewState, POS_MAP } from "@/components/CustomizeP
 import { getCustomizableProducts, getProductById } from "@/data/products";
 import { useCart } from "@/components/CartContext";
 import { uploadDesignImage } from "@/lib/uploadDesign";
+import CustomerSteps from "@/components/CustomerSteps";
+
+const WHATSAPP_HELP = "https://wa.me/917083811355?text=" + encodeURIComponent("Hi DRUCKA, I need help choosing a product to customize.");
 
 const AI_IDEAS = [
   "<b>Birthday:</b> a photo collage on a mug with the name in gold script.",
@@ -107,6 +110,9 @@ function StudioInner() {
           <span className="eyebrow">Design Studio</span>
           <h1 className="text-[clamp(1.9rem,4vw,2.6rem)] mt-3">Create Your Custom Print</h1>
           <p className="text-brand-muted mt-[6px]">Pick a product, upload your photo or add text, then position it live. Your price updates instantly.</p>
+          <div className="mt-4">
+            <CustomerSteps steps={["Choose Product", "Upload Design", "Adjust Preview", "Add to Cart"]} current={2} />
+          </div>
         </div>
       </div>
 
@@ -191,6 +197,7 @@ function StudioInner() {
                 {fileName && <div className="mt-[10px] text-[0.82rem] text-brand-primary font-bold">✓ {fileName}</div>}
               </div>
               <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
+              <p className="text-[0.74rem] text-brand-muted mt-2">PNG/JPG recommended. Your design is saved securely for this order.</p>
             </div>
 
             {/* TEXT */}
@@ -199,27 +206,24 @@ function StudioInner() {
               <input id="textInput" className="input-premium" type="text" maxLength={40} placeholder="e.g. Happy Birthday Aai ❤️" value={state.text} onChange={(e) => setState((s) => ({ ...s, text: e.target.value }))} />
             </div>
 
-            {/* SIZE */}
-            <div className="mb-5">
-              <label className="block text-[0.82rem] font-bold mb-2">Design Size</label>
-              <div className="flex items-center gap-3">
+            {/* SIZE & ROTATION (grouped) */}
+            <div className="mb-5 bg-brand-mint/50 border border-brand-border rounded-[0.9rem] p-4">
+              <div className="eyebrow mb-3">Size &amp; Rotation</div>
+
+              <label className="block text-[0.8rem] font-bold mb-2">Design Size</label>
+              <div className="flex items-center gap-3 mb-4">
                 <input type="range" min={60} max={220} value={state.imgScale} onChange={(e) => setState((s) => ({ ...s, imgScale: +e.target.value }))} className="flex-1 accent-brand-primary" aria-label="Design size" />
                 <span className="min-w-[42px] text-right text-[0.82rem] font-bold text-brand-muted tabular-nums">{state.imgScale}%</span>
               </div>
-            </div>
 
-            {/* ROTATION */}
-            <div className="mb-5">
-              <label className="block text-[0.82rem] font-bold mb-2">Design Rotation</label>
+              <label className="block text-[0.8rem] font-bold mb-2">Design Rotation</label>
               <div className="flex items-center gap-3">
                 <input type="range" min={-180} max={180} step={1} value={state.rotation} onChange={(e) => setState((s) => ({ ...s, rotation: +e.target.value }))} className="flex-1 accent-brand-primary" aria-label="Design rotation" />
                 <span className="min-w-[42px] text-right text-[0.82rem] font-bold text-brand-muted tabular-nums">{state.rotation}°</span>
               </div>
-            </div>
+              <p className="text-[0.72rem] text-brand-muted mt-1 mb-4">Use rotation if your design looks tilted.</p>
 
-            {/* TEXT SIZE */}
-            <div className="mb-5">
-              <label className="block text-[0.82rem] font-bold mb-2">Text Size</label>
+              <label className="block text-[0.8rem] font-bold mb-2">Text Size</label>
               <div className="flex items-center gap-3">
                 <input type="range" min={12} max={44} value={state.textSize} onChange={(e) => setState((s) => ({ ...s, textSize: +e.target.value }))} className="flex-1 accent-brand-primary" aria-label="Text size" />
                 <span className="min-w-[42px] text-right text-[0.82rem] font-bold text-brand-muted tabular-nums">{state.textSize}px</span>
@@ -264,12 +268,17 @@ function StudioInner() {
             <button onClick={addToCart} disabled={adding} className="btn-primary w-full disabled:opacity-100" style={adding ? { background: "linear-gradient(135deg,#08483B,#06382F)" } : undefined}>
               {adding ? "✓ Added to Cart" : "Add to Cart →"}
             </button>
+            <p className="text-[0.74rem] text-brand-muted text-center mt-2">You can review before sending on WhatsApp.</p>
 
             <div className="grid grid-cols-2 gap-[10px] mt-4">
               {[["🔒", "Secure Payment"], ["🚚", "Fast Delivery"], ["⭐", "Premium Quality"], ["🎁", "Gift-Ready"]].map(([e, t]) => (
                 <div key={t} className="flex items-center gap-2 bg-white border border-brand-border rounded-[0.8rem] p-[10px_12px] text-[0.8rem] font-semibold text-brand-ink"><span className="text-[1.05rem]">{e}</span> {t}</div>
               ))}
             </div>
+
+            <a href={WHATSAPP_HELP} target="_blank" rel="noopener noreferrer" className="block text-center text-[0.82rem] text-brand-primary font-semibold hover:underline mt-4">
+              💬 Need help choosing? Chat with us
+            </a>
           </div>
         </div>
       </div>

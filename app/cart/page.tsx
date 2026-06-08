@@ -8,6 +8,7 @@ import CartItem from "@/components/CartItem";
 import { useCart } from "@/components/CartContext";
 import { designImageLine } from "@/lib/uploadDesign";
 import { saveOrder, type NewOrder } from "@/lib/orders";
+import CustomerSteps from "@/components/CustomerSteps";
 
 const FREE_SHIP_THRESHOLD = 999;
 const SHIP_FEE = 49;
@@ -168,6 +169,9 @@ export default function CartPage() {
           <span className="eyebrow">Checkout</span>
           <h1 className="text-[clamp(1.9rem,4vw,2.6rem)] mt-3">Your Cart</h1>
           <p className="text-brand-muted mt-[6px]">Review your custom prints and complete your order securely.</p>
+          <div className="mt-4">
+            <CustomerSteps steps={["Cart", "Delivery", "WhatsApp Order", "Track"]} current={1} />
+          </div>
         </div>
       </div>
 
@@ -210,7 +214,7 @@ export default function CartPage() {
             {/* DELIVERY */}
             <div className="bg-white border border-brand-border rounded-premium shadow-soft p-6 mb-6">
               <h3 className="font-heading text-[1.3rem] mb-1">Delivery Details</h3>
-              <p className="text-brand-muted text-[0.86rem] mb-[18px]">Where should we ship your gift?</p>
+              <p className="text-brand-muted text-[0.86rem] mb-[18px]">Where should we ship your gift? We will use these details for shipping.</p>
               <form className="grid grid-cols-2 max-[680px]:grid-cols-1 gap-4" onSubmit={(e) => e.preventDefault()}>
                 <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Full Name *</label><input className="input-premium" placeholder="Sagar Patil" value={delivery.name} onChange={setField("name")} /></div>
                 <div className="flex flex-col"><label className="text-[0.82rem] font-bold mb-[7px]">Phone *</label><input className="input-premium" type="tel" placeholder="+91 70838 11355" value={delivery.phone} onChange={setField("phone")} /></div>
@@ -247,6 +251,13 @@ export default function CartPage() {
               <div className="flex items-center justify-between text-[0.92rem] text-brand-muted mb-[10px]"><span>Shipping</span><span className={freeShip && sub > 0 ? "text-brand-primary font-bold" : "text-brand-ink font-semibold"}>{freeShip && sub > 0 ? "FREE" : fmt(shipping)}</span></div>
               <div className="flex items-center justify-between text-[0.92rem] text-brand-muted mb-[10px]"><span>Discount</span><span className="text-[#1a8a5c] font-bold">−{fmt(discount)}</span></div>
 
+              {(discount > 0 || (freeShip && sub > 0)) && (
+                <div className="flex flex-col gap-1 mb-2">
+                  {discount > 0 && <span className="text-[#1a8a5c] text-[0.82rem] font-bold">🎉 You save {fmt(discount)}</span>}
+                  {freeShip && sub > 0 && <span className="text-brand-primary text-[0.82rem] font-bold">🚚 Free shipping unlocked</span>}
+                </div>
+              )}
+
               <div className="flex gap-2 my-4">
                 <input className="input-premium flex-1" placeholder="Coupon code (try DRUCKA10)" value={coupon} onChange={(e) => setCoupon(e.target.value)} />
                 <button className="btn-ghost" onClick={applyCoupon}>{couponApplied ? "Applied ✓" : "Apply"}</button>
@@ -262,6 +273,7 @@ export default function CartPage() {
               <button onClick={placeOrder} disabled={submitting} className="btn-primary w-full mt-[18px] disabled:opacity-70" style={placed ? { background: "linear-gradient(135deg,#08483B,#06382F)" } : undefined}>
                 {submitting ? "Placing order…" : placed ? "✓ Order sent" : "Place Order via WhatsApp →"}
               </button>
+              <p className="text-[0.74rem] text-brand-muted text-center mt-2">Your design image link and order reference will be included.</p>
 
               {formError && (
                 <p className="text-red-600 text-[0.82rem] mt-[10px]">{formError}</p>

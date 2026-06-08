@@ -1,58 +1,61 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ProductGrid from "@/components/ProductGrid";
-import MockImage from "@/components/MockImage";
-import { getProducts } from "@/data/products";
+import HeroMockupCollage from "@/components/HeroMockupCollage";
+import HowItWorksAccordion from "@/components/HowItWorksAccordion";
+import ProductCategoryStrip from "@/components/ProductCategoryStrip";
+import TrustStrip from "@/components/TrustStrip";
+import FaqAccordion from "@/components/FaqAccordion";
 
 export default function HomePage() {
-  const products = getProducts();
-  const heroTiles = products.slice(0, 3);
-
   return (
     <>
       <Navbar active="home" />
 
       {/* HERO */}
-      <section className="relative overflow-hidden py-[64px_50px]">
+      <section className="relative overflow-hidden py-[64px_56px] max-[680px]:py-[40px_36px]">
         <div className="absolute -left-20 -top-16 w-[340px] h-[340px] rounded-full bg-brand-gold/[0.18] blur-[70px]" />
         <div className="absolute -right-24 -bottom-32 w-[440px] h-[440px] rounded-full bg-brand-primary/[0.15] blur-[80px]" />
-        <div className="wrap relative grid items-center gap-12 [grid-template-columns:1.05fr_1fr] max-[900px]:[grid-template-columns:1fr]">
+        <div className="wrap relative grid items-center gap-12 [grid-template-columns:1.05fr_1fr] max-[900px]:[grid-template-columns:1fr] max-[900px]:gap-10">
           <div>
             <span className="eyebrow">Premium Custom Printing Studio</span>
             <h1 className="text-[clamp(2.6rem,6vw,4.4rem)] leading-[1.04] mt-5 text-brand-ink">
               Print it. Gift it.<br /><span className="text-brand-primary">Feel it.</span>
             </h1>
             <p className="text-brand-muted text-[1.12rem] max-w-[480px] mt-[18px]">
-              Upload your photo or design and turn it into premium T-shirts, mugs, frames, cushions and personalized gifts — printed beautifully, delivered fast.
+              Upload your photo or design and turn it into premium T-shirts, mugs, frames,
+              cushions, canvas and personalized keychains — printed beautifully, delivered fast.
             </p>
             <div className="flex gap-[14px] flex-wrap mt-[30px]">
               <Link href="/customize" className="btn-primary">Start Customizing →</Link>
               <Link href="/#products" className="btn-secondary">Browse Products</Link>
             </div>
-            <div className="flex gap-[22px] flex-wrap mt-[26px]">
-              <div className="text-[0.86rem] text-brand-muted"><b className="block font-heading text-[1.5rem] text-brand-ink">50k+</b>Happy gifts delivered</div>
-              <div className="text-[0.86rem] text-brand-muted"><b className="block font-heading text-[1.5rem] text-brand-ink">4.9★</b>Average rating</div>
-              <div className="text-[0.86rem] text-brand-muted"><b className="block font-heading text-[1.5rem] text-brand-ink">2–4 days</b>Fast delivery</div>
+            <div className="flex gap-[26px] flex-wrap mt-[28px]">
+              <div className="text-[0.84rem] text-brand-muted"><b className="block font-heading text-[1.4rem] text-brand-ink">2–4 days</b>Fast delivery</div>
+              <div className="text-[0.84rem] text-brand-muted"><b className="block font-heading text-[1.4rem] text-brand-ink">Premium</b>Print quality</div>
+              <div className="text-[0.84rem] text-brand-muted"><b className="block font-heading text-[1.4rem] text-brand-ink">Secure</b>Checkout</div>
             </div>
           </div>
-          <div className="bg-white/[0.86] border border-brand-border rounded-premium shadow-soft backdrop-blur-[14px] p-[18px]">
-            <div className="bg-brand-mint rounded-2xl p-[18px]">
-              <div className="grid grid-cols-3 gap-3">
-                {heroTiles.map((p) => (
-                  <div key={p.id} className="bg-white border border-brand-border rounded-[14px] p-[14px_10px] text-center transition hover:-translate-y-[5px] hover:shadow-premium hover:border-brand-gold/45">
-                    <div className="h-[90px] rounded-[10px] flex items-center justify-center overflow-hidden mb-[10px] bg-gradient-to-br from-brand-mint to-white">
-                      <MockImage src={p.image} alt={p.name} emoji={p.fallbackEmoji} className="w-full h-full object-contain p-2" emojiClassName="text-[2.4rem]" />
-                    </div>
-                    <p className="text-[0.82rem] font-bold text-brand-ink">{p.name}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-[14px] bg-white border border-brand-border rounded-[12px] p-[12px_14px] flex items-center justify-between">
-                <span className="text-[0.85rem] font-bold text-brand-ink">Live preview</span>
-                <span className="badge badge-green">Ready to customize</span>
-              </div>
-            </div>
+          <HeroMockupCollage />
+        </div>
+      </section>
+
+      {/* TRUST STRIP */}
+      <section className="pb-4">
+        <div className="wrap"><TrustStrip /></div>
+      </section>
+
+      {/* PRODUCT FAVORITES */}
+      <section className="py-16 max-[680px]:py-12 bg-brand-mint" id="products">
+        <div className="wrap">
+          <div className="text-center max-w-[640px] mx-auto mb-8">
+            <span className="eyebrow">Product Favorites</span>
+            <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] my-[14px_10px] leading-[1.15]">Customize a gift they&apos;ll love</h2>
+            <p className="text-brand-muted text-[1.02rem]">Pick a product and make it yours with your photo, text or artwork.</p>
+          </div>
+          <ProductCategoryStrip />
+          <div className="text-center mt-10">
+            <Link href="/customize" className="btn-primary">Start Customizing →</Link>
           </div>
         </div>
       </section>
@@ -60,59 +63,12 @@ export default function HomePage() {
       {/* HOW IT WORKS */}
       <section className="py-16 max-[680px]:py-12" id="how">
         <div className="wrap">
-          <div className="text-center max-w-[640px] mx-auto mb-11">
+          <div className="text-center max-w-[640px] mx-auto mb-10">
             <span className="eyebrow">Simple Process</span>
             <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] my-[14px_10px] leading-[1.15]">How It Works</h2>
-            <p className="text-brand-muted text-[1.02rem]">Three easy steps from your idea to a gift in hand.</p>
+            <p className="text-brand-muted text-[1.02rem]">From your idea to a gift in hand, in four easy steps.</p>
           </div>
-          <div className="grid gap-[22px] grid-cols-3 max-[680px]:grid-cols-1">
-            {[
-              { n: "1", i: "⬆️", t: "Upload", d: "Add your photo, text or artwork and choose a product to print it on." },
-              { n: "2", i: "🖨️", t: "We Print", d: "Our studio prints your design in premium quality with crisp, lasting colors." },
-              { n: "3", i: "📦", t: "Delivered", d: "Securely packed and shipped to your door — gift-ready in 2–4 days." },
-            ].map((s) => (
-              <div key={s.n} className="bg-white border border-brand-border rounded-premium p-[30px_24px] text-center shadow-soft transition hover:-translate-y-[6px] hover:shadow-premium">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-brand-mint text-brand-primary flex items-center justify-center font-heading font-extrabold text-[1.3rem]">{s.n}</div>
-                <div className="text-[2rem] mb-2">{s.i}</div>
-                <h3 className="text-[1.2rem] mb-2">{s.t}</h3>
-                <p className="text-brand-muted text-[0.92rem]">{s.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* PRODUCTS */}
-      <section className="py-16 max-[680px]:py-12 bg-brand-mint" id="products">
-        <div className="wrap">
-          <div className="text-center max-w-[640px] mx-auto mb-11">
-            <span className="eyebrow">Bestsellers</span>
-            <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] my-[14px_10px] leading-[1.15]">Popular Products</h2>
-            <p className="text-brand-muted text-[1.02rem]">Customize any product with your own photo, text or design.</p>
-          </div>
-          <ProductGrid products={products} />
-        </div>
-      </section>
-
-      {/* UPLOAD CTA */}
-      <section className="py-16 max-[680px]:py-12">
-        <div className="wrap">
-          <div className="bg-gradient-to-br from-white to-brand-mint border border-brand-border rounded-[1.75rem] p-11 max-[680px]:p-7 grid grid-cols-2 max-[900px]:grid-cols-1 gap-10 items-center shadow-soft">
-            <div>
-              <span className="eyebrow">Start Designing</span>
-              <h2 className="text-[clamp(1.7rem,3.5vw,2.4rem)] leading-[1.15] mt-3">Got a design in mind? Upload it now.</h2>
-              <p className="text-brand-muted mt-3">Drag and drop your photo or artwork — we&apos;ll show you a live preview on any product. PNG or JPG, up to 20MB.</p>
-              <div className="mt-[22px] flex gap-3 flex-wrap">
-                <Link href="/customize" className="btn-primary">Start Customizing →</Link>
-                <Link href="/customize" className="btn-secondary">See Examples</Link>
-              </div>
-            </div>
-            <Link href="/customize" className="border-[1.5px] border-dashed border-brand-primary/35 bg-white rounded-[1.5rem] p-[42px_24px] text-center block transition hover:border-brand-gold hover:shadow-premium hover:-translate-y-1">
-              <div className="text-[2.6rem]">⬆️</div>
-              <p className="text-brand-muted mt-2 text-[0.92rem]"><span className="text-brand-primary font-bold">Click to upload</span> or drag your design here</p>
-              <p className="text-[0.8rem] text-brand-muted">PNG, JPG up to 20MB</p>
-            </Link>
-          </div>
+          <HowItWorksAccordion />
         </div>
       </section>
 
@@ -134,7 +90,7 @@ export default function HomePage() {
       {/* TESTIMONIALS */}
       <section className="py-16 max-[680px]:py-12 bg-brand-mint">
         <div className="wrap">
-          <div className="text-center max-w-[640px] mx-auto mb-11">
+          <div className="text-center max-w-[640px] mx-auto mb-10">
             <span className="eyebrow">Loved by Customers</span>
             <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] my-[14px_10px] leading-[1.15]">What People Say</h2>
             <p className="text-brand-muted text-[1.02rem]">Real gifts, real smiles — here&apos;s what our customers tell us.</p>
@@ -158,15 +114,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TRUST */}
+      {/* TRUST / BENEFITS */}
       <section className="py-16 max-[680px]:py-12">
         <div className="wrap">
-          <div className="grid gap-[18px] grid-cols-4 max-[900px]:grid-cols-2 max-[680px]:grid-cols-1">
+          <div className="grid gap-[18px] grid-cols-4 max-[900px]:grid-cols-2 max-[600px]:grid-cols-1">
             {[
-              { i: "🔒", t: "Secure Payment", s: "100% safe checkout" },
               { i: "🚚", t: "Fast Delivery", s: "2–4 days across India" },
               { i: "⭐", t: "Premium Print Quality", s: "Crisp, lasting colors" },
-              { i: "🎁", t: "Made for Gifting", s: "Gift-ready packaging" },
+              { i: "🔒", t: "Secure Checkout", s: "100% safe payment" },
+              { i: "🎁", t: "Gift-Ready Packaging", s: "Made for gifting" },
             ].map((x) => (
               <div key={x.t} className="bg-white border border-brand-border rounded-premium p-[24px_18px] text-center transition hover:-translate-y-1 hover:border-brand-gold/45">
                 <div className="text-[1.8rem]">{x.i}</div>
@@ -175,6 +131,17 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-16 max-[680px]:py-12 bg-brand-mint">
+        <div className="wrap">
+          <div className="text-center max-w-[640px] mx-auto mb-8">
+            <span className="eyebrow">Questions</span>
+            <h2 className="text-[clamp(1.8rem,4vw,2.6rem)] my-[14px_10px] leading-[1.15]">Frequently Asked</h2>
+          </div>
+          <FaqAccordion />
         </div>
       </section>
 

@@ -73,7 +73,7 @@ export default function TrackOrderPage() {
           <span className="eyebrow">Order Status</span>
           <h1 className="text-[clamp(1.9rem,4vw,2.6rem)] mt-3">Track Your Order</h1>
           <p className="text-brand-muted mt-[6px]">
-            Enter your order reference (e.g. DRK-20260607-AB12) to check its status.
+            Enter your DRK order reference from WhatsApp (e.g. DRK-20260607-AB12) to check its status.
           </p>
         </div>
       </div>
@@ -266,7 +266,8 @@ function TrackingView({ order, waUrl }: { order: OrderRow; waUrl: string }) {
             </div>
           ))}
         </div>
-        <a href={waUrl} className="btn-ghost w-full mt-4 !text-[0.86rem]" target="_blank" rel="noopener noreferrer">💬 Questions? Contact us on WhatsApp</a>
+        <p className="text-brand-muted text-[0.82rem] mt-4 text-center">Need an update? Contact us on WhatsApp with this order reference.</p>
+        <a href={waUrl} className="btn-ghost w-full mt-2 !text-[0.86rem]" target="_blank" rel="noopener noreferrer">💬 Contact us on WhatsApp</a>
       </div>
     </div>
   );
