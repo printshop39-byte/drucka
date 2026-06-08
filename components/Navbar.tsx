@@ -16,7 +16,7 @@ export default function Navbar({ active }: { active?: string }) {
         </Link>
 
         <nav className="hidden md:flex items-center gap-[26px]" aria-label="Primary navigation">
-          <Link href="/#products" className={navCls(active === "products")}>Products</Link>
+          <Link href="/catalog" className={navCls(active === "products")}>Catalog</Link>
           <Link href="/customize" className={navCls(active === "customize")}>Design</Link>
           <Link href="/cart" className={navCls(active === "cart")}>Cart</Link>
           <Link href="/#how" className={navCls(active === "about")}>About</Link>
@@ -43,7 +43,7 @@ export default function Navbar({ active }: { active?: string }) {
 
       {open && (
         <div className="md:hidden flex flex-col gap-1 px-[22px] pb-[18px] pt-2 border-b border-brand-border bg-white/95">
-          <Link href="/#products" className={mobCls} onClick={() => setOpen(false)}>Products</Link>
+          <Link href="/catalog" className={mobCls} onClick={() => setOpen(false)}>Catalog</Link>
           <Link href="/customize" className={mobCls} onClick={() => setOpen(false)}>Design</Link>
           <Link href="/cart" className={mobCls} onClick={() => setOpen(false)}>Cart ({count})</Link>
           <Link href="/#how" className={mobCls} onClick={() => setOpen(false)}>About</Link>
