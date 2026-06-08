@@ -63,7 +63,10 @@ export async function saveOrder(
   order: NewOrder
 ): Promise<{ ok: boolean; skipped: boolean; error?: string }> {
   const supabase = getSupabase();
-  if (!supabase) return { ok: false, skipped: true };
+  if (!supabase) {
+    console.warn("[orders] Supabase not configured, order not saved");
+    return { ok: false, skipped: true };
+  }
 
   try {
     const { error } = await supabase.from("orders").insert(order);
