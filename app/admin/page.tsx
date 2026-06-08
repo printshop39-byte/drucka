@@ -80,10 +80,16 @@ export default function AdminPage() {
     }
   }
 
+  function logout() {
+    sessionStorage.removeItem(UNLOCK_KEY);
+    setUnlocked(false);
+    setPw("");
+  }
+
   // avoid a flash of the login card before sessionStorage is read
   if (!ready) return null;
 
-  if (unlocked) return <AdminDashboard />;
+  if (unlocked) return <AdminDashboard onLogout={logout} />;
 
   return (
     <>
@@ -123,7 +129,7 @@ interface DisplayOrder {
   ref: string; customer: string; product: string; total: string; status: OrderStatus;
 }
 
-function AdminDashboard() {
+function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   const productCount = getProducts().length;
   const designCount = getDesigns().length;
 
@@ -197,10 +203,13 @@ function AdminDashboard() {
 
       {/* HEADER */}
       <div className="pt-[34px] pb-[10px]">
-        <div className="wrap">
-          <span className="eyebrow">Admin</span>
-          <h1 className="text-[clamp(1.9rem,4vw,2.6rem)] mt-3">DRUCKA Admin</h1>
-          <p className="text-brand-muted mt-[6px]">Manage products, designs, and orders.</p>
+        <div className="wrap flex items-start justify-between gap-4">
+          <div>
+            <span className="eyebrow">Admin</span>
+            <h1 className="text-[clamp(1.9rem,4vw,2.6rem)] mt-3">DRUCKA Admin</h1>
+            <p className="text-brand-muted mt-[6px]">Manage products, designs, and orders.</p>
+          </div>
+          <button onClick={onLogout} className="btn-ghost !px-[1rem] !py-[0.5rem] !text-[0.84rem] shrink-0 mt-1">↩ Logout</button>
         </div>
       </div>
 
@@ -456,25 +465,28 @@ function OrderDetailsModal({
         </div>
 
         <div className="p-5 space-y-5">
-          {/* Status */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-[0.82rem] font-bold">Status:</span>
-            <select
-              value={order.status}
-              disabled={saving}
-              onChange={(e) => onChangeStatus(e.target.value as OrderStatus)}
-              className="input-premium !py-[0.45rem] !px-[0.7rem] !text-[0.84rem] !rounded-[0.6rem] max-w-[200px] disabled:opacity-60 cursor-pointer"
-              aria-label="Update status"
-            >
-              {STATUS_OPTIONS.map((st) => <option key={st} value={st}>{st}</option>)}
-            </select>
-            {saving && <span className="text-brand-muted text-[0.78rem]">Saving…</span>}
+          {/* SECTION: Status */}
+          <div className="border border-brand-border rounded-[0.9rem] p-4">
+            <div className="eyebrow mb-3">Status</div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className={`badge ${STATUS_STYLES[order.status]}`}>{order.status}</span>
+              <select
+                value={order.status}
+                disabled={saving}
+                onChange={(e) => onChangeStatus(e.target.value as OrderStatus)}
+                className="input-premium !py-[0.45rem] !px-[0.7rem] !text-[0.84rem] !rounded-[0.6rem] max-w-[200px] disabled:opacity-60 cursor-pointer"
+                aria-label="Update status"
+              >
+                {STATUS_OPTIONS.map((st) => <option key={st} value={st}>{st}</option>)}
+              </select>
+              {saving && <span className="text-brand-muted text-[0.78rem]">Saving…</span>}
+            </div>
           </div>
 
-          {/* Customer */}
-          <div className="bg-brand-mint border border-brand-border rounded-[0.9rem] p-4">
-            <div className="text-[0.82rem] font-bold mb-2">Customer</div>
-            <div className="text-[0.9rem] font-semibold">{order.customer_name}</div>
+          {/* SECTION: Customer */}
+          <div className="border border-brand-border rounded-[0.9rem] p-4">
+            <div className="eyebrow mb-3">Customer</div>
+            <div className="text-[0.95rem] font-semibold">{order.customer_name}</div>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <a href={`https://wa.me/${phoneDigits}`} target="_blank" rel="noopener noreferrer" className="text-[0.86rem] text-brand-primary font-semibold hover:underline">💬 {order.customer_phone}</a>
               <CopyButton value={phoneDigits} label="Phone" />
@@ -485,11 +497,14 @@ function OrderDetailsModal({
             <div className="text-brand-muted text-[0.84rem] mt-2">
               {order.customer_address}, {order.customer_city} - {order.customer_pincode}
             </div>
+            {phoneDigits && (
+              <a href={`https://wa.me/${phoneDigits}`} target="_blank" rel="noopener noreferrer" className="btn-primary w-full mt-3 !text-[0.86rem]">💬 Open WhatsApp Chat</a>
+            )}
           </div>
 
-          {/* Items */}
+          {/* SECTION: Items & Design */}
           <div>
-            <div className="text-[0.82rem] font-bold mb-2">Items ({items.length})</div>
+            <div className="eyebrow mb-3">Items &amp; Design ({items.length})</div>
             <div className="space-y-3">
               {items.map((it, i) => (
                 <div key={i} className="border border-brand-border rounded-[0.9rem] p-4">
@@ -526,8 +541,10 @@ function OrderDetailsModal({
             </div>
           </div>
 
-          {/* Totals */}
+          {/* SECTION: Payment & Totals */}
           <div className="bg-brand-mint border border-brand-border rounded-[0.9rem] p-4">
+            <div className="eyebrow mb-3">Payment &amp; Totals</div>
+            <div className="flex items-center justify-between text-[0.86rem] text-brand-muted mb-1"><span>Payment method</span><span className="text-brand-ink font-semibold">{order.payment_method}</span></div>
             <div className="flex items-center justify-between text-[0.86rem] text-brand-muted mb-1"><span>Subtotal</span><span className="text-brand-ink font-semibold">₹{Number(order.subtotal).toLocaleString("en-IN")}</span></div>
             <div className="flex items-center justify-between text-[0.86rem] text-brand-muted mb-1"><span>Shipping</span><span className="text-brand-ink font-semibold">{Number(order.shipping) === 0 ? "FREE" : `₹${Number(order.shipping).toLocaleString("en-IN")}`}</span></div>
             <div className="flex items-center justify-between text-[0.86rem] text-brand-muted mb-1"><span>Discount</span><span className="text-[#1a8a5c] font-bold">−₹{Number(order.discount).toLocaleString("en-IN")}</span></div>
