@@ -71,6 +71,14 @@ create policy "anon select orders"
   on public.orders for select
   to anon
   using (true);
+
+-- Allow updating order status from the admin dashboard (front-end phase).
+-- REQUIRED for the admin status dropdown to work.
+create policy "anon update orders"
+  on public.orders for update
+  to anon
+  using (true)
+  with check (true);
 ```
 
 > ⚠️ Security note: with public select, anyone with the anon key could read all
