@@ -7,15 +7,29 @@ import FilterChips from "@/components/ui/FilterChips";
 import EmptyState from "@/components/ui/EmptyState";
 import { getProducts, type ProductCategory } from "@/data/products";
 
-type FilterKey = "all" | ProductCategory;
+// Simple DRUCKA category filters. Each chip maps to a set of existing product
+// categories (no change to data/products.ts). "all" shows everything.
+type FilterKey = "all" | "tshirts" | "mugs" | "frames" | "gifts" | "prints" | "corporate";
+
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "apparel", label: "T-Shirts" },
-  { key: "drinkware", label: "Mugs" },
-  { key: "wall-art", label: "Frames & Canvas" },
-  { key: "home", label: "Cushions" },
-  { key: "accessories", label: "Keychains" },
+  { key: "tshirts", label: "T-Shirts" },
+  { key: "mugs", label: "Mugs" },
+  { key: "frames", label: "Frames" },
+  { key: "gifts", label: "Gifts" },
+  { key: "prints", label: "Photo Prints" },
+  { key: "corporate", label: "Corporate" },
 ];
+
+// Which product categories each filter chip includes.
+const FILTER_CATEGORIES: Record<Exclude<FilterKey, "all">, ProductCategory[]> = {
+  tshirts: ["apparel"],
+  mugs: ["drinkware"],
+  frames: ["wall-art"],
+  gifts: ["accessories", "home"],
+  prints: ["wall-art"],
+  corporate: ["apparel", "drinkware"],
+};
 
 const categoryLabel: Record<string, string> = {
   apparel: "Apparel", drinkware: "Drinkware", "wall-art": "Wall Art", home: "Home", accessories: "Accessories",
@@ -33,7 +47,7 @@ export default function CatalogGrid() {
 
   const q = query.trim().toLowerCase();
   const products = allProducts
-    .filter((p) => active === "all" || p.category === active)
+    .filter((p) => active === "all" || FILTER_CATEGORIES[active].includes(p.category))
     .filter((p) => !q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
 
   return (
