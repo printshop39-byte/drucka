@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { qikinkApi, setAdminKey, getAdminKey } from "./lib/qikinkClient";
 import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore";
 import { payWithRazorpay } from "./lib/paymentClient";
+import DesignerProductPage from "./designer/ProductPage";
+import ProductDesigner from "./designer/Designer";
+import { productById as designerProductById } from "./designer/data";
 
 /* ═══════════════════════════════════════════════════════════════
    CONFIG — EDIT THESE VALUES FOR YOUR BUSINESS
@@ -34,7 +37,7 @@ const PRODUCTS = [
   { id: "canvas",   name: "Canvas",           category: "frames",    price: 999, delivery: "2–4 days", img: "/images/canvas.jpg",   tag: "Premium",    blurb: "Stretched premium canvas" },
   { id: "keychain", name: "Acrylic Keychain", category: "keychains", price: 149, delivery: "2–4 days", img: "/images/keychain.jpg", tag: "Under ₹200", blurb: "Pocket-size photo keepsake" },
   { id: "kids-tshirt", name: "Kids T-Shirt",          category: "kids", price: 449, delivery: "2–4 days", img: "/mockups/kids-tshirt-front-white.png", fallbackImg: "/images/tshirt.jpg", tag: "Kids 2–12Y", blurb: "Soft cotton tee for little ones" },
-  { id: "kids-hoodie", name: "Kids Hoodie",           category: "kids", price: 799, delivery: "2–4 days", img: "/mockups/kids-hoodie-front-white.png", fallbackImg: "/images/tshirt.jpg", tag: "Kids 2–12Y", blurb: "Cozy printed hoodie for kids" },
+  { id: "kids-hoodie", name: "Kids Hoodie",           category: "kids", price: 799, delivery: "2–4 days", img: "/images/categories/kids-jacket.jpg", fallbackImg: "/images/tshirt.jpg", tag: "Kids 2–12Y", blurb: "Cozy printed hoodie for kids" },
   { id: "kids-mug",    name: "Kids Mug / School Gift", category: "kids", price: 279, delivery: "2–4 days", img: "/images/mug.jpg", tag: "School Gift", blurb: "Break-resistant mug for school" },
 ];
 
@@ -276,7 +279,7 @@ const QIKINK_STATUSES = ["Draft", "Sent to Qikink", "In Production", "Shipped", 
    Confirm product IDs + SKU patterns in your Qikink dashboard:
    https://creator.qikink.com/dashboard → Products */
 const QIKINK_PRODUCT_MAP = [
-  { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Male Standard Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "yellow"], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest", "Sleeve"], active: true },
+  { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Male Standard Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "yellow"], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
   { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Unisex Oversized Tee",       qikinkProductId: "MOSTS-240", skuPattern: "MOsTs-{color}-{size}", printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
   { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Male Polo MP25",             qikinkProductId: "MP25",      skuPattern: "MP25-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
   { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Kids Round Neck T-Shirt",    qikinkProductId: "KRNHS-160", skuPattern: "KRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"],                    active: true },
@@ -2311,7 +2314,7 @@ function FloatCard({ img, title, price, className, style }) {
   );
 }
 
-function Hero({ onStartCustomizing }) {
+function Hero() {
   return (
     <section id="home" className="soft-gradient scroll-mt-16 overflow-hidden pb-16 pt-28 sm:pt-32">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8">
@@ -2328,12 +2331,8 @@ function Hero({ onStartCustomizing }) {
             canvas and personalized keychains — printed beautifully, delivered fast.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <button onClick={onStartCustomizing}
-              className="rounded-full bg-gradient-to-r from-plum to-plum-soft px-7 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-plum/40">
-              Start Customizing
-            </button>
             <a href="#products"
-              className="rounded-full border border-ink/10 bg-white px-7 py-3.5 font-semibold text-ink shadow-md transition hover:-translate-y-0.5 hover:border-plum/30 hover:text-plum">
+              className="rounded-full bg-gradient-to-r from-plum to-plum-soft px-7 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-plum/40">
               Browse Products
             </a>
           </div>
@@ -2348,17 +2347,61 @@ function Hero({ onStartCustomizing }) {
             ))}
           </ul>
         </div>
-        <div className="relative mx-auto h-[460px] w-full max-w-md [perspective:1200px] sm:h-[540px]">
-          <FloatCard img="/images/tshirt.jpg" title="Premium T-Shirt" price="₹599"
-            className="animate-float-slow absolute left-1/2 top-1/2 w-[62%] -translate-x-1/2 -translate-y-1/2"
-            style={{ transform: "translate(-50%,-50%) rotateY(-10deg) rotateX(5deg)" }} />
-          <FloatCard img="/images/mug.jpg" title="Photo Mug" price="₹299"
-            className="animate-float absolute -right-1 top-2 w-[42%]"
-            style={{ transform: "rotateY(12deg) rotateX(-4deg)", animationDelay: "0.8s" }} />
-          <FloatCard img="/images/frame.jpg" title="Framed Print" price="₹899"
-            className="animate-float absolute -left-1 bottom-2 w-[42%]"
-            style={{ transform: "rotateY(-14deg) rotateX(6deg)", animationDelay: "1.6s" }} />
+        <div className="relative mx-auto w-full max-w-xl">
+          <img src="/images/hero-lifestyle.jpg" alt="Custom printed T-shirt by Drucka, worn on a road trip in India"
+            fetchpriority="high"
+            className="w-full rounded-[2rem] border border-white/60 object-cover shadow-[0_30px_70px_rgba(27,20,48,0.25)]" />
+          <div className="glass absolute -bottom-5 left-6 flex items-center gap-3 rounded-2xl px-4 py-3 shadow-xl">
+            <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-plum to-tangerine text-white">
+              <Icon d={icons.spark} filled className="h-4.5 w-4.5" />
+            </span>
+            <span className="leading-tight">
+              <span className="block text-sm font-bold text-ink">Your design, printed</span>
+              <span className="block text-xs text-ink/55">Custom tees from ₹349 · 2–4 days</span>
+            </span>
+          </div>
         </div>
+      </div>
+    </section>
+  );
+}
+
+/* ── Shop-by-category showcase — real model mockups (mix 11 shoot) ── */
+const SHOWCASE_CATEGORIES = [
+  { id: "men-tshirt", label: "Men T-Shirts", sub: "Classic crew · 180 GSM", img: "/images/categories/men-tshirt.jpg", productId: "tshirt" },
+  { id: "men-polo", label: "Men Polos", sub: "Smart casual staple", img: "/images/categories/men-polo.jpg", productId: "tshirt" },
+  { id: "hoodie", label: "Hoodies", sub: "Cozy 320 GSM fleece", img: "/images/categories/hoodie-2.jpg", productId: "hoodie" },
+  { id: "oversized", label: "Oversized Tees", sub: "Streetwear black drop", img: "/images/categories/oversized-black-tee.jpg", productId: "tshirt" },
+  { id: "women-tshirt", label: "Women T-Shirts", sub: "Feminine relaxed fit", img: "/images/categories/women-tshirt.jpg", productId: "tshirt-women" },
+  { id: "women-crop", label: "Women Crop Tops", sub: "Trend-ready cut", img: "/images/categories/women-crop-top.jpg", productId: "tshirt-women" },
+  { id: "kids-tshirt", label: "Kids T-Shirts", sub: "Soft & skin friendly", img: "/images/categories/kids-tshirt.jpg", productId: "kids-tshirt" },
+  { id: "girls-tshirt", label: "Girls T-Shirts", sub: "2–14 years", img: "/images/categories/girls-tshirt.jpg", productId: "kids-tshirt" },
+  { id: "kids-jacket", label: "Kids Jackets & Hoodies", sub: "Warm everyday layers", img: "/images/categories/kids-jacket.jpg", productId: "kids-hoodie" },
+];
+
+function CategoryShowcase({ onCustomize }) {
+  return (
+    <section id="categories" className="mx-auto max-w-7xl scroll-mt-16 px-4 py-16 sm:px-6 lg:px-8">
+      <div className="reveal mb-8 text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-tangerine">Shop by category</p>
+        <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Pick your canvas</h2>
+        <p className="mx-auto mt-2 max-w-xl text-ink/55">Every piece is printed on demand with your design — choose a style to start customizing.</p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+        {SHOWCASE_CATEGORIES.map((c) => (
+          <button key={c.id} onClick={() => onCustomize(c.productId)}
+            className="group relative overflow-hidden rounded-3xl border border-ink/5 bg-white text-left shadow-[0_8px_30px_rgba(27,20,48,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
+            <img src={c.img} alt={c.label} loading="lazy"
+              className="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-105" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 via-ink/35 to-transparent p-4 pt-12 sm:p-5">
+              <h3 className="font-display text-lg font-bold text-white sm:text-xl">{c.label}</h3>
+              <p className="text-xs text-white/75">{c.sub}</p>
+              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white backdrop-blur transition group-hover:bg-tangerine">
+                Customize →
+              </span>
+            </div>
+          </button>
+        ))}
       </div>
     </section>
   );
@@ -3509,7 +3552,10 @@ export default function App() {
   const [favs, setFavs] = useState(() => load("drucka-favs", []));
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [editor, setEditor] = useState(null); // null | { productId }
+  /* THE single design-customization flow: product page → designer → submit.
+     (The legacy in-file ProductEditor is no longer rendered anywhere.) */
+  const [designerPage, setDesignerPage] = useState(null); // null | { productId }
+  const [designer, setDesigner] = useState(null); // null | { productId, selections }
   /* Qikink fulfillment layer */
   const [qikinkSettings, setQikinkSettings] = useState(() => load("drucka-qikink-settings", DEFAULT_QIKINK_SETTINGS));
   const [orders, setOrders] = useState(() => load("drucka-orders", []));
@@ -3653,8 +3699,9 @@ export default function App() {
 
   const addToCart = (item) => setCart((c) => [...c, item]);
   const toggleFav = (id) => setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+  /* every "customize" entry point on the site lands in the ONE designer */
   const openEditor = (productId = "tshirt") =>
-    setEditor({ productId: EDITOR_PRODUCTS.some((p) => p.id === productId) ? productId : "tshirt" });
+    setDesignerPage({ productId: designerProductById(productId) ? productId : "tshirt" });
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
@@ -3668,9 +3715,10 @@ export default function App() {
         </div>
       )}
       <main>
-        <Hero onStartCustomizing={() => openEditor("tshirt")} />
+        <Hero />
+        {/* single customization entry point: category + product cards below */}
+        <CategoryShowcase onCustomize={openEditor} />
         <ProductTabs favs={favs} onFav={toggleFav} onCustomize={openEditor} />
-        <StudioCTA onOpenEditor={openEditor} />
         <HowItWorks />
         <GiftIdeaTool onCustomize={openEditor} />
         <Reviews />
@@ -3678,13 +3726,20 @@ export default function App() {
       </main>
       <Footer onAdmin={() => setAdminOpen(true)} onTrack={() => setTrackOpen(true)} />
 
-      {editor && (
-        <ProductEditor
-          initialProductId={editor.productId}
-          onClose={() => setEditor(null)}
+      {designerPage && (
+        <DesignerProductPage
+          initialProductId={designerPage.productId}
+          onClose={() => setDesignerPage(null)}
+          onStartDesigning={({ productId, selections }) => setDesigner({ productId, selections })}
+        />
+      )}
+      {designer && (
+        <ProductDesigner
+          product={designerProductById(designer.productId)}
+          initial={designer.selections}
+          onClose={() => setDesigner(null)}
           onAddToCart={addToCart}
-          onOpenCart={() => setCartOpen(true)}
-          cartCount={cartCount}
+          onOpenCart={() => { setDesignerPage(null); setCartOpen(true); }}
           showToast={showToast}
         />
       )}
