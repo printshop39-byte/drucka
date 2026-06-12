@@ -3,12 +3,18 @@ import {
   ActiveSelection, Canvas, FabricImage, FabricObject, Group, PencilBrush, Point, Textbox, util,
 } from 'fabric';
 import {
+  LayoutGrid, ImagePlus, Palette, Ruler, Type, Sticker, Download, Pen,
+  Crop, ChevronUp, ChevronDown, ChevronsUp, ChevronsDown, Copy, Trash2, Lock, Unlock,
+  Settings2, Upload,
+} from 'lucide-react';
+import {
   AlignOp, BgState, CANVAS_PRESETS, HistoryManager, ImageMeta, ShapeId,
   addPhoto, addText, alignObject, applyBackground, applyEffects, applyShape,
   designDims, duplicateObject, downloadDataUrl, eid, exportImage, groupSelection,
-  isLocked, kindOf, layerOp, mergeSelection, metaOf, placeBorder, removeBorderOf,
+  isLocked, layerOp, mergeSelection, metaOf, placeBorder, removeBorderOf,
   setLocked, syncBorder, ungroupSelection,
 } from '../../lib/editor/fabricHelpers';
+import { GRAPHICS, graphicDataUrl } from '../../designer/data';
 import EditorToolbar from './EditorToolbar';
 import Section from './Section';
 import ShapeCropMenu from './ShapeCropMenu';
@@ -19,9 +25,11 @@ import DrawingPanel from './DrawingPanel';
 import TextPanel from './TextPanel';
 import LayoutPanel from './LayoutPanel';
 
-/* ── Drucka Pro Collage Editor — free-form Fabric.js canvas ──
-   Lives inside the existing Collage Maker entry as its "Pro" mode.
-   Photos stay in the browser; export renders a high-res PNG/JPEG. */
+/* ── Drucka Pro Editor — the Collage Maker's freeform mode ──
+   Reuses the Collage Maker SHELL: the same 7-tab left sidebar stays
+   visible and drives the Fabric canvas (Photos uploads, Text adds text,
+   Style sets the background, Size sets the artboard, Stickers add
+   graphics, Export downloads). Advanced controls live on the right. */
 
 interface Props {
   onClose: () => void;
@@ -29,9 +37,21 @@ interface Props {
   showToast: (msg: string) => void;
 }
 
-export default function CollageEditor({ onClose, onBackToGrid, showToast }: Props) {
+type TabId = 'layouts' | 'photos' | 'style' | 'size' | 'text' | 'stickers' | 'export';
+const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+  { id: 'layouts', label: 'Layouts', icon: LayoutGrid },
+  { id: 'photos', label: 'Photos', icon: ImagePlus },
+  { id: 'style', label: 'Style', icon: Palette },
+  { id: 'size', label: 'Size', icon: Ruler },
+  { id: 'text', label: 'Text', icon: Type },
+  { id: 'stickers', label: 'Stickers', icon: Sticker },
+  { id: 'export', label: 'Export', icon: Download },
+];
+
+export default function CollageEditor({ onBackToGrid, showToast }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const elRef = useRef<HTMLCanvasElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const fcRef = useRef<Canvas | null>(null);
   const histRef = useRef(new HistoryManager());
   const presetRef = useRef(CANVAS_PRESETS[0]);
@@ -41,6 +61,8 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
   const captureTimer = useRef<number | undefined>(undefined);
   const bgRef = useRef<BgState>({ type: 'solid', color: '#ffffff' });
 
+  const [tab, setTab] = useState<TabId>('photos');
+  const [mobilePanel, setMobilePanel] = useState<TabId | 'tools' | null>(null);
   const [presetId, setPresetId] = useState('square');
   const [selected, setSelected] = useState<FabricObject | null>(null);
   const [cropMode, setCropMode] = useState(false);
@@ -72,7 +94,7 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
     const s = Math.min((host.clientWidth - pad) / w, (host.clientHeight - pad) / h, 1.2);
     fc.setDimensions({ width: Math.round(w * s), height: Math.round(h * s) });
     fc.setZoom(s);
-    if (bgRef.current.type === 'gradient') applyBackground(fc, bgRef.current); // gradient coords track size
+    if (bgRef.current.type === 'gradient') applyBackground(fc, bgRef.current);
     fc.requestRenderAll();
     refresh();
   }, []);
@@ -87,7 +109,7 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
     captureSoon();
   }, [captureSoon]);
 
-  /* ── canvas lifecycle ── */
+  /* ── canvas lifecycle (unchanged engine) ── */
   useEffect(() => {
     const fc = new Canvas(elRef.current!, {
       backgroundColor: '#ffffff',
@@ -120,7 +142,6 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
       if ((obj as any).dru?.kind === 'border') return;
       const meta = metaOf(obj);
       if (cropRef.current && meta && obj === fc.getActiveObject() && (obj as FabricImage).clipPath) {
-        /* crop mode: photo slides, mask stays put — compensate the clip offset */
         const img = obj as FabricImage;
         const last = lastPosRef.current ?? { x: img.left ?? 0, y: img.top ?? 0 };
         const d = new Point((img.left ?? 0) - last.x, (img.top ?? 0) - last.y)
@@ -131,7 +152,6 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
         clip.top = Math.max(-lim, Math.min(lim, (clip.top ?? 0) - d.y / (img.scaleY || 1)));
         img.set('dirty', true);
       } else if (snapRef.current) {
-        /* snap to canvas center + edges with gold guides */
         const { dw, dh } = designDims(fc);
         const th = 10;
         const br = obj.getBoundingRect();
@@ -173,7 +193,6 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
       fc.requestRenderAll();
       if (!cropRef.current) captureSoon();
     });
-    /* drawn paths become tagged, selectable layers */
     fc.on('path:created', (e: any) => {
       const p = e.path as FabricObject;
       (p as any).dru = { kind: 'draw', id: eid() };
@@ -204,7 +223,7 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
       const fc = fcRef.current;
       if (!fc) return;
-      if ((fc.getActiveObject() as any)?.isEditing) return; // typing inside a Textbox
+      if ((fc.getActiveObject() as any)?.isEditing) return;
       if ((e.key === 'Delete' || e.key === 'Backspace') && selected) { e.preventDefault(); deleteSelected(); }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) { e.preventDefault(); doUndo(); }
       if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'y' || (e.shiftKey && e.key.toLowerCase() === 'z'))) { e.preventDefault(); doRedo(); }
@@ -214,10 +233,9 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  /* ── derived selection info ── */
+  /* ── derived ── */
   const fc = fcRef.current;
   const selMeta = metaOf(selected);
-  const selKind = kindOf(selected);
   const isMulti = selected instanceof ActiveSelection;
   const isGroup = !isMulti && selected instanceof Group;
   const isText = selected instanceof Textbox;
@@ -225,11 +243,10 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
   const blend = (selected?.globalCompositeOperation as string) ?? 'source-over';
   const hasDrawings = !!fc?.getObjects().some((o) => (o as any).dru?.kind === 'draw');
   const zoom = fc?.getZoom() ?? 1;
-
   const recountEmpty = (c: Canvas) =>
     setEmpty(!c.getObjects().some((o) => (o as any).dru?.kind !== 'border'));
 
-  /* ── actions ── */
+  /* ── actions (unchanged engine, new entry points) ── */
   const handleUpload = async (files: FileList | null) => {
     const c = fcRef.current;
     if (!c || !files?.length) return;
@@ -298,6 +315,7 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
     if (penMode) togglePen();
     addText(c);
     setEmpty(false);
+    setTab('text');
     captureSoon();
   };
   const patchText = (props: Partial<Record<string, unknown>>) => {
@@ -307,6 +325,19 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
     (selected as Textbox).setCoords();
     c.requestRenderAll();
     refresh();
+    captureSoon();
+  };
+
+  const addSticker = async (svgUrl: string) => {
+    const c = fcRef.current;
+    if (!c) return;
+    const img = await addPhoto(c, svgUrl, c.getObjects().length);
+    const { dw } = designDims(c);
+    const s = (dw * 0.18) / img.width!;
+    img.set({ scaleX: s, scaleY: s });
+    img.setCoords();
+    c.requestRenderAll();
+    setEmpty(false);
     captureSoon();
   };
 
@@ -356,13 +387,13 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
     const c = fcRef.current;
     if (!c) return;
     const merged = await mergeSelection(c);
-    if (merged) { setSelected(merged); captureSoon(); showToast('Merged into one image ✓ — you can now shape-crop it'); }
+    if (merged) { setSelected(merged); captureSoon(); showToast('Merged into one image ✓'); }
   };
   const doGroup = () => {
     const c = fcRef.current;
     if (!c) return;
     const g = groupSelection(c);
-    if (g) { setSelected(g); captureSoon(); showToast('Grouped ✓ (photo borders removed)'); }
+    if (g) { setSelected(g); captureSoon(); showToast('Grouped ✓'); }
   };
   const doUngroup = () => {
     const c = fcRef.current;
@@ -441,150 +472,333 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
 
   const { dw, dh } = fc ? designDims(fc) : { dw: 1080, dh: 1080 };
 
+  const onToggleCrop = () => {
+    const c = fcRef.current;
+    if (!c || !selMeta) return;
+    if (cropRef.current) { exitCrop(); return; }
+    cropRef.current = true;
+    setCropMode(true);
+    selected!.set({ hasControls: false });
+    lastPosRef.current = { x: selected!.left ?? 0, y: selected!.top ?? 0 };
+    c.requestRenderAll();
+  };
+
+  /* ── LEFT sidebar panels (same tabs as the grid Collage Maker) ── */
+  const leftPanel = (id: TabId, mobile = false) => {
+    const done = () => { if (mobile) setMobilePanel(null); };
+    switch (id) {
+      case 'layouts': return (
+        <div className="space-y-3">
+          <p className="text-[11px] leading-relaxed text-white/55">
+            <span className="font-bold text-gold">Pro Editor is freeform</span> — place photos anywhere,
+            no fixed grid. Grid templates &amp; smart templates live in the Grid Editor.
+          </p>
+          <button onClick={onBackToGrid}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-white/10 py-2.5 text-[11px] font-bold text-white transition hover:bg-white/15">
+            <LayoutGrid size={13} /> Switch to Grid Editor
+          </button>
+        </div>
+      );
+      case 'photos': return (
+        <div className="space-y-3">
+          <button onClick={() => fileRef.current?.click()}
+            className="flex w-full flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-gold/50 bg-gold/8 px-4 py-7 text-gold transition hover:bg-gold/15">
+            <Upload size={22} />
+            <span className="text-sm font-bold">Add photos</span>
+            <span className="text-[10px] text-gold/65">JPG · PNG · WEBP — multiple allowed</span>
+          </button>
+          <p className="text-[10px] leading-relaxed text-white/40">
+            Photos land on the artboard — drag, resize, rotate freely. Select one to crop it into shapes and add effects (right panel).
+          </p>
+        </div>
+      );
+      case 'style': return <BackgroundPanel bg={bg} onChange={changeBg} />;
+      case 'size': return (
+        <div className="space-y-1.5">
+          {CANVAS_PRESETS.map((c) => (
+            <button key={c.id} onClick={() => { changePreset(c.id); done(); }}
+              className={`flex w-full items-center justify-between rounded-xl border-2 px-3 py-2 text-left text-xs font-bold transition ${
+                presetId === c.id ? 'border-gold bg-gold/10 text-white' : 'border-white/10 text-white/65 hover:border-white/30'}`}>
+              {c.label}
+              <span className="text-[9px] text-white/35">{c.w}×{c.h}</span>
+            </button>
+          ))}
+        </div>
+      );
+      case 'text': return (
+        <div className="space-y-3">
+          <button onClick={() => { handleAddText(); done(); }}
+            className="w-full rounded-full bg-gold py-2.5 text-sm font-bold text-white transition hover:brightness-110">
+            + Add text
+          </button>
+          {isText
+            ? <TextPanel text={selected as Textbox} onPatch={patchText} />
+            : <p className="text-[10px] text-white/40">Select a text layer on the canvas to edit its font, style and spacing.</p>}
+        </div>
+      );
+      case 'stickers': return (
+        <div>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-white/40">Tap to add</p>
+          <div className="grid grid-cols-4 gap-2">
+            {GRAPHICS.map((g: any) => (
+              <button key={g.id} title={g.label} onClick={() => { addSticker(graphicDataUrl(g)); done(); }}
+                className="grid aspect-square place-items-center rounded-xl border border-white/10 bg-white/5 p-2 transition hover:border-gold">
+                <img src={graphicDataUrl(g)} alt={g.label} className="h-full w-full" />
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+      case 'export': return (
+        <div className="space-y-2">
+          <button onClick={() => doExport('png')} disabled={exporting}
+            className="w-full rounded-full bg-gold py-2.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-50">
+            Download PNG · standard
+          </button>
+          <button onClick={() => doExport('png-hd')} disabled={exporting}
+            className="w-full rounded-full bg-white/10 py-2.5 text-xs font-bold text-white transition hover:bg-white/15 disabled:opacity-50">
+            Download PNG · high-res 3000px
+          </button>
+          <button onClick={() => doExport('jpeg')} disabled={exporting}
+            className="w-full rounded-full bg-white/10 py-2.5 text-xs font-bold text-white transition hover:bg-white/15 disabled:opacity-50">
+            Download JPEG · white background
+          </button>
+          <p className="pt-1 text-[9px] leading-relaxed text-white/35">
+            Want a framed/canvas print of your collage? Switch to the Grid Editor — its Export tab has the order-print flow.
+          </p>
+        </div>
+      );
+    }
+  };
+
+  /* ── RIGHT advanced panel (contextual) ── */
+  const SelBtn = ({ title, onClick, disabled, active, danger, children }: any) => (
+    <button title={title} aria-label={title} onClick={onClick} disabled={disabled}
+      className={`grid h-8 w-8 place-items-center rounded-lg transition ${
+        active ? 'bg-gold text-white' : danger ? 'text-red-300 hover:bg-red-500/15' : 'text-white/70 hover:bg-white/10'
+      } disabled:opacity-25 disabled:pointer-events-none`}>
+      {children}
+    </button>
+  );
+  const rightPanel = (
+    <div className="space-y-2">
+      {/* pen toggle always reachable */}
+      <button onClick={togglePen}
+        className={`flex w-full items-center justify-center gap-2 rounded-full border-2 py-2 text-[11px] font-bold transition ${
+          penMode ? 'border-gold bg-gold text-white' : 'border-white/12 text-white/65 hover:border-gold/60'}`}>
+        <Pen size={13} /> {penMode ? 'Finish drawing' : 'Pen / brush tool'}
+      </button>
+      {penMode && (
+        <Section title="Drawing" defaultOpen>
+          <DrawingPanel color={brushColor} onColor={(c) => setBrush(c, brushSize)}
+            size={brushSize} onSize={(s) => setBrush(brushColor, s)}
+            onClear={clearDrawings} hasDrawings={hasDrawings} />
+        </Section>
+      )}
+
+      {selected && !penMode && (
+        <div className="rounded-xl border border-white/8 bg-white/[0.03] p-2">
+          <p className="mb-1.5 px-1 text-[9px] font-extrabold uppercase tracking-[0.14em] text-gold/90">Selected layer</p>
+          <div className="flex flex-wrap items-center gap-0.5">
+            <SelBtn title={cropMode ? 'Done cropping' : 'Crop inside shape (double-click photo)'}
+              onClick={onToggleCrop} disabled={!selMeta || !(selected as FabricImage)?.clipPath || locked} active={cropMode}><Crop size={14} /></SelBtn>
+            <SelBtn title="Bring forward" onClick={() => { layerOp(fc!, selected, 'forward'); captureSoon(); }}><ChevronUp size={14} /></SelBtn>
+            <SelBtn title="Send backward" onClick={() => { layerOp(fc!, selected, 'backward'); captureSoon(); }}><ChevronDown size={14} /></SelBtn>
+            <SelBtn title="Bring to front" onClick={() => { layerOp(fc!, selected, 'front'); captureSoon(); }}><ChevronsUp size={14} /></SelBtn>
+            <SelBtn title="Send to back" onClick={() => { layerOp(fc!, selected, 'back'); captureSoon(); }}><ChevronsDown size={14} /></SelBtn>
+            <SelBtn title="Duplicate" disabled={isMulti}
+              onClick={async () => {
+                const copy = await duplicateObject(fc!, selected);
+                if (metaOf(copy)) applyEffects(fc!, copy as FabricImage);
+                setSelected(copy);
+                captureSoon();
+              }}><Copy size={14} /></SelBtn>
+            <SelBtn title={locked ? 'Unlock' : 'Lock'} active={locked}
+              onClick={() => { setLocked(selected, !locked); fc!.requestRenderAll(); refresh(); }}>
+              {locked ? <Lock size={13} /> : <Unlock size={13} />}
+            </SelBtn>
+            <SelBtn title="Delete (Del)" danger onClick={deleteSelected}><Trash2 size={13} /></SelBtn>
+          </div>
+        </div>
+      )}
+
+      {isText && !penMode && (
+        <Section title="Text" defaultOpen>
+          <TextPanel text={selected as Textbox} onPatch={patchText} />
+        </Section>
+      )}
+      {selMeta && (
+        <>
+          <Section title="Shape Crop" defaultOpen>
+            <ShapeCropMenu value={selMeta.shape} onChange={pickShape} />
+          </Section>
+          <Section title="Effects · Border · Shadow" defaultOpen>
+            <ImageEffectsPanel meta={selMeta} onEffect={patchEffects} onStyle={patchStyle} />
+          </Section>
+        </>
+      )}
+      {selected && !penMode && (
+        <Section title="Blend & Merge" defaultOpen={isMulti}>
+          <BlendPanel blend={blend} onBlend={setBlend}
+            isMulti={isMulti} isGroup={isGroup}
+            onMerge={doMerge} onGroup={doGroup} onUngroup={doUngroup} />
+        </Section>
+      )}
+      <Section title="Layout & Snap">
+        <LayoutPanel hasSelection={!!selected}
+          onAlign={(op: AlignOp) => { if (selected && fc) { alignObject(fc, selected, op); captureSoon(); } }}
+          onCenterBoth={() => {
+            if (selected && fc) {
+              alignObject(fc, selected, 'centerH');
+              alignObject(fc, selected, 'middle');
+              captureSoon();
+            }
+          }}
+          grid={grid} onGrid={setGrid}
+          snap={snap} onSnap={(v) => { setSnap(v); snapRef.current = v; }} />
+      </Section>
+      {!selected && !penMode && (
+        <p className="px-1 text-[9px] leading-relaxed text-white/30">
+          Select a layer on the artboard to see its shape-crop, effects, border and blend controls here.
+        </p>
+      )}
+    </div>
+  );
+
   return (
     <div className="fixed inset-0 z-[95] flex flex-col bg-[#141021]" role="dialog" aria-modal="true" aria-label="Pro collage editor">
+      <input ref={fileRef} type="file" hidden multiple accept="image/jpeg,image/png,image/webp"
+        onChange={(e) => { handleUpload(e.target.files); e.target.value = ''; }} />
+
       <EditorToolbar
         onBack={onBackToGrid}
-        onUpload={handleUpload}
-        onAddText={handleAddText}
-        penMode={penMode} onTogglePen={togglePen}
         canUndo={histRef.current.canUndo} canRedo={histRef.current.canRedo}
         onUndo={doUndo} onRedo={doRedo}
-        presetId={presetId} onPreset={changePreset}
-        hasSelection={!!selected} locked={locked}
-        cropMode={cropMode}
-        cropPossible={!!selMeta && !!(selected as FabricImage)?.clipPath && !locked}
-        onToggleCrop={() => {
-          const c = fcRef.current;
-          if (!c || !selMeta) return;
-          if (cropRef.current) { exitCrop(); return; }
-          cropRef.current = true;
-          setCropMode(true);
-          selected!.set({ hasControls: false });
-          lastPosRef.current = { x: selected!.left ?? 0, y: selected!.top ?? 0 };
-          c.requestRenderAll();
-        }}
-        onLayer={(op) => { if (selected && fcRef.current) { layerOp(fcRef.current, selected, op); captureSoon(); } }}
-        onDuplicate={async () => {
-          if (selected && fcRef.current && !isMulti) {
-            const copy = await duplicateObject(fcRef.current, selected);
-            if (metaOf(copy)) applyEffects(fcRef.current, copy as FabricImage);
-            setSelected(copy);
-            captureSoon();
-          }
-        }}
-        onDelete={deleteSelected}
-        onLock={() => {
-          if (!selected) return;
-          setLocked(selected, !locked);
-          fcRef.current?.requestRenderAll();
-          refresh();
-          showToast(locked ? 'Unlocked' : 'Locked 🔒');
-        }}
         exporting={exporting} onExport={doExport}
       />
 
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        {/* canvas stage */}
-        <div ref={hostRef} className="relative grid min-h-0 flex-1 place-items-center overflow-hidden p-3">
-          <div className={`relative rounded shadow-2xl ${bg.type === 'transparent' ? 'checker' : ''}`}>
-            <canvas ref={elRef} />
-            {/* grid overlay (visual aid only — never exports) */}
-            {grid && (
-              <div className="pointer-events-none absolute inset-0"
-                style={{
-                  backgroundImage: 'linear-gradient(to right, rgba(193,154,61,.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(193,154,61,.22) 1px, transparent 1px)',
-                  backgroundSize: `${(dw * zoom) / 12}px ${(dh * zoom) / 12}px`,
-                }} />
+      <div className="flex min-h-0 flex-1">
+        {/* LEFT — the Collage Maker sidebar, alive in Pro mode (desktop) */}
+        <aside className="hidden w-[330px] shrink-0 border-r border-white/8 bg-[#1a1429] lg:flex">
+          <nav className="flex w-[72px] shrink-0 flex-col items-center gap-1 border-r border-white/6 py-3">
+            {TABS.map((t) => (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                className={`flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[9px] font-bold transition ${
+                  tab === t.id ? 'bg-gold/15 text-gold' : 'text-white/45 hover:bg-white/5 hover:text-white'}`}>
+                <t.icon size={19} />
+                {t.label}
+              </button>
+            ))}
+          </nav>
+          <div className="min-w-0 flex-1 overflow-y-auto p-4 scroll-thin">
+            <p className="mb-3 text-[10px] font-extrabold uppercase tracking-[0.14em] text-gold/90">{TABS.find((t) => t.id === tab)?.label}</p>
+            {leftPanel(tab)}
+          </div>
+        </aside>
+
+        {/* CENTER — artboard */}
+        <div className="relative flex min-w-0 flex-1 flex-col">
+          <div ref={hostRef} className="relative grid min-h-0 flex-1 place-items-center overflow-hidden p-3">
+            <div className={`relative rounded shadow-2xl ${bg.type === 'transparent' ? 'checker' : ''}`}>
+              <canvas ref={elRef} />
+              {grid && (
+                <div className="pointer-events-none absolute inset-0"
+                  style={{
+                    backgroundImage: 'linear-gradient(to right, rgba(193,154,61,.22) 1px, transparent 1px), linear-gradient(to bottom, rgba(193,154,61,.22) 1px, transparent 1px)',
+                    backgroundSize: `${(dw * zoom) / 12}px ${(dh * zoom) / 12}px`,
+                  }} />
+              )}
+              {guides.v !== null && (
+                <div className="pointer-events-none absolute top-0 bottom-0 w-px bg-gold shadow-[0_0_4px_rgba(193,154,61,.8)]" style={{ left: guides.v * zoom }} />
+              )}
+              {guides.h !== null && (
+                <div className="pointer-events-none absolute left-0 right-0 h-px bg-gold shadow-[0_0_4px_rgba(193,154,61,.8)]" style={{ top: guides.h * zoom }} />
+              )}
+            </div>
+
+            {/* empty state — a solid UI card with real actions (HTML only,
+                outside the Fabric canvas, can never export) */}
+            {empty && !penMode && (
+              <div className="absolute inset-0 grid place-items-center">
+                <div className="w-[300px] max-w-[88%] rounded-2xl border border-gold/30 bg-[#1d1830] p-5 text-center shadow-2xl">
+                  <p className="text-sm font-bold text-white">Add photos, text, or drawings to start</p>
+                  <p className="mt-1 text-[10px] text-white/45">Freeform artboard — everything is draggable, croppable &amp; blendable</p>
+                  <div className="mt-4 grid gap-2">
+                    <button onClick={() => fileRef.current?.click()}
+                      className="flex items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-xs font-bold text-white transition hover:brightness-110">
+                      <ImagePlus size={14} /> Add Photos
+                    </button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button onClick={handleAddText}
+                        className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 py-2 text-[11px] font-bold text-white transition hover:bg-white/15">
+                        <Type size={13} /> Add Text
+                      </button>
+                      <button onClick={togglePen}
+                        className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 py-2 text-[11px] font-bold text-white transition hover:bg-white/15">
+                        <Pen size={13} /> Pen Tool
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             )}
-            {/* snap guides */}
-            {guides.v !== null && (
-              <div className="pointer-events-none absolute top-0 bottom-0 w-px bg-gold shadow-[0_0_4px_rgba(193,154,61,.8)]" style={{ left: guides.v * zoom }} />
+
+            {cropMode && (
+              <div className="absolute inset-x-0 top-2 z-10 flex justify-center">
+                <button onClick={exitCrop}
+                  className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-white shadow-xl">
+                  Crop mode — drag the photo inside its shape · tap to finish ✓
+                </button>
+              </div>
             )}
-            {guides.h !== null && (
-              <div className="pointer-events-none absolute left-0 right-0 h-px bg-gold shadow-[0_0_4px_rgba(193,154,61,.8)]" style={{ top: guides.h * zoom }} />
+            {penMode && (
+              <div className="absolute inset-x-0 top-2 z-10 flex justify-center">
+                <button onClick={togglePen}
+                  className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-white shadow-xl">
+                  Drawing mode · {brushSize}px — tap to finish ✓
+                </button>
+              </div>
             )}
           </div>
-          {cropMode && (
-            <div className="absolute inset-x-0 top-2 z-10 flex justify-center">
-              <button onClick={exitCrop}
-                className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-white shadow-xl">
-                Crop mode — drag the photo inside its shape · tap to finish ✓
-              </button>
-            </div>
-          )}
-          {penMode && (
-            <div className="absolute inset-x-0 top-2 z-10 flex justify-center">
-              <button onClick={togglePen}
-                className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-white shadow-xl">
-                Drawing mode · {brushSize}px — tap to finish ✓
-              </button>
-            </div>
+
+          {/* mobile: contextual tools entry */}
+          {(selected || penMode) && (
+            <button onClick={() => setMobilePanel('tools')}
+              className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold text-white shadow-xl lg:hidden">
+              <Settings2 size={14} /> {penMode ? 'Brush settings' : 'Layer tools'}
+            </button>
           )}
         </div>
 
-        {/* right panel (desktop) / bottom panel (mobile) */}
-        <aside className="max-h-[42vh] shrink-0 space-y-2 overflow-y-auto border-t border-white/10 bg-[#1a1429] p-3 scroll-thin lg:max-h-none lg:w-[280px] lg:border-l lg:border-t-0">
-          {/* empty-state hint lives HERE, never on the artboard */}
-          {empty && (
-            <div className="rounded-xl border border-gold/25 bg-gold/8 p-3">
-              <p className="text-[11px] font-bold text-gold">Start your collage</p>
-              <p className="mt-1 text-[10px] leading-relaxed text-white/55">
-                Use the toolbar above — <span className="font-bold text-white/80">Photos</span> uploads images,
-                <span className="font-bold text-white/80"> T</span> adds text, the
-                <span className="font-bold text-white/80"> pen</span> draws. The white board stays clean and exports exactly what you place on it.
-              </p>
-            </div>
-          )}
-          {penMode && (
-            <Section title="Drawing" defaultOpen>
-              <DrawingPanel color={brushColor} onColor={(c) => setBrush(c, brushSize)}
-                size={brushSize} onSize={(s) => setBrush(brushColor, s)}
-                onClear={clearDrawings} hasDrawings={hasDrawings} />
-            </Section>
-          )}
-          {isText && (
-            <Section title="Text" defaultOpen>
-              <TextPanel text={selected as Textbox} onPatch={patchText} />
-            </Section>
-          )}
-          {selMeta && (
-            <>
-              <Section title="Shape Crop" defaultOpen>
-                <ShapeCropMenu value={selMeta.shape} onChange={pickShape} />
-              </Section>
-              <Section title="Effects · Border · Shadow" defaultOpen>
-                <ImageEffectsPanel meta={selMeta} onEffect={patchEffects} onStyle={patchStyle} />
-              </Section>
-            </>
-          )}
-          {selected && !penMode && (
-            <Section title="Blend & Merge" defaultOpen={isMulti}>
-              <BlendPanel blend={blend} onBlend={setBlend}
-                isMulti={isMulti} isGroup={isGroup}
-                onMerge={doMerge} onGroup={doGroup} onUngroup={doUngroup} />
-            </Section>
-          )}
-          <Section title="Background" defaultOpen={!selected && !penMode}>
-            <BackgroundPanel bg={bg} onChange={changeBg} />
-          </Section>
-          <Section title="Layout & Snap">
-            <LayoutPanel hasSelection={!!selected}
-              onAlign={(op: AlignOp) => {
-                if (selected && fcRef.current) { alignObject(fcRef.current, selected, op); captureSoon(); }
-              }}
-              onCenterBoth={() => {
-                if (selected && fcRef.current) {
-                  alignObject(fcRef.current, selected, 'centerH');
-                  alignObject(fcRef.current, selected, 'middle');
-                  captureSoon();
-                }
-              }}
-              grid={grid} onGrid={setGrid}
-              snap={snap} onSnap={(v) => { setSnap(v); snapRef.current = v; }} />
-          </Section>
+        {/* RIGHT — Pro advanced controls (desktop) */}
+        <aside className="hidden w-[280px] shrink-0 space-y-2 overflow-y-auto border-l border-white/10 bg-[#1a1429] p-3 scroll-thin lg:block">
+          {rightPanel}
         </aside>
       </div>
+
+      {/* mobile: same Collage Maker tabs as a bottom bar */}
+      <nav className="z-30 flex shrink-0 items-stretch justify-around border-t border-white/8 bg-[#1a1429] pb-[env(safe-area-inset-bottom)] lg:hidden">
+        {TABS.map((t) => (
+          <button key={t.id} onClick={() => { setTab(t.id); setMobilePanel(t.id); }}
+            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[9px] font-bold text-white/55">
+            <t.icon size={18} />
+            {t.label}
+          </button>
+        ))}
+      </nav>
+
+      {/* mobile slide-up sheet */}
+      {mobilePanel && (
+        <div className="fixed inset-0 z-[97] lg:hidden" role="dialog" aria-modal="true">
+          <button className="absolute inset-0 bg-black/55" aria-label="Close panel" onClick={() => setMobilePanel(null)} />
+          <div className="absolute inset-x-0 bottom-0 max-h-[70vh] overflow-hidden rounded-t-3xl bg-[#1a1429] shadow-2xl">
+            <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-white/20" />
+            <div className="max-h-[calc(70vh-12px)] overflow-y-auto p-4 scroll-thin">
+              {mobilePanel === 'tools' ? rightPanel : leftPanel(mobilePanel, true)}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

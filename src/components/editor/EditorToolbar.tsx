@@ -1,96 +1,54 @@
-import { useRef, useState } from 'react';
-import {
-  ArrowLeft, Upload, Undo2, Redo2, Download, ChevronUp, ChevronDown,
-  ChevronsUp, ChevronsDown, Copy, Trash2, Lock, Unlock, Crop,
-  Type, Pen,
-} from 'lucide-react';
-import { CANVAS_PRESETS } from '../../lib/editor/fabricHelpers';
+import { useState } from 'react';
+import { ArrowLeft, Undo2, Redo2, Download, ChevronDown } from 'lucide-react';
 
-/* ── top toolbar of the Pro Collage Editor ── */
+/* ── slim header of Pro mode — Back · title · mode toggle · undo/redo · Export.
+   All creation tools live in the left Collage Maker sidebar tabs. ── */
 
 interface Props {
-  onBack: () => void; // ← Back to Collage Maker (mode switch, state preserved)
-  onUpload: (files: FileList | null) => void;
-  onAddText: () => void;
-  penMode: boolean; onTogglePen: () => void;
+  onBack: () => void; // switches back to the Grid (normal) Collage Maker
   canUndo: boolean; canRedo: boolean;
   onUndo: () => void; onRedo: () => void;
-  presetId: string; onPreset: (id: string) => void;
-  hasSelection: boolean; locked: boolean;
-  cropMode: boolean; cropPossible: boolean; onToggleCrop: () => void;
-  onLayer: (op: 'forward' | 'backward' | 'front' | 'back') => void;
-  onDuplicate: () => void; onDelete: () => void; onLock: () => void;
   exporting: boolean;
   onExport: (format: 'png' | 'png-hd' | 'jpeg') => void;
 }
 
-const Btn = ({ title, onClick, disabled, active, children }: {
-  title: string; onClick: () => void; disabled?: boolean; active?: boolean; children: React.ReactNode;
-}) => (
-  <button title={title} aria-label={title} onClick={onClick} disabled={disabled}
-    className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg transition ${
-      active ? 'bg-gold text-white' : 'text-white/75 hover:bg-white/10 hover:text-white'
-    } disabled:opacity-25 disabled:pointer-events-none`}>
-    {children}
-  </button>
-);
-
 export default function EditorToolbar(p: Props) {
-  const fileRef = useRef<HTMLInputElement>(null);
   const [exportOpen, setExportOpen] = useState(false);
   return (
-    <header className="z-30 flex shrink-0 flex-wrap items-center gap-1 border-b border-white/10 bg-[#1a1429] px-2 py-1.5 sm:px-3">
-      <button onClick={p.onBack} title="Back to Collage Maker"
-        className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[11px] font-bold text-white/75 transition hover:border-gold hover:text-white">
-        <ArrowLeft size={14} />
-        <span className="hidden sm:inline">Back to Collage Maker</span>
-        <span className="sm:hidden">Back</span>
+    <header className="z-30 flex shrink-0 items-center gap-1.5 border-b border-white/10 bg-[#1a1429] px-2 py-1.5 sm:gap-2 sm:px-3">
+      <button onClick={p.onBack} title="Back to grid Collage Maker" aria-label="Back to Collage Maker"
+        className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white/70 transition hover:bg-white/10 hover:text-white">
+        <ArrowLeft size={17} />
       </button>
-      <div className="mx-1 min-w-0">
-        <p className="text-sm font-bold text-white leading-tight">Pro Editor</p>
-        <p className="hidden text-[9px] text-white/40 sm:block">Drucka Studio · advanced mode</p>
+      <div className="min-w-0">
+        <p className="truncate text-sm font-bold leading-tight text-white">Collage Maker</p>
+        <p className="hidden text-[9px] text-white/40 sm:block">Drucka Studio</p>
       </div>
 
-      <span className="mx-1 hidden h-6 w-px bg-white/10 sm:block" />
+      {/* mode toggle — mirrors the one in the grid maker header */}
+      <div className="mx-auto flex shrink-0 rounded-full bg-white/8 p-0.5 text-[10px] font-bold">
+        <button onClick={p.onBack}
+          className="rounded-full px-3 py-1.5 text-white/55 transition hover:text-white">
+          Grid Editor
+        </button>
+        <span className="rounded-full bg-gold px-3 py-1.5 text-white">Pro Editor</span>
+      </div>
 
-      <input ref={fileRef} type="file" hidden multiple accept="image/jpeg,image/png,image/webp"
-        onChange={(e) => { p.onUpload(e.target.files); e.target.value = ''; }} />
-      <button onClick={() => fileRef.current?.click()}
-        className="flex items-center gap-1.5 rounded-full bg-gold px-3.5 py-1.5 text-[11px] font-bold text-white transition hover:brightness-110">
-        <Upload size={13} /> Photos
+      <button onClick={p.onUndo} disabled={!p.canUndo} title="Undo (Ctrl+Z)" aria-label="Undo"
+        className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white/75 transition hover:bg-white/10 disabled:opacity-25">
+        <Undo2 size={16} />
       </button>
-      <Btn title="Add text" onClick={p.onAddText}><Type size={16} /></Btn>
-      <Btn title={p.penMode ? 'Finish drawing' : 'Pen / brush tool'} onClick={p.onTogglePen} active={p.penMode}><Pen size={15} /></Btn>
-
-      <select value={p.presetId} onChange={(e) => p.onPreset(e.target.value)}
-        aria-label="Canvas size"
-        className="rounded-lg border border-white/15 bg-[#221c33] px-2 py-1.5 text-[11px] font-bold text-white/80 outline-none focus:border-gold">
-        {CANVAS_PRESETS.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-      </select>
-
-      <span className="mx-1 h-6 w-px bg-white/10" />
-      <Btn title="Undo (Ctrl+Z)" onClick={p.onUndo} disabled={!p.canUndo}><Undo2 size={16} /></Btn>
-      <Btn title="Redo (Ctrl+Y)" onClick={p.onRedo} disabled={!p.canRedo}><Redo2 size={16} /></Btn>
-
-      {/* selection tools */}
-      <span className="mx-1 h-6 w-px bg-white/10" />
-      <Btn title={p.cropMode ? 'Done cropping' : 'Crop — reposition photo inside its shape (or double-click photo)'}
-        onClick={p.onToggleCrop} disabled={!p.cropPossible} active={p.cropMode}><Crop size={16} /></Btn>
-      <Btn title="Bring forward" onClick={() => p.onLayer('forward')} disabled={!p.hasSelection}><ChevronUp size={16} /></Btn>
-      <Btn title="Send backward" onClick={() => p.onLayer('backward')} disabled={!p.hasSelection}><ChevronDown size={16} /></Btn>
-      <Btn title="Bring to front" onClick={() => p.onLayer('front')} disabled={!p.hasSelection}><ChevronsUp size={16} /></Btn>
-      <Btn title="Send to back" onClick={() => p.onLayer('back')} disabled={!p.hasSelection}><ChevronsDown size={16} /></Btn>
-      <Btn title="Duplicate" onClick={p.onDuplicate} disabled={!p.hasSelection}><Copy size={16} /></Btn>
-      <Btn title={p.locked ? 'Unlock' : 'Lock'} onClick={p.onLock} disabled={!p.hasSelection} active={p.locked}>
-        {p.locked ? <Lock size={15} /> : <Unlock size={15} />}
-      </Btn>
-      <Btn title="Delete (Del)" onClick={p.onDelete} disabled={!p.hasSelection}><Trash2 size={15} /></Btn>
+      <button onClick={p.onRedo} disabled={!p.canRedo} title="Redo (Ctrl+Y)" aria-label="Redo"
+        className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-white/75 transition hover:bg-white/10 disabled:opacity-25">
+        <Redo2 size={16} />
+      </button>
 
       {/* export menu */}
-      <div className="relative ml-auto">
+      <div className="relative shrink-0">
         <button onClick={() => setExportOpen(!exportOpen)} disabled={p.exporting}
-          className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-gold to-gold-dark px-4 py-2 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg shadow-gold/25 transition hover:brightness-110 disabled:opacity-50">
-          <Download size={13} /> {p.exporting ? 'Exporting…' : 'Export'}
+          className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-gold to-gold-dark px-3.5 py-2 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg shadow-gold/25 transition hover:brightness-110 disabled:opacity-50">
+          <Download size={13} />
+          <span className="hidden sm:inline">{p.exporting ? 'Exporting…' : 'Export'}</span>
           <ChevronDown size={12} className={`transition-transform ${exportOpen ? 'rotate-180' : ''}`} />
         </button>
         {exportOpen && (

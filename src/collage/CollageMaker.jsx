@@ -503,10 +503,13 @@ export default function CollageMaker({ onClose, onAddToCart, onOpenCart, showToa
           {filledCount}/{layout.cells.length} photos placed
         </div>
         {onPro && (
-          <button onClick={onPro} title="Free-form editor: shape crops, effects, layers"
-            className="mr-1 rounded-full border border-white/20 px-3.5 py-2 text-xs font-bold text-white/80 transition hover:border-tangerine hover:text-white">
-            ✨ Pro Editor
-          </button>
+          <div className="mr-1 flex rounded-full bg-white/10 p-0.5 text-[10px] font-bold" role="tablist" aria-label="Editor mode">
+            <span className="rounded-full bg-tangerine px-3 py-1.5 text-white">Grid Editor</span>
+            <button onClick={onPro} title="Freeform mode: shape crops, blend, text, pen, effects"
+              className="rounded-full px-3 py-1.5 text-white/60 transition hover:text-white">
+              Pro Editor
+            </button>
+          </div>
         )}
         <button onClick={() => exportFile("jpg")} disabled={busy}
           className="rounded-full bg-tangerine px-4 py-2 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-50">
