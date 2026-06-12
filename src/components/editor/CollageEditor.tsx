@@ -444,8 +444,7 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
   return (
     <div className="fixed inset-0 z-[95] flex flex-col bg-[#141021]" role="dialog" aria-modal="true" aria-label="Pro collage editor">
       <EditorToolbar
-        onClose={onClose}
-        onBackToGrid={onBackToGrid}
+        onBack={onBackToGrid}
         onUpload={handleUpload}
         onAddText={handleAddText}
         penMode={penMode} onTogglePen={togglePen}
@@ -506,14 +505,6 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
               <div className="pointer-events-none absolute left-0 right-0 h-px bg-gold shadow-[0_0_4px_rgba(193,154,61,.8)]" style={{ top: guides.h * zoom }} />
             )}
           </div>
-          {empty && (
-            <div className="pointer-events-none absolute inset-0 grid place-items-center">
-              <p className="rounded-2xl bg-white/5 px-6 py-4 text-center text-sm font-semibold text-white/45">
-                Click <span className="text-gold">Photos</span> to start — or add <span className="text-gold">text</span> &amp; <span className="text-gold">drawings</span><br />
-                <span className="text-[11px] font-medium text-white/30">Shape crops · blend modes · borders · snap guides · high-res export</span>
-              </p>
-            </div>
-          )}
           {cropMode && (
             <div className="absolute inset-x-0 top-2 z-10 flex justify-center">
               <button onClick={exitCrop}
@@ -534,6 +525,17 @@ export default function CollageEditor({ onClose, onBackToGrid, showToast }: Prop
 
         {/* right panel (desktop) / bottom panel (mobile) */}
         <aside className="max-h-[42vh] shrink-0 space-y-2 overflow-y-auto border-t border-white/10 bg-[#1a1429] p-3 scroll-thin lg:max-h-none lg:w-[280px] lg:border-l lg:border-t-0">
+          {/* empty-state hint lives HERE, never on the artboard */}
+          {empty && (
+            <div className="rounded-xl border border-gold/25 bg-gold/8 p-3">
+              <p className="text-[11px] font-bold text-gold">Start your collage</p>
+              <p className="mt-1 text-[10px] leading-relaxed text-white/55">
+                Use the toolbar above — <span className="font-bold text-white/80">Photos</span> uploads images,
+                <span className="font-bold text-white/80"> T</span> adds text, the
+                <span className="font-bold text-white/80"> pen</span> draws. The white board stays clean and exports exactly what you place on it.
+              </p>
+            </div>
+          )}
           {penMode && (
             <Section title="Drawing" defaultOpen>
               <DrawingPanel color={brushColor} onColor={(c) => setBrush(c, brushSize)}

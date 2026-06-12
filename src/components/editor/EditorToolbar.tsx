@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import {
   ArrowLeft, Upload, Undo2, Redo2, Download, ChevronUp, ChevronDown,
-  ChevronsUp, ChevronsDown, Copy, Trash2, Lock, Unlock, LayoutGrid, Crop,
+  ChevronsUp, ChevronsDown, Copy, Trash2, Lock, Unlock, Crop,
   Type, Pen,
 } from 'lucide-react';
 import { CANVAS_PRESETS } from '../../lib/editor/fabricHelpers';
@@ -9,8 +9,7 @@ import { CANVAS_PRESETS } from '../../lib/editor/fabricHelpers';
 /* ── top toolbar of the Pro Collage Editor ── */
 
 interface Props {
-  onClose: () => void;
-  onBackToGrid: () => void;
+  onBack: () => void; // ← Back to Collage Maker (mode switch, state preserved)
   onUpload: (files: FileList | null) => void;
   onAddText: () => void;
   penMode: boolean; onTogglePen: () => void;
@@ -41,16 +40,16 @@ export default function EditorToolbar(p: Props) {
   const [exportOpen, setExportOpen] = useState(false);
   return (
     <header className="z-30 flex shrink-0 flex-wrap items-center gap-1 border-b border-white/10 bg-[#1a1429] px-2 py-1.5 sm:px-3">
-      <Btn title="Close editor" onClick={p.onClose}><ArrowLeft size={17} /></Btn>
-      <div className="mr-1 min-w-0">
-        <p className="text-sm font-bold text-white leading-tight">Pro Collage Editor</p>
-        <p className="hidden text-[9px] text-white/40 sm:block">Drucka Studio · Fabric canvas</p>
-      </div>
-
-      <button onClick={p.onBackToGrid} title="Switch to grid collage maker"
-        className="hidden items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[11px] font-bold text-white/70 transition hover:border-gold hover:text-white sm:flex">
-        <LayoutGrid size={13} /> Grid Maker
+      <button onClick={p.onBack} title="Back to Collage Maker"
+        className="flex shrink-0 items-center gap-1.5 rounded-full border border-white/15 px-3 py-1.5 text-[11px] font-bold text-white/75 transition hover:border-gold hover:text-white">
+        <ArrowLeft size={14} />
+        <span className="hidden sm:inline">Back to Collage Maker</span>
+        <span className="sm:hidden">Back</span>
       </button>
+      <div className="mx-1 min-w-0">
+        <p className="text-sm font-bold text-white leading-tight">Pro Editor</p>
+        <p className="hidden text-[9px] text-white/40 sm:block">Drucka Studio · advanced mode</p>
+      </div>
 
       <span className="mx-1 hidden h-6 w-px bg-white/10 sm:block" />
 

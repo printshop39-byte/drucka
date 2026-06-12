@@ -4009,14 +4009,18 @@ export default function App() {
         />
       )}
 
-      {collageOpen && !collagePro && (
-        <CollageMaker
-          onClose={() => setCollageOpen(false)}
-          onAddToCart={addToCart}
-          onOpenCart={() => setCartOpen(true)}
-          showToast={showToast}
-          onPro={() => setCollagePro(true)}
-        />
+      {/* CollageMaker stays MOUNTED while Pro Editor is open (display:none)
+          so its layouts/photos/options survive switching modes */}
+      {collageOpen && (
+        <div className={collagePro ? "hidden" : undefined}>
+          <CollageMaker
+            onClose={() => setCollageOpen(false)}
+            onAddToCart={addToCart}
+            onOpenCart={() => setCartOpen(true)}
+            showToast={showToast}
+            onPro={() => setCollagePro(true)}
+          />
+        </div>
       )}
       {collageOpen && collagePro && (
         <Suspense fallback={
