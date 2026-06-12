@@ -1,12 +1,19 @@
-import { ImageMeta } from '../../lib/editor/fabricHelpers';
+import { BorderStyle, ImageMeta } from '../../lib/editor/fabricHelpers';
 
 /* ── effects + styling controls for the selected photo ── */
 
 interface Props {
   meta: ImageMeta;
   onEffect: (patch: Partial<ImageMeta['effects']>) => void;
-  onStyle: (patch: { radius?: number; shadow?: number; borderWidth?: number; borderColor?: string }) => void;
+  onStyle: (patch: { radius?: number; shadow?: number; borderWidth?: number; borderColor?: string; borderStyle?: BorderStyle }) => void;
 }
+
+const BORDER_STYLES: { id: BorderStyle; label: string }[] = [
+  { id: 'solid', label: 'Solid' },
+  { id: 'dashed', label: 'Dashed' },
+  { id: 'dotted', label: 'Dotted' },
+  { id: 'sketch', label: 'Freehand' },
+];
 
 const Slider = ({ label, value, min, max, onChange, fmt = (v: number) => `${v}` }: {
   label: string; value: number; min: number; max: number; onChange: (v: number) => void; fmt?: (v: number) => string;
@@ -39,6 +46,18 @@ export default function ImageEffectsPanel({ meta, onEffect, onStyle }: Props) {
         <div className="space-y-2.5">
           <Slider label="Border width" value={meta.border.width} min={0} max={60}
             onChange={(v) => onStyle({ borderWidth: v })} />
+          <div className="flex flex-wrap gap-1">
+            {BORDER_STYLES.map((s) => (
+              <button key={s.id} onClick={() => onStyle({ borderStyle: s.id })}
+                className={`rounded-full border-2 px-2.5 py-1 text-[9.5px] font-bold transition ${
+                  meta.border.style === s.id ? 'border-gold bg-gold text-white' : 'border-white/15 text-white/55'}`}>
+                {s.label}
+              </button>
+            ))}
+          </div>
+          {meta.border.style === 'sketch' && meta.shape === 'heart' && (
+            <p className="text-[9px] text-white/35">Freehand isn't available for hearts — shown solid.</p>
+          )}
           <label className="flex items-center justify-between">
             <span className="text-[9.5px] font-bold uppercase tracking-wide text-white/45">Border color</span>
             <span className="flex items-center gap-1.5">
