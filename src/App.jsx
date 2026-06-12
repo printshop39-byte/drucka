@@ -5,6 +5,24 @@ import { payWithRazorpay } from "./lib/paymentClient";
 import DesignerProductPage from "./designer/ProductPage";
 import ProductDesigner from "./designer/Designer";
 import { productById as designerProductById } from "./designer/data";
+import CollageMaker from "./collage/CollageMaker";
+/* premium frame-shop homepage components (src/components) */
+import AnnouncementBar from "./components/AnnouncementBar";
+import FrameNavbar from "./components/Navbar";
+import FrameHero from "./components/Hero";
+import TrustBar from "./components/TrustBar";
+import BestsellingFrames from "./components/BestsellingFrames";
+import FeaturedProduct from "./components/FeaturedProduct";
+import GalleryWalls from "./components/GalleryWalls";
+import StatementCollection from "./components/StatementCollection";
+import MagneticWalls from "./components/MagneticWalls";
+import QualityBanner from "./components/QualityBanner";
+import SignatureGift from "./components/SignatureGift";
+import FrameFeatures from "./components/Features";
+import FrameTestimonials from "./components/Testimonials";
+import StoreLocations from "./components/StoreLocations";
+import FrameFooter from "./components/Footer";
+import BackToTop from "./components/BackToTop";
 
 /* ═══════════════════════════════════════════════════════════════
    CONFIG — EDIT THESE VALUES FOR YOUR BUSINESS
@@ -2239,13 +2257,13 @@ function WhatsAppChatbot() {
 const NAV_LINKS = [
   { href: "#home", label: "Home" },
   { href: "#products", label: "Products" },
-  { href: "#studio", label: "Design Studio" },
+  { action: "collage", label: "Collage Maker" },
   { href: "#how", label: "How it Works" },
   { href: "#reviews", label: "Reviews" },
   { href: "#faq", label: "FAQ" },
 ];
 
-function Header({ cartCount, onCartOpen }) {
+function Header({ cartCount, onCartOpen, onCollage }) {
   const [open, setOpen] = useState(false);
   return (
     <header className="fixed inset-x-0 top-0 z-50 glass shadow-[0_4px_24px_rgba(27,20,48,0.06)]">
@@ -2256,7 +2274,13 @@ function Header({ cartCount, onCartOpen }) {
         </a>
         <ul className="hidden items-center gap-7 lg:flex">
           {NAV_LINKS.map((l) => (
-            <li key={l.href}><a href={l.href} className="text-sm font-medium text-ink/70 transition hover:text-plum">{l.label}</a></li>
+            <li key={l.label}>
+              {l.action ? (
+                <button onClick={onCollage} className="text-sm font-medium text-ink/70 transition hover:text-plum">{l.label}</button>
+              ) : (
+                <a href={l.href} className="text-sm font-medium text-ink/70 transition hover:text-plum">{l.label}</a>
+              )}
+            </li>
           ))}
         </ul>
         <div className="flex items-center gap-2">
@@ -2281,11 +2305,18 @@ function Header({ cartCount, onCartOpen }) {
         <div className="border-t border-white/60 px-4 pb-4 lg:hidden">
           <ul className="flex flex-col gap-1 pt-3">
             {NAV_LINKS.map((l) => (
-              <li key={l.href}>
-                <a href={l.href} onClick={() => setOpen(false)}
-                  className="block rounded-xl px-3 py-2.5 font-medium text-ink/80 transition hover:bg-plum/5 hover:text-plum">
-                  {l.label}
-                </a>
+              <li key={l.label}>
+                {l.action ? (
+                  <button onClick={() => { setOpen(false); onCollage(); }}
+                    className="block w-full rounded-xl px-3 py-2.5 text-left font-medium text-ink/80 transition hover:bg-plum/5 hover:text-plum">
+                    {l.label}
+                  </button>
+                ) : (
+                  <a href={l.href} onClick={() => setOpen(false)}
+                    className="block rounded-xl px-3 py-2.5 font-medium text-ink/80 transition hover:bg-plum/5 hover:text-plum">
+                    {l.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
@@ -2319,27 +2350,30 @@ function Hero() {
     <section id="home" className="soft-gradient scroll-mt-16 overflow-hidden pb-16 pt-28 sm:pt-32">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:gap-8 lg:px-8">
         <div>
-          <span className="inline-flex items-center gap-2 rounded-full border border-plum/15 bg-white/70 px-4 py-1.5 text-xs font-semibold tracking-wide text-plum">
+          <span className="anim-fade inline-flex items-center gap-2 rounded-full border border-plum/15 bg-white/70 px-4 py-1.5 text-xs font-semibold tracking-wide text-plum">
             <Icon d={icons.spark} filled className="h-3.5 w-3.5" /> PREMIUM CUSTOM PRINTING STUDIO · INDIA
           </span>
-          <h1 className="mt-5 font-display text-5xl font-bold leading-[1.05] tracking-tight text-ink sm:text-6xl lg:text-7xl">
+          <h1 className="anim-rise mt-5 font-display text-5xl font-bold leading-[1.05] tracking-tight text-ink sm:text-6xl lg:text-7xl"
+            style={{ "--d": ".15s" }}>
             Print it.<br />Gift it.{" "}
             <span className="bg-gradient-to-r from-plum via-tangerine to-blush bg-clip-text text-transparent">Feel it.</span>
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink/65">
+          <p className="anim-fade mt-5 max-w-xl text-lg leading-relaxed text-ink/65" style={{ "--d": ".38s" }}>
             Upload your photo or design and turn it into premium T-shirts, mugs, frames, cushions,
             canvas and personalized keychains — printed beautifully, delivered fast.
           </p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="anim-pop mt-8 flex flex-wrap gap-3" style={{ "--d": ".55s" }}>
             <a href="#products"
-              className="rounded-full bg-gradient-to-r from-plum to-plum-soft px-7 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-plum/40">
-              Browse Products
+              className="btn-shine group rounded-full bg-gradient-to-r from-plum to-plum-soft px-7 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-plum/40">
+              Browse Products{" "}
+              <span className="inline-block transition-transform duration-300 group-hover:translate-x-1.5">→</span>
             </a>
           </div>
           <ul className="mt-10 grid max-w-lg grid-cols-2 gap-3 sm:grid-cols-4">
-            {TRUST_BADGES.map((b) => (
-              <li key={b.label} className="glass flex flex-col items-center gap-2 rounded-2xl px-3 py-4 text-center shadow-sm">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-plum/10 to-tangerine/10 text-plum">
+            {TRUST_BADGES.map((b, i) => (
+              <li key={b.label} style={{ "--d": `${0.65 + i * 0.09}s` }}
+                className="anim-rise group glass flex flex-col items-center gap-2 rounded-2xl px-3 py-4 text-center shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md">
+                <span className="trust-icon grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-plum/10 to-tangerine/10 text-plum">
                   <Icon d={b.icon} className="h-4.5 w-4.5" />
                 </span>
                 <span className="text-[11px] font-semibold leading-tight text-ink/75">{b.label}</span>
@@ -2347,11 +2381,12 @@ function Hero() {
             ))}
           </ul>
         </div>
-        <div className="relative mx-auto w-full max-w-xl">
+        <div className="anim-slide-right relative mx-auto w-full max-w-xl" style={{ "--d": ".3s" }}>
           <img src="/images/hero-lifestyle.jpg" alt="Custom printed T-shirt by Drucka, worn on a road trip in India"
             fetchpriority="high"
-            className="w-full rounded-[2rem] border border-white/60 object-cover shadow-[0_30px_70px_rgba(27,20,48,0.25)]" />
-          <div className="glass absolute -bottom-5 left-6 flex items-center gap-3 rounded-2xl px-4 py-3 shadow-xl">
+            className="animate-float-soft w-full rounded-[2rem] border border-white/60 object-cover shadow-[0_34px_80px_rgba(27,20,48,0.28)]" />
+          <div className="badge-pop-float glass absolute -bottom-5 left-6 flex items-center gap-3 rounded-2xl px-4 py-3 shadow-xl"
+            style={{ "--d": ".95s" }}>
             <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-plum to-tangerine text-white">
               <Icon d={icons.spark} filled className="h-4.5 w-4.5" />
             </span>
@@ -2388,20 +2423,221 @@ function CategoryShowcase({ onCustomize }) {
         <p className="mx-auto mt-2 max-w-xl text-ink/55">Every piece is printed on demand with your design — choose a style to start customizing.</p>
       </div>
       <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
-        {SHOWCASE_CATEGORIES.map((c) => (
+        {SHOWCASE_CATEGORIES.map((c, i) => (
           <button key={c.id} onClick={() => onCustomize(c.productId)}
-            className="group relative overflow-hidden rounded-3xl border border-ink/5 bg-white text-left shadow-[0_8px_30px_rgba(27,20,48,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
+            style={{ "--rd": `${(i % 3) * 90}ms` }}
+            className="reveal-stagger group relative overflow-hidden rounded-3xl border border-ink/5 bg-white text-left shadow-[0_8px_30px_rgba(27,20,48,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
             <img src={c.img} alt={c.label} loading="lazy"
-              className="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-105" />
+              className="aspect-[4/5] w-full object-cover transition duration-700 ease-out group-hover:scale-[1.07]" />
             <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 via-ink/35 to-transparent p-4 pt-12 sm:p-5">
               <h3 className="font-display text-lg font-bold text-white sm:text-xl">{c.label}</h3>
               <p className="text-xs text-white/75">{c.sub}</p>
-              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white backdrop-blur transition group-hover:bg-tangerine">
-                Customize →
+              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white backdrop-blur transition duration-300 group-hover:gap-2 group-hover:bg-tangerine group-hover:pr-2.5">
+                Customize
+                <span className="inline-block transition-transform duration-300 group-hover:translate-x-0.5">→</span>
               </span>
             </div>
           </button>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/* ── Featured: Photo Prints & Custom Frames ──────────────────────
+   Premium promo block — two category cards (Photo Prints + Custom
+   Frames) with selectable options that flow into a prefilled WhatsApp
+   order. CSS-only frame mockups (no image assets needed). */
+
+const PRINT_TYPES = ["Glossy Photo Print", "Matte Photo Print", "Passport Size Photo", "Poster Print", "Canvas Style Print"];
+const PRINT_SIZES = ["4x6", "5x7", "6x8", "8x10", "12x18", "A4", "A3"];
+
+const FRAME_STYLES = [
+  { id: "classic-black",      name: "Classic Black",       mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null },
+  { id: "premium-golden",     name: "Premium Golden",      mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c" },
+  { id: "wooden-brown",       name: "Wooden Brown",        mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null },
+  { id: "white-minimal",      name: "White Minimal",       mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true },
+  { id: "designer-black-gold",name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37" },
+  { id: "traditional-ornate", name: "Traditional Ornate",  mat: "linear-gradient(135deg,#d8b358,#7a5414)", accent: "#f0d98f" },
+];
+
+const FRAME_OPTIONS = ["Black Frame", "White Frame", "Wooden Frame", "Golden Frame", "Premium Designer Frame", "Ornate Traditional Frame"];
+const FRAME_STEPS = ["Upload Photo", "Select Print Size", "Choose Frame", "Confirm on WhatsApp"];
+
+function FrameMock({ frame, big }) {
+  return (
+    <div className="overflow-hidden transition-transform duration-300"
+      style={{ background: frame.mat, padding: big ? "7%" : "10%", borderRadius: 5,
+        boxShadow: big ? "0 14px 34px rgba(0,0,0,.22)" : "0 5px 16px rgba(0,0,0,.18)" }}>
+      <div className="bg-white" style={{ padding: "8%", boxShadow: frame.accent ? `inset 0 0 0 ${big ? 3 : 2}px ${frame.accent}` : "none" }}>
+        <div className="grid aspect-[4/5] w-full place-items-center bg-gradient-to-br from-plum/20 via-blush/20 to-tangerine/15">
+          <Icon d={icons.image} className={`text-ink/25 ${big ? "h-8 w-8" : "h-5 w-5"}`} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PhotoFramesSection({ onCustomize }) {
+  const [printType, setPrintType] = useState(null);
+  const [printSize, setPrintSize] = useState(null);
+  const [frame, setFrame] = useState(FRAME_STYLES[1]); // Premium Golden featured
+  const [frameSize, setFrameSize] = useState(null);
+
+  const printMsg = wa(
+    `Hi, I want to order a Photo Print.${printType ? ` Type: ${printType}.` : ""}${printSize ? ` Size: ${printSize}.` : ""} I will share photo and size details.`
+  );
+  const frameMsg = wa(
+    `Hi, I want to order a Custom Frame.${frame ? ` Frame: ${frame.name}.` : ""}${frameSize ? ` Print size: ${frameSize}.` : ""} I will share my photo and details.`
+  );
+
+  return (
+    <section id="photo-frames" className="scroll-mt-16 bg-gradient-to-b from-white via-cream/60 to-white py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* header */}
+        <div className="reveal mx-auto mb-10 max-w-2xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-amber-700">
+            <Icon d={icons.spark} filled className="h-3.5 w-3.5" /> Featured Studio Service
+          </span>
+          <h2 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl">
+            Photo Prints <span className="text-amber-600">&amp;</span> Custom Frames
+          </h2>
+          <p className="mx-auto mt-3 max-w-xl text-ink/60">
+            Upload your photo, choose print size, select frame style, and get a ready-to-hang customized frame.
+          </p>
+        </div>
+
+        <div className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
+          {/* ═══ Photo Prints ═══ */}
+          <div className="reveal group relative overflow-hidden rounded-[1.75rem] border border-ink/8 bg-white p-6 shadow-[0_10px_40px_rgba(27,20,48,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(27,20,48,0.12)] sm:p-8">
+            <span className="absolute right-5 top-5 z-10 rounded-full bg-tangerine px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
+              ⚡ Fast Printing
+            </span>
+
+            {/* sample stack visual */}
+            <div className="mb-6 flex h-40 items-end justify-center gap-3" aria-hidden="true">
+              {["from-plum/25 to-blush/25", "from-tangerine/25 to-amber-200", "from-sky-200 to-plum/20"].map((g, i) => (
+                <div key={i}
+                  className={`relative aspect-[3/4] w-24 rounded-xl bg-gradient-to-br ${g} shadow-lg transition-transform duration-500 group-hover:-translate-y-1`}
+                  style={{ transform: `rotate(${(i - 1) * 6}deg)`, transitionDelay: `${i * 60}ms` }}>
+                  <span className="absolute inset-x-2 bottom-2 h-2 rounded-full bg-white/55" />
+                </div>
+              ))}
+            </div>
+
+            <h3 className="font-display text-2xl font-bold text-ink">Photo Prints</h3>
+            <p className="mt-1 text-sm text-ink/55">Premium lab-quality prints, delivered crisp and vivid.</p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {PRINT_TYPES.map((t) => (
+                <button key={t} onClick={() => setPrintType(printType === t ? null : t)}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                    printType === t ? "border-amber-500 bg-amber-500 text-white shadow" : "border-ink/12 bg-white text-ink/70 hover:border-amber-400 hover:text-amber-700"
+                  }`}>
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-ink/40">Choose a size</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {PRINT_SIZES.map((s) => (
+                <button key={s} onClick={() => setPrintSize(printSize === s ? null : s)}
+                  className={`min-w-12 rounded-lg border-2 px-2.5 py-1.5 text-xs font-bold transition ${
+                    printSize === s ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/40"
+                  }`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            <p className="mt-4 flex items-center gap-1.5 text-xs text-ink/50">
+              <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> High quality color print with sharp finishing.
+            </p>
+
+            <a href={printMsg} target="_blank" rel="noopener noreferrer"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 font-bold text-white shadow-lg shadow-amber-500/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-500/35">
+              <Icon d={icons.upload} className="h-4.5 w-4.5" /> Upload Photo for Print
+            </a>
+          </div>
+
+          {/* ═══ Custom Frames ═══ */}
+          <div className="reveal group relative overflow-hidden rounded-[1.75rem] border-2 border-amber-300/50 bg-white p-6 shadow-[0_12px_44px_rgba(180,138,46,0.14)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_56px_rgba(180,138,46,0.22)] sm:p-8">
+            <span className="absolute right-5 top-5 z-10 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
+              ★ Most Popular
+            </span>
+
+            <div className="flex items-center gap-5">
+              <div className="w-32 shrink-0">
+                <FrameMock frame={frame} big />
+              </div>
+              <div>
+                <h3 className="font-display text-2xl font-bold text-ink">Custom Frames</h3>
+                <p className="mt-1 text-sm text-ink/55">Ready-to-hang frames, built around your photo.</p>
+                <p className="mt-2 text-xs font-semibold text-amber-700">Selected: {frame.name}</p>
+              </div>
+            </div>
+
+            {/* mini flow */}
+            <ol className="mt-5 flex items-center justify-between gap-1">
+              {FRAME_STEPS.map((s, i) => (
+                <li key={s} className="flex flex-1 items-center gap-1">
+                  <span className="flex flex-col items-center gap-1 text-center">
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-ink text-[11px] font-bold text-white">{i + 1}</span>
+                    <span className="text-[9px] font-semibold leading-tight text-ink/55">{s}</span>
+                  </span>
+                  {i < FRAME_STEPS.length - 1 && <span className="mb-4 h-px flex-1 bg-ink/15" />}
+                </li>
+              ))}
+            </ol>
+
+            {/* frame style grid */}
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-ink/40">Choose your frame</p>
+            <div className="mt-2 grid grid-cols-3 gap-2.5">
+              {FRAME_STYLES.map((f) => {
+                const active = frame.id === f.id;
+                return (
+                  <button key={f.id} onClick={() => setFrame(f)}
+                    className={`rounded-xl border-2 p-2 text-left transition ${active ? "border-amber-500 bg-amber-50" : "border-ink/8 bg-white hover:border-amber-300"}`}>
+                    <div className="transition-transform duration-300 group-hover:scale-[1.02]">
+                      <FrameMock frame={f} />
+                    </div>
+                    <p className="mt-1.5 truncate text-[11px] font-bold text-ink">{f.name}</p>
+                    <span className={`mt-1 block rounded-full py-1 text-center text-[10px] font-bold transition ${active ? "bg-amber-500 text-white" : "bg-ink/5 text-ink/60"}`}>
+                      {active ? "✓ Selected" : "Select Frame"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* size + customization choices */}
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-ink/40">Print size</p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {PRINT_SIZES.map((s) => (
+                <button key={s} onClick={() => setFrameSize(frameSize === s ? null : s)}
+                  className={`min-w-12 rounded-lg border-2 px-2.5 py-1.5 text-xs font-bold transition ${
+                    frameSize === s ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/40"
+                  }`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+
+            <p className="mt-4 flex items-center gap-1.5 text-xs text-ink/50">
+              <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> Select frame design and we will adjust your photo perfectly.
+            </p>
+
+            <a href={frameMsg} target="_blank" rel="noopener noreferrer"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-ink to-plum py-3.5 font-bold text-white shadow-lg shadow-plum/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-plum/35">
+              <Icon d={icons.whatsapp} filled className="h-4.5 w-4.5" /> Customize Frame
+            </a>
+            <button onClick={() => onCustomize("frame")}
+              className="mt-2 w-full text-center text-xs font-semibold text-amber-700 underline-offset-2 hover:underline">
+              or design &amp; preview your frame online →
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -2442,8 +2678,9 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
           </p>
         </div>
         <button onClick={() => onCustomize(product.id)}
-          className="mt-4 w-full rounded-full bg-ink py-2.5 text-sm font-semibold text-white transition hover:bg-plum">
-          Customize
+          className="btn-shine group/cta mt-4 w-full rounded-full bg-ink py-2.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-plum hover:shadow-lg hover:shadow-plum/25">
+          Customize{" "}
+          <span className="inline-block transition-transform duration-300 group-hover/cta:translate-x-1">→</span>
         </button>
       </div>
     </article>
@@ -3556,6 +3793,8 @@ export default function App() {
      (The legacy in-file ProductEditor is no longer rendered anywhere.) */
   const [designerPage, setDesignerPage] = useState(null); // null | { productId }
   const [designer, setDesigner] = useState(null); // null | { productId, selections }
+  const [collageOpen, setCollageOpen] = useState(false);
+  const [announceOpen, setAnnounceOpen] = useState(true);
   /* Qikink fulfillment layer */
   const [qikinkSettings, setQikinkSettings] = useState(() => load("drucka-qikink-settings", DEFAULT_QIKINK_SETTINGS));
   const [orders, setOrders] = useState(() => load("drucka-orders", []));
@@ -3687,7 +3926,7 @@ export default function App() {
       }),
       { threshold: 0.12 }
     );
-    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    document.querySelectorAll(".reveal, .reveal-stagger").forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, []);
 
@@ -3707,24 +3946,49 @@ export default function App() {
 
   return (
     <>
-      <Header cartCount={cartCount} onCartOpen={() => setCartOpen(true)} />
+      <AnnouncementBar visible={announceOpen} onClose={() => setAnnounceOpen(false)} />
+      <FrameNavbar
+        topOffset={announceOpen}
+        cartCount={cartCount}
+        onCartOpen={() => setCartOpen(true)}
+        onCollage={() => setCollageOpen(true)}
+      />
       {IS_STAGING && (
-        <div className="fixed inset-x-0 top-16 z-40 bg-amber-400/95 py-1 text-center text-[11px] font-bold tracking-wide text-amber-950 shadow"
+        <div className="fixed inset-x-0 bottom-0 z-[45] bg-amber-400/95 py-1 text-center text-[11px] font-bold tracking-wide text-amber-950 shadow"
           role="status">
           ⚠ STAGING — sandbox test environment · orders are NOT real · payments disabled (COD testing)
         </div>
       )}
       <main>
-        <Hero />
-        {/* single customization entry point: category + product cards below */}
+        <FrameHero />
+        <TrustBar />
+        {/* featured promo — photo prints & custom frames (kept highlighted) */}
+        <PhotoFramesSection onCustomize={openEditor} />
+        {/* existing custom-product business: apparel / kids / gifts designer */}
         <CategoryShowcase onCustomize={openEditor} />
-        <ProductTabs favs={favs} onFav={toggleFav} onCustomize={openEditor} />
-        <HowItWorks />
-        <GiftIdeaTool onCustomize={openEditor} />
-        <Reviews />
+        <BestsellingFrames />
+        <FeaturedProduct />
+        <GalleryWalls />
+        <StatementCollection />
+        <MagneticWalls />
+        <QualityBanner />
+        <SignatureGift />
+        <FrameFeatures />
+        <FrameTestimonials />
+        <StoreLocations />
         <FAQ />
       </main>
-      <Footer onAdmin={() => setAdminOpen(true)} onTrack={() => setTrackOpen(true)} />
+      <FrameFooter onTrack={() => setTrackOpen(true)} onAdmin={() => setAdminOpen(true)} />
+      <BackToTop />
+
+      {collageOpen && (
+        <CollageMaker
+          onClose={() => setCollageOpen(false)}
+          onAddToCart={addToCart}
+          onOpenCart={() => setCartOpen(true)}
+          showToast={showToast}
+        />
+      )}
 
       {designerPage && (
         <DesignerProductPage

@@ -14,10 +14,40 @@
   --color-tangerine: #f97316; /* warm orange */
   --color-blush: #f9a8d4; /* soft pink */
   --color-cream: #faf7f2;
+
+  /* premium frame-shop palette (homepage sections) */
+  --color-charcoal: #211c17; /* warm near-black */
+  --color-gold: #c19a3d;
+  --color-gold-dark: #a07f2c;
+  --color-gold-light: #e3c887;
+  --color-warm: #f4efe7; /* warm light backdrop */
+  --color-stone: #e2dcd2; /* soft warm border */
+
+  /* the uploaded components use font-serif for display type */
+  --font-serif: "Playfair Display", Georgia, serif;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+/* anchor targets clear the fixed navbar (+ announcement bar) */
+section[id] {
+  scroll-margin-top: 110px;
+}
+
+/* horizontal product sliders (BestsellingFrames, GalleryWalls) */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* hero eyebrow fade-in used by the frame-shop hero */
+.animate-fade-in {
+  animation: fade-in 0.9s ease 0.1s both;
 }
 
 body {
@@ -69,6 +99,95 @@ body {
 .reveal.is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* Staggered scroll-reveal — animation-based so the --rd delay never
+   leaks into hover transitions (cards lift instantly on hover) */
+.reveal-stagger {
+  opacity: 0;
+}
+.reveal-stagger.is-visible {
+  animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--rd, 0s) both;
+  opacity: 1;
+}
+
+/* ─── Premium motion pass (hero entrance + micro-interactions) ───
+   One-shot entrance helpers; stagger via the --d custom property:
+   <div className="anim-rise" style={{ "--d": ".2s" }}>            */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(56px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.82); }
+  70%  { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.anim-rise {
+  animation: rise-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+.anim-fade {
+  animation: fade-in 0.8s ease var(--d, 0s) both;
+}
+.anim-pop {
+  animation: pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0s) both;
+}
+.anim-slide-right {
+  animation: slide-in-right 0.85s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both;
+}
+
+/* gentle hover for the hero image + price badge */
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.animate-float-soft {
+  animation: float-soft 6s ease-in-out 1.4s infinite;
+}
+/* badge: pops in once, then hovers forever (two animations, no conflict
+   because the float's delay starts after the pop has settled) */
+.badge-pop-float {
+  animation:
+    pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0.9s) both,
+    float-soft 5.5s ease-in-out calc(var(--d, 0.9s) + 1.3s) infinite;
+}
+
+/* CTA shine sweep on hover */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 -80%;
+  width: 55%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+@keyframes shine-sweep {
+  from { left: -80%; }
+  to   { left: 130%; }
+}
+.btn-shine:hover::after {
+  animation: shine-sweep 0.75s ease;
+}
+
+/* trust-card icon micro-animation on hover */
+.trust-icon {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.group:hover .trust-icon {
+  transform: scale(1.15) rotate(-8deg);
 }
 
 /* ─── Editor ─────────────────────────────────── */
@@ -137,14 +256,32 @@ body {
   html {
     scroll-behavior: auto;
   }
-  .reveal {
+  .reveal,
+  .reveal-stagger,
+  .reveal-stagger.is-visible {
     opacity: 1;
     transform: none;
     transition: none;
+    animation: none;
   }
   .animate-float,
   .animate-float-slow,
-  .animate-sheet {
+  .animate-float-soft,
+  .animate-sheet,
+  .anim-rise,
+  .anim-fade,
+  .anim-pop,
+  .anim-slide-right,
+  .animate-fade-in,
+  .badge-pop-float {
     animation: none;
+  }
+  .btn-shine:hover::after {
+    animation: none;
+  }
+  .trust-icon,
+  .group:hover .trust-icon {
+    transition: none;
+    transform: none;
   }
 }
