@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { qikinkApi, setAdminKey, getAdminKey } from "./lib/qikinkClient";
 import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore";
 import { payWithRazorpay } from "./lib/paymentClient";
@@ -24,6 +24,8 @@ import StoreLocations from "./components/StoreLocations";
 import FrameFooter from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 import PhotoFrameCustomizer from "./components/PhotoFrameCustomizer";
+/* Fabric.js is heavy — the Pro editor (and fabric with it) loads on demand */
+const CollageEditor = lazy(() => import("./components/editor/CollageEditor"));
 
 /* ═══════════════════════════════════════════════════════════════
    CONFIG — EDIT THESE VALUES FOR YOUR BUSINESS
@@ -3808,6 +3810,7 @@ export default function App() {
   const [designerPage, setDesignerPage] = useState(null); // null | { productId }
   const [designer, setDesigner] = useState(null); // null | { productId, selections }
   const [collageOpen, setCollageOpen] = useState(false);
+  const [collagePro, setCollagePro] = useState(false); // free-form Fabric.js editor mode
   const [announceOpen, setAnnounceOpen] = useState(true);
   const [customizer, setCustomizer] = useState(null); // null | { mode: "print"|"frame", initial }
   /* Qikink fulfillment layer */
@@ -4006,13 +4009,27 @@ export default function App() {
         />
       )}
 
-      {collageOpen && (
+      {collageOpen && !collagePro && (
         <CollageMaker
           onClose={() => setCollageOpen(false)}
           onAddToCart={addToCart}
           onOpenCart={() => setCartOpen(true)}
           showToast={showToast}
+          onPro={() => setCollagePro(true)}
         />
+      )}
+      {collageOpen && collagePro && (
+        <Suspense fallback={
+          <div className="fixed inset-0 z-[95] grid place-items-center bg-[#141021] text-sm font-semibold text-white/60">
+            Loading Pro Editor…
+          </div>
+        }>
+          <CollageEditor
+            onClose={() => { setCollagePro(false); setCollageOpen(false); }}
+            onBackToGrid={() => setCollagePro(false)}
+            showToast={showToast}
+          />
+        </Suspense>
       )}
 
       {designerPage && (

@@ -32,7 +32,7 @@ const Slider = ({ label, value, min, max, step, onChange, fmt = (v) => v }) => (
   </label>
 );
 
-export default function CollageMaker({ onClose, onAddToCart, onOpenCart, showToast }) {
+export default function CollageMaker({ onClose, onAddToCart, onOpenCart, showToast, onPro }) {
   /* ── state ── */
   const [photos, setPhotos] = useState([]);
   const [layoutId, setLayoutId] = useState("2x2");
@@ -502,6 +502,12 @@ export default function CollageMaker({ onClose, onAddToCart, onOpenCart, showToa
         <div className="mx-auto hidden items-center gap-1 text-[11px] font-semibold text-white/45 sm:flex">
           {filledCount}/{layout.cells.length} photos placed
         </div>
+        {onPro && (
+          <button onClick={onPro} title="Free-form editor: shape crops, effects, layers"
+            className="mr-1 rounded-full border border-white/20 px-3.5 py-2 text-xs font-bold text-white/80 transition hover:border-tangerine hover:text-white">
+            ✨ Pro Editor
+          </button>
+        )}
         <button onClick={() => exportFile("jpg")} disabled={busy}
           className="rounded-full bg-tangerine px-4 py-2 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-50">
           {busy ? "…" : "Download"}
