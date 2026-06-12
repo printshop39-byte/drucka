@@ -23,6 +23,7 @@ import FrameTestimonials from "./components/Testimonials";
 import StoreLocations from "./components/StoreLocations";
 import FrameFooter from "./components/Footer";
 import BackToTop from "./components/BackToTop";
+import PhotoFrameCustomizer from "./components/PhotoFrameCustomizer";
 
 /* ═══════════════════════════════════════════════════════════════
    CONFIG — EDIT THESE VALUES FOR YOUR BUSINESS
@@ -2120,6 +2121,19 @@ const QUICK_REPLIES = [
   { id: "human", label: "Talk to human", human: true },
 ];
 
+/* Photo print & frame customizer help (Marathi) — shared answer */
+const CUSTOMIZER_ANSWER =
+  "Photo Prints & Custom Frames section madhye Start Customizing click kara. Tumhi 4 photo upload karu shakta, size select karu shakta, crop/fit adjust karu shakta, quality check pahu shakta ani final WhatsApp order karu shakta.";
+QUICK_REPLIES.splice(QUICK_REPLIES.length - 1, 0,
+  { id: "crop-how", label: "Photo crop kase karayche?", reply: CUSTOMIZER_ANSWER },
+  { id: "four-photos", label: "4 photo upload karu shakto ka?", reply: CUSTOMIZER_ANSWER },
+  { id: "size-how", label: "Recommended print size kasa select karaycha?", reply: CUSTOMIZER_ANSWER },
+  { id: "blurry", label: "Photo blurry tar kalel ka?", reply: CUSTOMIZER_ANSWER },
+  { id: "frame-preview", label: "Frame preview site var disel ka?", reply: CUSTOMIZER_ANSWER },
+  { id: "glossy-matte", label: "Glossy/Matte print available aahe ka?", reply: CUSTOMIZER_ANSWER },
+  { id: "frame-order", label: "Custom frame order kasa karaycha?", reply: CUSTOMIZER_ANSWER },
+);
+
 function WhatsAppChatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -2478,18 +2492,18 @@ function FrameMock({ frame, big }) {
   );
 }
 
-function PhotoFramesSection({ onCustomize }) {
+function PhotoFramesSection({ onCustomize, onOpenCustomizer }) {
   const [printType, setPrintType] = useState(null);
   const [printSize, setPrintSize] = useState(null);
   const [frame, setFrame] = useState(FRAME_STYLES[1]); // Premium Golden featured
   const [frameSize, setFrameSize] = useState(null);
 
-  const printMsg = wa(
-    `Hi, I want to order a Photo Print.${printType ? ` Type: ${printType}.` : ""}${printSize ? ` Size: ${printSize}.` : ""} I will share photo and size details.`
-  );
-  const frameMsg = wa(
-    `Hi, I want to order a Custom Frame.${frame ? ` Frame: ${frame.name}.` : ""}${frameSize ? ` Print size: ${frameSize}.` : ""} I will share my photo and details.`
-  );
+  /* CTAs open the on-site customizer (upload → crop → quality → summary);
+     only its final button goes to WhatsApp */
+  const openPrint = () =>
+    onOpenCustomizer("print", { printType: printType ?? undefined, sizeId: printSize?.toLowerCase() });
+  const openFrame = () =>
+    onOpenCustomizer("frame", { frameId: frame.id, sizeId: frameSize?.toLowerCase() });
 
   return (
     <section id="photo-frames" className="scroll-mt-16 bg-gradient-to-b from-white via-cream/60 to-white py-16 sm:py-20">
@@ -2555,10 +2569,10 @@ function PhotoFramesSection({ onCustomize }) {
               <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> High quality color print with sharp finishing.
             </p>
 
-            <a href={printMsg} target="_blank" rel="noopener noreferrer"
+            <button onClick={openPrint}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 font-bold text-white shadow-lg shadow-amber-500/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-500/35">
               <Icon d={icons.upload} className="h-4.5 w-4.5" /> Upload Photo for Print
-            </a>
+            </button>
           </div>
 
           {/* ═══ Custom Frames ═══ */}
@@ -2628,10 +2642,10 @@ function PhotoFramesSection({ onCustomize }) {
               <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> Select frame design and we will adjust your photo perfectly.
             </p>
 
-            <a href={frameMsg} target="_blank" rel="noopener noreferrer"
+            <button onClick={openFrame}
               className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-ink to-plum py-3.5 font-bold text-white shadow-lg shadow-plum/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-plum/35">
-              <Icon d={icons.whatsapp} filled className="h-4.5 w-4.5" /> Customize Frame
-            </a>
+              <Icon d={icons.image} className="h-4.5 w-4.5" /> Customize Frame
+            </button>
             <button onClick={() => onCustomize("frame")}
               className="mt-2 w-full text-center text-xs font-semibold text-amber-700 underline-offset-2 hover:underline">
               or design &amp; preview your frame online →
@@ -3795,6 +3809,7 @@ export default function App() {
   const [designer, setDesigner] = useState(null); // null | { productId, selections }
   const [collageOpen, setCollageOpen] = useState(false);
   const [announceOpen, setAnnounceOpen] = useState(true);
+  const [customizer, setCustomizer] = useState(null); // null | { mode: "print"|"frame", initial }
   /* Qikink fulfillment layer */
   const [qikinkSettings, setQikinkSettings] = useState(() => load("drucka-qikink-settings", DEFAULT_QIKINK_SETTINGS));
   const [orders, setOrders] = useState(() => load("drucka-orders", []));
@@ -3963,7 +3978,8 @@ export default function App() {
         <FrameHero />
         <TrustBar />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
-        <PhotoFramesSection onCustomize={openEditor} />
+        <PhotoFramesSection onCustomize={openEditor}
+          onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
         {/* existing custom-product business: apparel / kids / gifts designer */}
         <CategoryShowcase onCustomize={openEditor} />
         <BestsellingFrames />
@@ -3980,6 +3996,15 @@ export default function App() {
       </main>
       <FrameFooter onTrack={() => setTrackOpen(true)} onAdmin={() => setAdminOpen(true)} />
       <BackToTop />
+
+      {customizer && (
+        <PhotoFrameCustomizer
+          mode={customizer.mode}
+          initial={customizer.initial}
+          onClose={() => setCustomizer(null)}
+          showToast={showToast}
+        />
+      )}
 
       {collageOpen && (
         <CollageMaker
