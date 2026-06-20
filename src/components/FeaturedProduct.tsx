@@ -27,7 +27,7 @@ export default function FeaturedProduct() {
             <div className="aspect-square bg-white rounded-lg overflow-hidden shadow-2xl shadow-charcoal/10">
               <img
                 src={tabletopImages[currentImage]}
-                alt="The Tabletop Frame"
+                alt="The Tabletop custom photo frame by Drucka — personalized framed print"
                 className="w-full h-full object-cover transition-all duration-500"
               />
             </div>

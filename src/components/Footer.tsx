@@ -4,10 +4,9 @@ const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(
 
 interface FooterProps {
   onTrack: () => void;
-  onAdmin: () => void;
 }
 
-export default function Footer({ onTrack, onAdmin }: FooterProps) {
+export default function Footer({ onTrack }: FooterProps) {
   const shopLinks = [
     { label: 'Photo Prints & Frames', href: '#photo-frames' },
     { label: 'Bestselling Frames', href: '#frames' },
@@ -149,9 +148,6 @@ export default function Footer({ onTrack, onAdmin }: FooterProps) {
               <span className="text-xs text-white/30">COD</span>
               <span className="text-xs text-white/30">Cards</span>
               <span className="text-xs text-white/30">Net Banking</span>
-              <button onClick={onAdmin} className="text-xs text-white/30 hover:text-white/60 transition-colors">
-                Admin
-              </button>
             </div>
           </div>
         </div>

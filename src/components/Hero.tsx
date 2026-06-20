@@ -7,7 +7,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <img
           src="https://images.pexels.com/photos/383568/pexels-photo-383568.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1200&w=2000"
-          alt="Gallery wall with framed photos"
+          alt="Custom photo frames gallery wall by Drucka — photo printing & framing in Kolhapur, India"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal/85 via-charcoal/60 to-charcoal/30"></div>

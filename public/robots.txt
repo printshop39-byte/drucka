@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Keep the private admin view out of search results
+Disallow: /admin
+
+Sitemap: https://www.drucka.in/sitemap.xml

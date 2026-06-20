@@ -107,7 +107,7 @@ export default function BestsellingFrames() {
               <div className="relative aspect-[3/4] bg-warm rounded-lg overflow-hidden mb-4">
                 <img
                   src={frame.image}
-                  alt={frame.name}
+                  alt={`${frame.name} — ${frame.type} photo frame online | Drucka`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/10 transition-colors duration-300"></div>

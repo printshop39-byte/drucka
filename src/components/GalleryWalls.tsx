@@ -96,7 +96,7 @@ export default function GalleryWalls() {
               <div className="relative aspect-[7/5] bg-warm rounded-lg overflow-hidden mb-4">
                 <img
                   src={wall.image}
-                  alt={wall.name}
+                  alt={`${wall.name} gallery wall — custom photo frames online | Drucka`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

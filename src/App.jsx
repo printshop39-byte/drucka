@@ -2440,20 +2440,34 @@ function CategoryShowcase({ onCustomize }) {
       </div>
       <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
         {SHOWCASE_CATEGORIES.map((c, i) => (
-          <button key={c.id} onClick={() => onCustomize(c.productId)}
+          <div key={c.id}
             style={{ "--rd": `${(i % 3) * 90}ms` }}
-            className="reveal-stagger group relative overflow-hidden rounded-3xl border border-ink/5 bg-white text-left shadow-[0_8px_30px_rgba(27,20,48,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
-            <img src={c.img} alt={c.label} loading="lazy"
-              className="aspect-[4/5] w-full object-cover transition duration-700 ease-out group-hover:scale-[1.07]" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 via-ink/35 to-transparent p-4 pt-12 sm:p-5">
-              <h3 className="font-display text-lg font-bold text-white sm:text-xl">{c.label}</h3>
-              <p className="text-xs text-white/75">{c.sub}</p>
-              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white backdrop-blur transition duration-300 group-hover:gap-2 group-hover:bg-tangerine group-hover:pr-2.5">
+            className="reveal-stagger group relative flex flex-col overflow-hidden rounded-3xl border border-ink/5 bg-white text-left shadow-[0_8px_30px_rgba(27,20,48,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
+            {/* tap the image to open the on-site designer */}
+            <button onClick={() => onCustomize(c.productId)} aria-label={`Customize ${c.label}`}
+              className="relative block w-full overflow-hidden text-left">
+              <img src={c.img} alt={`${c.label} — custom printed online | Drucka`} loading="lazy"
+                className="aspect-[4/5] w-full object-cover transition duration-700 ease-out group-hover:scale-[1.07]" />
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 via-ink/35 to-transparent p-4 pt-12 sm:p-5">
+                <h3 className="font-display text-lg font-bold text-white sm:text-xl">{c.label}</h3>
+                <p className="text-xs text-white/75">{c.sub}</p>
+              </div>
+            </button>
+            {/* dual CTA: design online or order straight on WhatsApp */}
+            <div className="flex gap-2 p-2.5 sm:p-3">
+              <button onClick={() => onCustomize(c.productId)}
+                className="flex-1 rounded-full bg-ink py-2 text-xs font-bold text-white transition hover:bg-plum sm:text-sm">
                 Customize
-                <span className="inline-block transition-transform duration-300 group-hover:translate-x-0.5">→</span>
-              </span>
+              </button>
+              <a
+                href={wa(`Hi Drucka! I'd like to order: ${c.label} (${c.sub}). Please share details, sizes & price.`)}
+                target="_blank" rel="noopener noreferrer"
+                aria-label={`Order ${c.label} on WhatsApp`}
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#25D366] py-2 text-xs font-bold text-white transition hover:bg-[#1da851] sm:text-sm">
+                <Icon d={icons.whatsapp} filled className="h-4 w-4" /> WhatsApp
+              </a>
             </div>
-          </button>
+          </div>
         ))}
       </div>
     </section>
@@ -3960,6 +3974,66 @@ export default function App() {
   const openEditor = (productId = "tshirt") =>
     setDesignerPage({ productId: designerProductById(productId) ? productId : "tshirt" });
 
+  /* ── Clean-URL deep links ─────────────────────────────────────────
+     The whole site is one page; cart, track-order, the customizer and
+     admin are modals. vercel.json rewrites every path to index.html, and
+     this router opens the matching view so drucka.in/customize · /catalog ·
+     /cart · /login · /track-order · /admin resolve instead of returning a
+     404. Also fires on browser back/forward via popstate. */
+  useEffect(() => {
+    /* per-route <title> + meta description so each clean URL is its own
+       indexable "page" for search engines (SPA has one HTML document) */
+    const ROUTE_META = {
+      "/customize": ["Customize Your Print Online — Custom T-Shirts & Gifts | Drucka", "Design custom printed t-shirts, mugs, hoodies & frames online. Upload your photo or art, preview live, and order — delivered across India in 2–4 days."],
+      "/catalog":   ["Shop Custom Printing & Photo Frames Online | Drucka", "Browse custom t-shirts, personalized mugs, photo frames, canvas & gifts. Premium print-on-demand from Kolhapur, delivered across India."],
+      "/cart":      ["Your Cart | Drucka", "Review your custom printing order before checkout — Drucka custom t-shirts, mugs, frames & gifts."],
+      "/track-order": ["Track Your Order | Drucka", "Track your Drucka custom printing order by order ID and phone number."],
+      "/login":     ["Track Your Order | Drucka", "Look up your Drucka order — no account needed, just your order ID and phone number."],
+    };
+    const setMeta = (p) => {
+      const [title, desc] = ROUTE_META[p] ?? [
+        "Drucka — Custom T-Shirts, Photo Frames & Personalized Gifts Online India",
+        "Design custom printed t-shirts, personalized mugs, photo frames & canvas online with Drucka. Premium print-on-demand studio from Kolhapur, delivered across India in 2–4 days.",
+      ];
+      document.title = title;
+      document.querySelector('meta[name="description"]')?.setAttribute("content", desc);
+    };
+    const applyRoute = () => {
+      const p = window.location.pathname.replace(/\/+$/, "").toLowerCase();
+      setMeta(p);
+      switch (p) {
+        case "/customize":
+        case "/customise":
+          openEditor();
+          break;
+        case "/catalog":
+        case "/catalogue":
+        case "/shop":
+          requestAnimationFrame(() =>
+            document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" }));
+          break;
+        case "/cart":
+          setCartOpen(true);
+          break;
+        case "/track-order":
+        case "/track":
+        case "/login":   // no customer accounts — order tracking is the self-service equivalent
+        case "/account":
+          setTrackOpen(true);
+          break;
+        case "/admin":
+          setAdminOpen(true);
+          break;
+        default:
+          break;
+      }
+    };
+    applyRoute();
+    window.addEventListener("popstate", applyRoute);
+    return () => window.removeEventListener("popstate", applyRoute);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
   return (
@@ -3997,7 +4071,7 @@ export default function App() {
         <StoreLocations />
         <FAQ />
       </main>
-      <FrameFooter onTrack={() => setTrackOpen(true)} onAdmin={() => setAdminOpen(true)} />
+      <FrameFooter onTrack={() => setTrackOpen(true)} />
       <BackToTop />
 
       {customizer && (

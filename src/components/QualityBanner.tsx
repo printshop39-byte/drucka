@@ -5,7 +5,7 @@ export default function QualityBanner() {
       <div className="absolute inset-0">
         <img
           src="https://images.pexels.com/photos/18947394/pexels-photo-18947394.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=900&w=1600"
-          alt="Craftsman working on frames"
+          alt="Drucka craftsman handmaking custom photo frames in Kolhapur, India"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-charcoal/75"></div>
