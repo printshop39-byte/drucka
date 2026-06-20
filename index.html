@@ -48,11 +48,11 @@
         "@context": "https://schema.org",
         "@graph": [
           {
-            "@type": "Store",
+            "@type": "OnlineStore",
             "@id": "https://www.drucka.in/#business",
             "name": "Drucka",
             "alternateName": "Drucka Print Studio",
-            "description": "Custom printing & framing studio — custom t-shirts, personalized mugs, photo frames, canvas and gifts, printed on demand and delivered across India.",
+            "description": "Online custom printing store — custom t-shirts, personalized mugs, photo frames, canvas and gifts, printed on demand and delivered across India.",
             "url": "https://www.drucka.in/",
             "image": "https://www.drucka.in/images/hero-lifestyle.jpg",
             "telephone": "+917083811355",
@@ -62,18 +62,12 @@
             "paymentAccepted": "UPI, Cash on Delivery, Cards, Net Banking",
             "address": {
               "@type": "PostalAddress",
-              "streetAddress": "Drucka Print Studio",
               "addressLocality": "Kolhapur",
               "addressRegion": "Maharashtra",
               "postalCode": "416001",
               "addressCountry": "IN"
             },
-            "geo": {
-              "@type": "GeoCoordinates",
-              "latitude": 16.705,
-              "longitude": 74.2433
-            },
-            "areaServed": "IN",
+            "areaServed": { "@type": "Country", "name": "India" },
             "sameAs": ["https://instagram.com/druc.ka"]
           },
           {
