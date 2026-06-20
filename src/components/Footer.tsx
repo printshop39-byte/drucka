@@ -96,9 +96,9 @@ export default function Footer({ onTrack }: FooterProps) {
           <div>
             <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Contact</h4>
             <div className="space-y-3">
-              <a href="mailto:printshop39@gmail.com" className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
+              <a href="mailto:hello@drucka.in" className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
                 <Mail size={14} />
-                printshop39@gmail.com
+                hello@drucka.in
               </a>
               <a href="tel:+917083811355" className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
                 <Phone size={14} />
