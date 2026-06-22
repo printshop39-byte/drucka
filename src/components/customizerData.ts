@@ -41,7 +41,7 @@ export const FRAME_STYLES: FrameStyle[] = [
   { id: "classic-black", name: "Classic Black", mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null,
     img: "/images/frames/classic-black.jpg", frameImg: "/images/frames/classic-black-live.jpg", opening: { x: 13, y: 16, w: 74, h: 70 } },
   { id: "premium-golden", name: "Premium Golden", mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c",
-    img: "/images/frames/premium-golden.jpg", frameImg: "/images/frames/premium-golden-live.jpg", opening: { x: 14, y: 15, w: 69, h: 73 } },
+    img: "/images/frames/premium-golden.jpg", frameImg: "/images/frames/premium-golden-live.jpg", opening: { x: 21, y: 15, w: 60, h: 70 } },
   { id: "wooden-brown", name: "Wooden Brown", mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null,
     img: "/images/frames/wooden-brown.jpg", frameImg: "/images/frames/wooden-brown-live.jpg", opening: { x: 19, y: 18, w: 62, h: 68 } },
   { id: "white-minimal", name: "White Minimal", mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true,
