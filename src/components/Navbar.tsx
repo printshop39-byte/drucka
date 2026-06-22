@@ -18,7 +18,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage }: 
     { name: 'Gallery Walls', href: '#gallery-walls' },
     { name: 'Statement Collection', href: '#statement' },
     { name: 'Mini Prints', href: '#mini-prints' },
-    { name: 'Gifting', href: '#gifting' },
+    { name: 'Gifting', href: '#phone-cases' },
   ];
 
   return (

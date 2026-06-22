@@ -4073,15 +4073,15 @@ export default function App() {
         {/* Hidden per request — "Pick your canvas" / Shop by category section.
             Kept in code (CategoryShowcase) so it can be re-enabled later. */}
         {/* <CategoryShowcase onCustomize={openEditor} /> */}
-        <BestsellingFrames />
-        <FeaturedProduct />
+        {/* Hidden per request — components kept in code for later */}
+        {/* <BestsellingFrames /> */}
+        {/* <FeaturedProduct /> */}
         <GalleryWalls />
         <StatementCollection />
-        {/* Magnetic Walls hidden per request — component kept for later */}
         {/* <MagneticWalls /> */}
         <MiniPhotoPrints />
-        <QualityBanner />
-        <SignatureGift />
+        {/* <QualityBanner /> */}
+        {/* <SignatureGift /> */}
         <PhoneCases />
         <FrameFeatures />
         <FrameTestimonials />
