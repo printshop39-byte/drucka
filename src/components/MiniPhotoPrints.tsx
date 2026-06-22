@@ -1,4 +1,5 @@
-const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(m)}`;
+import { useState } from 'react';
+import Lightbox, { LightboxItem } from './Lightbox';
 
 const miniPrints = [
   { size: '2×3 inch', name: 'Wallet & Gift Inserts', image: '/images/mini/mini-2x3.jpg', desc: 'Pocket-size prints for wallets, cards & gift tags' },
@@ -7,6 +8,14 @@ const miniPrints = [
 ];
 
 export default function MiniPhotoPrints() {
+  const [active, setActive] = useState<number | null>(null);
+  const lbItem: LightboxItem | null = active !== null ? {
+    image: miniPrints[active].image,
+    title: `${miniPrints[active].size} · ${miniPrints[active].name}`,
+    subtitle: miniPrints[active].desc,
+    waMessage: `Hi Drucka! I'd like to order ${miniPrints[active].size} Mini Photo Prints (${miniPrints[active].name}).`,
+  } : null;
+
   return (
     <section id="mini-prints" className="py-20 lg:py-28 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -23,12 +32,13 @@ export default function MiniPhotoPrints() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {miniPrints.map((item) => (
-            <a
+          {miniPrints.map((item, index) => (
+            <button
               key={item.size}
-              href={wa(`Hi Drucka! I'd like to order ${item.size} Mini Photo Prints (${item.name}).`)}
-              target="_blank" rel="noopener noreferrer"
-              className="group cursor-pointer"
+              type="button"
+              onClick={() => setActive(index)}
+              aria-label={`View ${item.size} ${item.name}`}
+              className="group cursor-pointer text-left"
             >
               <div className="relative aspect-square bg-warm rounded-lg overflow-hidden mb-4">
                 <img
@@ -41,16 +51,18 @@ export default function MiniPhotoPrints() {
                 </span>
                 <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/25 transition-colors duration-300 flex items-center justify-center">
                   <span className="text-white font-serif text-lg font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    Order on WhatsApp
+                    View
                   </span>
                 </div>
               </div>
               <h3 className="font-serif font-semibold text-lg text-charcoal">{item.name}</h3>
               <p className="text-sm text-charcoal/55">{item.desc}</p>
-            </a>
+            </button>
           ))}
         </div>
       </div>
+
+      <Lightbox item={lbItem} onClose={() => setActive(null)} />
     </section>
   );
 }

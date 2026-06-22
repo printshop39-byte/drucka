@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
-
-const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(m)}`;
+import { useState } from 'react';
+import Lightbox, { LightboxItem } from './Lightbox';
 
 const statements = [
   { name: 'Oslo', image: '/images/statement/oslo.jpg' },
@@ -16,15 +14,12 @@ const statements = [
 
 export default function StatementCollection() {
   const [active, setActive] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (active === null) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setActive(null); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [active]);
-
-  const item = active !== null ? statements[active] : null;
+  const item: LightboxItem | null = active !== null ? {
+    image: statements[active].image,
+    title: statements[active].name,
+    subtitle: 'Statement frame · museum-quality giclée print',
+    waMessage: `Hi Drucka! I'd like to know more about the ${statements[active].name} statement frame.`,
+  } : null;
 
   return (
     <section id="statement" className="py-20 lg:py-28 bg-cream">
@@ -65,37 +60,7 @@ export default function StatementCollection() {
         </div>
       </div>
 
-      {/* Zoom / lightbox view */}
-      {item && (
-        <div
-          className="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-charcoal/90 backdrop-blur-sm p-4 sm:p-8"
-          onClick={() => setActive(null)}
-        >
-          <button
-            onClick={() => setActive(null)}
-            aria-label="Close"
-            className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 transition"
-          >
-            <X size={20} />
-          </button>
-          <img
-            src={item.image}
-            alt={`${item.name} statement frame — zoomed view | Drucka`}
-            onClick={(e) => e.stopPropagation()}
-            className="max-h-[78vh] max-w-[92vw] rounded-lg object-contain shadow-2xl"
-          />
-          <div className="mt-4 flex flex-col items-center gap-3" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-serif text-xl font-semibold text-white">{item.name}</h3>
-            <a
-              href={wa(`Hi Drucka! I'd like to know more about the ${item.name} statement frame.`)}
-              target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-gold px-6 py-2.5 text-sm font-semibold uppercase tracking-wide text-white hover:bg-gold-dark transition"
-            >
-              Order on WhatsApp
-            </a>
-          </div>
-        </div>
-      )}
+      <Lightbox item={item} onClose={() => setActive(null)} />
     </section>
   );
 }

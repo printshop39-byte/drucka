@@ -1,7 +1,6 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-
-const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(m)}`;
+import Lightbox, { LightboxItem } from './Lightbox';
 
 const galleryWalls = [
   {
@@ -44,6 +43,14 @@ const galleryWalls = [
 
 export default function GalleryWalls() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState<number | null>(null);
+  const item: LightboxItem | null = active !== null ? {
+    image: galleryWalls[active].image,
+    title: galleryWalls[active].name,
+    subtitle: galleryWalls[active].size,
+    price: galleryWalls[active].price,
+    waMessage: `Hi Drucka! I'm interested in the ${galleryWalls[active].name} gallery wall (${galleryWalls[active].size}, ${galleryWalls[active].price}).`,
+  } : null;
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -87,11 +94,12 @@ export default function GalleryWalls() {
           className="flex gap-6 overflow-x-auto hide-scrollbar pb-4 -mx-4 px-4"
         >
           {galleryWalls.map((wall, index) => (
-            <a
+            <button
               key={index}
-              href={wa(`Hi Drucka! I'm interested in the ${wall.name} gallery wall (${wall.size}, ${wall.price}).`)}
-              target="_blank" rel="noopener noreferrer"
-              className="flex-shrink-0 w-[360px] group cursor-pointer"
+              type="button"
+              onClick={() => setActive(index)}
+              aria-label={`View ${wall.name}`}
+              className="flex-shrink-0 w-[360px] group cursor-pointer text-left"
             >
               <div className="relative aspect-[7/5] bg-warm rounded-lg overflow-hidden mb-4">
                 <img
@@ -107,10 +115,12 @@ export default function GalleryWalls() {
                 </div>
                 <span className="font-semibold text-charcoal">{wall.price}</span>
               </div>
-            </a>
+            </button>
           ))}
         </div>
       </div>
+
+      <Lightbox item={item} onClose={() => setActive(null)} />
     </section>
   );
 }
