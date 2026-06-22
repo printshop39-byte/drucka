@@ -2483,18 +2483,28 @@ const PRINT_TYPES = ["Glossy Photo Print", "Matte Photo Print", "Passport Size P
 const PRINT_SIZES = ["4x6", "5x7", "6x8", "8x10", "12x18", "A4", "A3"];
 
 const FRAME_STYLES = [
-  { id: "classic-black",      name: "Classic Black",       mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null },
-  { id: "premium-golden",     name: "Premium Golden",      mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c" },
-  { id: "wooden-brown",       name: "Wooden Brown",        mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null },
-  { id: "white-minimal",      name: "White Minimal",       mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true },
-  { id: "designer-black-gold",name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37" },
-  { id: "traditional-ornate", name: "Traditional Ornate",  mat: "linear-gradient(135deg,#d8b358,#7a5414)", accent: "#f0d98f" },
+  { id: "classic-black",      name: "Classic Black",       mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null,       frameImg: "/images/frames/classic-black-live.jpg" },
+  { id: "premium-golden",     name: "Premium Golden",      mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c", frameImg: "/images/frames/premium-golden-live.jpg" },
+  { id: "wooden-brown",       name: "Wooden Brown",        mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null,       frameImg: "/images/frames/wooden-brown-live.jpg" },
+  { id: "white-minimal",      name: "White Minimal",       mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true, frameImg: "/images/frames/white-minimal-live.jpg" },
+  { id: "designer-black-gold",name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37",  frameImg: "/images/frames/designer-black-gold-live.jpg" },
+  { id: "traditional-ornate", name: "Traditional Ornate",  mat: "linear-gradient(135deg,#d8b358,#7a5414)", accent: "#f0d98f", frameImg: "/images/frames/traditional-ornate-live.jpg" },
 ];
 
 const FRAME_OPTIONS = ["Black Frame", "White Frame", "Wooden Frame", "Golden Frame", "Premium Designer Frame", "Ornate Traditional Frame"];
 const FRAME_STEPS = ["Upload Photo", "Select Print Size", "Choose Frame", "Confirm on WhatsApp"];
 
 function FrameMock({ frame, big }) {
+  const src = frame.frameImg || frame.img;
+  // real frame photo when available; otherwise fall back to the CSS-gradient mock
+  if (src) {
+    return (
+      <div className="overflow-hidden rounded-[5px] transition-transform duration-300"
+        style={{ boxShadow: big ? "0 14px 34px rgba(0,0,0,.22)" : "0 5px 16px rgba(0,0,0,.18)" }}>
+        <img src={src} alt={frame.name} loading="lazy" className="block w-full" />
+      </div>
+    );
+  }
   return (
     <div className="overflow-hidden transition-transform duration-300"
       style={{ background: frame.mat, padding: big ? "7%" : "10%", borderRadius: 5,
