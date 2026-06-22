@@ -3,7 +3,7 @@ import { X, Upload, Pencil, Trash2, Plus, Minus, Check, MessageCircle, ChevronLe
 import {
   BORDER_OPTIONS, FRAME_STYLES, FrameStyle, PRINT_SIZES, PRINT_TYPES, PhotoSlot,
   cropModeLabel, cssFilter, defaultCrop, frameOrderMessage, loadPhotoFile,
-  printOrderMessage, sizeById, slotQuality, transformSlot, wa,
+  printOrderMessage, slotSize, slotQuality, transformSlot, wa,
 } from './customizerData';
 import ImageCropper from './ImageCropper';
 
@@ -24,7 +24,7 @@ interface Props {
 
 /* non-interactive cropped preview that honours the slot's crop state */
 function CroppedThumb({ slot, className = '', style }: { slot: PhotoSlot; className?: string; style?: React.CSSProperties }) {
-  const s = sizeById(slot.sizeId);
+  const s = slotSize(slot);
   const c = slot.crop;
   const printAspect = s.w / s.h;
   const imgAspect = slot.pw / slot.ph;
@@ -238,7 +238,34 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               {s.tag && <span className={`absolute -top-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 text-[8px] font-black uppercase ${active.sizeId === s.id ? 'bg-charcoal text-white' : 'bg-gold/15 text-gold-dark'}`}>{s.tag}</span>}
             </button>
           ))}
+          <button onClick={() => { const cur = slotSize(active); patchSlot(active.id, { sizeId: 'custom', cw: active.cw ?? cur.w, ch: active.ch ?? cur.h }); }}
+            className={`relative rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
+              active.sizeId === 'custom' ? 'border-gold bg-gold text-white' : 'border-dashed border-gold/50 bg-white text-gold-dark hover:border-gold'}`}>
+            Custom
+          </button>
         </div>
+
+        {active.sizeId === 'custom' && (
+          <div className="mt-3 rounded-lg border-2 border-gold/40 bg-gold/5 p-3">
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Custom size (inches)</p>
+            <div className="flex items-end gap-2">
+              {([['Width', 'cw'], ['Height', 'ch']] as const).map(([label, key], idx) => (
+                <div key={key} className="flex flex-1 items-end gap-2">
+                  {idx === 1 && <span className="pb-1.5 text-charcoal/40">×</span>}
+                  <label className="flex-1">
+                    <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-charcoal/40">{label}</span>
+                    <input type="number" min={1} max={60} step={0.5} value={active[key] ?? ''} inputMode="decimal"
+                      onChange={(e) => patchSlot(active.id, { [key]: e.target.value === '' ? undefined : Math.min(60, Math.max(1, +e.target.value)) })}
+                      className="w-full rounded-md border-2 border-stone bg-white px-2 py-1.5 text-sm font-bold text-charcoal focus:border-gold focus:outline-none" />
+                  </label>
+                </div>
+              ))}
+              <span className="pb-1.5 text-[11px] font-bold text-charcoal/45">inch</span>
+            </div>
+            <p className="mt-2 text-[10px] text-charcoal/50">Any size from 1″ to 60″. The preview &amp; quality check update live.</p>
+          </div>
+        )}
+
         {isFrame && (
           <div className="mt-4 hidden lg:block">
             <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Frame preview</p>
@@ -316,7 +343,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
           {slots.map((p, i) => (
             <div key={p.id} className="flex items-center gap-3 rounded-xl border border-stone bg-white p-2">
               <CroppedThumb slot={p} className="w-10 rounded-md" />
-              <span className="min-w-0 flex-1 text-xs font-bold text-charcoal/70">Photo {i + 1} · {sizeById(p.sizeId).label}″</span>
+              <span className="min-w-0 flex-1 text-xs font-bold text-charcoal/70">Photo {i + 1} · {slotSize(p).label}″</span>
               <div className="flex items-center gap-2">
                 <button onClick={() => patchSlot(p.id, { qty: Math.max(1, p.qty - 1) })} aria-label="Decrease quantity" className="grid h-7 w-7 place-items-center rounded-full border border-stone hover:border-gold"><Minus size={12} /></button>
                 <span className="w-5 text-center text-sm font-extrabold">{p.qty}</span>
@@ -356,7 +383,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
                   <CroppedThumb slot={p} className="w-12 shrink-0 rounded-md" />
                 )}
                 <div className="min-w-0 flex-1 text-xs leading-relaxed text-charcoal/70">
-                  <span className="font-extrabold text-charcoal">Photo {i + 1}</span> · {sizeById(p.sizeId).label}″ · {cropModeLabel(p.crop.mode)} · Qty {p.qty}
+                  <span className="font-extrabold text-charcoal">Photo {i + 1}</span> · {slotSize(p).label}″ · {cropModeLabel(p.crop.mode)} · Qty {p.qty}
                   <span className="ml-1 rounded-full px-1.5 py-px text-[9px] font-bold text-white" style={{ backgroundColor: q.color }}>{q.label}</span>
                 </div>
               </li>

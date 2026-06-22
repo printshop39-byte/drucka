@@ -1,7 +1,7 @@
-import { useRef } from 'react';
-import { ZoomIn, ZoomOut, RotateCcw, RotateCw, FlipHorizontal, RefreshCw } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { ZoomIn, ZoomOut, RotateCcw, RotateCw, FlipHorizontal, RefreshCw, Search, X } from 'lucide-react';
 import {
-  CROP_MODES, CropState, PhotoSlot, cssFilter, effectiveDpi, sizeById, slotQuality,
+  CROP_MODES, CropState, PhotoSlot, cssFilter, effectiveDpi, slotSize, slotQuality,
 } from './customizerData';
 
 /* ── ImageCropper — live crop editor for one photo slot ──
@@ -22,7 +22,8 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 
 export default function ImageCropper({ slot, onCrop, onTransform }: Props) {
   const boxRef = useRef<HTMLDivElement>(null);
-  const size = sizeById(slot.sizeId);
+  const [inspect, setInspect] = useState(false);
+  const size = slotSize(slot);
   const c = slot.crop;
   const printAspect = size.w / size.h;
   const imgAspect = slot.pw / slot.ph;
@@ -231,6 +232,10 @@ export default function ImageCropper({ slot, onCrop, onTransform }: Props) {
         <button onClick={() => onTransform('flipH')} title="Flip horizontal" className="ctl"><FlipHorizontal size={15} /></button>
         <span className="mx-1 h-5 w-px bg-stone" />
         <button onClick={reset} title="Reset crop" className="ctl"><RefreshCw size={15} /></button>
+        <button onClick={() => setInspect(true)} title="Inspect detail (check sharpness)"
+          className="flex items-center gap-1.5 rounded-full border border-stone bg-white px-3 h-[34px] text-[11px] font-bold text-charcoal/75 transition hover:border-gold">
+          <Search size={14} /> Inspect
+        </button>
       </div>
 
       {/* adjustments */}
@@ -244,6 +249,28 @@ export default function ImageCropper({ slot, onCrop, onTransform }: Props) {
           </label>
         ))}
       </div>
+
+      {/* inspect overlay — see the photo at full detail to judge sharpness */}
+      {inspect && (
+        <div className="fixed inset-0 z-[120] flex flex-col bg-charcoal/90 backdrop-blur-sm"
+          onClick={() => setInspect(false)}>
+          <div className="flex items-center justify-between gap-3 px-4 py-3 text-white">
+            <div className="min-w-0">
+              <p className="text-sm font-bold">Inspect detail · {slot.ow}×{slot.oh}px</p>
+              <p className="truncate text-[11px] text-white/70">
+                Pinch / scroll to examine. Soft or pixelated here means it will print blurry — {quality.label} ({dpi} DPI) at {size.label}″.
+              </p>
+            </div>
+            <button onClick={() => setInspect(false)} aria-label="Close inspect"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25"><X size={18} /></button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-auto p-2" onClick={(e) => e.stopPropagation()}>
+            <img src={slot.src} alt={slot.name} draggable={false}
+              style={{ width: slot.pw, maxWidth: 'none', filter: cssFilter(c) }}
+              className="mx-auto select-none rounded shadow-2xl" />
+          </div>
+        </div>
+      )}
 
       <style>{`.ctl{display:grid;place-items:center;width:34px;height:34px;border-radius:9999px;border:1px solid var(--color-stone);color:#211c17;background:#fff;transition:.2s}.ctl:hover{border-color:var(--color-gold)}.ctl:disabled{opacity:.3;pointer-events:none}`}</style>
     </div>

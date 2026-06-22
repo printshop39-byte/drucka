@@ -78,9 +78,21 @@ export interface PhotoSlot {
   pw: number; ph: number;   // preview bitmap px
   ow: number; oh: number;   // ORIGINAL px (rotation-adjusted) → drives DPI
   sizeId: string;
+  cw?: number; ch?: number; // custom size inches (used when sizeId === "custom")
   crop: CropState;
   qty: number;
 }
+
+/* resolve the effective print size for a slot — a preset, or the slot's
+   own custom width/height when sizeId === "custom" */
+export const slotSize = (slot: PhotoSlot): PrintSize => {
+  if (slot.sizeId === "custom") {
+    const w = slot.cw && slot.cw > 0 ? slot.cw : 8;
+    const h = slot.ch && slot.ch > 0 ? slot.ch : 10;
+    return { id: "custom", label: `${w}×${h}`, w, h, tag: "Custom" };
+  }
+  return sizeById(slot.sizeId);
+};
 export const defaultCrop = (): CropState => ({
   mode: "fill", zoom: 1, ox: 0, oy: 0,
   box: { x: 10, y: 10, w: 80, h: 80 },
@@ -96,7 +108,7 @@ export const cssFilter = (c: CropState) =>
    Uses ORIGINAL pixel dimensions against the physical print size,
    accounting for how much of the photo the chosen crop actually uses. */
 export function effectiveDpi(slot: PhotoSlot): number {
-  const s = sizeById(slot.sizeId);
+  const s = slotSize(slot);
   const { ow, oh } = slot;
   const c = slot.crop;
   if (c.mode === "fit") {
@@ -177,7 +189,7 @@ export const transformSlot = (slot: PhotoSlot, op: "rotL" | "rotR" | "flipH"): P
 const photoLines = (slots: PhotoSlot[]) =>
   slots.map((p, i) => {
     const q = slotQuality(p);
-    return `Photo ${i + 1}: ${sizeById(p.sizeId).label} · ${cropModeLabel(p.crop.mode)} · Qty ${p.qty} · Quality: ${q.label}`;
+    return `Photo ${i + 1}: ${slotSize(p).label} · ${cropModeLabel(p.crop.mode)} · Qty ${p.qty} · Quality: ${q.label}`;
   }).join("\n");
 
 export function printOrderMessage(slots: PhotoSlot[], printType: string, note: string) {
