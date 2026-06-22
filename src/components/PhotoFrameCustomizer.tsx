@@ -60,20 +60,32 @@ function CroppedThumb({ slot, className = '', style }: { slot: PhotoSlot; classN
 /* cropped preview wrapped in the selected frame + matting */
 function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: FrameStyle; border: string }) {
   const matPad = border === 'No Border' ? '0%' : border === 'White Border' ? '5%' : '9%';
+  const [fAspect, setFAspect] = useState(0.85); // frame image natural W/H, measured on load
   const caption = (
     <p className="mt-2 text-center text-[11px] font-bold text-charcoal/55">{frame.name}{border !== 'No Border' ? ` · ${border}` : ''}</p>
   );
 
-  /* real-frame photo: position the cropped photo inside the frame's opening */
+  /* real-frame photo: show the exact print-ratio crop, contained & centred
+     inside the frame's opening (WYSIWYG — the frame's mat fills the rest) */
   if (frame.frameImg && frame.opening) {
     const o = frame.opening;
+    const openingAspect = (o.w / o.h) * fAspect;       // opening width/height in px
+    const s = slot ? slotSize(slot) : { w: 4, h: 5 };
+    const printAspect = s.w / s.h;
+    const fit: React.CSSProperties = printAspect <= openingAspect
+      ? { height: '100%', aspectRatio: `${s.w} / ${s.h}` }   // print narrower → height binds
+      : { width: '100%', aspectRatio: `${s.w} / ${s.h}` };   // print wider → width binds
     return (
       <div className="mx-auto w-full max-w-[230px]">
         <div className="relative drop-shadow-[0_14px_34px_rgba(0,0,0,.25)]">
-          <img src={frame.frameImg} alt={`${frame.name} frame`} className="block w-full select-none" draggable={false} />
-          <div className="absolute overflow-hidden" style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.w}%`, height: `${o.h}%`, padding: matPad }}>
+          <img src={frame.frameImg} alt={`${frame.name} frame`} className="block w-full select-none" draggable={false}
+            onLoad={(e) => setFAspect(e.currentTarget.naturalWidth / Math.max(1, e.currentTarget.naturalHeight))} />
+          <div className="absolute flex items-center justify-center overflow-hidden"
+            style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.w}%`, height: `${o.h}%`, padding: matPad }}>
             {slot ? (
-              <CroppedThumb slot={slot} className="!absolute !inset-0" style={{ aspectRatio: 'auto', width: '100%', height: '100%' }} />
+              <div className="relative" style={fit}>
+                <CroppedThumb slot={slot} className="!absolute !inset-0" style={{ width: '100%', height: '100%', aspectRatio: 'auto' }} />
+              </div>
             ) : (
               <div className="grid h-full w-full place-items-center bg-cream/90 text-center">
                 <span className="px-2 text-[10px] font-semibold text-charcoal/40">Upload your photo</span>
