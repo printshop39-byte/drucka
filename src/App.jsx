@@ -2520,11 +2520,25 @@ function FrameMock({ frame, big }) {
   );
 }
 
-function PhotoFramesSection({ onCustomize, onOpenCustomizer }) {
+function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
   const [printType, setPrintType] = useState(null);
   const [printSize, setPrintSize] = useState(null);
   const [frame, setFrame] = useState(FRAME_STYLES[1]); // Premium Golden featured
   const [frameSize, setFrameSize] = useState(null);
+  const [frameZoom, setFrameZoom] = useState(false);
+
+  /* selecting a frame from the nav dropdown: pick it, scroll here & zoom-pop the preview */
+  useEffect(() => {
+    if (!framePick?.id) return;
+    const picked = FRAME_STYLES.find((f) => f.id === framePick.id);
+    if (!picked) return;
+    setFrame(picked);
+    const el = document.getElementById("photo-frames");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    setFrameZoom(true);
+    const t = setTimeout(() => setFrameZoom(false), 900);
+    return () => clearTimeout(t);
+  }, [framePick]);
 
   /* CTAs open the on-site customizer (upload → crop → quality → summary);
      only its final button goes to WhatsApp */
@@ -2610,7 +2624,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer }) {
             </span>
 
             <div className="flex items-center gap-5">
-              <div className="w-32 shrink-0">
+              <div className={`w-32 shrink-0 transition-transform duration-500 ease-out ${frameZoom ? 'scale-[1.18]' : 'scale-100'}`}>
                 <FrameMock frame={frame} big />
               </div>
               <div>
@@ -3839,6 +3853,7 @@ export default function App() {
   const [collagePro, setCollagePro] = useState(false); // free-form Fabric.js editor mode
   const [announceOpen, setAnnounceOpen] = useState(true);
   const [customizer, setCustomizer] = useState(null); // null | { mode: "print"|"frame", initial }
+  const [framePick, setFramePick] = useState(null); // { id, n } — frame chosen from the nav dropdown
   /* Qikink fulfillment layer */
   const [qikinkSettings, setQikinkSettings] = useState(() => load("drucka-qikink-settings", DEFAULT_QIKINK_SETTINGS));
   const [orders, setOrders] = useState(() => load("drucka-orders", []));
@@ -4056,6 +4071,7 @@ export default function App() {
         cartCount={cartCount}
         onCartOpen={() => setCartOpen(true)}
         onCollage={() => setCollageOpen(true)}
+        onPickFrame={(id) => setFramePick({ id, n: Date.now() })}
       />
       {IS_STAGING && (
         <div className="fixed inset-x-0 bottom-0 z-[45] bg-amber-400/95 py-1 text-center text-[11px] font-bold tracking-wide text-amber-950 shadow"
@@ -4067,7 +4083,7 @@ export default function App() {
         <FrameHero />
         <TrustBar />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
-        <PhotoFramesSection onCustomize={openEditor}
+        <PhotoFramesSection onCustomize={openEditor} framePick={framePick}
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
         {/* existing custom-product business: apparel / kids / gifts designer */}
         {/* Hidden per request — "Pick your canvas" / Shop by category section.

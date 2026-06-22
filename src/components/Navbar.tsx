@@ -6,15 +6,23 @@ interface NavbarProps {
   cartCount: number;
   onCartOpen: () => void;
   onCollage: () => void;
+  onPickFrame?: (id: string) => void;
 }
 
-export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage }: NavbarProps) {
+export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onPickFrame }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const navLinks = [
     { name: 'Prints & Frames', href: '#photo-frames' },
-    { name: 'Frames', href: '#frames', dropdown: ['Classic Black', 'Premium Golden', 'Wooden Brown', 'White Minimal', 'Designer Black Gold', 'Traditional Ornate'] },
+    { name: 'Frames', href: '#photo-frames', dropdown: [
+      { name: 'Classic Black', id: 'classic-black' },
+      { name: 'Premium Golden', id: 'premium-golden' },
+      { name: 'Wooden Brown', id: 'wooden-brown' },
+      { name: 'White Minimal', id: 'white-minimal' },
+      { name: 'Designer Black Gold', id: 'designer-black-gold' },
+      { name: 'Traditional Ornate', id: 'traditional-ornate' },
+    ] },
     { name: 'Gallery Walls', href: '#gallery-walls' },
     { name: 'Statement Collection', href: '#statement' },
     { name: 'Mini Prints', href: '#mini-prints' },
@@ -71,11 +79,12 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage }: 
                     <div className="bg-white shadow-xl rounded-lg border border-stone/50 py-2 min-w-[200px]">
                       {link.dropdown.map((item) => (
                         <a
-                          key={item}
-                          href="#frames"
+                          key={item.id}
+                          href="#photo-frames"
+                          onClick={() => { setActiveDropdown(null); onPickFrame?.(item.id); }}
                           className="block px-4 py-2 text-sm text-charcoal/70 hover:text-charcoal hover:bg-cream transition-colors"
                         >
-                          {item}
+                          {item.name}
                         </a>
                       ))}
                     </div>
