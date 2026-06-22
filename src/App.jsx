@@ -4068,7 +4068,9 @@ export default function App() {
         <PhotoFramesSection onCustomize={openEditor}
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
         {/* existing custom-product business: apparel / kids / gifts designer */}
-        <CategoryShowcase onCustomize={openEditor} />
+        {/* Hidden per request — "Pick your canvas" / Shop by category section.
+            Kept in code (CategoryShowcase) so it can be re-enabled later. */}
+        {/* <CategoryShowcase onCustomize={openEditor} /> */}
         <BestsellingFrames />
         <FeaturedProduct />
         <GalleryWalls />
