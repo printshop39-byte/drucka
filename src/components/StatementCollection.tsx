@@ -1,38 +1,14 @@
 const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(m)}`;
 
 const statements = [
-  {
-    name: 'Oslo',
-    image: 'https://images.pexels.com/photos/5137775/pexels-photo-5137775.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
-  {
-    name: 'Portland',
-    image: 'https://images.pexels.com/photos/18684949/pexels-photo-18684949.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
-  {
-    name: 'Fuji',
-    image: 'https://images.pexels.com/photos/13130043/pexels-photo-13130043.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
-  {
-    name: 'Naples',
-    image: 'https://images.pexels.com/photos/709604/pexels-photo-709604.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
-  {
-    name: 'Shibuya',
-    image: 'https://images.pexels.com/photos/5137949/pexels-photo-5137949.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
-  {
-    name: 'Monaco',
-    image: 'https://images.pexels.com/photos/3863791/pexels-photo-3863791.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
-  {
-    name: 'Burano',
-    image: 'https://images.pexels.com/photos/4588842/pexels-photo-4588842.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
-  {
-    name: 'Sariska',
-    image: 'https://images.pexels.com/photos/15685873/pexels-photo-15685873.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=400',
-  },
+  { name: 'Oslo', image: '/images/statement/oslo.jpg' },
+  { name: 'Portland', image: '/images/statement/portland.jpg' },
+  { name: 'Fuji', image: '/images/statement/fuji.jpg' },
+  { name: 'Naples', image: '/images/statement/naples.jpg' },
+  { name: 'Shibuya', image: '/images/statement/shibuya.jpg' },
+  { name: 'Monaco', image: '/images/statement/monaco.jpg' },
+  { name: 'Burano', image: '/images/statement/burano.jpg' },
+  { name: 'Sariska', image: '/images/statement/sariska.jpg' },
 ];
 
 export default function StatementCollection() {

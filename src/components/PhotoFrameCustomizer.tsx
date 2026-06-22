@@ -60,6 +60,33 @@ function CroppedThumb({ slot, className = '', style }: { slot: PhotoSlot; classN
 /* cropped preview wrapped in the selected frame + matting */
 function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: FrameStyle; border: string }) {
   const matPad = border === 'No Border' ? '0%' : border === 'White Border' ? '5%' : '9%';
+  const caption = (
+    <p className="mt-2 text-center text-[11px] font-bold text-charcoal/55">{frame.name}{border !== 'No Border' ? ` · ${border}` : ''}</p>
+  );
+
+  /* real-frame photo: position the cropped photo inside the frame's opening */
+  if (frame.frameImg && frame.opening) {
+    const o = frame.opening;
+    return (
+      <div className="mx-auto w-full max-w-[230px]">
+        <div className="relative drop-shadow-[0_14px_34px_rgba(0,0,0,.25)]">
+          <img src={frame.frameImg} alt={`${frame.name} frame`} className="block w-full select-none" draggable={false} />
+          <div className="absolute overflow-hidden" style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.w}%`, height: `${o.h}%`, padding: matPad }}>
+            {slot ? (
+              <CroppedThumb slot={slot} className="!absolute !inset-0" style={{ aspectRatio: 'auto', width: '100%', height: '100%' }} />
+            ) : (
+              <div className="grid h-full w-full place-items-center bg-cream/90 text-center">
+                <span className="px-2 text-[10px] font-semibold text-charcoal/40">Upload your photo</span>
+              </div>
+            )}
+          </div>
+        </div>
+        {caption}
+      </div>
+    );
+  }
+
+  /* fallback: CSS-gradient frame (styles without a straight-on frame photo) */
   return (
     <div className="mx-auto w-full max-w-[230px]">
       <div className="rounded-[4px] p-[7%] shadow-[0_14px_34px_rgba(0,0,0,.25)]" style={{ background: frame.mat }}>
@@ -73,7 +100,7 @@ function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: 
           )}
         </div>
       </div>
-      <p className="mt-2 text-center text-[11px] font-bold text-charcoal/55">{frame.name}{border !== 'No Border' ? ` · ${border}` : ''}</p>
+      {caption}
     </div>
   );
 }
@@ -248,9 +275,8 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               {FRAME_STYLES.map((f) => (
                 <button key={f.id} onClick={() => setFrame(f)}
                   className={`rounded-xl border-2 p-1.5 transition ${frame.id === f.id ? 'border-gold bg-gold/5' : 'border-stone bg-white hover:border-gold/50'}`}>
-                  <span className="block rounded-[3px] p-[12%]" style={{ background: f.mat }}>
-                    <span className="block aspect-[4/5] bg-white" style={{ boxShadow: f.accent ? `inset 0 0 0 1.5px ${f.accent}` : 'none' }} />
-                  </span>
+                  <img src={f.img} alt={f.name} loading="lazy"
+                    className="block aspect-[4/5] w-full rounded-[3px] object-cover" />
                   <span className="mt-1 block truncate text-center text-[9px] font-bold text-charcoal/65">{f.name}</span>
                 </button>
               ))}

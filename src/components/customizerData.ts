@@ -30,14 +30,26 @@ export const sizeById = (id: string) => PRINT_SIZES.find((s) => s.id === id) ?? 
 
 export const PRINT_TYPES = ["Glossy Photo Print", "Matte Photo Print", "Passport Size Photo", "Poster Print", "Canvas Style Print"];
 
-export interface FrameStyle { id: string; name: string; mat: string; accent: string | null; light?: boolean }
+export interface FrameOpening { x: number; y: number; w: number; h: number }
+export interface FrameStyle {
+  id: string; name: string; mat: string; accent: string | null; light?: boolean;
+  img: string;                 // product-shot swatch thumbnail
+  frameImg?: string;           // cropped real-frame photo for the live preview
+  opening?: FrameOpening;      // photo window inside frameImg, % of the image
+}
 export const FRAME_STYLES: FrameStyle[] = [
-  { id: "classic-black", name: "Classic Black", mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null },
-  { id: "premium-golden", name: "Premium Golden", mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c" },
-  { id: "wooden-brown", name: "Wooden Brown", mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null },
-  { id: "white-minimal", name: "White Minimal", mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true },
-  { id: "designer-black-gold", name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37" },
-  { id: "traditional-ornate", name: "Traditional Ornate", mat: "linear-gradient(135deg,#d8b358,#7a5414)", accent: "#f0d98f" },
+  { id: "classic-black", name: "Classic Black", mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null,
+    img: "/images/frames/classic-black.jpg", frameImg: "/images/frames/classic-black-live.jpg", opening: { x: 13, y: 16, w: 74, h: 70 } },
+  { id: "premium-golden", name: "Premium Golden", mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c",
+    img: "/images/frames/premium-golden.jpg", frameImg: "/images/frames/premium-golden-live.jpg", opening: { x: 14, y: 15, w: 69, h: 73 } },
+  { id: "wooden-brown", name: "Wooden Brown", mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null,
+    img: "/images/frames/wooden-brown.jpg", frameImg: "/images/frames/wooden-brown-live.jpg", opening: { x: 19, y: 18, w: 62, h: 68 } },
+  { id: "white-minimal", name: "White Minimal", mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true,
+    img: "/images/frames/white-minimal.jpg", frameImg: "/images/frames/white-minimal-live.jpg", opening: { x: 9, y: 9, w: 82, h: 83 } },
+  { id: "designer-black-gold", name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37",
+    img: "/images/frames/designer-black-gold.jpg", frameImg: "/images/frames/designer-black-gold-live.jpg", opening: { x: 15, y: 10, w: 73, h: 82 } },
+  { id: "traditional-ornate", name: "Traditional Ornate", mat: "linear-gradient(135deg,#d8b358,#7a5414)", accent: "#f0d98f",
+    img: "/images/frames/traditional-ornate.jpg", frameImg: "/images/frames/traditional-ornate-live.jpg", opening: { x: 20, y: 17, w: 59, h: 67 } },
 ];
 
 export const BORDER_OPTIONS = ["No Border", "White Border", "Premium Mat Border"];
