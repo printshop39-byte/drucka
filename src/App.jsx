@@ -16,6 +16,8 @@ import FeaturedProduct from "./components/FeaturedProduct";
 import GalleryWalls from "./components/GalleryWalls";
 import StatementCollection from "./components/StatementCollection";
 import MagneticWalls from "./components/MagneticWalls";
+import MiniPhotoPrints from "./components/MiniPhotoPrints";
+import PhoneCases from "./components/PhoneCases";
 import QualityBanner from "./components/QualityBanner";
 import SignatureGift from "./components/SignatureGift";
 import FrameFeatures from "./components/Features";
@@ -4075,9 +4077,12 @@ export default function App() {
         <FeaturedProduct />
         <GalleryWalls />
         <StatementCollection />
-        <MagneticWalls />
+        {/* Magnetic Walls hidden per request — component kept for later */}
+        {/* <MagneticWalls /> */}
+        <MiniPhotoPrints />
         <QualityBanner />
         <SignatureGift />
+        <PhoneCases />
         <FrameFeatures />
         <FrameTestimonials />
         <StoreLocations />

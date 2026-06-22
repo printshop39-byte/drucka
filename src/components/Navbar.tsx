@@ -17,7 +17,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage }: 
     { name: 'Frames', href: '#frames', dropdown: ['Osaka Frame', 'Austin Frame', 'Venice Frame', 'Kyoto Frame', 'New York Frame', 'Chicago Frame'] },
     { name: 'Gallery Walls', href: '#gallery-walls' },
     { name: 'Statement Collection', href: '#statement' },
-    { name: 'Magnetic Walls', href: '#magnetic' },
+    { name: 'Mini Prints', href: '#mini-prints' },
     { name: 'Gifting', href: '#gifting' },
   ];
 
