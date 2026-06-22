@@ -104,7 +104,6 @@ export default function GalleryWalls() {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-serif font-semibold text-lg text-charcoal">{wall.name}</h3>
-                  <p className="text-sm text-charcoal/50">{wall.size}</p>
                 </div>
                 <span className="font-semibold text-charcoal">{wall.price}</span>
               </div>

@@ -14,7 +14,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage }: 
 
   const navLinks = [
     { name: 'Prints & Frames', href: '#photo-frames' },
-    { name: 'Frames', href: '#frames', dropdown: ['Osaka Frame', 'Austin Frame', 'Venice Frame', 'Kyoto Frame', 'New York Frame', 'Chicago Frame'] },
+    { name: 'Frames', href: '#frames', dropdown: ['Classic Black', 'Premium Golden', 'Wooden Brown', 'White Minimal', 'Designer Black Gold', 'Traditional Ornate'] },
     { name: 'Gallery Walls', href: '#gallery-walls' },
     { name: 'Statement Collection', href: '#statement' },
     { name: 'Mini Prints', href: '#mini-prints' },
