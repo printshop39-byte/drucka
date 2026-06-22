@@ -2545,11 +2545,11 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer }) {
             </span>
 
             {/* sample stack visual */}
-            <div className="mb-6 flex h-40 items-end justify-center gap-3" aria-hidden="true">
-              {["/images/prints/print-1.jpg", "/images/prints/print-2.jpg", "/images/prints/print-3.jpg"].map((src, i) => (
+            <div className="mb-6 flex h-40 items-end justify-center gap-2.5" aria-hidden="true">
+              {["/images/prints/print-1.jpg", "/images/prints/print-2.jpg", "/images/prints/print-3.jpg", "/images/prints/print-4.jpg"].map((src, i) => (
                 <div key={i}
-                  className="relative aspect-[3/4] w-24 overflow-hidden rounded-xl bg-white p-1 shadow-lg ring-1 ring-ink/5 transition-transform duration-500 group-hover:-translate-y-1"
-                  style={{ transform: `rotate(${(i - 1) * 6}deg)`, transitionDelay: `${i * 60}ms` }}>
+                  className="relative aspect-[3/4] w-16 overflow-hidden rounded-xl bg-white p-1 shadow-lg ring-1 ring-ink/5 transition-transform duration-500 group-hover:-translate-y-1 sm:w-20"
+                  style={{ transform: `rotate(${(i - 1.5) * 5}deg)`, transitionDelay: `${i * 60}ms` }}>
                   <img src={src} alt="" loading="lazy" className="h-full w-full rounded-lg object-cover" />
                 </div>
               ))}
