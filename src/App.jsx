@@ -19,6 +19,7 @@ import GalleryWalls from "./components/GalleryWalls";
 import StatementCollection from "./components/StatementCollection";
 import MagneticWalls from "./components/MagneticWalls";
 import MiniPhotoPrints from "./components/MiniPhotoPrints";
+import BentoShowcase from "./components/BentoShowcase";
 import PhoneCases from "./components/PhoneCases";
 import QualityBanner from "./components/QualityBanner";
 import SignatureGift from "./components/SignatureGift";
@@ -4097,6 +4098,7 @@ export default function App() {
       <main>
         <FrameHero />
         <TrustBar />
+        <BentoShowcase onMini={() => setMiniOpen(true)} />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
         <PhotoFramesSection onCustomize={openEditor} framePick={framePick}
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
