@@ -22,7 +22,7 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
   const item: LightboxItem | null = active !== null ? {
     image: statements[active].image,
     title: statements[active].name,
-    subtitle: 'Statement frame · museum-quality giclée print',
+    subtitle: 'Statement frame · museum-quality HD print',
     price: statements[active].price,
     waMessage: `Hi Drucka! I'd like to know more about the ${statements[active].name} statement frame (${statements[active].price}).`,
   } : null;
@@ -80,7 +80,7 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
             ))}
           </h2>
           <p className="st-desc mx-auto mt-4 max-w-xl text-charcoal/55">
-            Museum-quality giclée frames, crafted for the walls that tell your story.
+            Museum-quality HD-printed frames, crafted for the walls that tell your story.
           </p>
         </div>
 

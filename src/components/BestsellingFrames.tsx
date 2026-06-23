@@ -73,7 +73,7 @@ export default function BestsellingFrames() {
         <div className="flex items-end justify-between mb-12">
           <div>
             <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">
-              Free Fine Art Giclée Print
+              Free Premium HD Print
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
               Bestselling Frames

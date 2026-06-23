@@ -80,7 +80,7 @@ export default function FeaturedProduct() {
               </div>
               <div className="flex items-center gap-3 text-charcoal/70">
                 <div className="w-1.5 h-1.5 rounded-full bg-gold"></div>
-                <span>Fine Art Giclée Print</span>
+                <span>Premium HD Print</span>
               </div>
               <div className="flex items-center gap-3 text-charcoal/70">
                 <div className="w-1.5 h-1.5 rounded-full bg-gold"></div>
@@ -97,7 +97,7 @@ export default function FeaturedProduct() {
             </div>
             <div className="bg-gold/10 border border-gold/20 rounded-lg p-4 mb-8 flex items-center gap-3">
               <Gift size={20} className="text-gold flex-shrink-0" />
-              <span className="text-sm text-charcoal/80 font-medium">FREE Fine Art Giclée Print included with every order</span>
+              <span className="text-sm text-charcoal/80 font-medium">FREE Premium HD Print included with every order</span>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
               <a href={wa('Hi Drucka! I want to order The Tabletop frame (₹1,499). I will share my photo.')}
