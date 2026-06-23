@@ -62,8 +62,9 @@ export default function BentoShowcase({ onMini }: Props) {
             </div>
           </a>
 
-          {/* CELL 3 — Mini Prints (1×1) */}
-          <button type="button" onClick={onMini}
+          {/* CELL 3 — Mini Prints (1×1) — opens the editor; falls back to the
+              Mini Prints section anchor if JS hasn't loaded */}
+          <a href="#mini-prints" onClick={(e) => { if (onMini) { e.preventDefault(); onMini(); } }}
             className="bento-cell b3 relative flex flex-col justify-between text-left"
             style={{ background: '#1A1208', border: '0.5px solid #333', borderRadius: '8px', padding: '20px' }}>
             <span style={{ fontSize: '24px' }}>🖨️</span>
@@ -71,7 +72,7 @@ export default function BentoShowcase({ onMini }: Props) {
               <h3 className="font-display" style={{ fontSize: '14px', color: '#FAF9F7' }}>Mini Prints</h3>
               <p style={{ color: '#C9A84C', fontFamily: "'Courier New',monospace", fontSize: '12px', marginTop: '2px' }}>From ₹19</p>
             </div>
-          </button>
+          </a>
 
           {/* CELL 4 — Phone Cases (1×1) */}
           <a href="#phone-cases"
