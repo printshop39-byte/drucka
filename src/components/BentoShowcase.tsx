@@ -58,10 +58,9 @@ export default function BentoShowcase() {
             </div>
           </a>
 
-          {/* CELL 3 — Mini Prints (1×1) — pure anchor to the Mini Prints
-              section (same reliable behaviour as the other cells); that
-              section's "Create your mini prints" CTA opens the editor */}
-          <a href="#mini-prints"
+          {/* CELL 3 — Mini Prints (1×1) — real /mini-prints route (opens the
+              Mini Prints editor; SPA router handles direct loads) */}
+          <a href="/mini-prints"
             className="bento-cell b3 relative flex flex-col justify-between text-left"
             style={{ background: '#1A1208', border: '0.5px solid #333', borderRadius: '8px', padding: '20px' }}>
             <span style={{ fontSize: '24px' }}>🖨️</span>

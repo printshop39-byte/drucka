@@ -4031,6 +4031,7 @@ export default function App() {
       "/cart":      ["Your Cart | Drucka", "Review your custom printing order before checkout — Drucka custom t-shirts, mugs, frames & gifts."],
       "/track-order": ["Track Your Order | Drucka", "Track your Drucka custom printing order by order ID and phone number."],
       "/login":     ["Track Your Order | Drucka", "Look up your Drucka order — no account needed, just your order ID and phone number."],
+      "/mini-prints": ["Mini Photo Prints Online — 2×3, 3×3, 4×3 inch | Drucka", "Create & order mini photo prints online from ₹19 — wallet, Instagram-square & scrapbook sizes. Add captions, borders & rotate, delivered across India."],
     };
     const setMeta = (p) => {
       const [title, desc] = ROUTE_META[p] ?? [
@@ -4066,6 +4067,10 @@ export default function App() {
         case "/admin":
           setAdminOpen(true);
           break;
+        case "/mini-prints":
+        case "/mini":
+          setMiniOpen(true);
+          break;
         default:
           break;
       }
@@ -4078,6 +4083,19 @@ export default function App() {
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
+  /* Mini Prints opens as a real route (/mini-prints) — deep-linkable & shareable.
+     The SPA router above opens it on direct load / back-forward. */
+  const openMini = () => {
+    try { window.history.pushState({}, "", "/mini-prints"); document.title = "Mini Photo Prints Online — 2×3, 3×3, 4×3 inch | Drucka"; } catch { /* noop */ }
+    setMiniOpen(true);
+  };
+  const closeMini = () => {
+    setMiniOpen(false);
+    if (window.location.pathname.replace(/\/+$/, "").toLowerCase() === "/mini-prints") {
+      try { window.history.pushState({}, "", "/"); } catch { /* noop */ }
+    }
+  };
+
   return (
     <>
       <AnnouncementBar visible={announceOpen} onClose={() => setAnnounceOpen(false)} />
@@ -4086,7 +4104,7 @@ export default function App() {
         cartCount={cartCount}
         onCartOpen={() => setCartOpen(true)}
         onCollage={() => { setCollageInitial(null); setCollageView("welcome"); setCollageOpen(true); }}
-        onMini={() => setMiniOpen(true)}
+        onMini={openMini}
         onPickFrame={(id) => setFramePick({ id, n: Date.now() })}
       />
       {IS_STAGING && (
@@ -4110,9 +4128,9 @@ export default function App() {
         {/* <BestsellingFrames /> */}
         {/* <FeaturedProduct /> */}
         <GalleryWalls />
-        <StatementCollection onTryMini={() => setMiniOpen(true)} />
+        <StatementCollection onTryMini={openMini} />
         {/* <MagneticWalls /> */}
-        <MiniPhotoPrints onOrder={() => setMiniOpen(true)} />
+        <MiniPhotoPrints onOrder={openMini} />
         {/* <QualityBanner /> */}
         {/* <SignatureGift /> */}
         <PhoneCases />
@@ -4172,7 +4190,7 @@ export default function App() {
 
       {miniOpen && (
         <MiniPrints
-          onClose={() => setMiniOpen(false)}
+          onClose={closeMini}
           onAddToCart={addToCart}
           onOpenCart={() => setCartOpen(true)}
           showToast={showToast}
