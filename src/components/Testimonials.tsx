@@ -3,33 +3,24 @@ import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    text: 'The Drucka team has a perfect blend of knowledge and care in printing and framing. Their attention to detail on every order makes them my go-to print studio.',
-    author: 'Rohan Kulkarni',
-    title: 'Photographer',
-    rating: 5,
-  },
-  {
-    text: 'It was a really good experience. Their frames are good quality and worth every penny. I plan to get more done from them in the coming months.',
-    author: 'Priti Noronha',
-    title: 'Customer',
-    rating: 5,
-  },
-  {
-    text: 'A frame for every piece of art. A rich collection of frames and personal guidance for selecting one makes ordering truly worthwhile and satisfying.',
-    author: 'Shailesh Veera',
+    text: 'A frame for every piece of art. Drucka\'s rich collection and personal guidance make choosing the right one genuinely satisfying — every project leaves my studio looking complete.',
+    author: 'Amit Deshpande',
     title: 'Architect',
+    image: '/images/testimonials/amit.webp',
     rating: 5,
   },
   {
-    text: 'I am a photographer, and frames are very precious to us. What better place to print and frame your pictures? Great work!',
-    author: 'Javal Darjee',
-    title: 'Photographer',
+    text: 'I specify Drucka for every home I style. The print clarity and frame finish elevate a space instantly, and my clients always ask where the art came from.',
+    author: 'Priya Sharma',
+    title: 'Interior Designer',
+    image: '/images/testimonials/priya.webp',
     rating: 5,
   },
   {
-    text: 'Absolutely stunning and professional work. We keep coming back to frame our cherished memories and preserve them forever. Highly recommended.',
-    author: 'Manasi Parekh',
-    title: 'Customer',
+    text: 'I framed my family\'s favourite memories with Drucka and they turned out beautifully. Gorgeous quality, caring service, and prints that feel like they\'ll last forever.',
+    author: 'Sneha Iyer',
+    title: 'Teacher',
+    image: '/images/testimonials/sneha.webp',
     rating: 5,
   },
 ];
@@ -40,9 +31,23 @@ export default function Testimonials() {
   const next = () => setCurrent((prev) => (prev + 1) % testimonials.length);
   const prev = () => setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
 
+  const active = testimonials[current];
+
   return (
-    <section className="py-20 lg:py-28 bg-white">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 lg:py-28 overflow-hidden">
+      {/* Framed gallery-wall background */}
+      <div className="absolute inset-0">
+        <img
+          src="/images/gallery/grand-gallery.jpg"
+          alt=""
+          aria-hidden="true"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-white/55 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-white/30 to-white" />
+      </div>
+
+      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">
             What People Say
@@ -53,18 +58,30 @@ export default function Testimonials() {
         </div>
 
         <div className="relative">
-          <div className="bg-cream rounded-2xl p-8 sm:p-12 lg:p-16 text-center">
-            <Quote size={40} className="mx-auto text-gold/30 mb-6" />
+          <div className="bg-white/80 backdrop-blur-md border border-charcoal/5 shadow-xl rounded-2xl px-8 pt-20 pb-10 sm:px-12 sm:pt-20 sm:pb-12 text-center">
+            {/* Framed avatar */}
+            <div className="absolute left-1/2 -translate-x-1/2 -top-12">
+              <div className="p-1.5 bg-white rounded-full shadow-lg ring-1 ring-gold/40">
+                <img
+                  src={active.image}
+                  alt={active.author}
+                  className="w-24 h-24 rounded-full object-cover object-top"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            <Quote size={36} className="mx-auto text-gold/30 mb-6" />
             <p className="text-lg sm:text-xl text-charcoal/80 leading-relaxed mb-8 font-serif italic max-w-2xl mx-auto">
-              "{testimonials[current].text}"
+              "{active.text}"
             </p>
             <div className="flex justify-center gap-1 mb-4">
-              {[...Array(testimonials[current].rating)].map((_, i) => (
+              {[...Array(active.rating)].map((_, i) => (
                 <span key={i} className="text-gold text-lg">★</span>
               ))}
             </div>
-            <h4 className="font-semibold text-charcoal text-lg">{testimonials[current].author}</h4>
-            <p className="text-sm text-charcoal/50 uppercase tracking-wide mt-1">{testimonials[current].title}</p>
+            <h4 className="font-semibold text-charcoal text-lg">{active.author}</h4>
+            <p className="text-sm text-charcoal/50 uppercase tracking-wide mt-1">{active.title}</p>
           </div>
 
           {/* Navigation */}
@@ -72,7 +89,7 @@ export default function Testimonials() {
             <button
               onClick={prev}
               aria-label="Previous testimonial"
-              className="w-10 h-10 border border-charcoal/20 hover:border-charcoal rounded-full flex items-center justify-center transition-colors"
+              className="w-10 h-10 bg-white/70 border border-charcoal/20 hover:border-charcoal rounded-full flex items-center justify-center transition-colors"
             >
               <ChevronLeft size={18} />
             </button>
@@ -91,7 +108,7 @@ export default function Testimonials() {
             <button
               onClick={next}
               aria-label="Next testimonial"
-              className="w-10 h-10 border border-charcoal/20 hover:border-charcoal rounded-full flex items-center justify-center transition-colors"
+              className="w-10 h-10 bg-white/70 border border-charcoal/20 hover:border-charcoal rounded-full flex items-center justify-center transition-colors"
             >
               <ChevronRight size={18} />
             </button>
