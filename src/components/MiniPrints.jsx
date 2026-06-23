@@ -271,31 +271,59 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   };
 
   const Step = ({ n, children }) => (
-    <p className="mb-2 mt-6 text-[10px] font-extrabold uppercase tracking-[0.14em] text-charcoal/45">{n} · {children}</p>
+    <p className="kd-label mb-2 mt-6 uppercase">{n} · {children}</p>
   );
 
   return (
-    <div className="fixed inset-0 z-[95] flex flex-col bg-[#eceef1] text-charcoal" role="dialog" aria-modal="true" aria-label="Mini photo prints">
+    <div className="kd-noise fixed inset-0 z-[95] flex flex-col bg-[#eceef1] text-charcoal" role="dialog" aria-modal="true" aria-label="Mini photo prints">
+      <style>{`
+        .kd-noise { position: relative; }
+        .kd-noise::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background-repeat: repeat;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E"); }
+        .kd-noise > * { position: relative; z-index: 1; }
+        .kd-mono { font-family: 'Courier New', monospace; }
+        .kd-label { color: #E8650A; letter-spacing: 4px; font-size: 11px; font-weight: 600; }
+        .kd-heading { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; text-shadow: 1px 1px 0 rgba(232,101,10,0.15); }
+        .kd-size { font-family: 'Courier New', monospace; letter-spacing: 2px; background: #1a1208; color: #E8650A; border: 1px solid #E8650A; border-radius: 3px; }
+        .kd-size .kd-sub { color: rgba(232,101,10,0.7); }
+        .kd-size-on { background: #E8650A !important; color: #fff !important; border-color: #E8650A !important; }
+        .kd-size-on .kd-sub { color: rgba(255,255,255,0.85) !important; }
+        .kd-photo { border: 3px solid #f5e6c8; border-radius: 2px; background: #fdf6ec; }
+        .kd-photo-img { filter: sepia(12%) contrast(105%); transition: all 0.35s cubic-bezier(0.23,1,0.32,1); }
+        .kd-cart { background: #1a1208; color: #E8650A; font-family: 'Courier New', monospace; letter-spacing: 1px; border: 1px solid #E8650A; transition: all 0.25s ease; }
+        .kd-price { color: #E8650A; font-family: 'Courier New', monospace; font-size: 13px; }
+        .kd-watermark { font-family: 'Courier New', monospace; font-size: 9px; color: #E8650A; opacity: 0.5; letter-spacing: 2px; text-transform: uppercase; pointer-events: none; }
+        .kd-bottominfo { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(26,18,8,0.6); letter-spacing: 0.5px; }
+        .kd-divider { border-top: 1px solid rgba(232,101,10,0.2); }
+        @media (hover: hover) and (pointer: fine) {
+          .kd-cart:hover { background: #E8650A; color: #fff; }
+          .kd-photo:hover .kd-photo-img { transform: rotate(-1.5deg) translateY(-4px); filter: sepia(0%) contrast(100%); }
+        }
+      `}</style>
       <header className="flex h-14 shrink-0 items-center gap-2 border-b border-black/10 bg-white px-3 sm:px-4">
         <button onClick={onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal"><ArrowLeft size={18} /></button>
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold">Mini Photo Prints</p>
-          <p className="hidden text-[10px] text-charcoal/40 sm:block">Drucka Studio · {size.label}</p>
+          <p className="kd-heading truncate text-base">Mini Photo Prints</p>
+          <p className="kd-mono hidden text-[10px] sm:block" style={{ color: 'rgba(232,101,10,0.6)' }}>Drucka Studio · {size.label}</p>
         </div>
         <button onClick={addToCart} disabled={busy || !photos.length}
-          className="ml-auto rounded-full bg-tangerine px-4 py-2 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-50">{busy ? "…" : "Add to Cart"}</button>
+          className="kd-cart ml-auto rounded-sm px-4 py-2 text-xs font-bold uppercase disabled:opacity-50">{busy ? "…" : "Add to Cart"}</button>
       </header>
 
       <div className="mx-auto w-full max-w-3xl flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+        {/* retro divider */}
+        <div className="kd-divider mb-5 pt-3 text-center">
+          <span className="kd-watermark">— Printed with love in Kolhapur —</span>
+        </div>
         {/* size */}
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-[0.14em] text-charcoal/45">1 · Choose a size</p>
+        <p className="kd-label mb-2 uppercase">1 · Choose a size</p>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {MINI_SIZES.map((s) => (
             <button key={s.id} onClick={() => setSizeId(s.id)}
-              className={`rounded-2xl border-2 p-3 text-left transition ${sizeId === s.id ? "border-tangerine bg-tangerine/5" : "border-black/10 bg-white hover:border-black/25"}`}>
-              <p className="text-lg font-black text-charcoal">{s.label}</p>
-              <p className="mt-0.5 text-[11px] font-semibold leading-tight text-charcoal/60">{s.name}</p>
-              <p className="mt-1.5 text-xs font-bold text-tangerine">{inr(s.price)}<span className="text-[10px] font-semibold text-charcoal/40"> /print</span></p>
+              className={`kd-size p-3 text-left transition ${sizeId === s.id ? "kd-size-on" : ""}`}>
+              <p className="text-lg font-bold">{s.label}</p>
+              <p className="kd-sub mt-0.5 text-[10px] font-semibold leading-tight">{s.name}</p>
+              <p className="mt-1.5 text-[11px] font-bold"><span className="text-[8px] tracking-[2px] opacity-70">FROM </span>{inr(s.price)}<span className="kd-sub text-[9px]"> /print</span></p>
             </button>
           ))}
         </div>
@@ -329,10 +357,11 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
           onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
         <button onClick={() => fileRef.current?.click()} disabled={busy || photos.length >= MAX_PHOTOS}
           onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
-          className="flex w-full flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-tangerine/50 bg-tangerine/5 px-4 py-6 text-tangerine transition hover:bg-tangerine/10 disabled:opacity-40">
-          <Upload size={22} />
-          <span className="text-sm font-bold">{busy ? "Processing…" : "Upload photos"}</span>
-          <span className="text-[10px] text-tangerine/70">JPG · PNG · HEIC — {photos.length}/{MAX_PHOTOS}</span>
+          style={{ border: '2px dashed #E8650A', borderRadius: '4px' }}
+          className="flex w-full flex-col items-center gap-1.5 bg-[#fdf6ec] px-4 py-6 transition hover:bg-[#f7ecd9] disabled:opacity-40">
+          <Upload size={22} style={{ color: '#E8650A' }} />
+          <span className="kd-mono text-sm font-bold" style={{ color: '#E8650A', letterSpacing: '1px' }}>{busy ? "Processing…" : "Upload photos"}</span>
+          <span className="kd-mono text-[11px]" style={{ color: 'rgba(232,101,10,0.6)' }}>JPG · PNG · HEIC — {photos.length}/{MAX_PHOTOS}</span>
         </button>
 
         {photos.length > 0 && (
@@ -356,9 +385,9 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                 </div>
 
                 {/* composed preview */}
-                <div className="mb-3 flex items-center justify-center rounded-xl bg-[#f1f2f4] p-3" style={{ minHeight: 170 }}>
+                <div className="kd-photo mb-3 flex items-center justify-center p-3" style={{ minHeight: 170 }}>
                   {previews[p.id]
-                    ? <img src={previews[p.id]} alt={p.name} className="max-h-48 w-auto rounded shadow-md" draggable={false} />
+                    ? <img src={previews[p.id]} alt={p.name} className="kd-photo-img max-h-48 w-auto shadow-md" draggable={false} />
                     : <div className="h-36 w-28 animate-pulse rounded bg-black/5" />}
                 </div>
 
@@ -444,7 +473,8 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
             ))}
           </div>
         )}
-        <p className="mt-4 text-[11px] leading-relaxed text-charcoal/40">Printed on premium photo paper &amp; shipped by Drucka in 2–4 days · COD available · Free shipping over {inr(FREE_SHIP)}.</p>
+        <p className="kd-bottominfo mt-4 leading-relaxed">Printed on premium photo paper &amp; shipped by Drucka in 2–4 days · COD available · Free shipping over {inr(FREE_SHIP)}.</p>
+        <p className="kd-watermark mt-4 text-right">© Drucka Print Lab · Kolhapur</p>
       </div>
 
       {/* bottom bar */}
@@ -452,13 +482,13 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         <div className="mx-auto flex max-w-3xl items-center gap-3">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">{totalPrints} prints · {size.label}</p>
-            <p className="text-lg font-black text-charcoal">{inr(total)} <span className="text-[10px] font-semibold text-charcoal/40">{shipping ? "incl. shipping" : "free shipping"}</span></p>
+            <p className="kd-price font-bold">{inr(total)} <span className="text-[10px] font-normal" style={{ opacity: 0.6 }}>{shipping ? "incl. shipping" : "free shipping"}</span></p>
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button onClick={orderWhatsApp} disabled={!photos.length}
               className="flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2.5 text-xs font-bold text-white transition hover:brightness-105 disabled:opacity-50"><MessageCircle size={14} /> WhatsApp</button>
             <button onClick={addToCart} disabled={busy || !photos.length}
-              className="flex items-center gap-1.5 rounded-full bg-tangerine px-5 py-2.5 text-xs font-bold text-white shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-50"><ShoppingBag size={14} /> Add to Cart</button>
+              className="kd-cart flex items-center gap-1.5 rounded-sm px-5 py-2.5 text-xs font-bold uppercase disabled:opacity-50"><ShoppingBag size={14} /> Add to Cart</button>
           </div>
         </div>
       </div>
