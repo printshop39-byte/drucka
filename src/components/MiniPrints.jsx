@@ -275,7 +275,8 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   );
 
   return (
-    <div className="kd-noise fixed inset-0 z-[95] flex flex-col bg-[#eceef1] text-charcoal" role="dialog" aria-modal="true" aria-label="Mini photo prints">
+    <div className="kd-noise flex flex-col bg-[#eceef1] text-charcoal" role="dialog" aria-modal="true" aria-label="Mini photo prints"
+      style={{ position: "fixed", inset: 0, zIndex: 95 }}>
       <style>{`
         .kd-noise { position: relative; }
         .kd-noise::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background-repeat: repeat;

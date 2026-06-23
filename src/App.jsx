@@ -4069,6 +4069,7 @@ export default function App() {
     };
     const applyRoute = () => {
       const p = window.location.pathname.replace(/\/+$/, "").toLowerCase();
+      console.log("[DRUCKA] route resolved:", JSON.stringify(p));
       setMeta(p);
       switch (p) {
         case "/customize":
@@ -4106,6 +4107,8 @@ export default function App() {
     return () => window.removeEventListener("popstate", applyRoute);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => { console.log("[DRUCKA] miniOpen:", miniOpen); }, [miniOpen]);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
