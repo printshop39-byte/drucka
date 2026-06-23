@@ -48,7 +48,7 @@ export default function MobileActionBar({ cartCount, onUpload, onCart }: Props) 
           className="flex flex-1 items-center justify-center gap-2 rounded-full bg-gold py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-md transition active:scale-[0.97]"
         >
           <Upload size={18} />
-          Upload &amp; Frame
+          Frame Your Photo
         </button>
         <button
           onClick={onCart}
