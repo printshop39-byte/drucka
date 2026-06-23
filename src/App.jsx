@@ -28,6 +28,7 @@ import FrameTestimonials from "./components/Testimonials";
 import StoreLocations from "./components/StoreLocations";
 import FrameFooter from "./components/Footer";
 import BackToTop from "./components/BackToTop";
+import MobileActionBar from "./components/MobileActionBar";
 import PhotoFrameCustomizer from "./components/PhotoFrameCustomizer";
 /* Fabric.js is heavy — the Pro editor (and fabric with it) loads on demand */
 const CollageEditor = lazy(() => import("./components/editor/CollageEditor"));
@@ -2212,7 +2213,7 @@ function WhatsAppChatbot() {
         onClick={() => setOpen(!open)}
         aria-label={open ? "Close chat" : "Chat with Drucka"}
         aria-expanded={open}
-        className="fixed bottom-5 right-5 z-[80] grid h-14 w-14 place-items-center rounded-full bg-emerald-500 text-white shadow-[0_12px_32px_rgba(16,185,129,0.45)] transition hover:scale-110"
+        className="wa-fab fixed right-5 z-[80] grid h-14 w-14 place-items-center rounded-full bg-emerald-500 text-white shadow-[0_12px_32px_rgba(16,185,129,0.45)] transition hover:scale-110"
       >
         <Icon d={open ? icons.x : icons.whatsapp} filled={!open} className="h-7 w-7" />
         {!open && <span className="absolute right-0 top-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-tangerine" />}
@@ -4169,7 +4170,14 @@ export default function App() {
         <FAQ />
       </main>
       <FrameFooter onTrack={() => setTrackOpen(true)} />
+      {/* spacer so the fixed mobile action bar never hides footer content */}
+      <div className="lg:hidden" style={{ height: 'calc(64px + env(safe-area-inset-bottom))' }} aria-hidden />
       <BackToTop />
+      <MobileActionBar
+        cartCount={cartCount}
+        onUpload={() => setCustomizer({ mode: "frame", initial: null })}
+        onCart={() => setCartOpen(true)}
+      />
 
       {customizer && (
         <PhotoFrameCustomizer

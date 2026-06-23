@@ -27,6 +27,19 @@
   --font-serif: "Playfair Display", Georgia, serif;
 }
 
+/* ── Floating action button stack ──
+   On mobile a sticky bottom action bar (MobileActionBar) occupies the
+   bottom edge, so the WhatsApp chat FAB and the back-to-top FAB sit stacked
+   above it. On desktop (≥1024px, no action bar) they drop to their usual
+   spots. Driven by plain CSS rather than Tailwind bottom-* utilities so the
+   offsets are reliable regardless of which spacing tokens get generated. */
+.wa-fab  { bottom: 96px; }
+.btt-fab { bottom: 168px; }
+@media (min-width: 1024px) {
+  .wa-fab  { bottom: 20px; }
+  .btt-fab { bottom: 96px; }
+}
+
 html {
   scroll-behavior: smooth;
 }
