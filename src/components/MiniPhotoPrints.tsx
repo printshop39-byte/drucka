@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import Lightbox, { LightboxItem } from './Lightbox';
-
 const miniPrints = [
   { size: '2×3 inch', name: 'Wallet & Gift Inserts', image: '/images/mini/mini-2x3.jpg', desc: 'Pocket-size prints for wallets, cards & gift tags' },
   { size: '3×3 inch', name: 'Instagram Square Prints', image: '/images/mini/mini-3x3.jpg', desc: 'Perfect square prints of your favourite feed photos' },
@@ -8,13 +5,7 @@ const miniPrints = [
 ];
 
 export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
-  const [active, setActive] = useState<number | null>(null);
-  const lbItem: LightboxItem | null = active !== null ? {
-    image: miniPrints[active].image,
-    title: `${miniPrints[active].size} · ${miniPrints[active].name}`,
-    subtitle: miniPrints[active].desc,
-    waMessage: `Hi Drucka! I'd like to order ${miniPrints[active].size} Mini Photo Prints (${miniPrints[active].name}).`,
-  } : null;
+  const open = () => onOrder?.();
 
   return (
     <section id="mini-prints" className="py-20 lg:py-28 bg-white">
@@ -32,12 +23,12 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {miniPrints.map((item, index) => (
+          {miniPrints.map((item) => (
             <button
               key={item.size}
               type="button"
-              onClick={() => setActive(index)}
-              aria-label={`View ${item.size} ${item.name}`}
+              onClick={open}
+              aria-label={`Create ${item.size} mini prints`}
               className="group cursor-pointer text-left"
             >
               <div className="relative aspect-square bg-warm rounded-lg overflow-hidden mb-4">
@@ -49,9 +40,9 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
                 <span className="absolute top-3 left-3 rounded-full bg-charcoal/85 px-3 py-1 text-xs font-bold text-white">
                   {item.size}
                 </span>
-                <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/25 transition-colors duration-300 flex items-center justify-center">
-                  <span className="text-white font-serif text-lg font-semibold opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    View
+                <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/30 transition-colors duration-300 flex items-center justify-center">
+                  <span className="rounded-full bg-white/95 px-5 py-2 text-charcoal font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    Create now →
                   </span>
                 </div>
               </div>
@@ -61,21 +52,17 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
           ))}
         </div>
 
-        {onOrder && (
-          <div className="mt-12 text-center">
-            <button
-              type="button"
-              onClick={onOrder}
-              className="inline-flex items-center gap-2 rounded-full bg-charcoal px-8 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-charcoal/90"
-            >
-              Create your mini prints →
-            </button>
-            <p className="mt-3 text-xs text-charcoal/50">Upload photos, pick a size &amp; order in minutes · from ₹19/print</p>
-          </div>
-        )}
+        <div className="mt-12 text-center">
+          <button
+            type="button"
+            onClick={open}
+            className="inline-flex items-center gap-2 rounded-full bg-charcoal px-8 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-charcoal/90"
+          >
+            Create your mini prints →
+          </button>
+          <p className="mt-3 text-xs text-charcoal/50">Upload photos, pick a size &amp; order in minutes · from ₹19/print</p>
+        </div>
       </div>
-
-      <Lightbox item={lbItem} onClose={() => setActive(null)} />
     </section>
   );
 }
