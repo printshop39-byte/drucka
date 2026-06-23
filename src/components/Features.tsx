@@ -3,13 +3,13 @@ import { Printer, Truck, RefreshCw } from 'lucide-react';
 const features = [
   {
     icon: Printer,
-    title: 'Giclée Prints',
-    description: 'Get your photographs printed with the highest quality and longevity with our fine art giclée printing.',
+    title: 'Premium HD Printing',
+    description: 'Get your photographs printed with stunning clarity and vibrant colors. Our studio-quality prints ensure your memories never fade.',
   },
   {
     icon: Truck,
-    title: 'Shipping Across India',
-    description: 'Spend more and save on delivery costs with our free shipping on qualifying orders.',
+    title: 'Safe Pan-India Delivery',
+    description: 'Carefully packaged to prevent any damage and delivered right to your doorstep anywhere in India.',
   },
   {
     icon: RefreshCw,

@@ -62,7 +62,7 @@ export default function Hero() {
             className="font-medium uppercase text-sm mb-6 animate-fade-in"
             style={{ color: '#C9A84C', letterSpacing: '3px' }}
           >
-            Museum Quality &amp; Sustainable
+            Premium Quality &amp; Long-lasting
           </p>
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-serif font-normal text-white leading-tight mb-6">
             Frame Your
@@ -70,7 +70,7 @@ export default function Hero() {
             Memories
           </h1>
           <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-10 max-w-lg">
-            India's finest online photo printing &amp; framing company. Handcrafted with 100% solid wood, metal &amp; archival materials.
+            India's trusted online photo printing &amp; framing studio. We use premium, termite-resistant fiber and sleek metal frames to keep your photos vibrant and safe forever.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a
