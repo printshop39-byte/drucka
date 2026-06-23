@@ -7,7 +7,7 @@ const miniPrints = [
   { size: '4×3 inch', name: 'Memory & Scrapbook Prints', image: '/images/mini/mini-4x3.jpg', desc: 'Classic mini prints for albums & scrapbooks' },
 ];
 
-export default function MiniPhotoPrints() {
+export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
   const [active, setActive] = useState<number | null>(null);
   const lbItem: LightboxItem | null = active !== null ? {
     image: miniPrints[active].image,
@@ -60,6 +60,19 @@ export default function MiniPhotoPrints() {
             </button>
           ))}
         </div>
+
+        {onOrder && (
+          <div className="mt-12 text-center">
+            <button
+              type="button"
+              onClick={onOrder}
+              className="inline-flex items-center gap-2 rounded-full bg-charcoal px-8 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-charcoal/90"
+            >
+              Create your mini prints →
+            </button>
+            <p className="mt-3 text-xs text-charcoal/50">Upload photos, pick a size &amp; order in minutes · from ₹19/print</p>
+          </div>
+        )}
       </div>
 
       <Lightbox item={lbItem} onClose={() => setActive(null)} />

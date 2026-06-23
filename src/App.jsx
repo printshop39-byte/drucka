@@ -6,6 +6,8 @@ import DesignerProductPage from "./designer/ProductPage";
 import ProductDesigner from "./designer/Designer";
 import { productById as designerProductById } from "./designer/data";
 import CollageMaker from "./collage/CollageMaker";
+import CollageWelcome from "./collage/CollageWelcome";
+import MiniPrints from "./components/MiniPrints";
 /* premium frame-shop homepage components (src/components) */
 import AnnouncementBar from "./components/AnnouncementBar";
 import FrameNavbar from "./components/Navbar";
@@ -3850,7 +3852,9 @@ export default function App() {
   const [designerPage, setDesignerPage] = useState(null); // null | { productId }
   const [designer, setDesigner] = useState(null); // null | { productId, selections }
   const [collageOpen, setCollageOpen] = useState(false);
-  const [collagePro, setCollagePro] = useState(false); // free-form Fabric.js editor mode
+  const [collageView, setCollageView] = useState("welcome"); // welcome | grid | pro
+  const [collageInitial, setCollageInitial] = useState(null); // template chosen on welcome
+  const [miniOpen, setMiniOpen] = useState(false); // standalone Mini Prints flow
   const [announceOpen, setAnnounceOpen] = useState(true);
   const [customizer, setCustomizer] = useState(null); // null | { mode: "print"|"frame", initial }
   const [framePick, setFramePick] = useState(null); // { id, n } — frame chosen from the nav dropdown
@@ -4070,7 +4074,8 @@ export default function App() {
         topOffset={announceOpen}
         cartCount={cartCount}
         onCartOpen={() => setCartOpen(true)}
-        onCollage={() => setCollageOpen(true)}
+        onCollage={() => { setCollageInitial(null); setCollageView("welcome"); setCollageOpen(true); }}
+        onMini={() => setMiniOpen(true)}
         onPickFrame={(id) => setFramePick({ id, n: Date.now() })}
       />
       {IS_STAGING && (
@@ -4095,7 +4100,7 @@ export default function App() {
         <GalleryWalls />
         <StatementCollection />
         {/* <MagneticWalls /> */}
-        <MiniPhotoPrints />
+        <MiniPhotoPrints onOrder={() => setMiniOpen(true)} />
         {/* <QualityBanner /> */}
         {/* <SignatureGift /> */}
         <PhoneCases />
@@ -4116,31 +4121,50 @@ export default function App() {
         />
       )}
 
-      {/* CollageMaker stays MOUNTED while Pro Editor is open (display:none)
-          so its layouts/photos/options survive switching modes */}
-      {collageOpen && (
-        <div className={collagePro ? "hidden" : undefined}>
+      {/* Collage Maker — welcome screen routes to the Grid or Pro editor.
+          The Grid editor stays MOUNTED while the Pro editor is open
+          (display:none) so layouts/photos/options survive switching. */}
+      {collageOpen && collageView === "welcome" && (
+        <CollageWelcome
+          onClose={() => setCollageOpen(false)}
+          onStartGrid={(init) => { setCollageInitial(init ?? null); setCollageView("grid"); }}
+          onStartPro={() => setCollageView("pro")}
+        />
+      )}
+      {collageOpen && (collageView === "grid" || collageView === "pro") && (
+        <div className={collageView === "pro" ? "hidden" : undefined}>
           <CollageMaker
             onClose={() => setCollageOpen(false)}
+            onBack={() => setCollageView("welcome")}
+            initial={collageInitial}
             onAddToCart={addToCart}
             onOpenCart={() => setCartOpen(true)}
             showToast={showToast}
-            onPro={() => setCollagePro(true)}
+            onPro={() => setCollageView("pro")}
           />
         </div>
       )}
-      {collageOpen && collagePro && (
+      {collageOpen && collageView === "pro" && (
         <Suspense fallback={
           <div className="fixed inset-0 z-[95] grid place-items-center bg-[#141021] text-sm font-semibold text-white/60">
             Loading Pro Editor…
           </div>
         }>
           <CollageEditor
-            onClose={() => { setCollagePro(false); setCollageOpen(false); }}
-            onBackToGrid={() => setCollagePro(false)}
+            onClose={() => setCollageOpen(false)}
+            onBackToGrid={() => setCollageView("grid")}
             showToast={showToast}
           />
         </Suspense>
+      )}
+
+      {miniOpen && (
+        <MiniPrints
+          onClose={() => setMiniOpen(false)}
+          onAddToCart={addToCart}
+          onOpenCart={() => setCartOpen(true)}
+          showToast={showToast}
+        />
       )}
 
       {designerPage && (

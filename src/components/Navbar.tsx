@@ -6,10 +6,11 @@ interface NavbarProps {
   cartCount: number;
   onCartOpen: () => void;
   onCollage: () => void;
+  onMini?: () => void;
   onPickFrame?: (id: string) => void;
 }
 
-export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onPickFrame }: NavbarProps) {
+export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onPickFrame }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
@@ -25,7 +26,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
     ] },
     { name: 'Gallery Walls', href: '#gallery-walls' },
     { name: 'Statement Collection', href: '#statement' },
-    { name: 'Mini Prints', href: '#mini-prints' },
+    { name: 'Mini Prints', href: '#mini-prints', action: 'mini' },
     { name: 'Gifting', href: '#phone-cases' },
   ];
 
@@ -69,6 +70,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               >
                 <a
                   href={link.href}
+                  onClick={link.action === 'mini' ? (e) => { e.preventDefault(); onMini?.(); } : undefined}
                   className="flex items-center gap-1 text-sm font-medium text-charcoal/80 hover:text-charcoal transition-colors tracking-wide uppercase"
                 >
                   {link.name}
@@ -127,7 +129,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                 key={link.name}
                 href={link.href}
                 className="block py-2 text-sm font-medium text-charcoal/80 uppercase tracking-wide"
-                onClick={() => setMobileOpen(false)}
+                onClick={(e) => { if (link.action === 'mini') { e.preventDefault(); onMini?.(); } setMobileOpen(false); }}
               >
                 {link.name}
               </a>

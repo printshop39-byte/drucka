@@ -48,7 +48,7 @@ const OptionRow = ({ active, onClick, label, price }) => (
   </button>
 );
 
-export default function CollageMaker({ onClose, onAddToCart, onOpenCart, showToast, onPro }) {
+export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart, showToast, onPro, initial }) {
   /* ── state ── */
   const [photos, setPhotos] = useState([]);
   const [layoutId, setLayoutId] = useState("2x2");
@@ -70,6 +70,20 @@ export default function CollageMaker({ onClose, onAddToCart, onOpenCart, showToa
   const [frame, setFrame] = useState("none");
   const [lamination, setLamination] = useState("glossy");
   const [qty, setQty] = useState(1);
+
+  /* apply a template chosen on the welcome screen (once, on mount) */
+  const appliedInitial = useRef(false);
+  useEffect(() => {
+    if (appliedInitial.current || !initial) return;
+    appliedInitial.current = true;
+    if (initial.occasion) {
+      const o = OCCASIONS.find((x) => x.id === initial.occasion);
+      if (o) applyOccasion(o);
+    } else if (initial.layout) {
+      setLayoutId(initial.layout);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initial]);
 
   const layout = layoutById(layoutId);
   const filledCount = layout.cells.filter((_, i) => slots[i]?.photoId).length;
@@ -600,7 +614,7 @@ export default function CollageMaker({ onClose, onAddToCart, onOpenCart, showToa
 
       {/* header */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-2 border-b border-black/10 bg-white px-3 sm:px-4">
-        <button onClick={onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal">
+        <button onClick={onBack ?? onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal">
           <Icon d={ic.back} />
         </button>
         <div className="min-w-0">
