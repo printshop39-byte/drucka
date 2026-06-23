@@ -12,7 +12,7 @@ const statements = [
   { name: 'Sariska', image: '/images/statement/sariska.jpg' },
 ];
 
-export default function StatementCollection() {
+export default function StatementCollection({ onTryMini }: { onTryMini?: () => void }) {
   const [active, setActive] = useState<number | null>(null);
   const item: LightboxItem | null = active !== null ? {
     image: statements[active].image,
@@ -58,6 +58,20 @@ export default function StatementCollection() {
             </button>
           ))}
         </div>
+
+        {onTryMini && (
+          <div className="mt-12 text-center">
+            <button
+              type="button"
+              onClick={onTryMini}
+              className="group inline-flex items-center gap-2 rounded-full bg-charcoal px-8 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-charcoal/90"
+            >
+              Try it now
+              <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            </button>
+            <p className="mt-3 text-xs text-charcoal/50">Design your own print in seconds — opens the Mini Print editor</p>
+          </div>
+        )}
       </div>
 
       <Lightbox item={item} onClose={() => setActive(null)} />

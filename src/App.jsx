@@ -4098,7 +4098,7 @@ export default function App() {
         {/* <BestsellingFrames /> */}
         {/* <FeaturedProduct /> */}
         <GalleryWalls />
-        <StatementCollection />
+        <StatementCollection onTryMini={() => setMiniOpen(true)} />
         {/* <MagneticWalls /> */}
         <MiniPhotoPrints onOrder={() => setMiniOpen(true)} />
         {/* <QualityBanner /> */}
