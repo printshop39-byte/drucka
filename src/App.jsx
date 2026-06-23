@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { qikinkApi, setAdminKey, getAdminKey } from "./lib/qikinkClient";
 import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore";
 import { payWithRazorpay } from "./lib/paymentClient";
@@ -31,6 +31,32 @@ import BackToTop from "./components/BackToTop";
 import PhotoFrameCustomizer from "./components/PhotoFrameCustomizer";
 /* Fabric.js is heavy — the Pro editor (and fabric with it) loads on demand */
 const CollageEditor = lazy(() => import("./components/editor/CollageEditor"));
+
+/* Catches any render error inside a heavy modal (e.g. Mini Prints editor)
+   and shows the actual message on screen instead of a blank/no-op — so
+   production-only crashes are visible without opening DevTools. */
+class ModalErrorBoundary extends Component {
+  constructor(props) { super(props); this.state = { err: null }; }
+  static getDerivedStateFromError(err) { return { err }; }
+  componentDidCatch(err, info) { console.error("Modal crashed:", err, info); }
+  render() {
+    if (this.state.err) {
+      return (
+        <div className="fixed inset-0 z-[99] flex items-center justify-center bg-white p-6 text-center">
+          <div className="max-w-md">
+            <p className="text-lg font-bold text-red-600">{this.props.label || "Something broke"}</p>
+            <pre className="mt-3 max-h-60 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-black/5 p-3 text-left text-[11px] text-charcoal/70">
+              {String(this.state.err?.stack || this.state.err?.message || this.state.err)}
+            </pre>
+            <button onClick={() => { this.setState({ err: null }); this.props.onClose?.(); }}
+              className="mt-4 rounded-full bg-charcoal px-6 py-2 text-sm font-bold text-white">Close</button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    CONFIG — EDIT THESE VALUES FOR YOUR BUSINESS
@@ -4189,12 +4215,14 @@ export default function App() {
       )}
 
       {miniOpen && (
-        <MiniPrints
-          onClose={closeMini}
-          onAddToCart={addToCart}
-          onOpenCart={() => setCartOpen(true)}
-          showToast={showToast}
-        />
+        <ModalErrorBoundary label="Mini Prints editor error" onClose={closeMini}>
+          <MiniPrints
+            onClose={closeMini}
+            onAddToCart={addToCart}
+            onOpenCart={() => setCartOpen(true)}
+            showToast={showToast}
+          />
+        </ModalErrorBoundary>
       )}
 
       {designerPage && (
