@@ -1,12 +1,8 @@
 /* ── Bento Box product showcase (Apple-style, dark) ──
    A quick "everything you need" overview right under the hero.
-   Pure presentation; cells link to existing sections / flows. */
+   Pure presentation; cells are anchors to existing sections. */
 
-interface Props {
-  onMini?: () => void;
-}
-
-export default function BentoShowcase({ onMini }: Props) {
+export default function BentoShowcase() {
   return (
     <section style={{ background: '#0F0F0E', color: '#FAF9F7' }} className="py-20">
       <style>{`
@@ -62,9 +58,10 @@ export default function BentoShowcase({ onMini }: Props) {
             </div>
           </a>
 
-          {/* CELL 3 — Mini Prints (1×1) — opens the editor; falls back to the
-              Mini Prints section anchor if JS hasn't loaded */}
-          <a href="#mini-prints" onClick={(e) => { if (onMini) { e.preventDefault(); onMini(); } }}
+          {/* CELL 3 — Mini Prints (1×1) — pure anchor to the Mini Prints
+              section (same reliable behaviour as the other cells); that
+              section's "Create your mini prints" CTA opens the editor */}
+          <a href="#mini-prints"
             className="bento-cell b3 relative flex flex-col justify-between text-left"
             style={{ background: '#1A1208', border: '0.5px solid #333', borderRadius: '8px', padding: '20px' }}>
             <span style={{ fontSize: '24px' }}>🖨️</span>

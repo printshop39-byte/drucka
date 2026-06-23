@@ -4098,7 +4098,7 @@ export default function App() {
       <main>
         <FrameHero />
         <TrustBar />
-        <BentoShowcase onMini={() => setMiniOpen(true)} />
+        <BentoShowcase />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
         <PhotoFramesSection onCustomize={openEditor} framePick={framePick}
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
