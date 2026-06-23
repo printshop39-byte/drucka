@@ -10,9 +10,9 @@ export default function BentoShowcase({ onMini }: Props) {
   return (
     <section style={{ background: '#0F0F0E', color: '#FAF9F7' }} className="py-20">
       <style>{`
-        .bento-cell { transition: transform 0.3s ease, border-color 0.3s ease; }
+        .bento-cell { transition: transform 0.3s ease, border-color 0.3s ease; cursor: pointer; }
         @media (hover: hover) and (pointer: fine) {
-          .bento-cell:hover { transform: scale(1.02); border-color: rgba(201,168,76,0.4); cursor: pointer; }
+          .bento-cell:hover { transform: scale(1.02); border-color: rgba(201,168,76,0.4); }
         }
         .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; grid-auto-rows: 160px; }
         .b1, .b2, .b5 { grid-column: span 2; }
