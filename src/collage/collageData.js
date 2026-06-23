@@ -61,6 +61,55 @@ export const CANVAS_SIZES = [
   { id: "a4", label: "A4 Poster", w: 2480, h: 3508 },
 ];
 
+/* ── Print sizes (PRD §5) — pixel dims @300dpi drive both the canvas
+   aspect ratio and the order price. `price` = base print price (₹). ── */
+export const PRINT_SIZES = [
+  { id: "wallet", label: 'Wallet · 2×3"', dim: '2×3"', w: 600, h: 900, price: 49 },
+  { id: "standard", label: 'Standard · 4×6"', dim: '4×6"', w: 1200, h: 1800, price: 99 },
+  { id: "medium", label: 'Medium · 5×7"', dim: '5×7"', w: 1500, h: 2100, price: 149 },
+  { id: "square", label: 'Square · 8×8"', dim: '8×8"', w: 2400, h: 2400, price: 349 },
+  { id: "large", label: 'Large · 8×10"', dim: '8×10"', w: 2400, h: 3000, price: 299 },
+  { id: "a4", label: "A4 · Poster", dim: "A4", w: 2480, h: 3508, price: 249 },
+  { id: "a3", label: "A3 · Poster", dim: "A3", w: 3508, h: 4961, price: 449 },
+  { id: "pano", label: 'Panoramic · 12×18"', dim: '12×18"', w: 3600, h: 5400, price: 599 },
+];
+
+/* social / digital sizes — download only, not priced for print */
+export const SOCIAL_SIZES = [
+  { id: "ig-post", label: "Instagram Post", dim: "1:1", w: 1080, h: 1080 },
+  { id: "ig-story", label: "Instagram Story", dim: "9:16", w: 1080, h: 1920 },
+];
+
+export const printSizeById = (id) => PRINT_SIZES.find((s) => s.id === id);
+
+/* ── Frame & lamination add-ons (PRD §11) ── */
+export const FRAME_OPTIONS = [
+  { id: "none", label: "No frame", price: 0 },
+  { id: "white_minimal", label: "White Minimal", price: 199 },
+  { id: "classic_black", label: "Classic Black", price: 199 },
+  { id: "wooden_brown", label: "Wooden Brown", price: 249 },
+  { id: "premium_golden", label: "Premium Golden", price: 299 },
+];
+export const LAMINATION_OPTIONS = [
+  { id: "none", label: "None", price: 0 },
+  { id: "glossy", label: "Glossy", price: 49 },
+  { id: "matte", label: "Matte", price: 49 },
+];
+
+export const FREE_SHIP_THRESHOLD = 2999;
+
+/* live price calculation (PRD §11) */
+export function calcCollagePrice({ size, frame, lamination, qty = 1 }) {
+  const base = Number(size?.price) || 99;
+  const framePrice = FRAME_OPTIONS.find((f) => f.id === frame)?.price ?? 0;
+  const lamPrice = LAMINATION_OPTIONS.find((l) => l.id === lamination)?.price ?? 0;
+  const unit = base + framePrice + lamPrice;
+  const q = Math.max(1, qty);
+  const total = unit * q;
+  const shipping = total >= FREE_SHIP_THRESHOLD ? 0 : 99;
+  return { base, framePrice, lamPrice, unit, total, shipping, grandTotal: total + shipping };
+}
+
 export const PHOTO_FILTERS = [
   { id: "none", label: "Original", css: "none" },
   { id: "bw", label: "B&W", css: "grayscale(1) contrast(1.05)" },

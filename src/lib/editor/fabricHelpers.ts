@@ -21,7 +21,7 @@ export interface ImageMeta {
   radius: number;                       // corner radius % (rounded / none border)
   border: { width: number; color: string; style: BorderStyle };
   shadow: number;                       // 0–40 blur px (design space)
-  effects: { blur: number; brightness: number; contrast: number; opacity: number };
+  effects: { blur: number; brightness: number; contrast: number; opacity: number; tint: string; tintStrength: number };
 }
 export interface BorderMeta { kind: 'border'; for: string }
 export interface SimpleMeta { kind: 'text' | 'draw' | 'group'; id: string }
@@ -33,8 +33,18 @@ export const defaultMeta = (): ImageMeta => ({
   kind: 'image', id: eid(), shape: 'none', radius: 0,
   border: { width: 0, color: '#c19a3d', style: 'solid' },
   shadow: 0,
-  effects: { blur: 0, brightness: 100, contrast: 100, opacity: 100 },
+  effects: { blur: 0, brightness: 100, contrast: 100, opacity: 100, tint: '#c19a3d', tintStrength: 0 },
 });
+
+/* decorative frame presets — real photo borders (PicMonkey "Frames") */
+export const FRAME_PRESETS: { id: string; label: string; width: number; color: string; style: BorderStyle }[] = [
+  { id: 'none', label: 'None', width: 0, color: '#c19a3d', style: 'solid' },
+  { id: 'gold', label: 'Gold', width: 28, color: '#c19a3d', style: 'solid' },
+  { id: 'black', label: 'Black', width: 22, color: '#211c17', style: 'solid' },
+  { id: 'white', label: 'White', width: 30, color: '#ffffff', style: 'solid' },
+  { id: 'wooden', label: 'Wooden', width: 30, color: '#8a5a2b', style: 'solid' },
+  { id: 'sketch', label: 'Hand-drawn', width: 10, color: '#211c17', style: 'sketch' },
+];
 
 export const metaOf = (o: FabricObject | null | undefined): ImageMeta | null =>
   o && (o as any).dru?.kind === 'image' ? ((o as any).dru as ImageMeta) : null;
@@ -239,6 +249,7 @@ export function applyEffects(canvas: Canvas, img: FabricImage) {
   if (effects.blur > 0) list.push(new filters.Blur({ blur: effects.blur / 100 }));
   if (effects.brightness !== 100) list.push(new filters.Brightness({ brightness: (effects.brightness - 100) / 150 }));
   if (effects.contrast !== 100) list.push(new filters.Contrast({ contrast: (effects.contrast - 100) / 150 }));
+  if (effects.tintStrength > 0) list.push(new filters.BlendColor({ color: effects.tint, mode: 'tint', alpha: effects.tintStrength / 100 }));
   img.filters = list;
   img.applyFilters();
   img.opacity = effects.opacity / 100;
@@ -336,6 +347,23 @@ export async function addPhoto(canvas: Canvas, dataUrl: string, index: number): 
   canvas.setActiveObject(img);
   canvas.requestRenderAll();
   return img;
+}
+
+/* ── replace a photo's source, keeping its on-canvas box, shape, border & effects ── */
+export async function replaceImageSrc(canvas: Canvas, img: FabricImage, dataUrl: string): Promise<void> {
+  const meta = metaOf(img);
+  const sw = img.getScaledWidth(), sh = img.getScaledHeight();
+  await img.setSrc(dataUrl);
+  // preserve the same on-canvas footprint regardless of the new image's pixels
+  img.set({ scaleX: sw / img.width!, scaleY: sh / img.height! });
+  if (meta) {
+    applyShape(canvas, img, meta.shape); // clip geometry depends on new dims
+    applyEffects(canvas, img);
+    syncBorder(canvas, img);
+  }
+  img.setCoords();
+  img.set('dirty', true);
+  canvas.requestRenderAll();
 }
 
 /* ── undo / redo (JSON snapshots, includes background + drawings + text) ── */

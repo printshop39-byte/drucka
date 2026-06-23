@@ -5,14 +5,14 @@ import {
 import {
   LayoutGrid, ImagePlus, Palette, Ruler, Type, Sticker, Download, Pen,
   Crop, ChevronUp, ChevronDown, ChevronsUp, ChevronsDown, Copy, Trash2, Lock, Unlock,
-  Settings2, Upload,
+  Settings2, Upload, Wand2, Crown, Repeat2,
 } from 'lucide-react';
 import {
-  AlignOp, BgState, CANVAS_PRESETS, HistoryManager, ImageMeta, ShapeId,
+  AlignOp, BgState, CANVAS_PRESETS, FRAME_PRESETS, HistoryManager, ImageMeta, ShapeId,
   addPhoto, addText, alignObject, applyBackground, applyEffects, applyShape,
   designDims, duplicateObject, downloadDataUrl, eid, exportImage, groupSelection,
   isLocked, layerOp, mergeSelection, metaOf, placeBorder, removeBorderOf,
-  setLocked, syncBorder, ungroupSelection,
+  replaceImageSrc, setLocked, syncBorder, ungroupSelection,
 } from '../../lib/editor/fabricHelpers';
 import { GRAPHICS, graphicDataUrl } from '../../designer/data';
 import EditorToolbar from './EditorToolbar';
@@ -37,7 +37,7 @@ interface Props {
   showToast: (msg: string) => void;
 }
 
-type TabId = 'layouts' | 'photos' | 'style' | 'size' | 'text' | 'stickers' | 'export';
+type TabId = 'layouts' | 'photos' | 'style' | 'size' | 'text' | 'stickers' | 'effects' | 'export';
 const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
   { id: 'layouts', label: 'Layouts', icon: LayoutGrid },
   { id: 'photos', label: 'Photos', icon: ImagePlus },
@@ -45,6 +45,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: numbe
   { id: 'size', label: 'Size', icon: Ruler },
   { id: 'text', label: 'Text', icon: Type },
   { id: 'stickers', label: 'Stickers', icon: Sticker },
+  { id: 'effects', label: 'Effects', icon: Wand2 },
   { id: 'export', label: 'Export', icon: Download },
 ];
 
@@ -52,6 +53,7 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const elRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const replaceRef = useRef<HTMLInputElement>(null);
   const fcRef = useRef<Canvas | null>(null);
   const histRef = useRef(new HistoryManager());
   const presetRef = useRef(CANVAS_PRESETS[0]);
@@ -266,6 +268,32 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
       }
     }
     if (added) { setEmpty(false); captureSoon(); showToast(`${added} photo${added > 1 ? 's' : ''} added ✓`); }
+  };
+
+  const handleReplace = async (files: FileList | null) => {
+    const c = fcRef.current;
+    const img = selected as FabricImage | null;
+    if (!c || !img || !selMeta || !files?.length) return;
+    try {
+      const url = await new Promise<string>((res, rej) => {
+        const r = new FileReader();
+        r.onerror = () => rej(new Error('read failed'));
+        r.onload = () => res(r.result as string);
+        r.readAsDataURL(files[0]);
+      });
+      await replaceImageSrc(c, img, url);
+      refresh();
+      captureSoon();
+      showToast('Photo replaced ✓');
+    } catch {
+      showToast('⚠ Could not load that image');
+    }
+  };
+  const applyFrame = (id: string) => {
+    const preset = FRAME_PRESETS.find((f) => f.id === id);
+    if (!preset) return;
+    patchStyle({ borderWidth: preset.width, borderColor: preset.color, borderStyle: preset.style });
+    showToast(preset.id === 'none' ? 'Frame removed' : `${preset.label} frame applied ✓`);
   };
 
   const changeBg = (next: BgState) => {
@@ -549,6 +577,85 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
           </div>
         </div>
       );
+      case 'effects': return (
+        selected ? (
+          <div className="space-y-2">
+            <p className="text-[10px] leading-relaxed text-white/45">Effects apply to the selected layer. Stack as many as you like.</p>
+            {selMeta && (
+              <>
+                <button onClick={() => replaceRef.current?.click()}
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-white/10 py-2 text-[11px] font-bold text-white transition hover:bg-white/15">
+                  <Repeat2 size={13} /> Replace image
+                </button>
+                <Section title="Shape Crop" defaultOpen>
+                  <ShapeCropMenu value={selMeta.shape} onChange={pickShape} />
+                </Section>
+                <Section title="Decorative Frames" defaultOpen>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {FRAME_PRESETS.map((f) => {
+                      const on = selMeta.border.width === f.width && selMeta.border.color === f.color && selMeta.border.style === f.style
+                        || (f.id === 'none' && selMeta.border.width === 0);
+                      return (
+                        <button key={f.id} onClick={() => applyFrame(f.id)}
+                          className={`flex flex-col items-center gap-1 rounded-lg border-2 p-1.5 transition ${
+                            on ? 'border-gold bg-gold/10' : 'border-white/10 hover:border-white/30'}`}>
+                          <span className="grid h-8 w-8 place-items-center rounded-sm bg-white/15"
+                            style={f.id === 'none' ? undefined : { boxShadow: `inset 0 0 0 ${Math.max(2, f.width / 8)}px ${f.color}` }}>
+                            {f.id === 'none' && <span className="text-[8px] font-bold text-white/40">OFF</span>}
+                          </span>
+                          <span className="text-[8.5px] font-bold text-white/55">{f.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </Section>
+                <Section title="Tint Color" pro>
+                  <div className="space-y-2.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {['#c19a3d', '#6e1423', '#22304f', '#1d4a38', '#5b21b6', '#211c17'].map((c) => (
+                        <button key={c} aria-label={`Tint ${c}`} onClick={() => patchEffects({ tint: c, tintStrength: selMeta.effects.tintStrength || 40 })}
+                          className={`h-6 w-6 rounded-full border-2 ${selMeta.effects.tint === c ? 'border-gold ring-2 ring-gold/40' : 'border-white/25'}`}
+                          style={{ backgroundColor: c }} />
+                      ))}
+                      <input type="color" value={selMeta.effects.tint} aria-label="Custom tint colour"
+                        onChange={(e) => patchEffects({ tint: e.target.value, tintStrength: selMeta.effects.tintStrength || 40 })}
+                        className="h-6 w-6 cursor-pointer rounded-full border border-white/25 bg-transparent" />
+                    </div>
+                    <label className="block">
+                      <span className="mb-0.5 flex justify-between text-[9.5px] font-bold uppercase tracking-wide text-white/45">
+                        Strength <span className="text-white/70">{selMeta.effects.tintStrength}%</span>
+                      </span>
+                      <input type="range" min={0} max={100} value={selMeta.effects.tintStrength}
+                        onChange={(e) => patchEffects({ tintStrength: +e.target.value })} className="w-full accent-gold" />
+                    </label>
+                  </div>
+                </Section>
+                <Section title="Pro Effects · Border · Shadow" pro defaultOpen>
+                  <ImageEffectsPanel meta={selMeta} onEffect={patchEffects} onStyle={patchStyle} />
+                </Section>
+              </>
+            )}
+            <Section title="Fade & Blend" pro defaultOpen={isMulti}>
+              <BlendPanel blend={blend} onBlend={setBlend}
+                isMulti={isMulti} isGroup={isGroup}
+                onMerge={doMerge} onGroup={doGroup} onUngroup={doUngroup} />
+            </Section>
+            {isText && !selMeta && (
+              <p className="text-[10px] leading-relaxed text-white/40">Editing text? Open the <span className="font-bold text-white/70">Text</span> tab for fonts &amp; styles.</p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 rounded-xl border border-gold/25 bg-gold/8 px-3 py-2.5 text-[11px] font-bold text-gold">
+              <Wand2 size={14} /> Select a photo to unlock effects
+            </div>
+            <p className="text-[10px] leading-relaxed text-white/45">
+              Tap a photo on the artboard, then come back here for shape crops, filters, borders,
+              shadows, fade &amp; blend. Pro effects are marked with a <span className="text-gold-light">crown</span>.
+            </p>
+          </div>
+        )
+      );
       case 'export': return (
         <div className="space-y-2">
           <button onClick={() => doExport('png')} disabled={exporting}
@@ -627,22 +734,12 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
           <TextPanel text={selected as Textbox} onPatch={patchText} />
         </Section>
       )}
-      {selMeta && (
-        <>
-          <Section title="Shape Crop" defaultOpen>
-            <ShapeCropMenu value={selMeta.shape} onChange={pickShape} />
-          </Section>
-          <Section title="Effects · Border · Shadow" defaultOpen>
-            <ImageEffectsPanel meta={selMeta} onEffect={patchEffects} onStyle={patchStyle} />
-          </Section>
-        </>
-      )}
       {selected && !penMode && (
-        <Section title="Blend & Merge" defaultOpen={isMulti}>
-          <BlendPanel blend={blend} onBlend={setBlend}
-            isMulti={isMulti} isGroup={isGroup}
-            onMerge={doMerge} onGroup={doGroup} onUngroup={doUngroup} />
-        </Section>
+        <button onClick={() => { setTab('effects'); setMobilePanel(null); }}
+          className="flex w-full items-center justify-center gap-2 rounded-full border-2 border-gold/40 bg-gold/10 py-2 text-[11px] font-bold text-gold transition hover:bg-gold/20">
+          <Wand2 size={13} /> Effects, crop &amp; blend
+          <Crown size={11} className="text-gold-light" />
+        </button>
       )}
       <Section title="Layout & Snap">
         <LayoutPanel hasSelection={!!selected}
@@ -669,6 +766,8 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
     <div className="fixed inset-0 z-[95] flex flex-col bg-[#141021]" role="dialog" aria-modal="true" aria-label="Pro collage editor">
       <input ref={fileRef} type="file" hidden multiple accept="image/jpeg,image/png,image/webp"
         onChange={(e) => { handleUpload(e.target.files); e.target.value = ''; }} />
+      <input ref={replaceRef} type="file" hidden accept="image/jpeg,image/png,image/webp"
+        onChange={(e) => { handleReplace(e.target.files); e.target.value = ''; }} />
 
       <EditorToolbar
         onBack={onBackToGrid}
