@@ -23,8 +23,9 @@ export default function StoreLocations() {
           <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group">
             <div className="aspect-[16/9] overflow-hidden">
               <img
-                src="https://images.pexels.com/photos/6732227/pexels-photo-6732227.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=700"
+                src="/images/studio/made-in-studio.webp"
                 alt="Custom printing made at the Drucka studio in Kolhapur, India"
+                loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>
@@ -60,8 +61,9 @@ export default function StoreLocations() {
           <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow group">
             <div className="aspect-[16/9] overflow-hidden">
               <img
-                src="https://images.pexels.com/photos/4391470/pexels-photo-4391470.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=400&w=700"
+                src="/images/studio/delivered-in-india.webp"
                 alt="Drucka delivers custom prints, frames & gifts across India"
+                loading="lazy"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
             </div>
