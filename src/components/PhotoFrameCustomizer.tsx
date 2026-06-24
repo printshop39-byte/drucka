@@ -1,11 +1,13 @@
 import { useRef, useState } from 'react';
-import { X, Upload, Pencil, Trash2, Plus, Minus, Check, MessageCircle, ChevronLeft } from 'lucide-react';
+import { X, Upload, Pencil, Trash2, Plus, Minus, Check, MessageCircle, ChevronLeft, Loader2 } from 'lucide-react';
 import {
   BORDER_OPTIONS, FRAME_STYLES, FrameStyle, PRINT_SIZES, PRINT_TYPES, PhotoSlot,
-  cropModeLabel, cssFilter, defaultCrop, frameOrderMessage, loadPhotoFile,
+  cropModeLabel, cssFilter, cuid, defaultCrop, frameOrderMessage, loadPhotoFile,
   printOrderMessage, slotSize, slotQuality, transformSlot, wa,
 } from './customizerData';
 import ImageCropper from './ImageCropper';
+import { renderOrderImage } from '../lib/frameComposite';
+import { qikinkApi } from '../lib/qikinkClient';
 
 /* ── PhotoFrameCustomizer — website-based print/frame ordering flow ──
    Photos stay in the browser (no upload); the customer shares the real
@@ -72,9 +74,13 @@ function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: 
     const openingAspect = (o.w / o.h) * fAspect;       // opening width/height in px
     const s = slot ? slotSize(slot) : { w: 4, h: 5 };
     const printAspect = s.w / s.h;
-    const fit: React.CSSProperties = printAspect <= openingAspect
-      ? { height: '100%', aspectRatio: `${s.w} / ${s.h}` }   // print narrower → height binds
-      : { width: '100%', aspectRatio: `${s.w} / ${s.h}` };   // print wider → width binds
+    // fill/center cover the opening; "fit" contains the whole photo (matted)
+    const coverOpening = (slot?.crop.mode ?? 'fill') !== 'fit';
+    const widthBinds = coverOpening ? printAspect <= openingAspect : printAspect > openingAspect;
+    const fit: React.CSSProperties = {
+      aspectRatio: `${s.w} / ${s.h}`,
+      ...(widthBinds ? { width: '100%' } : { height: '100%' }),
+    };
     return (
       <div className="mx-auto w-full max-w-[230px]">
         <div className="relative drop-shadow-[0_14px_34px_rgba(0,0,0,.25)]">
@@ -83,7 +89,7 @@ function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: 
           <div className="absolute flex items-center justify-center overflow-hidden"
             style={{ left: `${o.x}%`, top: `${o.y}%`, width: `${o.w}%`, height: `${o.h}%`, padding: matPad }}>
             {slot ? (
-              <div className="relative" style={fit}>
+              <div className="relative shrink-0" style={fit}>
                 <CroppedThumb slot={slot} className="!absolute !inset-0" style={{ width: '100%', height: '100%', aspectRatio: 'auto' }} />
               </div>
             ) : (
@@ -127,6 +133,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
   const [border, setBorder] = useState(BORDER_OPTIONS[0]);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const [ordering, setOrdering] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const active = slots.find((s) => s.id === activeId) ?? slots[0] ?? null;
@@ -184,6 +191,36 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
     : printOrderMessage(slots, printType, note);
   const totalPrints = slots.reduce((n, p) => n + p.qty, 0);
 
+  /* Build the order preview image(s), upload to Cloudinary, and open WhatsApp
+     with the order summary + image links so the shop sees what was designed.
+     If the backend is unreachable, fall back to the text-only message so the
+     order still goes through. (The /api routes run on the deployed site.) */
+  const submitOrder = async () => {
+    if (ordering || !slots.length) return;
+    setOrdering(true);
+    const waWin = window.open('about:blank', '_blank'); // opened in the gesture to dodge popup blockers
+    try {
+      const orderId = cuid();
+      const links: string[] = [];
+      for (let i = 0; i < slots.length; i++) {
+        const dataUrl = await renderOrderImage(slots[i], isFrame ? frame : null, border);
+        const { url } = await qikinkApi.uploadArtwork(dataUrl, `drucka-${orderId}`, `photo-${i + 1}`);
+        links.push(url);
+      }
+      const msg = links.length
+        ? `${waMessage}\n\nOrder preview${links.length > 1 ? 's' : ''}:\n${links.join('\n')}`
+        : waMessage;
+      const href = wa(msg);
+      if (waWin) waWin.location.href = href; else window.location.href = href;
+    } catch {
+      const href = wa(waMessage); // text-only fallback — order still reaches WhatsApp
+      if (waWin) waWin.location.href = href; else window.location.href = href;
+      showToast('Sent as text — could not attach preview images');
+    } finally {
+      setOrdering(false);
+    }
+  };
+
   /* ── steps ── */
   const stepPhotos = (
     <>
@@ -226,7 +263,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
   );
 
   const stepSizeCrop = active && (
-    <div className="grid gap-5 lg:grid-cols-[270px_1fr]">
+    <div className="grid gap-5 lg:grid-cols-[260px_1fr]">
       <div>
         {/* photo switcher */}
         {slots.length > 1 && (
@@ -278,16 +315,23 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
           </div>
         )}
 
-        {isFrame && (
-          <div className="mt-4 hidden lg:block">
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Frame preview</p>
+      </div>
+      <div className="space-y-4">
+        {isFrame && active.crop.mode === 'free' && (
+          <div className="rounded-2xl border border-stone bg-white/70 p-3">
+            <p className="mb-1 text-center text-[11px] font-extrabold uppercase tracking-wider text-gold-dark">
+              Live preview · in your frame
+            </p>
             <FramePreview slot={active} frame={frame} border={border} />
+            <p className="mt-1 text-center text-[10px] text-charcoal/45">Drag the crop box below — frame updates live</p>
           </div>
         )}
+        <ImageCropper slot={active}
+          frame={isFrame ? frame : undefined}
+          border={border}
+          onCrop={(patch) => patchCrop(active.id, patch)}
+          onTransform={(op) => doTransform(active.id, op)} />
       </div>
-      <ImageCropper slot={active}
-        onCrop={(patch) => patchCrop(active.id, patch)}
-        onTransform={(op) => doTransform(active.id, op)} />
     </div>
   );
 
@@ -405,12 +449,14 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
         {note.trim() && <p className="mt-3 text-xs text-charcoal/60"><span className="font-bold">Note:</span> {note}</p>}
       </div>
       <p className="text-center text-[11px] text-charcoal/45">
-        Confirming opens WhatsApp with this summary — then just attach your original photos in the chat.
+        Confirming attaches a preview of your {isFrame ? 'framed photo' : 'print'}{slots.length > 1 ? 's' : ''} and opens WhatsApp with the order — then attach your original photos in the chat for printing.
       </p>
-      <a href={wa(waMessage)} target="_blank" rel="noopener noreferrer"
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold to-gold-dark py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-gold/30 transition hover:brightness-105">
-        <MessageCircle size={16} /> Order on WhatsApp
-      </a>
+      <button onClick={submitOrder} disabled={ordering}
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold to-gold-dark py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-gold/30 transition hover:brightness-105 disabled:opacity-70">
+        {ordering
+          ? <><Loader2 size={16} className="animate-spin" /> Preparing your order…</>
+          : <><MessageCircle size={16} /> Order on WhatsApp</>}
+      </button>
     </div>
   );
 

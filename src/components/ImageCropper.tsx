@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { ZoomIn, ZoomOut, RotateCcw, RotateCw, FlipHorizontal, RefreshCw, Search, X } from 'lucide-react';
 import {
-  CROP_MODES, CropState, PhotoSlot, cssFilter, effectiveDpi, slotSize, slotQuality,
+  CROP_MODES, CropState, FrameStyle, PhotoSlot, cssFilter, effectiveDpi, slotSize, slotQuality,
 } from './customizerData';
 
 /* ── ImageCropper — live crop editor for one photo slot ──
@@ -16,19 +16,38 @@ interface Props {
   slot: PhotoSlot;
   onCrop: (patch: Partial<CropState>) => void;
   onTransform: (op: 'rotL' | 'rotR' | 'flipH') => void;
+  frame?: FrameStyle;     // when set, edit the photo inside the real frame (WYSIWYG)
+  border?: string;
 }
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 
-export default function ImageCropper({ slot, onCrop, onTransform }: Props) {
+export default function ImageCropper({ slot, onCrop, onTransform, frame, border = 'No Border' }: Props) {
   const boxRef = useRef<HTMLDivElement>(null);
   const [inspect, setInspect] = useState(false);
+  const [fAspect, setFAspect] = useState(0.8); // frame image natural W/H, measured on load
   const size = slotSize(slot);
   const c = slot.crop;
   const printAspect = size.w / size.h;
   const imgAspect = slot.pw / slot.ph;
   const quality = slotQuality(slot);
   const dpi = Math.round(effectiveDpi(slot));
+
+  /* frame-in-place: drag/zoom happens inside the frame's opening. Free-crop
+     needs the whole photo, so it stays unframed (a mini framed preview is
+     shown next to it by the parent). */
+  const matPad = border === 'No Border' ? '0%' : border === 'White Border' ? '5%' : '9%';
+  const o = frame?.opening;
+  const framed = !!(frame?.frameImg && o) && c.mode !== 'free';
+  const openingAspect = o ? (o.w / o.h) * fAspect : 1;
+  // fill/center fill the whole frame opening (cover — opening crops the overflow);
+  // "fit" shows the entire photo inside the opening with matting (contain).
+  const coverOpening = c.mode !== 'fit';
+  const widthBinds = coverOpening ? printAspect <= openingAspect : printAspect > openingAspect;
+  const fitStyle: React.CSSProperties = {
+    aspectRatio: `${size.w} / ${size.h}`,
+    ...(widthBinds ? { width: '100%' } : { height: '100%' }),
+  };
 
   /* pan limits for fill/center: how far the cover-scaled photo can shift */
   const panLimits = () => {
@@ -144,10 +163,24 @@ export default function ImageCropper({ slot, onCrop, onTransform }: Props) {
     };
   };
 
+  /* the editable photo + rule-of-thirds guides — same content whether the
+     box stands alone or sits inside the frame's opening */
+  const boxInner = (
+    <>
+      <img src={slot.src} alt={slot.name} draggable={false} className="select-none" style={photoStyle()} />
+      <div className="pointer-events-none absolute inset-0 opacity-40">
+        <div className="absolute left-1/3 top-0 h-full w-px bg-white/70" />
+        <div className="absolute left-2/3 top-0 h-full w-px bg-white/70" />
+        <div className="absolute top-1/3 left-0 w-full h-px bg-white/70" />
+        <div className="absolute top-2/3 left-0 w-full h-px bg-white/70" />
+      </div>
+    </>
+  );
+
   return (
     <div>
       {/* preview box in print-size shape */}
-      <div className="mx-auto w-full max-w-[340px]">
+      <div className="mx-auto w-full max-w-[360px]">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-charcoal/45">
             Recommended size: <span className="text-charcoal">{size.label}″</span> · ratio {size.w}:{size.h}
@@ -157,19 +190,27 @@ export default function ImageCropper({ slot, onCrop, onTransform }: Props) {
           </span>
         </div>
 
-        {c.mode !== 'free' ? (
+        {framed ? (
+          /* WYSIWYG: the print-ratio editing box lives inside the frame opening */
+          <div className="relative drop-shadow-[0_14px_34px_rgba(0,0,0,.25)]">
+            <img src={frame!.frameImg} alt={`${frame!.name} frame`} draggable={false}
+              className="block w-full select-none"
+              onLoad={(e) => setFAspect(e.currentTarget.naturalWidth / Math.max(1, e.currentTarget.naturalHeight))} />
+            <div className="absolute flex items-center justify-center overflow-hidden"
+              style={{ left: `${o!.x}%`, top: `${o!.y}%`, width: `${o!.w}%`, height: `${o!.h}%`, padding: matPad }}>
+              <div ref={boxRef} onPointerDown={startPan}
+                className={`relative shrink-0 overflow-hidden bg-cream touch-none select-none ${c.mode !== 'fit' ? 'cursor-move' : ''}`}
+                style={fitStyle}>
+                {boxInner}
+              </div>
+            </div>
+          </div>
+        ) : c.mode !== 'free' ? (
           <div ref={boxRef}
             onPointerDown={startPan}
             className={`relative w-full overflow-hidden rounded-lg border-2 border-stone bg-cream shadow-inner ${c.mode !== 'fit' ? 'cursor-move' : ''} touch-none select-none`}
             style={{ aspectRatio: `${size.w} / ${size.h}`, maxHeight: '46vh' }}>
-            <img src={slot.src} alt={slot.name} draggable={false} className="select-none" style={photoStyle()} />
-            {/* rule-of-thirds guides */}
-            <div className="pointer-events-none absolute inset-0 opacity-40">
-              <div className="absolute left-1/3 top-0 h-full w-px bg-white/70" />
-              <div className="absolute left-2/3 top-0 h-full w-px bg-white/70" />
-              <div className="absolute top-1/3 left-0 w-full h-px bg-white/70" />
-              <div className="absolute top-2/3 left-0 w-full h-px bg-white/70" />
-            </div>
+            {boxInner}
           </div>
         ) : (
           /* free crop: photo contained, print-ratio box on top */
