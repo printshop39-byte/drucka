@@ -48,6 +48,8 @@ export default function ScrollShowcase({ onCta }: { onCta?: () => void }) {
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      anchors: true, // let Lenis handle #hash nav (e.g. navbar "Mini Prints")
+                     // while it's active during the first-visit intro
     });
     lenis.on("scroll", ScrollTrigger.update);
     const ticker = (time: number) => lenis.raf(time * 1000);

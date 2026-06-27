@@ -59,9 +59,9 @@ export default function BentoShowcase() {
             </div>
           </a>
 
-          {/* CELL 3 — Mini Prints (1×1) — real /mini-prints route (opens the
-              Mini Prints editor; SPA router handles direct loads) */}
-          <a href="/mini-prints"
+          {/* CELL 3 — Mini Prints (1×1) — scrolls to the Mini Photo Prints
+              showcase section; its CTA then opens the editor */}
+          <a href="#mini-prints"
             className="bento-cell b3 relative flex flex-col justify-between text-left"
             style={{ background: '#1A1208', border: '0.5px solid #333', borderRadius: '14px', padding: '20px' }}>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E3C887" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
