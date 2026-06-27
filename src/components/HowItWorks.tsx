@@ -1,12 +1,13 @@
-import { Upload, Eye, MessageCircle, Truck } from 'lucide-react';
+import { Upload, Eye, MessageCircle } from 'lucide-react';
 
-/* How it works — 4-step upload-first flow. Premium finish: cream bg,
+/* How it works — tight 3-step, WhatsApp-first flow. Premium finish: cream bg,
    single gold accent, subtle bordered cards with a soft shadow. */
+const WA = 'https://wa.me/917083811355?text=' + encodeURIComponent("Hi Drucka! I'd like to place a custom order.");
+
 const steps = [
-  { icon: Upload, title: 'Upload Your Photo', desc: 'Pick a product and upload your photo — no design skills needed.' },
-  { icon: Eye, title: 'Preview Your Design', desc: 'See a live preview of exactly how your print will look.' },
-  { icon: MessageCircle, title: 'Order on WhatsApp', desc: 'Confirm the details and place your order in a quick chat.' },
-  { icon: Truck, title: 'Printed & Delivered', desc: 'Premium printing, delivered across India in 2–4 days.' },
+  { icon: Upload, title: 'Choose Photo', desc: 'Pick a product and upload your photo — no design skills needed.' },
+  { icon: Eye, title: 'Preview Live', desc: 'See exactly how your print will look before you order.' },
+  { icon: MessageCircle, title: 'Order on WhatsApp', desc: 'Confirm & pay in a quick chat — we print and deliver across India in 2–4 days.' },
 ];
 
 const cardStyle: React.CSSProperties = {
@@ -24,11 +25,11 @@ export default function HowItWorks() {
             Upload. Preview. Delivered.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
-            Four simple steps — upload, preview, order on WhatsApp, and we handle the rest.
+            Three simple steps — choose your photo, preview it live, and order on WhatsApp.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6">
           {steps.map((s, i) => {
             const Icon = s.icon;
             return (
@@ -44,6 +45,14 @@ export default function HowItWorks() {
               </div>
             );
           })}
+        </div>
+
+        <div className="mt-8 lg:mt-10 text-center">
+          <a href={WA} target="_blank" rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-110"
+            style={{ background: '#1ba34e' }}>
+            <MessageCircle size={18} /> Chat to Order
+          </a>
         </div>
       </div>
     </section>
