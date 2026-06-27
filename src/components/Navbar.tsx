@@ -16,7 +16,6 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const navLinks = [
-    { name: 'Prints & Frames', href: '#photo-frames' },
     { name: 'Frames', href: '#photo-frames', dropdown: [
       { name: 'Classic Black', id: 'classic-black' },
       { name: 'Premium Golden', id: 'premium-golden' },
