@@ -12,6 +12,7 @@ import MiniPrints from "./components/MiniPrints";
 import AnnouncementBar from "./components/AnnouncementBar";
 import FrameNavbar from "./components/Navbar";
 import FrameHero from "./components/Hero";
+import ScrollShowcase from "./components/ScrollShowcase";
 import TrustBar from "./components/TrustBar";
 import BestsellingFrames from "./components/BestsellingFrames";
 import FeaturedProduct from "./components/FeaturedProduct";
@@ -4144,6 +4145,7 @@ export default function App() {
         </div>
       )}
       <main>
+        <ScrollShowcase onCta={() => setCustomizer({ mode: "frame", initial: null })} />
         <FrameHero />
         <TrustBar />
         <BentoShowcase />
