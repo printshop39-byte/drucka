@@ -13,6 +13,7 @@ export interface Landing {
   description: string;
   eyebrow: string;
   h1: string;
+  tagline?: string;
   introEn: string;
   introMr: string;
   image: string;

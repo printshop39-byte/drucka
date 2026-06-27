@@ -81,8 +81,11 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
             <span className="block italic" style={{ color: '#C9A84C' }}> Printed</span>
             Your Way
           </h1>
-          <p className="text-white/75 text-lg sm:text-xl leading-relaxed mb-7 max-w-xl">
-            Mini Prints, Frames, T‑Shirts, Mugs &amp; Corporate Gifts — upload your photo and order on WhatsApp. Printed premium, delivered across India.
+          <p className="text-white/90 text-xl sm:text-2xl font-light leading-relaxed mb-2 max-w-xl">
+            Custom prints for memories, gifts and brands.
+          </p>
+          <p className="text-white/65 text-base sm:text-lg leading-relaxed mb-7 max-w-xl" lang="mr">
+            तुमचे फोटो, डिझाईन आणि आठवणी — आता प्रीमियम प्रिंट्समध्ये.
           </p>
 
           {/* Quick trust bullets — flow · no-minimum/bulk · delivery (3-sec scan) */}

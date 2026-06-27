@@ -19,7 +19,8 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
             Mini Photo Prints
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
+          <p className="mt-2 text-lg font-medium text-charcoal/70" lang="mr">छोटे फोटो, मोठ्या आठवणी.</p>
+          <p className="mx-auto mt-3 max-w-xl text-charcoal/55">
             Premium mini prints in handy sizes — perfect for gifting, journaling and sharing.
           </p>
         </div>
