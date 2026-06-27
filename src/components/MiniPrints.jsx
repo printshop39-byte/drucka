@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, Upload, Trash2, MessageCircle, ShoppingBag, RotateCw,
-  Crop, Copy, GripVertical, CalendarDays, Smile, X,
+  Crop, Copy, GripVertical, CalendarDays, Smile, X, Image as ImageIcon,
 } from "lucide-react";
 import { fileToDataUrl, inr, uid } from "../designer/data";
 import {
   BORDERS, MINI_FONTS, FILTERS, CAPTION_COLORS, STICKER_SETS, STICKER_POS,
-  OCCASION_TEMPLATES, SIZE_ASPECT, miniCardDataUrl,
+  OCCASION_TEMPLATES, SIZE_ASPECT, miniCardDataUrl, borderConf,
 } from "./miniCard";
 
 /* ── Drucka Mini Photo Prints — standalone quick-order flow ──
@@ -49,6 +49,33 @@ function BorderSwatch({ id }) {
   if (id === "gold") return <span className="grid h-7 w-7 place-items-center rounded-[3px] bg-gold">{inner}</span>;
   if (id === "black") return <span className="grid h-7 w-7 place-items-center rounded-[3px] bg-charcoal">{inner}</span>;
   return <span className="grid h-7 w-7 place-items-center rounded-[3px] bg-white" style={{ outline: "2px dashed #c19a3d", outlineOffset: -3 }}>{inner}</span>;
+}
+
+/* Placeholder card shown in the live-preview pane before any photo is uploaded.
+   Mirrors the real renderer's border padding so the empty state already looks
+   like the chosen frame (polaroid / gold / black / dashed / none). */
+function PreviewPlaceholder({ border, aspect }) {
+  const c = borderConf(border);
+  const innerH = 230;
+  const innerW = Math.round(innerH * aspect);
+  const pad = Math.round(innerW * c.pad);
+  const padBottom = Math.round(innerW * c.padBottom);
+  return (
+    <div style={{
+      background: c.bg,
+      padding: `${pad}px ${pad}px ${padBottom}px`,
+      borderRadius: 4,
+      boxShadow: c.shadow ? "0 14px 36px rgba(0,0,0,0.14)" : "0 6px 18px rgba(0,0,0,0.07)",
+      outline: c.stroke ? `2px dashed ${c.stroke}` : "1px solid rgba(0,0,0,0.06)",
+      outlineOffset: c.stroke ? -6 : 0,
+    }}>
+      <div style={{ width: innerW, height: innerH }}
+        className="flex flex-col items-center justify-center gap-2 rounded-[2px] bg-black/[0.05] text-charcoal/35">
+        <ImageIcon size={28} />
+        <span className="text-[11px] font-semibold">Your print preview</span>
+      </div>
+    </div>
+  );
 }
 
 /* ── Crop & adjust modal — drag to pan, zoom, rotate, brightness, contrast ── */
@@ -137,6 +164,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   const [busy, setBusy] = useState(false);
   const [cropId, setCropId] = useState(null);
   const [stickerId, setStickerId] = useState(null); // which card's sticker picker is open
+  const [previewId, setPreviewId] = useState(null); // which photo the live preview shows
   const fileRef = useRef(null);
   const sigRef = useRef({});
   const dragIdx = useRef(null);
@@ -147,6 +175,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   const shipping = subtotal === 0 || subtotal >= FREE_SHIP ? 0 : 49;
   const total = subtotal + shipping;
   const cropPhoto = photos.find((p) => p.id === cropId);
+  const previewPhoto = photos.find((p) => p.id === previewId) ?? photos[0] ?? null;
 
   /* regenerate composed previews on any visual change */
   useEffect(() => {
@@ -296,6 +325,11 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         .kd-watermark { font-family: 'Courier New', monospace; font-size: 9px; color: #E8650A; opacity: 0.5; letter-spacing: 2px; text-transform: uppercase; pointer-events: none; }
         .kd-bottominfo { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(26,18,8,0.6); letter-spacing: 0.5px; }
         .kd-divider { border-top: 1px solid rgba(232,101,10,0.2); }
+        .mp-preview-img { max-height: 40vh; width: auto; }
+        @media (min-width: 1024px) {
+          .mp-preview-pane { position: sticky; top: 0; align-self: start; height: calc(100vh - 124px); }
+          .mp-preview-img { max-height: 58vh; }
+        }
         @media (hover: hover) and (pointer: fine) {
           .kd-cart:hover { background: #E8650A; color: #fff; }
           .kd-photo:hover .kd-photo-img { transform: rotate(-1.5deg) translateY(-4px); filter: sepia(0%) contrast(100%); }
@@ -311,7 +345,36 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
           className="kd-cart ml-auto rounded-sm px-4 py-2 text-xs font-bold uppercase disabled:opacity-50">{busy ? "…" : "Add to Cart"}</button>
       </header>
 
-      <div className="mx-auto w-full max-w-3xl flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto grid max-w-6xl lg:grid-cols-2">
+          {/* LEFT — sticky live preview */}
+          <div className="mp-preview-pane flex flex-col items-center justify-center gap-4 p-6 sm:p-8" style={{ background: "#F9F8F6" }}>
+            {previewPhoto ? (
+              previews[previewPhoto.id]
+                ? <img src={previews[previewPhoto.id]} alt="Live preview of your mini print" draggable={false} className="mp-preview-img rounded-[3px] shadow-2xl" />
+                : <div className="h-60 w-48 animate-pulse rounded bg-black/5" />
+            ) : (
+              <PreviewPlaceholder border={border} aspect={SIZE_ASPECT[sizeId] ?? 1} />
+            )}
+            {photos.length > 1 && (
+              <div className="flex max-w-full gap-2 overflow-x-auto px-1 pb-1">
+                {photos.map((p) => (
+                  <button key={p.id} onClick={() => setPreviewId(p.id)} aria-label="Preview this photo"
+                    className={`h-12 w-12 shrink-0 overflow-hidden rounded-md border-2 transition ${previewPhoto?.id === p.id ? "border-tangerine" : "border-black/10 hover:border-black/30"}`}>
+                    {previews[p.id]
+                      ? <img src={previews[p.id]} alt="" className="h-full w-full object-cover" draggable={false} />
+                      : <span className="block h-full w-full animate-pulse bg-black/5" />}
+                  </button>
+                ))}
+              </div>
+            )}
+            <p className="kd-mono text-center text-[10px]" style={{ color: "rgba(232,101,10,0.65)", letterSpacing: "1px" }}>
+              {previewPhoto ? `Live preview · ${size.label} · ${border}` : `Upload a photo to preview your ${size.label} print`}
+            </p>
+          </div>
+
+          {/* RIGHT — scrollable configuration */}
+          <div className="px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
         {/* retro divider */}
         <div className="kd-divider mb-5 pt-3 text-center">
           <span className="kd-watermark">— Printed with love in Kolhapur —</span>
@@ -366,7 +429,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         </button>
 
         {photos.length > 0 && (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4">
             {photos.map((p, i) => (
               <div key={p.id} onDragOver={(e) => e.preventDefault()} onDrop={() => moveTo(i)}
                 className="rounded-2xl border border-black/10 bg-white p-3">
@@ -385,8 +448,8 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                   </div>
                 </div>
 
-                {/* composed preview */}
-                <div className="kd-photo mb-3 flex items-center justify-center p-3" style={{ minHeight: 170 }}>
+                {/* composed preview — click to show it large in the live preview */}
+                <div onClick={() => setPreviewId(p.id)} className="kd-photo mb-3 flex cursor-pointer items-center justify-center p-3" style={{ minHeight: 170 }}>
                   {previews[p.id]
                     ? <img src={previews[p.id]} alt={p.name} className="kd-photo-img max-h-48 w-auto shadow-md" draggable={false} />
                     : <div className="h-36 w-28 animate-pulse rounded bg-black/5" />}
@@ -476,6 +539,8 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         )}
         <p className="kd-bottominfo mt-4 leading-relaxed">Printed on premium photo paper &amp; shipped by Drucka in 2–4 days · COD available · Free shipping over {inr(FREE_SHIP)}.</p>
         <p className="kd-watermark mt-4 text-right">© Drucka Print Lab · Kolhapur</p>
+          </div>{/* /right config */}
+        </div>{/* /grid */}
       </div>
 
       {/* bottom bar */}
