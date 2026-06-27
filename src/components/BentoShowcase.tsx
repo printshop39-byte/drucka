@@ -64,7 +64,11 @@ export default function BentoShowcase() {
           <a href="/mini-prints"
             className="bento-cell b3 relative flex flex-col justify-between text-left"
             style={{ background: '#1A1208', border: '0.5px solid #333', borderRadius: '14px', padding: '20px' }}>
-            <span style={{ fontSize: '24px' }}>🖨️</span>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E3C887" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 9V3h12v6" />
+              <path d="M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />
+              <rect x="6" y="14" width="12" height="8" rx="1" />
+            </svg>
             <div>
               <h3 className="font-display" style={{ fontSize: '14px', color: '#FAF9F7' }}>Mini Prints</h3>
               <p style={{ color: '#E3C887', fontFamily: "'Courier New',monospace", fontSize: '13px', fontWeight: 700, marginTop: '3px' }}>From ₹19</p>
@@ -75,7 +79,10 @@ export default function BentoShowcase() {
           <a href="#phone-cases"
             className="bento-cell b4 relative flex flex-col justify-between"
             style={{ background: '#2A2010', border: '0.5px solid rgba(201,168,76,0.15)', borderRadius: '14px', padding: '20px' }}>
-            <span style={{ fontSize: '24px' }}>📱</span>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#E3C887" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="5" y="2" width="14" height="20" rx="2.5" />
+              <path d="M12 18h.01" />
+            </svg>
             <div>
               <h3 className="font-display" style={{ fontSize: '14px', color: '#FAF9F7' }}>Phone Cases</h3>
               <p style={{ color: '#E3C887', fontFamily: "'Courier New',monospace", fontSize: '13px', fontWeight: 700, marginTop: '3px' }}>From ₹299</p>
