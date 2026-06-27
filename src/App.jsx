@@ -134,10 +134,10 @@ const LABEL_AREA = { left: 43, top: 11, width: 14, height: 7.5 };
    Replace "white" with black/navy/red/yellow for other colours.
    Crop photos to 42:50 portrait so the print area aligns 1:1. */
 const MOCKUP_VIEWS = [
-  { id: "flat", label: "👕 Flat" },
-  { id: "real", label: "📷 Real" },
-  { id: "model", label: "🧍 Model" },
-  { id: "model2", label: "🧍‍♀️ Model" },
+  { id: "flat", label: "Flat" },
+  { id: "real", label: "Real" },
+  { id: "model", label: "Model" },
+  { id: "model2", label: "Model 2" },
 ];
 
 /* Returns an ORDERED list of candidate URLs for a mockup photo:
@@ -960,7 +960,7 @@ function UploadPanel({ onClose, onAddImage, showToast }) {
         </div>
       )}
       <div className="mt-4 rounded-xl bg-ink/4 p-3 text-[11px] leading-relaxed text-ink/60">
-        ✂️ <strong>Background removal available on request</strong> — फोटोचा background काढून हवा असेल
+        <strong>Background removal available on request</strong> — फोटोचा background काढून हवा असेल
         तर WhatsApp वर सांगा. Just mention it when you order.
       </div>
       <p className="mt-3 text-[11px] leading-relaxed text-ink/45">
@@ -1022,7 +1022,7 @@ function AIDesignPanel({ onClose, onAddLayers, showToast }) {
         onClick={() => {
           if (!prompt.trim()) return;
           onAddLayers(aiGenerate(prompt));
-          showToast("✨ Design generated — drag to adjust!");
+          showToast("Design generated — drag to adjust!");
         }}
         className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-plum to-tangerine px-4 py-3 text-sm font-semibold text-white shadow-md transition hover:-translate-y-0.5"
       >
@@ -1054,7 +1054,7 @@ function TextPanel({ onClose, onAddText, selectedLayer, onUpdateLayer, onFieldFo
         id="text-input" type="text" maxLength={40} value={v.text}
         onFocus={onFieldFocus} onBlur={onFieldBlur}
         onChange={(e) => set({ text: e.target.value })}
-        placeholder="Happy Birthday Aai ❤️"
+        placeholder="Happy Birthday Aai"
         className="w-full rounded-xl border border-ink/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-plum focus:ring-2 focus:ring-plum/20"
       />
       <div className="mt-3 grid grid-cols-2 gap-3">
@@ -1391,7 +1391,7 @@ function VariantsPanel({
         <dt className="text-ink/45">Selling price</dt><dd className="text-right font-bold text-plum">{inr(product.price)}</dd>
         <dt className="text-ink/45">Print area</dt><dd className="text-right font-semibold text-ink/75">{product.printArea}</dd>
         <dt className="text-ink/45">Print quality</dt><dd className="text-right font-semibold text-ink/75">300 DPI</dd>
-        <dt className="text-ink/45">Delivery · डिलिव्हरी</dt><dd className="text-right font-semibold text-emerald-600">2–4 days 🚚</dd>
+        <dt className="text-ink/45">Delivery · डिलिव्हरी</dt><dd className="text-right font-semibold text-emerald-600">2–4 days</dd>
       </dl>
 
       {/* size */}
@@ -1400,7 +1400,7 @@ function VariantsPanel({
         {product.apparel && (
           <button onClick={() => setShowSizeChart(true)}
             className="text-[11px] font-bold text-plum underline-offset-2 hover:underline">
-            📏 Size chart
+            Size chart
           </button>
         )}
       </div>
@@ -1424,7 +1424,7 @@ function VariantsPanel({
       </div>
       {customSize && (
         <p className="mt-1.5 text-[10.5px] font-medium text-ink/55">
-          📐 Chest {customSize.chest}{customSize.unit} · Length {customSize.length}{customSize.unit}
+          Chest {customSize.chest}{customSize.unit} · Length {customSize.length}{customSize.unit}
           {customSize.shoulder ? ` · Shoulder ${customSize.shoulder}${customSize.unit}` : ""}
           {customSize.sleeve ? ` · Sleeve ${customSize.sleeve}${customSize.unit}` : ""}
         </p>
@@ -1500,9 +1500,9 @@ function VariantsPanel({
       {/* Indian payment options */}
       <div className="mt-3 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11px] leading-relaxed text-ink/70">
         <p className="font-bold text-emerald-700">Payment options · पेमेंट</p>
-        <p>✅ UPI — GPay / PhonePe / Paytm ({CONFIG.upiId})</p>
-        <p>📦 Cash on Delivery — available on request</p>
-        <p>💬 Every order is confirmed on WhatsApp before printing</p>
+        <p>UPI — GPay / PhonePe / Paytm ({CONFIG.upiId})</p>
+        <p>Cash on Delivery — available on request</p>
+        <p>Every order is confirmed on WhatsApp before printing</p>
       </div>
 
       {showSizeChart && <SizeChartModal onClose={() => setShowSizeChart(false)} oversized={product.id === "oversized"} kids={!!product.kids} />}
@@ -1752,7 +1752,7 @@ function ProductEditor({ initialProductId, onClose, onAddToCart, onOpenCart, car
           { id: "kids-b", label: "Kids Back", view: "model", side: "back" },
           { id: "flat-f", label: "Flat Front", view: "real", side: "front" },
           { id: "flat-b", label: "Flat Back", view: "real", side: "back" },
-          { id: "chart", label: "📏 Kids Size Chart", chart: true },
+          { id: "chart", label: "Kids Size Chart", chart: true },
         ]
       : [
           { id: "flat-f", label: "Flat Front", view: "real", side: "front" },
@@ -1761,11 +1761,11 @@ function ProductEditor({ initialProductId, onClose, onAddToCart, onOpenCart, car
           { id: "male-b", label: "Male Back", view: "model", side: "back" },
           { id: "female-f", label: "Female Front", view: "model2", side: "front" },
           { id: "female-b", label: "Female Back", view: "model2", side: "back" },
-          { id: "chart", label: "📏 Adult Size Chart", chart: true },
+          { id: "chart", label: "Adult Size Chart", chart: true },
         ]
     : [
-        { id: "flat-f", label: "👕 Flat", view: "flat", side: "front" },
-        { id: "photo-f", label: "📷 Photo", view: "real", side: "front" },
+        { id: "flat-f", label: "Flat", view: "flat", side: "front" },
+        { id: "photo-f", label: "Photo", view: "real", side: "front" },
       ];
 
   const pickTab = (t) => {
@@ -2171,7 +2171,7 @@ QUICK_REPLIES.splice(QUICK_REPLIES.length - 1, 0,
 function WhatsAppChatbot() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { from: "bot", text: "Hi 👋 Welcome to Drucka! How can we help you?" },
+    { from: "bot", text: "Hi! Welcome to Drucka! How can we help you?" },
   ]);
   const [typing, setTyping] = useState(false);
   const [bulkForm, setBulkForm] = useState(false);
@@ -2188,7 +2188,7 @@ function WhatsAppChatbot() {
     setTimeout(() => {
       setTyping(false);
       if (qr.human) {
-        setMessages((m) => [...m, { from: "bot", text: "Connecting you to our team on WhatsApp… 💬" }]);
+        setMessages((m) => [...m, { from: "bot", text: "Connecting you to our team on WhatsApp…" }]);
         window.open(wa("Hi Drucka, I need help with custom printing"), "_blank", "noopener");
       } else {
         setMessages((m) => [...m, { from: "bot", text: qr.reply }]);
@@ -2606,7 +2606,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
           {/* ═══ Photo Prints ═══ */}
           <div className="reveal group relative overflow-hidden rounded-[1.75rem] border border-ink/8 bg-white p-6 shadow-[0_10px_40px_rgba(27,20,48,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(27,20,48,0.12)] sm:p-8">
             <span className="absolute right-5 top-5 z-10 rounded-full bg-tangerine px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
-              ⚡ Fast Printing
+              Fast Printing
             </span>
 
             {/* sample stack visual */}
@@ -3158,7 +3158,7 @@ function Footer({ onAdmin, onTrack }) {
         </div>
       </div>
       <div className="border-t border-white/10 py-5 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} Drucka · drucka.in · Made with ❤️ in Maharashtra, India ·{" "}
+        © {new Date().getFullYear()} Drucka · drucka.in · Made with love in Maharashtra, India ·{" "}
         <button onClick={onAdmin} className="underline-offset-2 transition hover:text-white/70 hover:underline">
           Admin
         </button>
@@ -3188,7 +3188,7 @@ function OrderSummary({ cart, total, colorLabel }) {
             <div className="min-w-0">
               <p className="font-semibold text-ink">{i.name} × {i.qty}</p>
               <p className="truncate text-xs text-ink/50">{[i.size, colorLabel(i.color), i.summary].filter(Boolean).join(" · ")}</p>
-              {i.customSize && <p className="text-[11px] text-ink/50">📐 {customSizeText(i.customSize)}</p>}
+              {i.customSize && <p className="text-[11px] text-ink/50">{customSizeText(i.customSize)}</p>}
             </div>
             <p className="shrink-0 font-bold text-plum">{inr(i.price * i.qty)}</p>
           </li>
@@ -3196,17 +3196,17 @@ function OrderSummary({ cart, total, colorLabel }) {
       </ul>
       <dl className="mt-4 grid gap-1.5 rounded-xl bg-ink/4 p-3 text-sm">
         <div className="flex justify-between"><dt className="text-ink/55">Subtotal</dt><dd className="font-semibold">{inr(total)}</dd></div>
-        <div className="flex justify-between"><dt className="text-ink/55">Delivery · डिलिव्हरी</dt><dd className="font-semibold text-emerald-600">FREE · 2–4 days 🚚</dd></div>
+        <div className="flex justify-between"><dt className="text-ink/55">Delivery · डिलिव्हरी</dt><dd className="font-semibold text-emerald-600">FREE · 2–4 days</dd></div>
         <div className="flex justify-between border-t border-ink/10 pt-1.5"><dt className="font-bold text-ink">Total</dt><dd className="font-display text-lg font-bold text-ink">{inr(total)}</dd></div>
       </dl>
       <div className="mt-4 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11.5px] leading-relaxed text-ink/75">
         <p className="font-bold text-emerald-700">Payment options · पेमेंट</p>
-        <p>✅ UPI — GPay / PhonePe / Paytm ({CONFIG.upiId})</p>
-        <p>📦 Cash on Delivery — available on request</p>
-        <p>💬 Order confirmed on WhatsApp before printing</p>
+        <p>UPI — GPay / PhonePe / Paytm ({CONFIG.upiId})</p>
+        <p>Cash on Delivery — available on request</p>
+        <p>Order confirmed on WhatsApp before printing</p>
       </div>
       <p className="mt-3 text-[11px] leading-relaxed text-ink/45">
-        ✂️ Background removal available on request — just mention it in the WhatsApp chat.
+        Background removal available on request — just mention it in the WhatsApp chat.
       </p>
     </div>
   );
@@ -3270,8 +3270,8 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout }) {
                     <p className="mt-0.5 text-xs text-ink/50">
                       {[item.size, colorLabel(item.color)].filter(Boolean).join(" · ")}
                     </p>
-                    {item.customSize && <p className="truncate text-[11px] text-ink/50">📐 {customSizeText(item.customSize)}</p>}
-                    {item.summary && <p className="truncate text-xs text-ink/50">✏️ {item.summary}</p>}
+                    {item.customSize && <p className="truncate text-[11px] text-ink/50">{customSizeText(item.customSize)}</p>}
+                    {item.summary && <p className="truncate text-xs text-ink/50">{item.summary}</p>}
                     <div className="mt-2 flex items-center justify-between">
                       <div className="inline-flex items-center rounded-lg border border-ink/10">
                         <button onClick={() => onQty(item.key, -1)} className="px-2.5 py-1 font-bold text-ink/60" aria-label="Decrease quantity">−</button>
@@ -3426,7 +3426,7 @@ function TrackOrderModal({ onClose, localOrders }) {
               )}
               {result.tracking && (
                 <p className="mt-3 rounded-xl bg-sky-50 px-3 py-2 text-xs font-bold text-sky-700">
-                  📦 {result.courier ? `${result.courier} · ` : ""}AWB {result.tracking}
+                  {result.courier ? `${result.courier} · ` : ""}AWB {result.tracking}
                 </p>
               )}
             </div>
@@ -3478,7 +3478,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
       <div className="animate-sheet flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         role="dialog" aria-modal="true" aria-label="Checkout" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-ink/8 px-5 py-4">
-          <h2 className="font-display text-xl font-bold text-ink">{order ? "Order placed 🎉" : "Checkout · चेकआउट"}</h2>
+          <h2 className="font-display text-xl font-bold text-ink">{order ? "Order placed" : "Checkout · चेकआउट"}</h2>
           <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-ink/5 text-ink/60 hover:bg-ink/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
@@ -3549,7 +3549,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
 
               {["Paid", "COD Approved"].includes(order.paymentStatus) && (
                 <div className="mt-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-center">
-                  <p className="font-display text-lg font-bold text-emerald-700">🎉 Order confirmed!</p>
+                  <p className="font-display text-lg font-bold text-emerald-700">Order confirmed!</p>
                   <p className="mt-1 text-xs leading-relaxed text-ink/60">
                     Save your order ID <strong className="text-ink">{order.id}</strong> — track it anytime from the
                     footer → <strong>Track Order</strong> with this ID + your phone number. Updates also come on WhatsApp.
@@ -3570,7 +3570,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     }}
                     disabled={sending}
                     className="w-full rounded-full bg-ink px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-plum disabled:opacity-50">
-                    {sending ? "Opening secure payment…" : `💳 Pay ${inr(order.total)} — UPI / Card / Netbanking`}
+                    {sending ? "Opening secure payment…" : `Pay ${inr(order.total)} — UPI / Card / Netbanking`}
                   </button>
                   )}
                   <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-relaxed text-ink/70">
@@ -3585,7 +3585,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
               )}
               {order.paymentStatus === "COD Pending Approval" && (
                 <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
-                  📦 <strong>COD test order received!</strong> Our team approves it (Admin → Orders → Approve COD),
+                  <strong>COD test order received!</strong> Our team approves it (Admin → Orders → Approve COD),
                   and only then is it sent to Qikink for printing. You'll get a WhatsApp confirmation shortly.
                 </p>
               )}
@@ -3622,7 +3622,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
               className="w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-6 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5">
               {form.paymentMode === "cod" ? `Place COD Test Order — ${inr(total)}` : `Place order — ${inr(total)}`}
             </button>
-            <p className="mt-2 text-center text-[10.5px] text-ink/45">🚚 Free 2–4 day delivery · ✅ UPI · 📦 COD on approval · Printed & shipped under the Drucka brand</p>
+            <p className="mt-2 text-center text-[10.5px] text-ink/45">Free 2–4 day delivery · UPI · COD on approval · Printed & shipped under the Drucka brand</p>
           </div>
         )}
       </div>
