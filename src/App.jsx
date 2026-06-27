@@ -25,6 +25,7 @@ import HowItWorksSection from "./components/HowItWorks";
 import WhyDrucka from "./components/WhyDrucka";
 import BulkCorporate from "./components/BulkCorporate";
 import TrustPolicies from "./components/TrustPolicies";
+import StudioTrust from "./components/StudioTrust";
 import ProductLanding from "./components/ProductLanding";
 import { LANDINGS } from "./components/landingData";
 import BentoShowcase from "./components/BentoShowcase";
@@ -4215,6 +4216,7 @@ export default function App() {
         <BulkCorporate />
         <FrameFeatures />
         <FrameTestimonials />
+        <StudioTrust />
         <StoreLocations />
         <TrustPolicies />
         <FAQ />
