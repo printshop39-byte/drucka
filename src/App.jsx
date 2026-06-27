@@ -19,6 +19,10 @@ import FeaturedProduct from "./components/FeaturedProduct";
 import GalleryWalls from "./components/GalleryWalls";
 import StatementCollection from "./components/StatementCollection";
 import MiniPhotoPrints from "./components/MiniPhotoPrints";
+import HowItWorksSection from "./components/HowItWorks";
+import WhyDrucka from "./components/WhyDrucka";
+import BulkCorporate from "./components/BulkCorporate";
+import TrustPolicies from "./components/TrustPolicies";
 import BentoShowcase from "./components/BentoShowcase";
 import PhoneCases from "./components/PhoneCases";
 import QualityBanner from "./components/QualityBanner";
@@ -4152,6 +4156,7 @@ export default function App() {
         />
         <TrustBar />
         <BentoShowcase />
+        <HowItWorksSection />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
         <PhotoFramesSection onCustomize={openEditor} framePick={framePick}
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
@@ -4165,12 +4170,15 @@ export default function App() {
         <GalleryWalls />
         <StatementCollection onTryMini={openMini} />
         <MiniPhotoPrints onOrder={openMini} />
+        <WhyDrucka />
         {/* <QualityBanner /> */}
         {/* <SignatureGift /> */}
         <PhoneCases />
+        <BulkCorporate />
         <FrameFeatures />
         <FrameTestimonials />
         <StoreLocations />
+        <TrustPolicies />
         <FAQ />
       </main>
       <FrameFooter onTrack={() => setTrackOpen(true)} />
