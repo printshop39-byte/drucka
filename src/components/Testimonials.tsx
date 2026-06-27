@@ -41,6 +41,8 @@ export default function Testimonials() {
           src="/images/gallery/grand-gallery.jpg"
           alt=""
           aria-hidden="true"
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-white/55 backdrop-blur-[2px]" />

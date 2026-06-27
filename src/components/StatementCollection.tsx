@@ -97,6 +97,8 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
                 <img
                   src={s.image}
                   alt={`${s.name} — statement photo frame & wall art online | Drucka`}
+                  loading="lazy"
+                  decoding="async"
                   className="st-card-img w-full h-full object-cover"
                 />
                 {s.limited && (

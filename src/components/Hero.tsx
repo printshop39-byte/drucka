@@ -43,6 +43,10 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
         .hero-cta-gold:hover { background: #a8863a; }
         .hero-cta-gold svg { transition: transform 0.3s ease; }
         .hero-cta-gold:hover svg { transform: translateX(4px); }
+        /* Lighten animation on phones — no continuous Ken Burns repaint */
+        @media (max-width: 640px) {
+          .hero-kb { animation: none; }
+        }
         @media (prefers-reduced-motion: reduce) {
           .hero-kb, .hero-bounce { animation: none; }
         }

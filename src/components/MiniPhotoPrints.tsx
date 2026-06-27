@@ -37,6 +37,8 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
                 <img
                   src={item.image}
                   alt={`${item.size} mini photo prints — ${item.name} | Drucka`}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <span className="absolute top-3 left-3 rounded-full bg-charcoal/85 px-3 py-1 text-xs font-bold text-white">
