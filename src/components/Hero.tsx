@@ -9,7 +9,15 @@ const HERO_SLIDES = [
 ];
 const ROTATE_MS = 5000;
 
-export default function Hero() {
+/* small gold check used in the hero trust bullets (inline SVG = no icon dep) */
+const Tick = () => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="#C9A84C"
+    strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M5 13l4 4L19 7" />
+  </svg>
+);
+
+export default function Hero({ onUpload }: { onUpload?: () => void }) {
   const [current, setCurrent] = useState(0);
   const pausedRef = useRef(false);
 
@@ -69,22 +77,38 @@ export default function Hero() {
             <span className="block italic" style={{ color: '#C9A84C' }}> Precious</span>
             Memories
           </h1>
-          <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-10 max-w-lg">
+          <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-7 max-w-lg">
             India's trusted online photo printing &amp; framing studio. We use premium, termite-resistant fiber and sleek metal frames to keep your photos vibrant and safe forever.
           </p>
+
+          {/* Quick trust bullets — what you can do · range · delivery (3-sec scan) */}
+          <ul className="mb-9 space-y-2.5">
+            {[
+              <>Upload Photo <span className="text-gold">→</span> Preview Design <span className="text-gold">→</span> WhatsApp Order</>,
+              <>Mini Prints • Frames • Mugs • T-Shirts</>,
+              <>Kolhapur · India Delivery Available</>,
+            ].map((line, i) => (
+              <li key={i} className="flex items-center gap-2.5 text-white/85 text-sm sm:text-[15px] font-medium">
+                <Tick />
+                <span>{line}</span>
+              </li>
+            ))}
+          </ul>
+
           <div className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="#photo-frames"
+            <button
+              type="button"
+              onClick={onUpload}
               className="hero-cta-gold inline-flex items-center justify-center gap-2 px-8 py-4 text-white font-semibold tracking-wide text-sm uppercase rounded-sm"
             >
-              Start Framing
+              Upload Photo
               <ArrowRight size={18} />
-            </a>
+            </button>
             <a
-              href="#statement"
+              href="#photo-frames"
               className="inline-flex items-center justify-center gap-2 px-8 py-4 border-[1.5px] border-white/70 hover:border-white text-white font-medium tracking-wide text-sm uppercase transition-colors duration-300 rounded-sm"
             >
-              Explore Collection
+              View Products
             </a>
           </div>
         </div>

@@ -4145,7 +4145,7 @@ export default function App() {
       )}
       <main>
         <ScrollShowcase onCta={() => setCustomizer({ mode: "frame", initial: null })} />
-        <FrameHero />
+        <FrameHero onUpload={() => setCustomizer({ mode: "frame", initial: null })} />
         <TrustBar />
         <BentoShowcase />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
