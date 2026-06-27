@@ -45,8 +45,11 @@ const CollageEditor = lazy(() => import("./components/editor/CollageEditor"));
 /* Fullscreen fallback shown while a lazy editor/modal chunk downloads */
 function EditorFallback() {
   return (
-    <div className="fixed inset-0 z-[95] grid place-items-center bg-white/90 text-sm font-semibold text-charcoal/50">
-      Loading…
+    <div className="fixed inset-0 z-[95] grid place-items-center bg-white/90">
+      <div className="flex flex-col items-center gap-3 text-sm font-semibold text-charcoal/50">
+        <span className="dru-spinner" aria-hidden="true" />
+        Loading…
+      </div>
     </div>
   );
 }
@@ -3230,7 +3233,7 @@ function OrderSummary({ cart, total, colorLabel }) {
   );
 }
 
-function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout }) {
+function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartDesigning }) {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   const colorLabel = (id) => PRODUCT_COLORS.find((c) => c.id === id)?.label;
   const [summary, setSummary] = useState(false);
@@ -3271,7 +3274,11 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout }) {
                   <Icon d={icons.cart} className="h-7 w-7" />
                 </span>
                 <p className="mt-4 font-semibold text-ink">Your cart is empty</p>
-                <p className="mt-1 text-sm text-ink/50">Design something beautiful in the studio.</p>
+                <p className="mt-1 text-sm text-ink/50">Upload a photo and design something beautiful.</p>
+                <button onClick={onStartDesigning}
+                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-charcoal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-charcoal/90">
+                  Choose Photo →
+                </button>
               </div>
             </div>
           ) : summary ? (
@@ -3411,7 +3418,7 @@ function TrackOrderModal({ onClose, localOrders }) {
           </div>
           <button onClick={lookup} disabled={busy || !id.trim() || phone.replace(/\D/g, "").length < 10}
             className="w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-4 py-3 text-sm font-bold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5 disabled:opacity-40">
-            {busy ? "Checking…" : "Track my order"}
+            {busy ? <span className="inline-flex items-center gap-2"><span className="dru-spinner dru-spinner--light h-4 w-4" aria-hidden="true" /> Checking…</span> : "Track my order"}
           </button>
           {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600" role="alert">⚠ {error}</p>}
 
@@ -4318,6 +4325,7 @@ export default function App() {
         onRemove={(key) => setCart((c) => c.filter((i) => i.key !== key))}
         onQty={(key, d) => setCart((c) => c.map((i) => (i.key === key ? { ...i, qty: Math.max(1, i.qty + d) } : i)))}
         onCheckout={() => setCheckoutOpen(true)}
+        onStartDesigning={() => { setCartOpen(false); setCustomizer({ mode: "frame", initial: null }); }}
       />
 
       {checkoutOpen && (
