@@ -23,13 +23,6 @@ export default function BentoShowcase() {
       `}</style>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <p className="uppercase" style={{ color: '#C9A84C', letterSpacing: '4px', fontSize: '10px', marginBottom: '12px' }}>
-          Everything you need
-        </p>
-        <h2 className="font-display" style={{ fontWeight: 300, fontSize: 'clamp(28px,4vw,48px)', color: '#FAF9F7', marginBottom: '40px', lineHeight: 1.1 }}>
-          One Studio. Every Memory.
-        </h2>
-
         <div className="bento-grid">
           {/* CELL 1 — Custom Frames (large 2×2) */}
           <a href="#photo-frames"
