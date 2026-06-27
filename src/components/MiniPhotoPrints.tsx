@@ -1,8 +1,11 @@
+import { Upload } from 'lucide-react';
+
 const miniPrints = [
-  { size: '2×3 inch', name: 'Wallet & Gift Inserts', image: '/images/mini/mini-2x3.jpg', desc: 'Pocket-size prints for wallets, cards & gift tags' },
-  { size: '3×3 inch', name: 'Instagram Square Prints', image: '/images/mini/mini-3x3.jpg', desc: 'Perfect square prints of your favourite feed photos' },
-  { size: '4×3 inch', name: 'Memory & Scrapbook Prints', image: '/images/mini/mini-4x3.jpg', desc: 'Classic mini prints for albums & scrapbooks' },
+  { size: '2×3 inch', name: 'Wallet & Gift Inserts', image: '/images/mini/mini-2x3.jpg', desc: 'Pocket-size prints for wallets, cards & gift tags', price: 19 },
+  { size: '3×3 inch', name: 'Instagram Square Prints', image: '/images/mini/mini-3x3.jpg', desc: 'Perfect square prints of your favourite feed photos', price: 25 },
+  { size: '4×3 inch', name: 'Memory & Scrapbook Prints', image: '/images/mini/mini-4x3.jpg', desc: 'Classic mini prints for albums & scrapbooks', price: 29 },
 ];
+const DELIVERY = '2–4 day delivery';
 
 export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
   const open = () => onOrder?.();
@@ -40,6 +43,9 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
                 <span className="absolute top-3 left-3 rounded-full bg-charcoal/85 px-3 py-1 text-xs font-bold text-white">
                   {item.size}
                 </span>
+                <span className="absolute top-3 right-3 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                  Customizable
+                </span>
                 <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/30 transition-colors duration-300 flex items-center justify-center">
                   <span className="rounded-full bg-white/95 px-5 py-2 text-charcoal font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     Create now →
@@ -48,6 +54,14 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
               </div>
               <h3 className="font-serif font-semibold text-lg text-charcoal">{item.name}</h3>
               <p className="text-sm text-charcoal/55">{item.desc}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-charcoal/60">
+                <span className="text-sm font-bold text-charcoal">From ₹{item.price}/print</span>
+                <span className="text-charcoal/30">•</span>
+                <span>{DELIVERY}</span>
+              </div>
+              <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-gold-dark transition-all group-hover:gap-2.5">
+                <Upload size={15} /> Customize Now →
+              </span>
             </button>
           ))}
         </div>
