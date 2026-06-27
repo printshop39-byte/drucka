@@ -13,13 +13,12 @@ export default function BentoShowcase() {
         /* tap feedback on touch devices — premium press-in bounce */
         .bento-cell:active { transform: scale(0.96); }
         .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; grid-auto-rows: 160px; }
-        .b1, .b2, .b5 { grid-column: span 2; }
+        .b1, .b2 { grid-column: span 2; }
         @media (min-width: 1024px) {
           .bento-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 200px; }
           .b1 { grid-column: span 2; grid-row: span 2; }
           .b2 { grid-column: span 2; }
           .b3, .b4 { grid-column: span 1; }
-          .b5 { grid-column: 1 / -1; }
         }
       `}</style>
 
@@ -81,15 +80,6 @@ export default function BentoShowcase() {
               <h3 className="font-display" style={{ fontSize: '14px', color: '#FAF9F7' }}>Phone Cases</h3>
               <p style={{ color: '#E3C887', fontFamily: "'Courier New',monospace", fontSize: '13px', fontWeight: 700, marginTop: '3px' }}>From ₹299</p>
             </div>
-          </a>
-
-          {/* CELL 5 — Magnetic Walls (wide, full bottom row) */}
-          <a href="#gallery-walls"
-            className="bento-cell b5 relative flex flex-col justify-center"
-            style={{ background: '#141414', border: '0.5px solid #222', borderRadius: '14px', padding: '24px' }}>
-            <span style={{ background: '#C9A84C', color: '#fff', fontSize: '9px', padding: '2px 8px', borderRadius: '3px', alignSelf: 'flex-start', letterSpacing: '1px' }}>NEW</span>
-            <h3 className="font-display" style={{ fontSize: '18px', color: '#FAF9F7', marginTop: '10px' }}>Magnetic Walls</h3>
-            <p style={{ fontSize: '12px', opacity: 0.5, marginTop: '2px' }}>No nails. No damage.</p>
           </a>
         </div>
       </div>

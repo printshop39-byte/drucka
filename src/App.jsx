@@ -18,7 +18,6 @@ import BestsellingFrames from "./components/BestsellingFrames";
 import FeaturedProduct from "./components/FeaturedProduct";
 import GalleryWalls from "./components/GalleryWalls";
 import StatementCollection from "./components/StatementCollection";
-import MagneticWalls from "./components/MagneticWalls";
 import MiniPhotoPrints from "./components/MiniPhotoPrints";
 import BentoShowcase from "./components/BentoShowcase";
 import PhoneCases from "./components/PhoneCases";
@@ -4161,7 +4160,6 @@ export default function App() {
         {/* <FeaturedProduct /> */}
         <GalleryWalls />
         <StatementCollection onTryMini={openMini} />
-        {/* <MagneticWalls /> */}
         <MiniPhotoPrints onOrder={openMini} />
         {/* <QualityBanner /> */}
         {/* <SignatureGift /> */}

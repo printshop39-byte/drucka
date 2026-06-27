@@ -12,7 +12,6 @@ export default function Footer({ onTrack }: FooterProps) {
     { label: 'Bestselling Frames', href: '#frames' },
     { label: 'Gallery Walls', href: '#gallery-walls' },
     { label: 'Statement Collection', href: '#statement' },
-    { label: 'Magnetic Walls', href: '#magnetic' },
     { label: 'Gifting', href: '#gifting' },
   ];
 
