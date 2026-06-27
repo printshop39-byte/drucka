@@ -25,6 +25,8 @@ import HowItWorksSection from "./components/HowItWorks";
 import WhyDrucka from "./components/WhyDrucka";
 import BulkCorporate from "./components/BulkCorporate";
 import TrustPolicies from "./components/TrustPolicies";
+import ProductLanding from "./components/ProductLanding";
+import { LANDINGS } from "./components/landingData";
 import BentoShowcase from "./components/BentoShowcase";
 import PhoneCases from "./components/PhoneCases";
 import QualityBanner from "./components/QualityBanner";
@@ -3908,6 +3910,7 @@ export default function App() {
   const [collageView, setCollageView] = useState("welcome"); // welcome | grid | pro
   const [collageInitial, setCollageInitial] = useState(null); // template chosen on welcome
   const [miniOpen, setMiniOpen] = useState(false); // standalone Mini Prints flow
+  const [landing, setLanding] = useState(null); // SEO product landing page slug (null = homepage)
   const [announceOpen, setAnnounceOpen] = useState(true);
   const [customizer, setCustomizer] = useState(null); // null | { mode: "print"|"frame", initial }
   const [framePick, setFramePick] = useState(null); // { id, n } — frame chosen from the nav dropdown
@@ -4086,6 +4089,17 @@ export default function App() {
     const applyRoute = () => {
       const p = window.location.pathname.replace(/\/+$/, "").toLowerCase();
       console.log("[DRUCKA] route resolved:", JSON.stringify(p));
+      const slug = p.replace(/^\//, "");
+      if (LANDINGS[slug]) {
+        // SEO landing page — rendered in <main>. ProductLanding also sets
+        // its own title/meta/JSON-LD on mount; set here too to avoid a flash.
+        setLanding(slug);
+        document.title = LANDINGS[slug].title;
+        document.querySelector('meta[name="description"]')?.setAttribute("content", LANDINGS[slug].description);
+        window.scrollTo(0, 0);
+        return;
+      }
+      setLanding(null);
       setMeta(p);
       switch (p) {
         case "/customize":
@@ -4110,7 +4124,6 @@ export default function App() {
         case "/admin":
           setAdminOpen(true);
           break;
-        case "/mini-prints":
         case "/mini":
           setMiniOpen(true);
           break;
@@ -4160,6 +4173,20 @@ export default function App() {
         </div>
       )}
       <main>
+        {landing ? (
+          <ProductLanding
+            data={LANDINGS[landing]}
+            whatsappUrl={wa(LANDINGS[landing].waText)}
+            onPrimary={() => {
+              const a = LANDINGS[landing].action;
+              if (a === "frame") setCustomizer({ mode: "frame", initial: null });
+              else if (a === "tshirt") openEditor("tshirt");
+              else if (a === "mug") openEditor("mug");
+              else setMiniOpen(true); // mini / photo-prints
+            }}
+          />
+        ) : (
+        <>
         <ScrollShowcase onCta={() => setCustomizer({ mode: "frame", initial: null })} />
         <FrameHero
           onUpload={() => setCustomizer({ mode: "frame", initial: null })}
@@ -4191,6 +4218,8 @@ export default function App() {
         <StoreLocations />
         <TrustPolicies />
         <FAQ />
+        </>
+        )}
       </main>
       <FrameFooter onTrack={() => setTrackOpen(true)} />
       {/* spacer so the fixed mobile action bar never hides footer content */}

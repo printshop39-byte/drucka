@@ -8,11 +8,12 @@ interface FooterProps {
 
 export default function Footer({ onTrack }: FooterProps) {
   const shopLinks = [
-    { label: 'Photo Prints & Frames', href: '#photo-frames' },
-    { label: 'Bestselling Frames', href: '#frames' },
-    { label: 'Gallery Walls', href: '#gallery-walls' },
-    { label: 'Statement Collection', href: '#statement' },
-    { label: 'Gifting', href: '#gifting' },
+    { label: 'Mini Photo Prints', href: '/mini-prints' },
+    { label: 'Photo Prints', href: '/photo-prints' },
+    { label: 'Custom Photo Frames', href: '/photo-frames' },
+    { label: 'Custom T-Shirts', href: '/custom-tshirts' },
+    { label: 'Custom Mugs', href: '/custom-mugs' },
+    { label: 'Corporate Gifting', href: '/corporate-gifting' },
   ];
 
   return (
