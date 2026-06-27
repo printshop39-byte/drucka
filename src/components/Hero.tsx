@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown, MessageCircle } from 'lucide-react';
 
 const HERO_SLIDES = [
   { src: '/images/hero/hero-1.jpg', alt: 'Family admiring their framed photo wall at home — custom photo frames by Drucka' },
@@ -17,7 +17,7 @@ const Tick = () => (
   </svg>
 );
 
-export default function Hero({ onUpload }: { onUpload?: () => void }) {
+export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void; whatsappUrl?: string }) {
   const [current, setCurrent] = useState(0);
   const pausedRef = useRef(false);
 
@@ -66,26 +66,25 @@ export default function Hero({ onUpload }: { onUpload?: () => void }) {
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
         <div className="max-w-2xl">
-          <p
-            className="font-medium uppercase text-sm mb-6 animate-fade-in"
-            style={{ color: '#C9A84C', letterSpacing: '3px' }}
-          >
-            Premium Quality &amp; Long-lasting
-          </p>
+          <div className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-white/10 px-4 py-1.5 ring-1 ring-white/20 backdrop-blur-sm animate-fade-in">
+            <span className="text-sm font-bold" style={{ color: '#C9A84C' }}>Starting at ₹19</span>
+            <span className="text-white/40">·</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-white/80">No minimum order</span>
+          </div>
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-serif font-normal text-white leading-tight mb-6">
-            Frame Your
-            <span className="block italic" style={{ color: '#C9A84C' }}> Precious</span>
-            Memories
+            Custom Gifts,
+            <span className="block italic" style={{ color: '#C9A84C' }}> Printed</span>
+            Your Way
           </h1>
-          <p className="text-white/70 text-lg sm:text-xl leading-relaxed mb-7 max-w-lg">
-            India's trusted online photo printing &amp; framing studio. We use premium, termite-resistant fiber and sleek metal frames to keep your photos vibrant and safe forever.
+          <p className="text-white/75 text-lg sm:text-xl leading-relaxed mb-7 max-w-xl">
+            Mini Prints, Frames, T‑Shirts, Mugs &amp; Corporate Gifts — upload your photo and order on WhatsApp. Printed premium, delivered across India.
           </p>
 
-          {/* Quick trust bullets — what you can do · range · delivery (3-sec scan) */}
+          {/* Quick trust bullets — flow · no-minimum/bulk · delivery (3-sec scan) */}
           <ul className="mb-9 space-y-2.5">
             {[
               <>Upload Photo <span className="text-gold">→</span> Preview Design <span className="text-gold">→</span> WhatsApp Order</>,
-              <>Mini Prints • Frames • Mugs • T-Shirts</>,
+              <>No minimum order · Bulk &amp; corporate orders welcome</>,
               <>Kolhapur · India Delivery Available</>,
             ].map((line, i) => (
               <li key={i} className="flex items-center gap-2.5 text-white/85 text-sm sm:text-[15px] font-medium">
@@ -105,10 +104,14 @@ export default function Hero({ onUpload }: { onUpload?: () => void }) {
               <ArrowRight size={18} />
             </button>
             <a
-              href="#photo-frames"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 border-[1.5px] border-white/70 hover:border-white text-white font-medium tracking-wide text-sm uppercase transition-colors duration-300 rounded-sm"
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 font-semibold tracking-wide text-sm uppercase rounded-sm text-white transition hover:brightness-110"
+              style={{ background: '#1ba34e' }}
             >
-              View Products
+              <MessageCircle size={18} />
+              Order on WhatsApp
             </a>
           </div>
         </div>

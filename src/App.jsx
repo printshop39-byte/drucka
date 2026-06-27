@@ -4135,6 +4135,7 @@ export default function App() {
         onCartOpen={() => setCartOpen(true)}
         onCollage={() => { setCollageInitial(null); setCollageView("welcome"); setCollageOpen(true); }}
         onMini={openMini}
+        onUpload={() => setCustomizer({ mode: "frame", initial: null })}
         onPickFrame={(id) => setFramePick({ id, n: Date.now() })}
       />
       {IS_STAGING && (
@@ -4145,7 +4146,10 @@ export default function App() {
       )}
       <main>
         <ScrollShowcase onCta={() => setCustomizer({ mode: "frame", initial: null })} />
-        <FrameHero onUpload={() => setCustomizer({ mode: "frame", initial: null })} />
+        <FrameHero
+          onUpload={() => setCustomizer({ mode: "frame", initial: null })}
+          whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
+        />
         <TrustBar />
         <BentoShowcase />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
@@ -4177,6 +4181,7 @@ export default function App() {
         cartCount={cartCount}
         onUpload={() => setCustomizer({ mode: "frame", initial: null })}
         onCart={() => setCartOpen(true)}
+        whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
       />
 
       {customizer && (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X, ShoppingBag, ChevronDown } from 'lucide-react';
+import { Menu, X, ShoppingBag, ChevronDown, Upload } from 'lucide-react';
 
 interface NavbarProps {
   topOffset: boolean;
@@ -7,10 +7,11 @@ interface NavbarProps {
   onCartOpen: () => void;
   onCollage: () => void;
   onMini?: () => void;
+  onUpload?: () => void;
   onPickFrame?: (id: string) => void;
 }
 
-export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onPickFrame }: NavbarProps) {
+export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onUpload, onPickFrame }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
@@ -36,7 +37,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
       style={{ top: topOffset ? '36px' : '0' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 lg:h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Mobile menu button */}
           <button
             className="lg:hidden p-2 -ml-2 text-charcoal"
@@ -105,6 +106,12 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
           {/* Right icons */}
           <div className="flex items-center gap-3">
             <button
+              onClick={onUpload}
+              className="hidden lg:flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark"
+            >
+              <Upload size={15} /> Upload Design
+            </button>
+            <button
               onClick={onCartOpen}
               className="p-2 text-charcoal/70 hover:text-charcoal transition-colors relative"
               aria-label={`Open cart, ${cartCount} items`}
@@ -139,6 +146,12 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               className="block w-full py-2 text-left text-sm font-medium text-gold-dark uppercase tracking-wide"
             >
               Collage Maker
+            </button>
+            <button
+              onClick={() => { setMobileOpen(false); onUpload?.(); }}
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wide text-white"
+            >
+              <Upload size={16} /> Upload Design
             </button>
           </div>
         </div>
