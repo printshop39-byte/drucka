@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, Upload, Trash2, MessageCircle, ShoppingBag, RotateCw,
-  Crop, Copy, GripVertical, CalendarDays, Smile, X, Image as ImageIcon,
+  Crop, Copy, GripVertical, CalendarDays, Smile, X, Image as ImageIcon, ShieldCheck,
 } from "lucide-react";
 import { fileToDataUrl, inr, uid } from "../designer/data";
 import {
@@ -106,7 +106,7 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
   const Slider = ({ label, val, min, max, step, k, fmt }) => (
     <label className="block">
       <span className="mb-0.5 flex justify-between text-[10px] font-bold uppercase tracking-wide text-charcoal/50">{label}<span className="text-charcoal/70">{fmt(val)}</span></span>
-      <input type="range" min={min} max={max} step={step} value={val} onChange={(e) => setD((s) => ({ ...s, [k]: +e.target.value }))} className="w-full accent-tangerine" />
+      <input type="range" min={min} max={max} step={step} value={val} onChange={(e) => setD((s) => ({ ...s, [k]: +e.target.value }))} className="w-full accent-gold" />
     </label>
   );
 
@@ -149,7 +149,7 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
           <Slider label="Brightness" val={d.brightness} min={50} max={150} step={1} k="brightness" fmt={(v) => `${v}%`} />
           <Slider label="Contrast" val={d.contrast} min={50} max={150} step={1} k="contrast" fmt={(v) => `${v}%`} />
         </div>
-        <button onClick={() => onApply(d)} className="mt-4 w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-white transition hover:brightness-110">Apply</button>
+        <button onClick={() => onApply(d)} className="mt-4 w-full rounded-full bg-gold py-2.5 text-sm font-bold text-white transition hover:brightness-110">Apply</button>
       </div>
     </div>
   );
@@ -304,42 +304,41 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   );
 
   return (
-    <div className="kd-noise flex flex-col bg-[#eceef1] text-charcoal" role="dialog" aria-modal="true" aria-label="Mini photo prints"
+    <div className="flex flex-col bg-[#fcfbfa] text-charcoal" role="dialog" aria-modal="true" aria-label="Mini photo prints"
       style={{ position: "fixed", inset: 0, zIndex: 95 }}>
       <style>{`
-        .kd-noise { position: relative; }
-        .kd-noise::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background-repeat: repeat;
-          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E"); }
-        .kd-noise > * { position: relative; z-index: 1; }
         .kd-mono { font-family: 'Courier New', monospace; }
-        .kd-label { color: #E8650A; letter-spacing: 4px; font-size: 11px; font-weight: 600; }
-        .kd-heading { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; text-shadow: 1px 1px 0 rgba(232,101,10,0.15); }
-        .kd-size { font-family: 'Courier New', monospace; letter-spacing: 2px; background: #1a1208; color: #E8650A; border: 1px solid #E8650A; border-radius: 3px; }
-        .kd-size .kd-sub { color: rgba(232,101,10,0.7); }
-        .kd-size-on { background: #E8650A !important; color: #fff !important; border-color: #E8650A !important; }
-        .kd-size-on .kd-sub { color: rgba(255,255,255,0.85) !important; }
-        .kd-photo { border: 3px solid #f5e6c8; border-radius: 2px; background: #fdf6ec; }
-        .kd-photo-img { filter: sepia(12%) contrast(105%); transition: all 0.35s cubic-bezier(0.23,1,0.32,1); }
-        .kd-cart { background: #1a1208; color: #E8650A; font-family: 'Courier New', monospace; letter-spacing: 1px; border: 1px solid #E8650A; transition: all 0.25s ease; }
-        .kd-price { color: #E8650A; font-family: 'Courier New', monospace; font-size: 13px; }
-        .kd-watermark { font-family: 'Courier New', monospace; font-size: 9px; color: #E8650A; opacity: 0.5; letter-spacing: 2px; text-transform: uppercase; pointer-events: none; }
-        .kd-bottominfo { font-family: 'Courier New', monospace; font-size: 11px; color: rgba(26,18,8,0.6); letter-spacing: 0.5px; }
-        .kd-divider { border-top: 1px solid rgba(232,101,10,0.2); }
+        .kd-label { color: #c19a3d; letter-spacing: 4px; font-size: 11px; font-weight: 700; }
+        .kd-heading { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; }
+        .kd-size { background: #fff; color: #1a1a1a; border: 1px solid #e6e4df; border-radius: 12px; transition: all 0.2s ease; }
+        .kd-size .kd-sub { color: #9a958c; }
+        .kd-size-title { font-family: 'Playfair Display', Georgia, serif; }
+        .kd-size-on { border-color: #c19a3d !important; box-shadow: 0 0 0 1px #c19a3d, 0 2px 10px rgba(0,0,0,0.05) !important; }
+        .kd-photo { border: 1px solid rgba(26,18,8,0.08); border-radius: 12px; background: #f5f4f0; }
+        .kd-photo-img { transition: all 0.35s cubic-bezier(0.23,1,0.32,1); }
+        .kd-cart { background: #111; color: #fff; letter-spacing: 1px; border: 1px solid #111; transition: all 0.25s ease; }
+        .kd-price { color: #1a1a1a; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 15px; }
+        .kd-watermark { font-family: 'Courier New', monospace; font-size: 9px; color: #b8b3a8; letter-spacing: 2px; text-transform: uppercase; pointer-events: none; }
+        .kd-bottominfo { font-size: 11px; color: rgba(26,18,8,0.5); letter-spacing: 0.3px; }
+        .kd-divider { border-top: 1px solid rgba(26,18,8,0.08); }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
         .mp-preview-img { max-height: 40vh; width: auto; }
         @media (min-width: 1024px) {
           .mp-preview-pane { position: sticky; top: 0; align-self: start; height: calc(100vh - 124px); }
           .mp-preview-img { max-height: 58vh; }
         }
         @media (hover: hover) and (pointer: fine) {
-          .kd-cart:hover { background: #E8650A; color: #fff; }
-          .kd-photo:hover .kd-photo-img { transform: rotate(-1.5deg) translateY(-4px); filter: sepia(0%) contrast(100%); }
+          .kd-cart:hover { background: #000; }
+          .kd-photo:hover .kd-photo-img { transform: translateY(-3px); }
+          .kd-size:hover { border-color: #ccc; }
         }
       `}</style>
       <header className="flex h-14 shrink-0 items-center gap-2 border-b border-black/10 bg-white px-3 sm:px-4">
         <button onClick={onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal"><ArrowLeft size={18} /></button>
         <div className="min-w-0">
           <p className="kd-heading truncate text-base">Mini Photo Prints</p>
-          <p className="kd-mono hidden text-[10px] sm:block" style={{ color: 'rgba(232,101,10,0.6)' }}>Drucka Studio · {size.label}</p>
+          <p className="kd-mono hidden text-[10px] sm:block" style={{ color: 'rgba(26,18,8,0.4)' }}>Drucka Studio · {size.label}</p>
         </div>
         <button onClick={addToCart} disabled={busy || !photos.length}
           className="kd-cart ml-auto rounded-sm px-4 py-2 text-xs font-bold uppercase disabled:opacity-50">{busy ? "…" : "Add to Cart"}</button>
@@ -357,10 +356,10 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
               <PreviewPlaceholder border={border} aspect={SIZE_ASPECT[sizeId] ?? 1} />
             )}
             {photos.length > 1 && (
-              <div className="flex max-w-full gap-2 overflow-x-auto px-1 pb-1">
+              <div className="flex max-w-full gap-2 overflow-x-auto scrollbar-none px-1 pb-1">
                 {photos.map((p) => (
                   <button key={p.id} onClick={() => setPreviewId(p.id)} aria-label="Preview this photo"
-                    className={`h-12 w-12 shrink-0 overflow-hidden rounded-md border-2 transition ${previewPhoto?.id === p.id ? "border-tangerine" : "border-black/10 hover:border-black/30"}`}>
+                    className={`h-12 w-12 shrink-0 overflow-hidden rounded-md border-2 transition ${previewPhoto?.id === p.id ? "border-gold" : "border-black/10 hover:border-black/30"}`}>
                     {previews[p.id]
                       ? <img src={previews[p.id]} alt="" className="h-full w-full object-cover" draggable={false} />
                       : <span className="block h-full w-full animate-pulse bg-black/5" />}
@@ -368,7 +367,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                 ))}
               </div>
             )}
-            <p className="kd-mono text-center text-[10px]" style={{ color: "rgba(232,101,10,0.65)", letterSpacing: "1px" }}>
+            <p className="kd-mono text-center text-[10px]" style={{ color: "rgba(26,18,8,0.4)", letterSpacing: "1px" }}>
               {previewPhoto ? `Live preview · ${size.label} · ${border}` : `Upload a photo to preview your ${size.label} print`}
             </p>
           </div>
@@ -385,7 +384,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
           {MINI_SIZES.map((s) => (
             <button key={s.id} onClick={() => setSizeId(s.id)}
               className={`kd-size p-3 text-left transition ${sizeId === s.id ? "kd-size-on" : ""}`}>
-              <p className="text-lg font-bold">{s.label}</p>
+              <p className="kd-size-title text-lg font-bold">{s.label}</p>
               <p className="kd-sub mt-0.5 text-[10px] font-semibold leading-tight">{s.name}</p>
               <p className="mt-1.5 text-[11px] font-bold"><span className="text-[8px] tracking-[2px] opacity-70">FROM </span>{inr(s.price)}<span className="kd-sub text-[9px]"> /print</span></p>
             </button>
@@ -394,10 +393,10 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
 
         {/* templates */}
         <Step n="2">Quick templates</Step>
-        <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        <div className="-mx-1 flex gap-2 overflow-x-auto scrollbar-none px-1 pb-1">
           {OCCASION_TEMPLATES.map((t) => (
             <button key={t.id} onClick={() => applyTemplate(t)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-full border-2 px-3 py-2 text-xs font-bold transition ${activeTemplate?.id === t.id ? "border-tangerine bg-tangerine/5 text-charcoal" : "border-black/10 bg-white text-charcoal/70 hover:border-black/25"}`}>
+              className={`flex shrink-0 items-center gap-1.5 rounded-full border-2 px-3 py-2 text-xs font-bold transition ${activeTemplate?.id === t.id ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 bg-white text-charcoal/70 hover:border-black/25"}`}>
               <span className="text-base">{t.emoji}</span> {t.name}
             </button>
           ))}
@@ -408,7 +407,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         <div className="flex flex-wrap gap-2">
           {BORDERS.map((b) => (
             <button key={b.id} onClick={() => setBorder(b.id)}
-              className={`flex flex-col items-center gap-1 rounded-lg border-2 p-2 transition ${border === b.id ? "border-tangerine bg-tangerine/5" : "border-black/10 hover:border-black/25"}`}>
+              className={`flex flex-col items-center gap-1 rounded-lg border-2 p-2 transition ${border === b.id ? "border-gold bg-gold/5" : "border-black/10 hover:border-black/25"}`}>
               <BorderSwatch id={b.id} />
               <span className="text-[8.5px] font-bold text-charcoal/55">{b.label}</span>
             </button>
@@ -421,12 +420,22 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
           onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
         <button onClick={() => fileRef.current?.click()} disabled={busy || photos.length >= MAX_PHOTOS}
           onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
-          style={{ border: '2px dashed #E8650A', borderRadius: '4px' }}
-          className="flex w-full flex-col items-center gap-1.5 bg-[#fdf6ec] px-4 py-6 transition hover:bg-[#f7ecd9] disabled:opacity-40">
-          <Upload size={22} style={{ color: '#E8650A' }} />
-          <span className="kd-mono text-sm font-bold" style={{ color: '#E8650A', letterSpacing: '1px' }}>{busy ? "Processing…" : "Upload photos"}</span>
-          <span className="kd-mono text-[11px]" style={{ color: 'rgba(232,101,10,0.6)' }}>JPG · PNG · HEIC — {photos.length}/{MAX_PHOTOS}</span>
+          style={{ border: '2px dashed rgba(193,154,61,0.5)', borderRadius: '16px' }}
+          className="group flex w-full flex-col items-center gap-2 rounded-2xl bg-white px-4 py-8 transition hover:bg-[#fbfaf8] disabled:opacity-40">
+          <span className="grid h-12 w-12 place-items-center rounded-full transition" style={{ backgroundColor: '#fbfaf8', color: '#c19a3d' }}>
+            <Upload size={22} />
+          </span>
+          <span className="text-sm font-semibold text-charcoal">{busy ? "Processing…" : "Drag & drop your photos here"}</span>
+          <span className="text-[11px] text-charcoal/45">JPG · PNG · WEBP · HEIC — {photos.length}/{MAX_PHOTOS}</span>
         </button>
+
+        {/* Privacy / security trust badge */}
+        <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-black/5 bg-black/[0.025] p-3.5">
+          <ShieldCheck size={16} className="shrink-0 text-emerald-600" />
+          <p className="text-xs leading-normal text-charcoal/55">
+            <strong className="font-semibold text-charcoal/75">End-to-end secure:</strong> your photos are used only for your order, kept confidential, and deleted after printing.
+          </p>
+        </div>
 
         {photos.length > 0 && (
           <div className="mt-4 grid gap-4">
@@ -462,32 +471,32 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                 </div>
 
                 {/* filter strip */}
-                <div className="mt-3 -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+                <div className="mt-3 -mx-1 flex gap-1.5 overflow-x-auto scrollbar-none px-1 pb-1">
                   {FILTERS.map((f) => (
                     <button key={f.id} onClick={() => patch(p.id, { filter: f.id })}
-                      className={`shrink-0 rounded-full border-2 px-2.5 py-1 text-[10px] font-bold transition ${p.filter === f.id ? "border-tangerine bg-tangerine text-white" : "border-black/10 text-charcoal/60"}`}>{f.label}</button>
+                      className={`shrink-0 rounded-full border-2 px-2.5 py-1 text-[10px] font-bold transition ${p.filter === f.id ? "border-gold bg-gold text-white" : "border-black/10 text-charcoal/60"}`}>{f.label}</button>
                   ))}
                 </div>
 
                 {/* caption */}
                 <input value={p.caption} maxLength={40} onChange={(e) => patch(p.id, { caption: e.target.value })}
                   placeholder="Add a caption (optional)…"
-                  className="mt-3 w-full rounded-lg border border-black/15 bg-black/[0.03] px-3 py-2 text-sm font-semibold text-charcoal outline-none focus:border-tangerine" />
+                  className="mt-3 w-full rounded-lg border border-black/15 bg-black/[0.03] px-3 py-2 text-sm font-semibold text-charcoal outline-none focus:border-gold" />
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <select value={p.captionFont} onChange={(e) => patch(p.id, { captionFont: e.target.value })}
-                    className="rounded-lg border border-black/15 bg-white px-2 py-1.5 text-xs font-semibold text-charcoal outline-none focus:border-tangerine">
+                    className="rounded-lg border border-black/15 bg-white px-2 py-1.5 text-xs font-semibold text-charcoal outline-none focus:border-gold">
                     {MINI_FONTS.map((f) => <option key={f.id} value={f.id}>{f.label}</option>)}
                   </select>
                   <div className="flex overflow-hidden rounded-lg border border-black/15">
                     {["S", "M", "L"].map((s) => (
                       <button key={s} onClick={() => patch(p.id, { captionSize: s })}
-                        className={`px-2.5 py-1.5 text-xs font-bold ${p.captionSize === s ? "bg-tangerine text-white" : "text-charcoal/60"}`}>{s}</button>
+                        className={`px-2.5 py-1.5 text-xs font-bold ${p.captionSize === s ? "bg-gold text-white" : "text-charcoal/60"}`}>{s}</button>
                     ))}
                   </div>
                   <div className="flex items-center gap-1">
                     {CAPTION_COLORS.map((c) => (
                       <button key={c} aria-label={`Caption ${c}`} onClick={() => patch(p.id, { captionColor: c })}
-                        className={`h-6 w-6 rounded-full border-2 ${p.captionColor === c ? "border-tangerine ring-2 ring-tangerine/30" : "border-black/15"}`} style={{ backgroundColor: c }} />
+                        className={`h-6 w-6 rounded-full border-2 ${p.captionColor === c ? "border-gold ring-2 ring-gold/30" : "border-black/15"}`} style={{ backgroundColor: c }} />
                     ))}
                   </div>
                 </div>
@@ -495,16 +504,16 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                 {/* date + stickers */}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button onClick={() => patch(p.id, { dateStamp: !p.dateStamp })}
-                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.dateStamp ? "border-tangerine bg-tangerine/5 text-charcoal" : "border-black/10 text-charcoal/60"}`}>
+                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.dateStamp ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 text-charcoal/60"}`}>
                     <CalendarDays size={13} /> Date stamp
                   </button>
                   <button onClick={() => setStickerId(stickerId === p.id ? null : p.id)}
-                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.stickers.length ? "border-tangerine bg-tangerine/5 text-charcoal" : "border-black/10 text-charcoal/60"}`}>
+                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.stickers.length ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 text-charcoal/60"}`}>
                     <Smile size={13} /> Stickers{p.stickers.length ? ` (${p.stickers.length})` : ""}
                   </button>
                   {p.dateStamp && (
                     <input value={p.dateText} onChange={(e) => patch(p.id, { dateText: e.target.value })}
-                      className="w-28 rounded-lg border border-black/15 bg-black/[0.03] px-2 py-1 text-xs font-semibold text-charcoal outline-none focus:border-tangerine" />
+                      className="w-28 rounded-lg border border-black/15 bg-black/[0.03] px-2 py-1 text-xs font-semibold text-charcoal outline-none focus:border-gold" />
                   )}
                 </div>
                 {stickerId === p.id && (
@@ -517,7 +526,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                             const on = p.stickers.some((s) => s.emoji === emoji);
                             return (
                               <button key={emoji} onClick={() => toggleSticker(p.id, emoji)}
-                                className={`grid h-8 w-8 place-items-center rounded-lg border-2 text-lg transition ${on ? "border-tangerine bg-tangerine/10" : "border-black/10 hover:border-black/25"}`}>{emoji}</button>
+                                className={`grid h-8 w-8 place-items-center rounded-lg border-2 text-lg transition ${on ? "border-gold bg-gold/10" : "border-black/10 hover:border-black/25"}`}>{emoji}</button>
                             );
                           })}
                         </div>
