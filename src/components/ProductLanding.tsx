@@ -86,7 +86,7 @@ export default function ProductLanding({
                     {data.ctaLabel} <ArrowRight size={18} />
                   </button>
                   <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={waBtn} style={{ background: '#1ba34e' }}>
-                    <MessageCircle size={18} /> Order on WhatsApp
+                    <MessageCircle size={18} /> Chat to Order
                   </a>
                 </>
               )}
@@ -112,7 +112,7 @@ export default function ProductLanding({
 
       {/* FAQ — native <details> so the answers are crawlable without JS */}
       <section className="mx-auto max-w-3xl px-4 pb-12 sm:px-6 lg:px-8 lg:pb-16">
-        <h2 className="mb-8 text-center font-serif text-2xl font-bold text-charcoal sm:text-3xl">Frequently asked questions</h2>
+        <h2 className="mb-8 text-center font-serif text-2xl font-bold text-charcoal sm:text-3xl">Help &amp; Support</h2>
         <div className="grid gap-3">
           {data.faqs.map((f) => (
             <details key={f.q} className="group rounded-2xl bg-white p-5" style={card}>
@@ -138,7 +138,7 @@ export default function ProductLanding({
               </button>
             )}
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={waBtn} style={{ background: '#1ba34e' }}>
-              <MessageCircle size={18} /> Order on WhatsApp
+              <MessageCircle size={18} /> Chat to Order
             </a>
           </div>
         </div>

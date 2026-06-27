@@ -21,7 +21,7 @@ export default function HowItWorks() {
         <div className="text-center mb-10 lg:mb-14">
           <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">How it works</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
-            From your photo to your doorstep
+            Upload. Preview. Delivered.
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
             Four simple steps — upload, preview, order on WhatsApp, and we handle the rest.

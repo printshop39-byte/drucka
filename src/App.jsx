@@ -3096,7 +3096,7 @@ function FAQ() {
       <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
         <div className="reveal text-center">
           <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">FAQ</p>
-          <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Questions, answered</h2>
+          <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Help &amp; Support</h2>
         </div>
         <div className="reveal mt-10 grid gap-3">
           {FAQS.map((f, i) => {

@@ -101,7 +101,7 @@ export default function GalleryWalls() {
               Artistic Oasis
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-normal text-charcoal">
-              Gallery Walls
+              Design Your Gallery Wall
             </h2>
           </div>
           <div className="hidden sm:flex gap-2">

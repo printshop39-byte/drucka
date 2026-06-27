@@ -27,7 +27,7 @@ export default function BulkCorporate() {
               </span>
               <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">Bulk &amp; Corporate</span>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-charcoal">
-                Gifting at scale, beautifully done
+                Order in Bulk, Save More
               </h2>
               <p className="mt-4 max-w-md text-charcoal/55">
                 Personalised prints, frames, mugs & gifts for weddings, events and offices — with volume pricing and a dedicated point of contact.

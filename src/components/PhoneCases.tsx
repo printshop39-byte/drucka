@@ -47,7 +47,7 @@ export default function PhoneCases() {
         <div className="text-center mb-14">
           <span className="sb-label uppercase block mb-3">A Gift They'll Carry Everywhere</span>
           <h2 className="sb-heading text-3xl sm:text-4xl lg:text-5xl">
-            Custom Photo Phone Cases
+            Carry Your Memories Everywhere
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
             Turn your favourite memories into a personalised phone case — the perfect thoughtful gift.

@@ -32,7 +32,7 @@ export default function TrustPolicies() {
         <div className="text-center mb-10 lg:mb-14">
           <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">Our promise</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
-            Order with complete confidence
+            100% Quality Guarantee
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
             Your memories and your money are both safe with us.

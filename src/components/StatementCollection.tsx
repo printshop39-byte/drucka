@@ -13,7 +13,7 @@ const statements = [
   { name: 'Sariska', image: '/images/statement/sariska.jpg', price: '₹3,199' },
 ];
 
-const HEADING = 'The Statement Collection';
+const HEADING = 'The Masterpiece Collection';
 
 export default function StatementCollection({ onTryMini }: { onTryMini?: () => void }) {
   const sectionRef = useRef<HTMLElement>(null);

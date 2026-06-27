@@ -108,7 +108,7 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
               onClick={onUpload}
               className="hero-cta-gold inline-flex items-center justify-center gap-2 px-8 py-4 text-white font-semibold tracking-wide text-sm uppercase rounded-sm"
             >
-              Upload Photo
+              Choose Photo
               <ArrowRight size={18} />
             </button>
             <a
@@ -119,7 +119,7 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
               style={{ background: '#1ba34e' }}
             >
               <MessageCircle size={18} />
-              Order on WhatsApp
+              Chat to Order
             </a>
           </div>
         </div>

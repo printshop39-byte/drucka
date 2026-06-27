@@ -109,7 +109,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               onClick={onUpload}
               className="hidden lg:flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark"
             >
-              <Upload size={15} /> Upload Design
+              <Upload size={15} /> Choose Photo
             </button>
             <button
               onClick={onCartOpen}
@@ -151,7 +151,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               onClick={() => { setMobileOpen(false); onUpload?.(); }}
               className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wide text-white"
             >
-              <Upload size={16} /> Upload Design
+              <Upload size={16} /> Choose Photo
             </button>
           </div>
         </div>
