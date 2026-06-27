@@ -4155,7 +4155,7 @@ export default function App() {
           whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
         />
         <TrustBar />
-        <BentoShowcase />
+        {/* <BentoShowcase /> — removed per request (kept in code) */}
         <HowItWorksSection />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
         <PhotoFramesSection onCustomize={openEditor} framePick={framePick}
