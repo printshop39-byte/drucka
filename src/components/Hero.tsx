@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ChevronDown, MessageCircle } from 'lucide-react';
 
 const HERO_SLIDES = [
-  { src: '/images/hero/hero-1.jpg', alt: 'Family admiring their framed photo wall at home — custom photo frames by Drucka' },
-  { src: '/images/hero/hero-2.jpg', alt: 'Luxury interior gallery wall of framed prints — Drucka photo framing' },
-  { src: '/images/hero/hero-3.jpg', alt: 'Premium photo printing studio craft — Drucka archival prints' },
-  { src: '/images/hero/hero-4.jpg', alt: 'Hands holding a fan of mini photo prints — Drucka prints & gifting' },
+  { src: '/images/hero/hero-1.webp', alt: 'Family admiring their framed photo wall at home — custom photo frames by Drucka' },
+  { src: '/images/hero/hero-2.webp', alt: 'Luxury interior gallery wall of framed prints — Drucka photo framing' },
+  { src: '/images/hero/hero-3.webp', alt: 'Premium photo printing studio craft — Drucka archival prints' },
+  { src: '/images/hero/hero-4.webp', alt: 'Hands holding a fan of mini photo prints — Drucka prints & gifting' },
 ];
 const ROTATE_MS = 5000;
 
@@ -56,6 +56,7 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
             src={slide.src}
             alt={slide.alt}
             loading={i === 0 ? 'eager' : 'lazy'}
+            decoding="async"
             className={`absolute inset-0 h-full w-full object-cover will-change-transform transition-opacity duration-[1300ms] ease-out
               ${i === current ? 'opacity-100 hero-kb' : 'opacity-0'}`}
           />

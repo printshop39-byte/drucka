@@ -2,12 +2,14 @@ import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState } from 
 import { qikinkApi, setAdminKey, getAdminKey } from "./lib/qikinkClient";
 import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore";
 import { payWithRazorpay } from "./lib/paymentClient";
-import DesignerProductPage from "./designer/ProductPage";
-import ProductDesigner from "./designer/Designer";
 import { productById as designerProductById } from "./designer/data";
-import CollageMaker from "./collage/CollageMaker";
-import CollageWelcome from "./collage/CollageWelcome";
-import MiniPrints from "./components/MiniPrints";
+/* Heavy editors/modals — lazy-loaded so they stay OUT of the homepage bundle
+   and only download when the user actually opens one */
+const DesignerProductPage = lazy(() => import("./designer/ProductPage"));
+const ProductDesigner = lazy(() => import("./designer/Designer"));
+const CollageMaker = lazy(() => import("./collage/CollageMaker"));
+const CollageWelcome = lazy(() => import("./collage/CollageWelcome"));
+const MiniPrints = lazy(() => import("./components/MiniPrints"));
 /* premium frame-shop homepage components (src/components) */
 import AnnouncementBar from "./components/AnnouncementBar";
 import FrameNavbar from "./components/Navbar";
@@ -33,9 +35,18 @@ import StoreLocations from "./components/StoreLocations";
 import FrameFooter from "./components/Footer";
 import BackToTop from "./components/BackToTop";
 import MobileActionBar from "./components/MobileActionBar";
-import PhotoFrameCustomizer from "./components/PhotoFrameCustomizer";
+const PhotoFrameCustomizer = lazy(() => import("./components/PhotoFrameCustomizer"));
 /* Fabric.js is heavy — the Pro editor (and fabric with it) loads on demand */
 const CollageEditor = lazy(() => import("./components/editor/CollageEditor"));
+
+/* Fullscreen fallback shown while a lazy editor/modal chunk downloads */
+function EditorFallback() {
+  return (
+    <div className="fixed inset-0 z-[95] grid place-items-center bg-white/90 text-sm font-semibold text-charcoal/50">
+      Loading…
+    </div>
+  );
+}
 
 /* Catches any render error inside a heavy modal (e.g. Mini Prints editor)
    and shows the actual message on screen instead of a blank/no-op — so
@@ -4192,6 +4203,7 @@ export default function App() {
         whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
       />
 
+      <Suspense fallback={<EditorFallback />}>
       {customizer && (
         <PhotoFrameCustomizer
           mode={customizer.mode}
@@ -4266,6 +4278,7 @@ export default function App() {
           showToast={showToast}
         />
       )}
+      </Suspense>
 
       <CartDrawer
         open={cartOpen}
