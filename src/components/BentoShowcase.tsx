@@ -71,7 +71,7 @@ export default function BentoShowcase() {
             </svg>
             <div>
               <h3 className="font-display" style={{ fontSize: '14px', color: '#FAF9F7' }}>Mini Prints</h3>
-              <p style={{ color: '#E3C887', fontFamily: "'Courier New',monospace", fontSize: '13px', fontWeight: 700, marginTop: '3px' }}>From ₹99</p>
+              <p style={{ color: '#E3C887', fontFamily: "'Courier New',monospace", fontSize: '13px', fontWeight: 700, marginTop: '3px' }}>From ₹190</p>
               <p style={{ color: 'rgba(250,249,247,0.55)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.5px', marginTop: '4px' }}>Customizable · Customize →</p>
             </div>
           </a>

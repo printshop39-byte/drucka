@@ -54,9 +54,9 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
               <h3 className="font-serif font-semibold text-lg text-charcoal">{item.name}</h3>
               <p className="text-sm text-charcoal/55">{item.desc}</p>
               <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-charcoal/60">
-                <span className="text-sm font-bold text-charcoal">From ₹99</span>
+                <span className="text-sm font-bold text-charcoal">From ₹190</span>
                 <span className="text-charcoal/30">•</span>
-                <span>with delivery · 2–4 days</span>
+                <span>delivery from ₹49 (variable) · 2–4 days</span>
               </div>
               <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-gold-dark transition-all group-hover:gap-2.5">
                 <Upload size={15} /> Customize Now →
@@ -73,7 +73,7 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
           >
             Create your mini prints →
           </button>
-          <p className="mt-3 text-xs text-charcoal/50">Upload photos, pick a size &amp; order in minutes · from ₹99 with delivery (₹50 shipping)</p>
+          <p className="mt-3 text-xs text-charcoal/50">Upload photos, pick a size &amp; order in minutes · from ₹190 · delivery from ₹49 (variable)</p>
         </div>
       </div>
     </section>

@@ -172,7 +172,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   const size = MINI_SIZES.find((s) => s.id === sizeId);
   const totalPrints = photos.reduce((n, p) => n + p.copies, 0);
   const subtotal = totalPrints * size.price;
-  const shipping = subtotal === 0 || subtotal >= FREE_SHIP ? 0 : 50;
+  const shipping = subtotal === 0 || subtotal >= FREE_SHIP ? 0 : 49;
   const total = subtotal + shipping;
   const cropPhoto = photos.find((p) => p.id === cropId);
   const previewPhoto = photos.find((p) => p.id === previewId) ?? photos[0] ?? null;
