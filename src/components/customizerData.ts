@@ -142,6 +142,10 @@ export const loadPhotoFile = (file: File): Promise<Omit<PhotoSlot, "sizeId" | "c
       reject(new Error("Please upload a JPG, PNG or WEBP image"));
       return;
     }
+    if (file.size > 20 * 1024 * 1024) {
+      reject(new Error("Image is over 20 MB — please use a smaller file"));
+      return;
+    }
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(`${file.name}: format not supported by this browser (HEIC? convert to JPG)`)); };

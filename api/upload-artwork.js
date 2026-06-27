@@ -8,10 +8,11 @@ async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ ok: false, error: "POST only" });
   try {
     const { dataUrl, orderId = "order", layerId = "art" } = req.body ?? {};
-    if (typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/"))
-      return res.status(400).json({ ok: false, error: "dataUrl (data:image/...) required" });
-    if (dataUrl.length > 4_000_000)
-      return res.status(413).json({ ok: false, error: "Artwork too large — keep under ~3 MB" });
+    // Allowlist safe raster types only — NOT svg (script-carrying / XSS vector).
+    if (typeof dataUrl !== "string" || !/^data:image\/(jpe?g|png|webp|gif);base64,/i.test(dataUrl))
+      return res.status(400).json({ ok: false, error: "Only JPG, PNG, WebP or GIF artwork is allowed" });
+    if (dataUrl.length > 8_000_000)
+      return res.status(413).json({ ok: false, error: "Artwork too large — keep under ~6 MB" });
     const url = await uploadDataUrl(dataUrl, `${orderId}-${layerId}`);
     res.json({ ok: true, url });
   } catch (err) {

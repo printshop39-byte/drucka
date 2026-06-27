@@ -371,10 +371,18 @@ export const GRAPHICS = [
 
 export const graphicDataUrl = (g) => `data:image/svg+xml;utf8,${encodeURIComponent(g.svg)}`;
 
+/* hard client-side cap so a huge file can't freeze the browser or get
+   uploaded; the raw image is downscaled below before anything leaves the device */
+export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024; // 20 MB
+
 /* downscale an uploaded image for smooth editing (print file is re-uploaded
    full-res by the backend later; 1400px keeps quality good for DTG too) */
 export const fileToDataUrl = (file, max = 1400) =>
   new Promise((resolve, reject) => {
+    if (file && file.size > MAX_UPLOAD_BYTES) {
+      reject(new Error("Image is over 20 MB — please use a smaller file"));
+      return;
+    }
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("Could not read file"));
     reader.onload = () => {
