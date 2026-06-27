@@ -12,11 +12,14 @@ gsap.registerPlugin(ScrollTrigger);
 export default function ScrollShowcase({ onCta }: { onCta?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  /* Intro plays once per browser tab session. On first visit it shows and
-     marks a sessionStorage flag; a reload / in-tab navigation then skips
-     straight to the real hero. New tab or new incognito session = shows again. */
+  /* Intro plays once per browser tab session, on desktop only. On phones/
+     tablets (<1024px) it's skipped entirely — the heavy GSAP + Lenis + 500vh
+     pin and large images hurt mobile LCP/INP, and the real hero shows instead.
+     On desktop: first visit shows + marks a sessionStorage flag; a reload /
+     in-tab navigation then skips straight to the real hero. */
   const [show] = useState(() => {
     try {
+      if (window.innerWidth < 1024) return false; // mobile/tablet → skip the intro
       return sessionStorage.getItem("drucka_intro_seen") !== "1";
     } catch {
       return true; // private mode / storage blocked → just show it
