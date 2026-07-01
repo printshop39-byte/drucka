@@ -287,12 +287,12 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
     if (!ensure()) return;
     const lines = photos.map((p, i) => `${i + 1}. ${p.copies}× ${p.caption?.trim() ? `"${p.caption.trim()}"` : "photo"}${p.filter !== "original" ? ` · ${p.filter}` : ""}`);
     const msg = [
-      "🖼️ *DRUCKA Mini Prints Order*", "",
-      `📐 Size: ${size.label} — ${size.name}`,
-      `🖼️ Border: ${border}`,
-      `📦 Total prints: ${totalPrints}`, "",
+      "*DRUCKA Mini Prints Order*", "",
+      `Size: ${size.label} — ${size.name}`,
+      `Border: ${border}`,
+      `Total prints: ${totalPrints}`, "",
       ...lines, "",
-      `💰 Total: ${inr(total)} (${shipping ? inr(shipping) + " shipping" : "free shipping"})`, "",
+      `Total: ${inr(total)} (${shipping ? inr(shipping) + " shipping" : "free shipping"})`, "",
       "Sending my photos now to place the order!",
     ].join("\n");
     window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");

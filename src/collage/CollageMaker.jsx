@@ -294,12 +294,12 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
       const frameOpt = FRAME_OPTIONS.find((f) => f.id === frame);
       const lamOpt = LAMINATION_OPTIONS.find((l) => l.id === lamination);
       const msg = [
-        "🖼️ *DRUCKA Collage Order*", "",
-        `📐 Size: ${size.label}`,
-        `🖼️ Frame: ${frameOpt.label}`,
-        `✨ Lamination: ${lamOpt.label}`,
-        `📦 Quantity: ${qty}`, "",
-        `💰 Total: ${inr(price.grandTotal)} (${price.shipping ? inr(price.shipping) + " shipping" : "free shipping"})`, "",
+        "*DRUCKA Collage Order*", "",
+        `Size: ${size.label}`,
+        `Frame: ${frameOpt.label}`,
+        `Lamination: ${lamOpt.label}`,
+        `Quantity: ${qty}`, "",
+        `Total: ${inr(price.grandTotal)} (${price.shipping ? inr(price.shipping) + " shipping" : "free shipping"})`, "",
         "I've created my collage — sending the image now to place my order!",
       ].join("\n");
       window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");

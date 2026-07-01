@@ -2224,7 +2224,7 @@ function WhatsAppChatbot() {
   const sendBulkEnquiry = () => {
     pixel.lead({ name: "Bulk order enquiry", category: bulk.product });
     window.open(
-      wa(`Bulk order enquiry 📦\nProduct: ${bulk.product}\nQuantity: ${bulk.qty} pieces\nDetails: ${bulk.note || "—"}\nPlease share bulk pricing.`),
+      wa(`Bulk order enquiry\nProduct: ${bulk.product}\nQuantity: ${bulk.qty} pieces\nDetails: ${bulk.note || "—"}\nPlease share bulk pricing.`),
       "_blank", "noopener"
     );
     setBulkForm(false);
@@ -3286,20 +3286,25 @@ function OrderSummary({ cart, total, colorLabel }) {
 
 function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartDesigning }) {
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  const colorLabel = (id) => PRODUCT_COLORS.find((c) => c.id === id)?.label;
+  // designer cart items already store the colour LABEL (e.g. "White"); legacy
+  // items store the id. Look up the id, else fall back to the value as-is so
+  // it never renders "undefined".
+  const colorLabel = (id) => PRODUCT_COLORS.find((c) => c.id === id)?.label ?? id;
   const [summary, setSummary] = useState(false);
   useEffect(() => { if (!open) setSummary(false); }, [open]);
 
+  // NOTE: keep this message to BMP characters only (bullets, dashes). 4-byte
+  // emoji get mangled to "�" by WhatsApp Desktop's wa.me handoff on Windows.
   const checkoutMsg = wa(
     `Hi Drucka! I'd like to checkout my cart:\n\n` +
       cart.map((i) =>
-        `🛍 ${i.name} ×${i.qty} — ${inr(i.price * i.qty)}` +
-        (i.size ? `\n   📏 Size: ${i.size}` : "") +
-        (i.customSize ? `\n   📐 Custom size: ${customSizeText(i.customSize)}` : "") +
-        (i.color ? `\n   🎨 Colour: ${colorLabel(i.color)}` : "") +
-        (i.summary ? `\n   ✏️ ${i.summary} (I'll attach my design files here)` : "")
+        `• ${i.name} ×${i.qty} — ${inr(i.price * i.qty)}` +
+        (i.size ? `\n   Size: ${i.size}` : "") +
+        (i.customSize ? `\n   Custom size: ${customSizeText(i.customSize)}` : "") +
+        (colorLabel(i.color) ? `\n   Colour: ${colorLabel(i.color)}` : "") +
+        (i.summary ? `\n   ${i.summary} (I'll attach my design files here)` : "")
       ).join("\n") +
-      `\n\n💰 Total: ${inr(total)}\n🚚 Delivery: 2–4 days\nPayment: UPI (${CONFIG.upiId}) / COD. Please confirm my order!`
+      `\n\nTotal: ${inr(total)}\nDelivery: 2–4 days\nPayment: UPI (${CONFIG.upiId}) / COD. Please confirm my order!`
   );
 
   return (
