@@ -302,6 +302,11 @@ const TEMPLATES = [
 const wa = (message) =>
   `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 
+/* Meta Pixel — safe no-op if the pixel script hasn't loaded (adblock, dev, etc.) */
+const fbTrack = (event, params) => {
+  try { window.fbq?.("track", event, params); } catch { /* ignore */ }
+};
+
 const inr = (n) => `₹${n.toLocaleString("en-IN")}`;
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 const uid = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
@@ -2210,6 +2215,7 @@ function WhatsAppChatbot() {
       setTyping(false);
       if (qr.human) {
         setMessages((m) => [...m, { from: "bot", text: "Connecting you to our team on WhatsApp…" }]);
+        fbTrack("Contact", { content_name: "Chatbot → WhatsApp" });
         window.open(wa("Hi Drucka, I need help with custom printing"), "_blank", "noopener");
       } else {
         setMessages((m) => [...m, { from: "bot", text: qr.reply }]);
@@ -2219,6 +2225,7 @@ function WhatsAppChatbot() {
   };
 
   const sendBulkEnquiry = () => {
+    fbTrack("Lead", { content_name: "Bulk order enquiry", content_category: bulk.product });
     window.open(
       wa(`Bulk order enquiry 📦\nProduct: ${bulk.product}\nQuantity: ${bulk.qty} pieces\nDetails: ${bulk.note || "—"}\nPlease share bulk pricing.`),
       "_blank", "noopener"
@@ -3959,6 +3966,13 @@ export default function App() {
     setCart([]); // cart is now an order
     setCartOpen(false);
     syncOrderCreate(order); // best-effort → Supabase (local copy stays the instant UI)
+    fbTrack("Purchase", {
+      content_ids: order.items.map((i) => i.productId),
+      contents: order.items.map((i) => ({ id: i.productId, quantity: i.qty })),
+      num_items: order.items.reduce((s, i) => s + i.qty, 0),
+      value: order.total,
+      currency: "INR",
+    });
     return order;
   };
   const markPaid = (id) => {
@@ -4045,6 +4059,17 @@ export default function App() {
     }
   };
 
+  /* Meta Pixel — fire a Contact/Lead when any WhatsApp link is clicked.
+     One delegated listener covers every wa.me button on the site. */
+  useEffect(() => {
+    const onClick = (e) => {
+      const a = e.target.closest?.('a[href*="wa.me"]');
+      if (a) fbTrack("Contact", { content_name: "WhatsApp" });
+    };
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   /* scroll-reveal */
   useEffect(() => {
     const io = new IntersectionObserver(
@@ -4063,7 +4088,15 @@ export default function App() {
     showToast.t = window.setTimeout(() => setToast(null), 2600);
   };
 
-  const addToCart = (item) => setCart((c) => [...c, item]);
+  const addToCart = (item) => {
+    setCart((c) => [...c, item]);
+    fbTrack("AddToCart", {
+      content_name: item.name,
+      content_ids: [item.productId],
+      value: item.price * item.qty,
+      currency: "INR",
+    });
+  };
   const toggleFav = (id) => setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
   /* every "customize" entry point on the site lands in the ONE designer */
   const openEditor = (productId = "tshirt") =>
