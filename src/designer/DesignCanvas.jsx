@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { fontStack, mockupSrc, placementOf } from "./data";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { fontStack, placementOf } from "./data";
 
 /* ── DesignCanvas — mockup photo + printable area + interactive layers ──
    Layer coords are % of the print area: x/y = center, w/h = size as % of
@@ -63,11 +63,27 @@ export const LayerView = ({ layer }) => {
   );
 };
 
-/* mockup photo or neutral placeholder when no photo exists yet */
+/* mockup photo or neutral placeholder when no photo exists yet.
+   Candidate chain: blank mockup (/mockups/{base}-{photo}-{color}) →
+   the product's styled `image` → neutral placeholder. Each 404 falls
+   through, so wiring a blank mockup filename that isn't uploaded yet
+   never breaks the editor — it just keeps showing the current photo. */
 export const MockupImage = ({ product, color, photo, className = "" }) => {
-  const src = mockupSrc(product, color, photo);
+  const candidates = useMemo(() => {
+    const list = [];
+    if (product.mockups) {
+      const c = product.mockups.colors.includes(color) ? color : "white";
+      list.push(`/mockups/${product.mockups.base}-${photo}-${c}.${product.mockups.ext}`);
+    }
+    if (product.image) list.push(product.image);
+    return list;
+  }, [product, color, photo]);
+  const [idx, setIdx] = useState(0);
+  useEffect(() => setIdx(0), [candidates]);
+  const src = candidates[idx] ?? null;
   if (src) {
     return <img src={src} alt={`${product.productName} ${photo}`} draggable={false}
+      onError={() => setIdx((i) => i + 1)}
       className={`absolute inset-0 h-full w-full select-none object-cover ${className}`} />;
   }
   return (
