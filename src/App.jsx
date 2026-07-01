@@ -2841,6 +2841,53 @@ function ProductTabs({ favs, onFav, onCustomize }) {
   );
 }
 
+/* ── Shop catalog — the ready-made product cards (promo art in /designs).
+   Each card opens the designer for that product; the customer places their
+   photo/art and adds to cart. Images are the marketing cards as-is. ── */
+const CATALOG_CARDS = [
+  { productId: "tshirt",   title: "Premium T-Shirt", price: 599, img: "/designs/catalog-1.png" },
+  { productId: "mug",      title: "Photo Mug",       price: 299, img: "/designs/catalog-2.png" },
+  { productId: "frame",    title: "Framed Print",    price: 899, img: "/designs/catalog-3.png" },
+  { productId: "cushion",  title: "Cushion",         price: 649, img: "/designs/catalog-4.png" },
+  { productId: "canvas",   title: "Canvas",          price: 999, img: "/designs/catalog-5.png" },
+  { productId: "keychain", title: "Keychain",        price: 149, img: "/designs/catalog-6.png" },
+];
+
+function ShopCatalog({ onCustomize }) {
+  return (
+    <section id="catalog" className="scroll-mt-20 py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="reveal text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">Popular Products</p>
+          <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Print it. Gift it. Feel it.</h2>
+          <p className="mx-auto mt-3 max-w-xl text-ink/60">Pick a product, add your photo or design, and we&rsquo;ll print &amp; deliver it across India in 2–4 days.</p>
+        </div>
+        <div className="reveal mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {CATALOG_CARDS.map((c) => (
+            <button key={c.productId} onClick={() => onCustomize(c.productId)}
+              aria-label={`Customize ${c.title}`}
+              className="group overflow-hidden rounded-3xl bg-white text-left shadow-sm ring-1 ring-ink/10 transition hover:-translate-y-1 hover:shadow-xl hover:ring-plum/30">
+              <div className="overflow-hidden">
+                <img src={c.img} alt={c.title} loading="lazy"
+                  className="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-105" />
+              </div>
+              <div className="flex items-center justify-between gap-2 px-5 py-4">
+                <div>
+                  <p className="font-display text-lg font-bold text-ink">{c.title}</p>
+                  <p className="text-sm text-ink/50">Starting at {inr(c.price)}</p>
+                </div>
+                <span className="flex items-center gap-1 rounded-full bg-plum px-4 py-2 text-xs font-bold text-white transition group-hover:bg-plum-soft">
+                  Customize →
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* Studio CTA — teases the editor and opens it */
 function StudioCTA({ onOpenEditor }) {
   /* landing teaser walks the real-mockup candidate chain; NO cartoon fallback */
@@ -4233,6 +4280,7 @@ export default function App() {
         <TrustBar />
         {/* <BentoShowcase /> — removed per request (kept in code) */}
         <HowItWorksSection />
+        <ShopCatalog onCustomize={openEditor} />
         {/* featured promo — photo prints & custom frames (kept highlighted) */}
         <PhotoFramesSection onCustomize={openEditor} framePick={framePick}
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />

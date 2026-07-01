@@ -37,8 +37,19 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
   const setSel = (patch) => setSelState((s) => ({ ...s, ...patch }));
   const [qty, setQty] = useState(1);
 
-  /* designs per placement + undo/redo history */
-  const emptyAreas = () => Object.fromEntries(product.printAreas.map((p) => [p.id, []]));
+  /* designs per placement + undo/redo history.
+     A ready-made design (initial.design) seeds the first print area so the
+     editor opens with the artwork already placed — customer can tweak & buy. */
+  const emptyAreas = () => {
+    const base = Object.fromEntries(product.printAreas.map((p) => [p.id, []]));
+    if (initial.design?.src) {
+      const first = product.printAreas[0];
+      base[first.id] = [
+        newImageLayer(initial.design.src, initial.design.name ?? "Design", initial.design.aspect ?? 1, first.inches),
+      ];
+    }
+    return base;
+  };
   const [layersByPlacement, setLayersByPlacement] = useState(emptyAreas);
   const historyRef = useRef({ past: [], future: [] });
   const [, forceHistory] = useState(0);
