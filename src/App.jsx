@@ -2,6 +2,7 @@ import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState } from 
 import { qikinkApi, setAdminKey, getAdminKey } from "./lib/qikinkClient";
 import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore";
 import { payWithRazorpay } from "./lib/paymentClient";
+import * as pixel from "./lib/metaPixel";
 import { productById as designerProductById } from "./designer/data";
 /* Heavy editors/modals — lazy-loaded so they stay OUT of the homepage bundle
    and only download when the user actually opens one */
@@ -301,11 +302,6 @@ const TEMPLATES = [
 
 const wa = (message) =>
   `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-/* Meta Pixel — safe no-op if the pixel script hasn't loaded (adblock, dev, etc.) */
-const fbTrack = (event, params) => {
-  try { window.fbq?.("track", event, params); } catch { /* ignore */ }
-};
 
 const inr = (n) => `₹${n.toLocaleString("en-IN")}`;
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
@@ -2215,7 +2211,7 @@ function WhatsAppChatbot() {
       setTyping(false);
       if (qr.human) {
         setMessages((m) => [...m, { from: "bot", text: "Connecting you to our team on WhatsApp…" }]);
-        fbTrack("Contact", { content_name: "Chatbot → WhatsApp" });
+        pixel.contact("Chatbot → WhatsApp");
         window.open(wa("Hi Drucka, I need help with custom printing"), "_blank", "noopener");
       } else {
         setMessages((m) => [...m, { from: "bot", text: qr.reply }]);
@@ -2225,7 +2221,7 @@ function WhatsAppChatbot() {
   };
 
   const sendBulkEnquiry = () => {
-    fbTrack("Lead", { content_name: "Bulk order enquiry", content_category: bulk.product });
+    pixel.lead({ name: "Bulk order enquiry", category: bulk.product });
     window.open(
       wa(`Bulk order enquiry 📦\nProduct: ${bulk.product}\nQuantity: ${bulk.qty} pieces\nDetails: ${bulk.note || "—"}\nPlease share bulk pricing.`),
       "_blank", "noopener"
@@ -3966,12 +3962,11 @@ export default function App() {
     setCart([]); // cart is now an order
     setCartOpen(false);
     syncOrderCreate(order); // best-effort → Supabase (local copy stays the instant UI)
-    fbTrack("Purchase", {
-      content_ids: order.items.map((i) => i.productId),
+    pixel.purchase({
+      ids: order.items.map((i) => i.productId),
       contents: order.items.map((i) => ({ id: i.productId, quantity: i.qty })),
-      num_items: order.items.reduce((s, i) => s + i.qty, 0),
+      numItems: order.items.reduce((s, i) => s + i.qty, 0),
       value: order.total,
-      currency: "INR",
     });
     return order;
   };
@@ -4064,7 +4059,7 @@ export default function App() {
   useEffect(() => {
     const onClick = (e) => {
       const a = e.target.closest?.('a[href*="wa.me"]');
-      if (a) fbTrack("Contact", { content_name: "WhatsApp" });
+      if (a) pixel.contact();
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
@@ -4090,17 +4085,15 @@ export default function App() {
 
   const addToCart = (item) => {
     setCart((c) => [...c, item]);
-    fbTrack("AddToCart", {
-      content_name: item.name,
-      content_ids: [item.productId],
-      value: item.price * item.qty,
-      currency: "INR",
-    });
+    pixel.addToCart({ id: item.productId, name: item.name, value: item.price * item.qty });
   };
   const toggleFav = (id) => setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
   /* every "customize" entry point on the site lands in the ONE designer */
-  const openEditor = (productId = "tshirt") =>
-    setDesignerPage({ productId: designerProductById(productId) ? productId : "tshirt" });
+  const openEditor = (productId = "tshirt") => {
+    const id = designerProductById(productId) ? productId : "tshirt";
+    pixel.viewContent({ id, name: designerProductById(id)?.name });
+    setDesignerPage({ productId: id });
+  };
 
   /* ── Clean-URL deep links ─────────────────────────────────────────
      The whole site is one page; cart, track-order, the customizer and
@@ -4357,7 +4350,14 @@ export default function App() {
         cart={cart}
         onRemove={(key) => setCart((c) => c.filter((i) => i.key !== key))}
         onQty={(key, d) => setCart((c) => c.map((i) => (i.key === key ? { ...i, qty: Math.max(1, i.qty + d) } : i)))}
-        onCheckout={() => setCheckoutOpen(true)}
+        onCheckout={() => {
+          pixel.initiateCheckout({
+            ids: cart.map((i) => i.productId),
+            numItems: cart.reduce((s, i) => s + i.qty, 0),
+            value: cart.reduce((s, i) => s + i.price * i.qty, 0),
+          });
+          setCheckoutOpen(true);
+        }}
         onStartDesigning={() => { setCartOpen(false); setCustomizer({ mode: "frame", initial: null }); }}
       />
 
