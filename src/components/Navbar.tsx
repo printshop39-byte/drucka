@@ -1,5 +1,13 @@
-import { useState } from 'react';
-import { Menu, X, ShoppingBag, ChevronDown, Upload } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Menu, X, ShoppingBag, ChevronDown, Upload, Search } from 'lucide-react';
+
+interface SearchProduct {
+  id: string;
+  name: string;
+  category?: string;
+  tag?: string;
+  img?: string;
+}
 
 interface NavbarProps {
   topOffset: boolean;
@@ -9,11 +17,42 @@ interface NavbarProps {
   onMini?: () => void;
   onUpload?: () => void;
   onPickFrame?: (id: string) => void;
+  searchProducts?: SearchProduct[];
+  onSearchSelect?: (id: string) => void;
+  onSearch?: (term: string) => void;
 }
 
-export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onUpload, onPickFrame }: NavbarProps) {
+export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onUpload, onPickFrame, searchProducts = [], onSearchSelect, onSearch }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  /* ── Product search ─────────────────────────────────────────── */
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const q = query.trim().toLowerCase();
+
+  const results = useMemo(() => {
+    if (!q) return [];
+    return searchProducts
+      .filter((p) => [p.name, p.category, p.tag].filter(Boolean).some((f) => f!.toLowerCase().includes(q)))
+      .slice(0, 6);
+  }, [q, searchProducts]);
+
+  /* focus the field when the search panel opens */
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  /* fire Meta Pixel Search once typing settles (debounced) */
+  useEffect(() => {
+    if (!q) return;
+    const t = window.setTimeout(() => onSearch?.(q), 600);
+    return () => window.clearTimeout(t);
+  }, [q, onSearch]);
+
+  const closeSearch = () => { setSearchOpen(false); setQuery(''); };
+  const pickResult = (id: string) => { onSearchSelect?.(id); closeSearch(); };
 
   const navLinks = [
     { name: 'Frames', href: '#photo-frames', dropdown: [
@@ -105,6 +144,14 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
           {/* Right icons */}
           <div className="flex items-center gap-3">
             <button
+              onClick={() => setSearchOpen((v) => !v)}
+              className="p-2 text-charcoal/70 hover:text-charcoal transition-colors"
+              aria-label="Search products"
+              aria-expanded={searchOpen}
+            >
+              {searchOpen ? <X size={20} /> : <Search size={20} />}
+            </button>
+            <button
               onClick={onUpload}
               className="hidden lg:flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark"
             >
@@ -124,6 +171,50 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
             </button>
           </div>
         </div>
+
+        {/* Search panel */}
+        {searchOpen && (
+          <div className="pb-4">
+            <div className="relative">
+              <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-charcoal/40" />
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Escape') closeSearch(); if (e.key === 'Enter' && results[0]) pickResult(results[0].id); }}
+                placeholder="Search products — t-shirt, mug, frame, canvas…"
+                aria-label="Search products"
+                className="w-full rounded-full border border-stone/60 bg-white py-3 pl-12 pr-4 text-sm text-charcoal outline-none transition placeholder:text-charcoal/40 focus:border-gold focus:ring-2 focus:ring-gold/20"
+              />
+            </div>
+
+            {q && (
+              <div className="mt-2 overflow-hidden rounded-2xl border border-stone/50 bg-white shadow-xl">
+                {results.length > 0 ? (
+                  results.map((p) => (
+                    <button
+                      key={p.id}
+                      onClick={() => pickResult(p.id)}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-cream"
+                    >
+                      {p.img && (
+                        <img src={p.img} alt="" className="h-10 w-10 flex-shrink-0 rounded-lg object-cover" loading="lazy" />
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-charcoal">{p.name}</span>
+                        {p.tag && <span className="block truncate text-xs text-charcoal/50">{p.tag}</span>}
+                      </span>
+                      <span className="text-xs font-medium uppercase tracking-wide text-gold-dark">Customize →</span>
+                    </button>
+                  ))
+                ) : (
+                  <p className="px-4 py-4 text-sm text-charcoal/60">No products match &ldquo;<span className="font-semibold text-charcoal">{query}</span>&rdquo;.</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Mobile Menu */}

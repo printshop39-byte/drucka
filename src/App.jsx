@@ -518,6 +518,7 @@ const icons = {
   arrowDown: "M12 5v14m0 0l-6-6m6 6l6-6",
   pen: "M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z",
   rotate: "M21 2v6h-6M21 8a9 9 0 1 0 2.5 6",
+  search: "M21 21l-4.3-4.3M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z",
 };
 
 const Stars = () => (
@@ -4091,7 +4092,7 @@ export default function App() {
   /* every "customize" entry point on the site lands in the ONE designer */
   const openEditor = (productId = "tshirt") => {
     const id = designerProductById(productId) ? productId : "tshirt";
-    pixel.viewContent({ id, name: designerProductById(id)?.name });
+    pixel.viewContent({ id, name: designerProductById(id)?.productName });
     setDesignerPage({ productId: id });
   };
 
@@ -4199,6 +4200,9 @@ export default function App() {
         onMini={openMini}
         onUpload={() => setCustomizer({ mode: "frame", initial: null })}
         onPickFrame={(id) => setFramePick({ id, n: Date.now() })}
+        searchProducts={PRODUCTS.map((p) => ({ id: p.id, name: p.name, category: p.category, tag: p.tag, img: p.img }))}
+        onSearchSelect={openEditor}
+        onSearch={(term) => pixel.search(term)}
       />
       {IS_STAGING && (
         <div className="fixed inset-x-0 bottom-0 z-[45] bg-amber-400/95 py-1 text-center text-[11px] font-bold tracking-wide text-amber-950 shadow"
