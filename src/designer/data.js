@@ -5,6 +5,8 @@
    Cart items carry `qikinkId` so the existing checkout → Qikink product
    mapping keeps working unchanged. */
 
+import { validateUpload } from "../utils/validateUpload";
+
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
 export const inr = (n) =>
@@ -267,6 +269,42 @@ export const PRODUCTS = [
     rating: 4.4, reviews: 1023,
   },
   {
+    productId: "stickers", qikinkId: "stickers", category: "gifts",
+    hidden: true, // hidden from catalog grid until real product photos arrive; /stickers landing stays live
+    productName: "Custom Stickers & Labels",
+    basePrice: 99, taxRate: 12,
+    availableColors: ["white"],
+    availableSizes: ["A5 Sheet", "A4 Sheet"], sizeSurcharge: { "A4 Sheet": 60 }, sizeChart: null,
+    printingOptions: FULL_COLOUR,
+    /* TODO(Sagar): add /mockups/stickers-blank.png from Qikink, then switch to
+       mockups: { base: "stickers", ext: "png", colors: ["white"] } (file must be
+       named stickers-front-white.png per the mockupSrc convention) */
+    image: "/images/keychain.jpg",
+    gallery: [{ src: "/images/keychain.jpg", label: "Stickers (placeholder image)" }],
+    printAreas: SINGLE({ left: 25, top: 22, width: 50, height: 56 }, { w: 5.8, h: 8.3 }, "Sheet"),
+    productHighlights: ["Waterproof Vinyl", "Matte / Glossy", "Any Quantity"],
+    description: "Custom stickers & labels for branding, packaging, weddings and events — die-cut or sheet format.",
+    rating: 4.7, reviews: 58,
+  },
+  {
+    productId: "invitation-cards", qikinkId: "invitation-cards", category: "gifts",
+    hidden: true, // hidden from catalog grid until real product photos arrive; /invitation-cards landing stays live
+    productName: "Invitation Cards",
+    basePrice: 149, taxRate: 12,
+    availableColors: ["white"],
+    availableSizes: ["Digital", '5×7" Print'], sizeSurcharge: { '5×7" Print': 100 }, sizeChart: null,
+    printingOptions: FULL_COLOUR,
+    /* TODO(Sagar): add /mockups/invitation-cards-blank.png from Qikink, then switch to
+       mockups: { base: "invitation-cards", ext: "png", colors: ["white"] } (file must be
+       named invitation-cards-front-white.png per the mockupSrc convention) */
+    image: "/images/frame.jpg",
+    gallery: [{ src: "/images/frame.jpg", label: "Invitation card (placeholder image)" }],
+    printAreas: SINGLE({ left: 30, top: 14, width: 40, height: 68 }, { w: 5, h: 7 }),
+    productHighlights: ["Marathi / Hindi / English", "Digital + Print", "Premium Cardstock"],
+    description: "Personalised wedding, birthday & event invitations — digital invites for WhatsApp plus premium printed cards.",
+    rating: 4.8, reviews: 73,
+  },
+  {
     productId: "kids-mug", qikinkId: "kids-mug", category: "kids",
     productName: "Kids Mug / School Gift",
     basePrice: 279, taxRate: 12,
@@ -284,7 +322,9 @@ export const PRODUCTS = [
 ];
 
 export const productById = (id) => PRODUCTS.find((p) => p.productId === id);
-export const productsInCategory = (cat) => PRODUCTS.filter((p) => p.category === cat);
+// TODO(Sagar): Unhide stickers + invitation-cards in catalog once
+// real Qikink product photos replace keychain.jpg/frame.jpg placeholders
+export const productsInCategory = (cat) => PRODUCTS.filter((p) => p.category === cat && !p.hidden);
 export const defaultProductFor = (cat) => productsInCategory(cat)[0] ?? PRODUCTS[0];
 export const placementOf = (product, id) => product.printAreas.find((p) => p.id === id) ?? product.printAreas[0];
 
@@ -377,18 +417,12 @@ export const GRAPHICS = [
 
 export const graphicDataUrl = (g) => `data:image/svg+xml;utf8,${encodeURIComponent(g.svg)}`;
 
-/* hard client-side cap so a huge file can't freeze the browser or get
-   uploaded; the raw image is downscaled below before anything leaves the device */
-export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024; // 20 MB
-
 /* downscale an uploaded image for smooth editing (print file is re-uploaded
    full-res by the backend later; 1400px keeps quality good for DTG too) */
-export const fileToDataUrl = (file, max = 1400) =>
-  new Promise((resolve, reject) => {
-    if (file && file.size > MAX_UPLOAD_BYTES) {
-      reject(new Error("Image is over 20 MB — please use a smaller file"));
-      return;
-    }
+export const fileToDataUrl = async (file, max = 1400) => {
+  const { valid, errors } = await validateUpload(file);
+  if (!valid) throw new Error(errors.join(" · "));
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("Could not read file"));
     reader.onload = () => {
@@ -414,3 +448,4 @@ export const fileToDataUrl = (file, max = 1400) =>
     };
     reader.readAsDataURL(file);
   });
+};

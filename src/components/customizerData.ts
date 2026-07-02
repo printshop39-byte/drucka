@@ -2,6 +2,8 @@
    Everything is local-browser only: photos never leave the device;
    the customer shares the actual files on WhatsApp after ordering. */
 
+import { validateUpload } from "../utils/validateUpload";
+
 export const WA_NUMBER = "917083811355";
 export const wa = (m: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(m)}`;
 
@@ -136,16 +138,10 @@ export function qualityFor(dpi: number): Quality {
 export const slotQuality = (slot: PhotoSlot) => qualityFor(effectiveDpi(slot));
 
 /* ── upload: original dims preserved for DPI, preview baked ≤1600px ── */
-export const loadPhotoFile = (file: File): Promise<Omit<PhotoSlot, "sizeId" | "crop" | "qty">> =>
-  new Promise((resolve, reject) => {
-    if (!/image\/(jpe?g|png|webp|heic|heif)/i.test(file.type) && !/\.(jpe?g|png|webp|heic|heif)$/i.test(file.name)) {
-      reject(new Error("Please upload a JPG, PNG or WEBP image"));
-      return;
-    }
-    if (file.size > 20 * 1024 * 1024) {
-      reject(new Error("Image is over 20 MB — please use a smaller file"));
-      return;
-    }
+export const loadPhotoFile = async (file: File): Promise<Omit<PhotoSlot, "sizeId" | "crop" | "qty">> => {
+  const { valid, errors } = await validateUpload(file);
+  if (!valid) throw new Error(errors.join(" · "));
+  return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(`${file.name}: format not supported by this browser (HEIC? convert to JPG)`)); };
@@ -161,6 +157,7 @@ export const loadPhotoFile = (file: File): Promise<Omit<PhotoSlot, "sizeId" | "c
     };
     img.src = url;
   });
+};
 
 /* rotate (±90°) or flip the slot bitmap — baked in so all crop math stays
    rotation-free; original dims swap along with it for correct DPI */

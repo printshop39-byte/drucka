@@ -6,6 +6,7 @@ import {
 } from "./collageData";
 import { collageDataUrl, downloadDataUrl } from "./exportCollage";
 import { FONTS, GRAPHICS, fileToDataUrl, fontStack, graphicDataUrl, inr, productById, uid } from "../designer/data";
+import { validateUpload } from "../utils/validateUpload";
 import { Icon, ic } from "../designer/icons";
 import * as pixel from "../lib/metaPixel";
 
@@ -114,7 +115,11 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
     setBusy(true);
     const added = [];
     for (const f of list) {
-      if (!/image\/(jpe?g|png|heic|heif)/i.test(f.type) && !/\.(heic|heif|jpe?g|png)$/i.test(f.name)) continue;
+      const { valid, errors } = await validateUpload(f);
+      if (!valid) {
+        showToast(`⚠ ${f.name}: ${errors.join(" · ")}`);
+        continue;
+      }
       try {
         const { src, aspect } = await fileToDataUrl(f, 1600);
         added.push({ id: cuid(), name: f.name, src, aspect });

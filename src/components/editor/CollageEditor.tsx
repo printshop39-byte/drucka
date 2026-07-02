@@ -15,6 +15,7 @@ import {
   replaceImageSrc, setLocked, syncBorder, ungroupSelection,
 } from '../../lib/editor/fabricHelpers';
 import { GRAPHICS, graphicDataUrl } from '../../designer/data';
+import { validateUpload } from '../../utils/validateUpload';
 import EditorToolbar from './EditorToolbar';
 import Section from './Section';
 import ShapeCropMenu from './ShapeCropMenu';
@@ -254,6 +255,11 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
     if (!c || !files?.length) return;
     let added = 0;
     for (const f of [...files]) {
+      const { valid, errors } = await validateUpload(f);
+      if (!valid) {
+        showToast(`⚠ ${f.name}: ${errors.join(' · ')}`);
+        continue;
+      }
       try {
         const url = await new Promise<string>((res, rej) => {
           const r = new FileReader();
@@ -274,6 +280,11 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
     const c = fcRef.current;
     const img = selected as FabricImage | null;
     if (!c || !img || !selMeta || !files?.length) return;
+    const { valid, errors } = await validateUpload(files[0]);
+    if (!valid) {
+      showToast(`⚠ ${files[0].name}: ${errors.join(' · ')}`);
+      return;
+    }
     try {
       const url = await new Promise<string>((res, rej) => {
         const r = new FileReader();

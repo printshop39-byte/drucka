@@ -4318,6 +4318,7 @@ export default function App() {
               if (a === "frame") setCustomizer({ mode: "frame", initial: null });
               else if (a === "tshirt") openEditor("tshirt");
               else if (a === "mug") openEditor("mug");
+              else if (a === "canvas") openEditor("canvas");
               else setMiniOpen(true); // mini / photo-prints
             }}
           />

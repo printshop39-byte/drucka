@@ -31,6 +31,21 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://www.drucka.in/canvas-prints</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.drucka.in/stickers</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.drucka.in/invitation-cards</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://www.drucka.in/corporate-gifting</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
