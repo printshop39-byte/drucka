@@ -4,6 +4,7 @@ import {
   Crop, Copy, GripVertical, CalendarDays, Smile, X, Image as ImageIcon, ShieldCheck,
 } from "lucide-react";
 import { fileToDataUrl, inr, uid } from "../designer/data";
+import * as pixel from "../lib/metaPixel";
 import {
   BORDERS, MINI_FONTS, FILTERS, CAPTION_COLORS, STICKER_SETS, STICKER_POS,
   OCCASION_TEMPLATES, SIZE_ASPECT, miniCardDataUrl, borderConf,
@@ -295,6 +296,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
       `Total: ${inr(total)} (${shipping ? inr(shipping) + " shipping" : "free shipping"})`, "",
       "Sending my photos now to place the order!",
     ].join("\n");
+    pixel.contact("Mini Prints WhatsApp Order");
     window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
     showToast("Now attach your photos in the WhatsApp chat ✓");
   };

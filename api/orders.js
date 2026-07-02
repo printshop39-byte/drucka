@@ -4,6 +4,7 @@
            (verified by your team); everything else needs x-admin-secret.
    GET   : list orders (admin only). */
 import { sb, orderToRow, rowToOrder } from "./_lib/supabase.js";
+import { sendCapiEvent } from "./_lib/capi.js";
 import { withCors } from "./_lib/cors.js";
 
 const isAdmin = (req) =>
@@ -24,6 +25,18 @@ async function handler(req, res) {
         body: orderToRow(o),
         headers: { Prefer: "resolution=merge-duplicates,return=representation" },
       });
+      /* Meta CAPI — COD orders have no payment webhook, so send a reliable
+         server-side InitiateCheckout at placement (Purchase follows only on
+         delivery). event_id matches the browser InitiateCheckout so Meta
+         deduplicates. Awaited: Vercel freezes the function right after
+         res.json(), which kills un-awaited fetches. sendCapiEvent never
+         rejects, so this can delay the response slightly but never fail
+         the order. */
+      if (o.paymentMode === "cod") {
+        const eventId = o.customer?._tracking?.checkoutId ?? `checkout_${o.id}`;
+        const r = await sendCapiEvent({ eventName: "InitiateCheckout", eventId, order: o });
+        if (!r.ok) console.warn(`CAPI InitiateCheckout failed for ${o.id}:`, r.error);
+      }
       return res.json({ ok: true, id: o.id });
     }
 

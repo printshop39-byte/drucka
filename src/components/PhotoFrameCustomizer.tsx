@@ -8,6 +8,7 @@ import {
 import ImageCropper from './ImageCropper';
 import { renderOrderImage } from '../lib/frameComposite';
 import { qikinkApi } from '../lib/qikinkClient';
+import * as pixel from '../lib/metaPixel';
 
 /* ── PhotoFrameCustomizer — website-based print/frame ordering flow ──
    Photos stay in the browser (no upload); the customer shares the real
@@ -198,6 +199,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
   const submitOrder = async () => {
     if (ordering || !slots.length) return;
     setOrdering(true);
+    pixel.contact(isFrame ? 'Photo Frame WhatsApp Order' : 'Photo Print WhatsApp Order');
     const waWin = window.open('about:blank', '_blank'); // opened in the gesture to dodge popup blockers
     try {
       const orderId = cuid();

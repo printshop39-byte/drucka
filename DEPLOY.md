@@ -133,6 +133,29 @@ demo payload), so nothing breaks during rollout.
    **Optional (only when `ENABLE_RAZORPAY` is turned on):**
    `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`.
 
+   **Optional (Meta Conversions API — server-side event backup):**
+   | Variable | Value |
+   |---|---|
+   | `META_CAPI_TOKEN` | Events Manager → Settings → Conversions API → *Generate access token* |
+   | `META_PIXEL_ID` | optional override; defaults to the site pixel `1572854067777236` |
+   | `META_CAPI_TEST_CODE` | **testing only** — set while validating in Events Manager → Test Events, then **unset for production** |
+   | `CRON_SECRET` | strong random string — secures the order-poll cron (Vercel auto-sends it as `Authorization: Bearer …`) |
+
+   Leave `META_CAPI_TOKEN` unset and CAPI stays a silent no-op. Once set:
+   - **Prepaid** → server `Purchase` from the Razorpay webhook, deduped with
+     the browser pixel by `event_id = purchase_<orderId>`.
+   - **COD** → server `InitiateCheckout` at order-create (deduped by the
+     browser's `checkoutId`), then server `Purchase` when the order is
+     **delivered**, fired by the poll cron below (fire-once).
+
+   Server-to-server, so no CSP change is needed.
+
+   **Order-status cron** (`vercel.json → crons`): `/api/cron/poll-orders`
+   runs every 30 min, sweeps every in-flight order's Qikink status, keeps
+   Supabase fresh, and triggers the COD delivery `Purchase`. Set `CRON_SECRET`
+   in production so only Vercel can invoke it. (Cron jobs run on Production
+   deployments only.)
+
    **Delete these old Next.js leftovers — nothing reads them anymore:**
    `NEXT_PUBLIC_ADMIN_PASSWORD`, `NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`,

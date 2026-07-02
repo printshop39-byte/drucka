@@ -3983,6 +3983,7 @@ export default function App() {
   const [orders, setOrders] = useState(() => load("drucka-orders", []));
   const [adminOpen, setAdminOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const checkoutIdRef = useRef(null); // shared eventID: browser InitiateCheckout ⇆ server CAPI (COD)
   const [trackOpen, setTrackOpen] = useState(false);
   const [productMap, setProductMap] = useState(() => load("drucka-product-map", QIKINK_PRODUCT_MAP));
 
@@ -4000,14 +4001,28 @@ export default function App() {
     return next.find((o) => o.id === id);
   };
   const placeOrder = (customer) => {
+    /* Meta match-quality signals for the server-side CAPI Purchase — the
+       pixel's _fbp/_fbc cookies + user-agent, captured browser-side and
+       stored on the order so the Razorpay webhook can forward them. These
+       are NOT hashed and lift match quality most on iOS. */
+    const cookie = (n) => document.cookie.match(new RegExp("(?:^|; )" + n + "=([^;]*)"))?.[1];
+    const _tracking = Object.fromEntries(
+      Object.entries({
+        fbp: cookie("_fbp"),
+        fbc: cookie("_fbc"),
+        ua: navigator.userAgent,
+        checkoutId: checkoutIdRef.current, // COD: order-create API re-sends this as InitiateCheckout
+      }).filter(([, v]) => v)
+    );
+    const isCod = customer.paymentMode === "cod";
     const order = {
       id: `DRK-${Date.now().toString(36).toUpperCase()}`,
       createdAt: new Date().toISOString(),
-      customer,
+      customer: { ...customer, _tracking },
       items: cart,
       total: cart.reduce((s, i) => s + i.price * i.qty, 0),
       paymentMode: customer.paymentMode,
-      paymentStatus: customer.paymentMode === "cod" ? "COD Pending Approval" : "Payment Pending",
+      paymentStatus: isCod ? "COD Pending Approval" : "Payment Pending",
       qikinkStatus: "Draft",
       qikinkOrderId: null,
     };
@@ -4015,12 +4030,19 @@ export default function App() {
     setCart([]); // cart is now an order
     setCartOpen(false);
     syncOrderCreate(order); // best-effort → Supabase (local copy stays the instant UI)
-    pixel.purchase({
-      ids: order.items.map((i) => i.productId),
-      contents: order.items.map((i) => ({ id: i.productId, quantity: i.qty })),
-      numItems: order.items.reduce((s, i) => s + i.qty, 0),
-      value: order.total,
-    });
+    /* COD counts as a Purchase only when DELIVERED (server-side, from the
+       Qikink status poll) — at placement it's just checkout intent, already
+       tracked by InitiateCheckout. Prepaid fires Purchase now (browser) +
+       again from the Razorpay webhook (server), deduped by event_id. */
+    if (!isCod) {
+      pixel.purchase({
+        ids: order.items.map((i) => i.productId),
+        contents: order.items.map((i) => ({ id: i.productId, quantity: i.qty })),
+        numItems: order.items.reduce((s, i) => s + i.qty, 0),
+        value: order.total,
+        eventId: `purchase_${order.id}`, // dedup key — matches server-side CAPI Purchase
+      });
+    }
     return order;
   };
   const markPaid = (id) => {
@@ -4116,6 +4138,30 @@ export default function App() {
     };
     document.addEventListener("click", onClick);
     return () => document.removeEventListener("click", onClick);
+  }, []);
+
+  /* Meta Pixel — UploadDesign (Custom Event) when a photo/design is uploaded.
+     Two delegated listeners cover every upload surface at once: file-picker
+     (change on any image <input type=file>) and drag-drop (files dropped
+     anywhere). Fires once per upload gesture — click-select and drop never
+     overlap, so there's no double count. */
+  useEffect(() => {
+    const hasImage = (list) =>
+      !!list && Array.from(list).some((f) => f?.type?.startsWith("image/"));
+    const onChange = (e) => {
+      const el = e.target;
+      if (el?.type === "file" && (el.accept || "").includes("image") && el.files?.length)
+        pixel.uploadDesign({ source: "upload" });
+    };
+    const onDrop = (e) => {
+      if (hasImage(e.dataTransfer?.files)) pixel.uploadDesign({ source: "drop" });
+    };
+    document.addEventListener("change", onChange, true);
+    document.addEventListener("drop", onDrop, true);
+    return () => {
+      document.removeEventListener("change", onChange, true);
+      document.removeEventListener("drop", onDrop, true);
+    };
   }, []);
 
   /* scroll-reveal */
@@ -4408,10 +4454,12 @@ export default function App() {
         onRemove={(key) => setCart((c) => c.filter((i) => i.key !== key))}
         onQty={(key, d) => setCart((c) => c.map((i) => (i.key === key ? { ...i, qty: Math.max(1, i.qty + d) } : i)))}
         onCheckout={() => {
+          checkoutIdRef.current = `checkout_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
           pixel.initiateCheckout({
             ids: cart.map((i) => i.productId),
             numItems: cart.reduce((s, i) => s + i.qty, 0),
             value: cart.reduce((s, i) => s + i.price * i.qty, 0),
+            eventId: checkoutIdRef.current, // COD: server re-sends the same id from order-create → deduped
           });
           setCheckoutOpen(true);
         }}

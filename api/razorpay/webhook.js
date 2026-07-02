@@ -7,8 +7,9 @@
    This is the AUTHORITATIVE payment confirmation — the frontend's
    optimistic "Paid" is just UX. */
 import { verifyWebhookSignature } from "../_lib/razorpay.js";
-import { sb } from "../_lib/supabase.js";
+import { sb, rowToOrder } from "../_lib/supabase.js";
 import { fulfillFromDb } from "../_lib/fulfill.js";
+import { sendCapiEvent } from "../_lib/capi.js";
 import { withCors } from "../_lib/cors.js";
 
 // Disable body parsing — the signature is computed over the raw bytes.
@@ -40,14 +41,32 @@ async function handler(req, res) {
       (await sb(`orders?razorpay_order_id=eq.${encodeURIComponent(payment.order_id ?? "")}&select=id`))?.[0]?.id;
     if (!druckaOrderId) return res.status(404).json({ ok: false, error: "Drucka order not found" });
 
-    await sb(`orders?id=eq.${encodeURIComponent(druckaOrderId)}`, {
+    const [updated] = await sb(`orders?id=eq.${encodeURIComponent(druckaOrderId)}`, {
       method: "PATCH",
       body: {
         payment_status: "Paid",
         razorpay_payment_id: payment.id ?? null,
         paid_at: new Date().toISOString(),
       },
-    });
+    }) ?? [];
+
+    /* Meta Conversions API — authoritative server-side Purchase. Uses the
+       SAME event_id as the browser pixel (purchase_<orderId>) so Meta
+       deduplicates the pair. Best-effort: a Meta hiccup must never break a
+       confirmed payment or its fulfilment. */
+    try {
+      const order = updated ? rowToOrder(updated) : null;
+      if (order) {
+        const r = await sendCapiEvent({
+          eventName: "Purchase",
+          eventId: `purchase_${druckaOrderId}`,
+          order,
+        });
+        if (!r.ok) console.warn(`CAPI Purchase failed for ${druckaOrderId}:`, r.error);
+      }
+    } catch (err) {
+      console.warn(`CAPI Purchase error for ${druckaOrderId}:`, err.message);
+    }
 
     // Paid → straight to Qikink (the full automated flow)
     if (process.env.AUTO_SEND_ON_PAID === "true") {

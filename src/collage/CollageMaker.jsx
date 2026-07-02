@@ -7,6 +7,7 @@ import {
 import { collageDataUrl, downloadDataUrl } from "./exportCollage";
 import { FONTS, GRAPHICS, fileToDataUrl, fontStack, graphicDataUrl, inr, productById, uid } from "../designer/data";
 import { Icon, ic } from "../designer/icons";
+import * as pixel from "../lib/metaPixel";
 
 /* ── Drucka Collage Maker — PicMonkey-style light theme ──
    Layout: left tool rail + panel · center live preview · bottom action bar.
@@ -302,6 +303,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
         `Total: ${inr(price.grandTotal)} (${price.shipping ? inr(price.shipping) + " shipping" : "free shipping"})`, "",
         "I've created my collage — sending the image now to place my order!",
       ].join("\n");
+      pixel.contact("Collage WhatsApp Order");
       window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
       showToast("Collage downloaded — attach it in the WhatsApp chat ✓");
     } catch (err) {
