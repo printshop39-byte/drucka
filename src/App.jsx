@@ -4332,6 +4332,7 @@ export default function App() {
               else if (a === "tshirt") openEditor("tshirt");
               else if (a === "mug") openEditor("mug");
               else if (a === "canvas") openEditor("canvas");
+              else if (a === "poster") openEditor("poster");
               else setMiniOpen(true); // mini / photo-prints
             }}
           />

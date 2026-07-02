@@ -241,6 +241,34 @@ export const LANDINGS = {
     ],
     schemaName: 'Personalised Invitation Cards',
   },
+
+  'posters': {
+    slug: 'posters',
+    category: 'Home Decor',
+    title: 'Custom Poster Prints Online India | Drucka',
+    description: 'Photo, artwork किंवा quote पासून custom poster prints — large-format, matte, fade-resistant. Kolhapur पासून सगळ्या भारतात delivery.',
+    eyebrow: 'Poster Prints',
+    h1: 'Custom Poster Prints, Large & Vivid',
+    tagline: 'तुमची भिंत, तुमचं statement.',
+    introEn: 'Turn any photo, artwork, quote or design into a large-format matte poster — vivid, fade-resistant and ready to frame. Upload, preview and order in minutes.',
+    introMr: 'कोणताही फोटो, आर्टवर्क, कोट किंवा डिझाइन मोठ्या आकाराच्या matte पोस्टरमध्ये — vivid, fade-resistant आणि फ्रेम करायला तयार. अपलोड करा, प्रिव्ह्यू बघा आणि काही मिनिटांत ऑर्डर करा.',
+    // TODO(Sagar): replace with a real poster mockup/photo once available from Qikink
+    image: '/images/prints/print-1.jpg',
+    imageAlt: 'Custom large-format matte poster print by Drucka',
+    fromPrice: 199,
+    priceNote: 'A3 to 24×36" · 2–4 day delivery',
+    ctaLabel: 'Design your poster',
+    action: 'poster',
+    waText: "Hi Drucka! I'd like to order a Custom Poster Print. Here's my design:",
+    highlights: ['A3, A2, 12×18" & 24×36" sizes', 'Premium matte, fade-resistant paper', 'Photos, artwork, quotes or logos', 'Large-format, ready to frame', 'Delivered across India in 2–4 days'],
+    faqs: [
+      { q: 'What poster sizes are available?', a: 'A3, A2, 12×18 inch and large 24×36 inch — matte paper, priced by size.' },
+      { q: 'पोस्टरची किंमत किती? (What does a poster cost?)', a: 'Custom poster prints start from ₹199. कस्टम पोस्टर प्रिंट ₹199 पासून.' },
+      { q: 'What can I put on a poster?', a: 'Any photo, artwork, quote, movie/gaming design or business branding — position it in the editor and preview before ordering.' },
+      { q: 'Is the poster ready to frame?', a: 'Yes — standard sizes fit off-the-shelf frames, printed on fade-resistant matte paper for a clean finish.' },
+    ],
+    schemaName: 'Custom Poster Print',
+  },
 };
 
 export const LANDING_SLUGS = Object.keys(LANDINGS);

@@ -5,7 +5,7 @@
 import { LANDINGS as RAW, LANDING_SLUGS as SLUGS } from '../seo/landings.js';
 
 export interface LandingFaq { q: string; a: string }
-export type LandingAction = 'mini' | 'frame' | 'tshirt' | 'mug' | 'canvas' | 'whatsapp';
+export type LandingAction = 'mini' | 'frame' | 'tshirt' | 'mug' | 'canvas' | 'poster' | 'whatsapp';
 
 export interface Landing {
   slug: string;
