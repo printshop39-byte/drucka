@@ -18,6 +18,6 @@
       ]
     }
   ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
   "crons": [{ "path": "/api/cron/poll-orders", "schedule": "*/30 * * * *" }]
 }
