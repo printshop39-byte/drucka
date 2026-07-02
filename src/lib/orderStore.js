@@ -11,6 +11,7 @@ const PATCH_KEYS = {
   qikinkOrderId: "qikink_order_id",
   tracking: "tracking_number",
   courier: "courier",
+  lastError: "last_error",
 };
 
 export async function syncOrderCreate(order) {

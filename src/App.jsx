@@ -3439,7 +3439,7 @@ function TrackOrderModal({ onClose, localOrders }) {
         id: lo.id, createdAt: lo.createdAt, total: lo.total,
         items: lo.items.map((i) => ({ name: i.name, qty: i.qty, size: i.size, color: i.color })),
         paymentStatus: lo.paymentStatus,
-        status: lo.qikinkStatus === "Draft" ? "Order received" : lo.qikinkStatus,
+        status: ["Draft", "Failed"].includes(lo.qikinkStatus) ? "Order received" : lo.qikinkStatus,
         tracking: lo.tracking ?? null, courier: lo.courier ?? null,
       });
       else setError(err.message);
@@ -3679,13 +3679,16 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                   setOrder((await onSendToQikink(order.id)) ?? order);
                   setSending(false);
                 }}
-                disabled={!canSend || sending || order.qikinkStatus !== "Draft"}
+                disabled={!canSend || sending || !["Draft", "Failed"].includes(order.qikinkStatus)}
                 className="mt-4 w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-4 py-3 text-sm font-bold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0">
-                {sending ? "Uploading artwork & sending…" : order.qikinkStatus === "Draft" ? "Send to Qikink fulfillment →" : `✓ ${order.qikinkStatus}`}
+                {sending ? "Uploading artwork & sending…"
+                  : order.qikinkStatus === "Draft" ? "Send to Qikink fulfillment →"
+                  : order.qikinkStatus === "Failed" ? "Retry send to Qikink →"
+                  : `✓ ${order.qikinkStatus}`}
               </button>
-              {order.qikinkStatus !== "Draft" && (
-                <p className="mt-2 rounded-xl bg-plum/5 px-3 py-2 text-center text-[11px] font-medium text-plum">
-                  Qikink payload generated (see browser console). Connect the backend API to send live orders.
+              {order.qikinkStatus === "Failed" && (
+                <p className="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-center text-[11px] font-semibold text-rose-600">
+                  ⚠ Sending failed: {order.lastError ?? "unknown error"} — fix the cause and retry.
                 </p>
               )}
               <a href={wa(`Hi Drucka! I just placed order ${order.id} (${inr(order.total)}, ${order.paymentMode.toUpperCase()}). Please confirm!`)}
@@ -3913,7 +3916,9 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                         }`}>{o.paymentStatus}</span>
                         <select value={o.qikinkStatus} onChange={(e) => onUpdateOrder(o.id, { qikinkStatus: e.target.value })}
                           aria-label="Qikink status"
-                          className="rounded-lg border border-ink/10 px-2 py-1 text-[10px] font-bold text-ink/70 outline-none focus:border-plum">
+                          className={`rounded-lg border px-2 py-1 text-[10px] font-bold outline-none focus:border-plum ${
+                            o.qikinkStatus === "Failed" ? "border-rose-300 bg-rose-50 text-rose-600" : "border-ink/10 text-ink/70"
+                          }`}>
                           {QIKINK_STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                         </select>
                         {o.qikinkOrderId && <span className="rounded-full bg-plum/8 px-2.5 py-1 text-[10px] font-bold text-plum">QK: {o.qikinkOrderId}</span>}
@@ -3946,7 +3951,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                 })}
                 <p className="text-[10.5px] text-ink/45">
                   "Send to Qikink" uploads artwork to Cloudinary and creates the order via <code className="font-bold">/api/qikink/create-order</code>.
-                  If the backend isn't deployed yet, it falls back to a demo payload in the browser console (see DEPLOY.md).
+                  If sending fails, the order is marked <span className="font-bold text-rose-600">Failed</span> with the error shown above — fix the cause and use "Retry send".
                 </p>
               </div>
             )}
@@ -4052,8 +4057,8 @@ export default function App() {
   };
   /* PRODUCTION handoff: artwork → Cloudinary, order → Qikink, both via
      our backend (/api/upload-artwork, /api/qikink/create-order — the
-     secrets live there). If the backend isn't deployed/reachable, falls
-     back to the demo console payload so the flow never dead-ends. */
+     secrets live there). A failed send marks the order "Failed" with the
+     real error — never a fake success, staff must see and retry. */
   const sendToQikink = async (id) => {
     const order = orders.find((o) => o.id === id);
     if (!order) return null;
@@ -4066,12 +4071,11 @@ export default function App() {
     try {
       const { qikinkOrderId } = await fulfillOrder(order, payload);
       showToast(`Order sent to Qikink ✓ ${qikinkOrderId}`);
-      return updateOrder(id, { qikinkStatus: "Sent to Qikink", qikinkOrderId });
+      return updateOrder(id, { qikinkStatus: "Sent to Qikink", qikinkOrderId, lastError: null });
     } catch (err) {
-      console.log(`📦 Qikink payload for ${order.id} (backend unreachable — demo fallback):`, payload);
       console.warn("Qikink send failed:", err.message);
-      showToast("Backend not connected — demo payload logged (see DEPLOY.md)");
-      return updateOrder(id, { qikinkStatus: "Sent to Qikink", qikinkOrderId: `QK-DEMO-${id.slice(4)}` });
+      showToast(`⚠ Qikink send FAILED: ${err.message}`);
+      return updateOrder(id, { qikinkStatus: "Failed", lastError: err.message });
     }
   };
   /* Poll real Qikink status (admin ⟳ button) — updates tracking number */

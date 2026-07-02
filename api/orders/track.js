@@ -28,7 +28,8 @@ async function handler(req, res) {
         items: (row.items ?? []).map((i) => ({ name: i.name, qty: i.qty, size: i.size, color: i.color })),
         total: row.total,
         paymentStatus: row.payment_status,
-        status: row.qikink_status === "Draft" ? "Order received" : row.qikink_status,
+        // "Failed" is an internal fulfillment state — customers just see "received"
+        status: ["Draft", "Failed"].includes(row.qikink_status) ? "Order received" : row.qikink_status,
         tracking: row.tracking_number ?? null,
         courier: row.courier ?? null,
       },
