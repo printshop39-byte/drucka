@@ -91,6 +91,8 @@ export const PRODUCTS = [
   {
     productId: "tshirt", qikinkId: "tshirt", category: "men",
     productName: "Male Classic Crew T-Shirt",
+    catalog: { order: 1, title: "Premium T-Shirt", price: 599, img: "/designs/catalog-1.png" },
+    editor: { shell: true, family: "designer" },
     basePrice: 349, taxRate: 5,
     availableColors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"],
     availableSizes: ADULT_SIZES, sizeSurcharge: ADULT_SURCHARGE, sizeChart: SIZE_CHART,
@@ -198,6 +200,8 @@ export const PRODUCTS = [
     productId: "mug", qikinkId: "mug", category: "gifts",
     productName: "Photo Mug",
     caps: { printAreaShape: "curved", maxUploadBytes: 10 * 1024 * 1024 }, // 10 MB
+    catalog: { order: 2, title: "Photo Mug", price: 299, img: "/designs/catalog-2.png" },
+    editor: { shell: true, family: "designer" },
     basePrice: 299, taxRate: 12,
     availableColors: ["white"],
     availableSizes: ["325 ml"], sizeSurcharge: {}, sizeChart: null,
@@ -213,6 +217,8 @@ export const PRODUCTS = [
   {
     productId: "frame", qikinkId: "frame", category: "gifts",
     productName: "Framed Print",
+    catalog: { order: 3, title: "Framed Print", price: 899, img: "/designs/catalog-3.png" },
+    editor: { shell: true, family: "designer" },
     basePrice: 899, taxRate: 12,
     availableColors: ["black", "white"],
     availableSizes: ["A4", "A3"], sizeSurcharge: { A3: 200 }, sizeChart: null,
@@ -228,6 +234,7 @@ export const PRODUCTS = [
   {
     productId: "cushion", qikinkId: "cushion", category: "gifts",
     productName: "Photo Cushion",
+    catalog: { order: 4, title: "Cushion", price: 649, img: "/designs/catalog-4.png" },
     basePrice: 649, taxRate: 12,
     availableColors: ["white"],
     availableSizes: ['16"', '18"'], sizeSurcharge: { '18"': 100 }, sizeChart: null,
@@ -243,6 +250,8 @@ export const PRODUCTS = [
   {
     productId: "canvas", qikinkId: "canvas", category: "gifts",
     productName: "Stretched Canvas",
+    catalog: { order: 5, title: "Canvas", price: 999, img: "/designs/catalog-5.png" },
+    editor: { shell: true, family: "designer" },
     basePrice: 999, taxRate: 12,
     availableColors: ["white"],
     availableSizes: ['12×18"', '18×24"'], sizeSurcharge: { '18×24"': 300 }, sizeChart: null,
@@ -258,6 +267,8 @@ export const PRODUCTS = [
   {
     productId: "poster", qikinkId: "poster", category: "gifts",
     productName: "Poster Print",
+    catalog: { order: 7, title: "Poster Print", price: 199, img: "/images/prints/print-1.jpg" },
+    editor: { shell: true, family: "designer" },
     basePrice: 199, taxRate: 12,
     availableColors: ["white"],
     availableSizes: ["A3", "A2", '12×18"', '24×36"'], sizeSurcharge: { A2: 120, '24×36"': 250 }, sizeChart: null,
@@ -276,6 +287,7 @@ export const PRODUCTS = [
   {
     productId: "keychain", qikinkId: "keychain", category: "gifts",
     productName: "Acrylic Keychain",
+    catalog: { order: 6, title: "Keychain", price: 149, img: "/designs/catalog-6.png" },
     basePrice: 149, taxRate: 12,
     availableColors: ["white"],
     availableSizes: ["Standard"], sizeSurcharge: {}, sizeChart: null,
