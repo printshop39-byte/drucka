@@ -2,6 +2,8 @@
    Cells are fractional rects {x,y,w,h} in 0–1 canvas space, so the same
    numbers drive the live preview (CSS %) and the full-res canvas export. */
 
+import { collagePrice } from "../utils/pricing";
+
 export const cuid = () => Math.random().toString(36).slice(2, 9);
 
 const grid = (cols, rows) => {
@@ -96,18 +98,15 @@ export const LAMINATION_OPTIONS = [
   { id: "matte", label: "Matte", price: 49 },
 ];
 
-export const FREE_SHIP_THRESHOLD = 2999;
+export { FREE_SHIP_THRESHOLD } from "../utils/pricing";
 
-/* live price calculation (PRD §11) */
+/* live price calculation (PRD §11) — resolves collage add-ons, then hands
+   the arithmetic to the shared pricing engine (src/utils/pricing.js). */
 export function calcCollagePrice({ size, frame, lamination, qty = 1 }) {
   const base = Number(size?.price) || 99;
   const framePrice = FRAME_OPTIONS.find((f) => f.id === frame)?.price ?? 0;
   const lamPrice = LAMINATION_OPTIONS.find((l) => l.id === lamination)?.price ?? 0;
-  const unit = base + framePrice + lamPrice;
-  const q = Math.max(1, qty);
-  const total = unit * q;
-  const shipping = total >= FREE_SHIP_THRESHOLD ? 0 : 99;
-  return { base, framePrice, lamPrice, unit, total, shipping, grandTotal: total + shipping };
+  return collagePrice({ base, framePrice, lamPrice, qty });
 }
 
 export const PHOTO_FILTERS = [

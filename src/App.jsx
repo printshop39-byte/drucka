@@ -4,10 +4,12 @@ import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore"
 import { payWithRazorpay } from "./lib/paymentClient";
 import * as pixel from "./lib/metaPixel";
 import { productById as designerProductById } from "./designer/data";
+import { usesNewShell, setForceClassicEditor } from "./utils/editorFlags";
 /* Heavy editors/modals — lazy-loaded so they stay OUT of the homepage bundle
    and only download when the user actually opens one */
 const DesignerProductPage = lazy(() => import("./designer/ProductPage"));
 const ProductDesigner = lazy(() => import("./designer/Designer"));
+const ProductEditorShell = lazy(() => import("./designer/ProductEditorShell"));
 const CollageMaker = lazy(() => import("./collage/CollageMaker"));
 const CollageWelcome = lazy(() => import("./collage/CollageWelcome"));
 const MiniPrints = lazy(() => import("./components/MiniPrints"));
@@ -2851,6 +2853,8 @@ const CATALOG_CARDS = [
   { productId: "cushion",  title: "Cushion",         price: 649, img: "/designs/catalog-4.png" },
   { productId: "canvas",   title: "Canvas",          price: 999, img: "/designs/catalog-5.png" },
   { productId: "keychain", title: "Keychain",        price: 149, img: "/designs/catalog-6.png" },
+  // TODO(Sagar): swap placeholder art once a real poster mockup/photo exists
+  { productId: "poster",   title: "Poster Print",    price: 199, img: "/images/prints/print-1.jpg" },
 ];
 
 function ShopCatalog({ onCustomize }) {
@@ -3974,6 +3978,7 @@ export default function App() {
   /* THE single design-customization flow: product page → designer → submit.
      (The legacy in-file ProductEditor is no longer rendered anywhere.) */
   const [designerPage, setDesignerPage] = useState(null); // null | { productId }
+  const [editorShell, setEditorShell] = useState(null);   // null | { productId } — new shell (mug)
   const [designer, setDesigner] = useState(null); // null | { productId, selections }
   const [collageOpen, setCollageOpen] = useState(false);
   const [collageView, setCollageView] = useState("welcome"); // welcome | grid | pro
@@ -4195,6 +4200,10 @@ export default function App() {
   const openEditor = (productId = "tshirt") => {
     const id = designerProductById(productId) ? productId : "tshirt";
     pixel.viewContent({ id, name: designerProductById(id)?.productName });
+    // new tab-based shell for opted-in products (mug); everything else keeps
+    // the classic flow below, untouched. usesNewShell() also honours the
+    // runtime classic-editor kill-switch.
+    if (usesNewShell(id)) { setEditorShell({ productId: id }); return; }
     setDesignerPage({ productId: id });
   };
 
@@ -4448,6 +4457,22 @@ export default function App() {
           onAddToCart={addToCart}
           onOpenCart={() => { setDesignerPage(null); setCartOpen(true); }}
           showToast={showToast}
+        />
+      )}
+      {editorShell && (
+        <ProductEditorShell
+          product={designerProductById(editorShell.productId)}
+          onClose={() => setEditorShell(null)}
+          onAddToCart={addToCart}
+          onOpenCart={() => { setEditorShell(null); setCartOpen(true); }}
+          showToast={showToast}
+          onUseClassic={() => {
+            setForceClassicEditor(true);       // sticky per-browser rollback
+            const pid = editorShell.productId;
+            setEditorShell(null);
+            setDesignerPage({ productId: pid }); // classic path — unchanged
+            showToast("Switched to the classic editor");
+          }}
         />
       )}
       </Suspense>

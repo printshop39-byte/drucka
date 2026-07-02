@@ -254,6 +254,24 @@ export const PRODUCTS = [
     rating: 4.8, reviews: 199,
   },
   {
+    productId: "poster", qikinkId: "poster", category: "gifts",
+    productName: "Poster Print",
+    basePrice: 199, taxRate: 12,
+    availableColors: ["white"],
+    availableSizes: ["A3", "A2", '12×18"', '24×36"'], sizeSurcharge: { A2: 120, '24×36"': 250 }, sizeChart: null,
+    printingOptions: FULL_COLOUR,
+    /* TODO(Sagar): add /mockups/poster-front-white.png from Qikink. Until then
+       the editor degrades to a placeholder via the mockup candidate-chain
+       fallback (missing blank never breaks the editor). */
+    mockups: { base: "poster", ext: "png", colors: ["white"] },
+    image: "/images/prints/print-1.jpg",
+    gallery: [{ src: "/images/prints/print-1.jpg", label: "Poster (placeholder image)" }],
+    printAreas: SINGLE({ left: 20, top: 15, width: 60, height: 70 }, { w: 12, h: 18 }),
+    productHighlights: ["Large Format", "Premium Matte Paper", "Fade Resistant"],
+    description: "Large-format matte poster print — vivid, fade-resistant and ready to frame.",
+    rating: 4.7, reviews: 128,
+  },
+  {
     productId: "keychain", qikinkId: "keychain", category: "gifts",
     productName: "Acrylic Keychain",
     basePrice: 149, taxRate: 12,
@@ -338,20 +356,9 @@ export const mockupSrc = (product, colorId, photo) => {
   return product.image ?? null;
 };
 
-/* ── pricing ──
-   unit = base + size surcharge + per-printed-placement print cost.
-   Full placements cost the method price; small add-ons cost 60% of it. */
-export const placementPrintCost = (method, placement) =>
-  placement.small ? Math.round(method.price * 0.6) : method.price;
-
-export function calcPrice({ product, layersByPlacement, selectedPrintMethod, selectedSize, qty = 1, profitMargin = 0 }) {
-  const method = product.printingOptions.find((m) => m.id === selectedPrintMethod) ?? product.printingOptions[0];
-  const printed = product.printAreas.filter((p) => (layersByPlacement[p.id] ?? []).some((l) => l.visible !== false));
-  const printCost = printed.reduce((s, p) => s + placementPrintCost(method, p), 0);
-  const unit = product.basePrice + (product.sizeSurcharge?.[selectedSize] ?? 0) + printCost;
-  const selling = unit + (Number(profitMargin) || 0);
-  return { unit, selling, total: selling * qty, printed, method, printCost };
-}
+/* ── pricing ── delegates to the shared engine (src/utils/pricing.js);
+   re-exported here so existing call sites keep their imports unchanged. */
+export { placementPrintCost, designerPrice as calcPrice } from "../utils/pricing";
 
 /* ── layer factories ──
    % of the active print area: x/y = layer CENTER, w/h = % of area size. */

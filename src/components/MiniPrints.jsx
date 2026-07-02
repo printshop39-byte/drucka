@@ -4,6 +4,7 @@ import {
   Crop, Copy, GripVertical, CalendarDays, Smile, X, Image as ImageIcon, ShieldCheck,
 } from "lucide-react";
 import { fileToDataUrl, inr, uid } from "../designer/data";
+import { miniPrice, FREE_SHIP_THRESHOLD } from "../utils/pricing";
 import * as pixel from "../lib/metaPixel";
 import {
   BORDERS, MINI_FONTS, FILTERS, CAPTION_COLORS, STICKER_SETS, STICKER_POS,
@@ -21,7 +22,7 @@ const MINI_SIZES = [
   { id: "4x3", label: '4×3"', name: "Memory & Scrapbook Prints", price: 29 },
 ];
 const MAX_PHOTOS = 30;
-const FREE_SHIP = 2999;
+const FREE_SHIP = FREE_SHIP_THRESHOLD; // shared threshold — still shown in the footer copy
 const WA_PHONE = "917083811355";
 
 const todayStamp = () => {
@@ -172,9 +173,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
 
   const size = MINI_SIZES.find((s) => s.id === sizeId);
   const totalPrints = photos.reduce((n, p) => n + p.copies, 0);
-  const subtotal = totalPrints * size.price;
-  const shipping = subtotal === 0 || subtotal >= FREE_SHIP ? 0 : 49;
-  const total = subtotal + shipping;
+  const { subtotal, shipping, total } = miniPrice({ unitPrice: size.price, totalPrints });
   const cropPhoto = photos.find((p) => p.id === cropId);
   const previewPhoto = photos.find((p) => p.id === previewId) ?? photos[0] ?? null;
 
