@@ -201,13 +201,12 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
     setBusy(true);
     const added = [];
     for (const f of list) {
-      if (!/image\/(jpe?g|png|heic|heif|webp)/i.test(f.type) && !/\.(heic|heif|jpe?g|png|webp)$/i.test(f.name)) continue;
       try {
-        const { src } = await fileToDataUrl(f, 1600);
+        const { src } = await fileToDataUrl(f, 1600); // single service validates + compresses
         const p = newPhoto(src, f.name);
         if (activeTemplate) applyTemplateToPhoto(p, activeTemplate); // inherit current template look
         added.push(p);
-      } catch { showToast(`⚠ ${f.name}: couldn't load (HEIC? convert to JPG)`); }
+      } catch (err) { showToast(`⚠ ${f.name}: ${err.message}`); }
     }
     if (added.length) setPhotos((p) => [...p, ...added]);
     setBusy(false);

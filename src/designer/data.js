@@ -5,7 +5,7 @@
    Cart items carry `qikinkId` so the existing checkout → Qikink product
    mapping keeps working unchanged. */
 
-import { validateUpload } from "../utils/validateUpload";
+import { prepareUpload } from "../utils/validateUpload";
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -424,35 +424,9 @@ export const GRAPHICS = [
 
 export const graphicDataUrl = (g) => `data:image/svg+xml;utf8,${encodeURIComponent(g.svg)}`;
 
-/* downscale an uploaded image for smooth editing (print file is re-uploaded
-   full-res by the backend later; 1400px keeps quality good for DTG too) */
+/* thin adapter over the single upload service (src/utils/validateUpload.js) —
+   runs the full validate → magic-byte → size → sanitize → compress pipeline */
 export const fileToDataUrl = async (file, max = 1400) => {
-  const { valid, errors } = await validateUpload(file);
-  if (!valid) throw new Error(errors.join(" · "));
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("Could not read file"));
-    reader.onload = () => {
-      if (file.type === "image/svg+xml") {
-        resolve({ src: reader.result, aspect: 1 });
-        return;
-      }
-      const img = new Image();
-      img.onerror = () => reject(new Error("Not a valid image"));
-      img.onload = () => {
-        const scale = Math.min(1, max / Math.max(img.width, img.height));
-        if (scale === 1) {
-          resolve({ src: reader.result, aspect: img.height / img.width });
-          return;
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve({ src: canvas.toDataURL("image/png"), aspect: img.height / img.width });
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
+  const { src, aspect } = await prepareUpload(file, { maxDim: max });
+  return { src, aspect };
 };

@@ -15,7 +15,7 @@ import {
   replaceImageSrc, setLocked, syncBorder, ungroupSelection,
 } from '../../lib/editor/fabricHelpers';
 import { GRAPHICS, graphicDataUrl } from '../../designer/data';
-import { validateUpload } from '../../utils/validateUpload';
+import { prepareUpload } from '../../utils/validateUpload';
 import EditorToolbar from './EditorToolbar';
 import Section from './Section';
 import ShapeCropMenu from './ShapeCropMenu';
@@ -255,22 +255,12 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
     if (!c || !files?.length) return;
     let added = 0;
     for (const f of [...files]) {
-      const { valid, errors } = await validateUpload(f);
-      if (!valid) {
-        showToast(`⚠ ${f.name}: ${errors.join(' · ')}`);
-        continue;
-      }
       try {
-        const url = await new Promise<string>((res, rej) => {
-          const r = new FileReader();
-          r.onerror = () => rej(new Error('read failed'));
-          r.onload = () => res(r.result as string);
-          r.readAsDataURL(f);
-        });
-        await addPhoto(c, url, c.getObjects().filter((o) => metaOf(o)).length);
+        const { src } = await prepareUpload(f, { maxDim: 1600 }); // single service: validate + compress
+        await addPhoto(c, src, c.getObjects().filter((o) => metaOf(o)).length);
         added++;
-      } catch {
-        showToast(`⚠ ${f.name}: could not load`);
+      } catch (err) {
+        showToast(`⚠ ${f.name}: ${(err as Error).message}`);
       }
     }
     if (added) { setEmpty(false); captureSoon(); showToast(`${added} photo${added > 1 ? 's' : ''} added ✓`); }
@@ -280,24 +270,14 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
     const c = fcRef.current;
     const img = selected as FabricImage | null;
     if (!c || !img || !selMeta || !files?.length) return;
-    const { valid, errors } = await validateUpload(files[0]);
-    if (!valid) {
-      showToast(`⚠ ${files[0].name}: ${errors.join(' · ')}`);
-      return;
-    }
     try {
-      const url = await new Promise<string>((res, rej) => {
-        const r = new FileReader();
-        r.onerror = () => rej(new Error('read failed'));
-        r.onload = () => res(r.result as string);
-        r.readAsDataURL(files[0]);
-      });
-      await replaceImageSrc(c, img, url);
+      const { src } = await prepareUpload(files[0], { maxDim: 1600 }); // single service: validate + compress
+      await replaceImageSrc(c, img, src);
       refresh();
       captureSoon();
       showToast('Photo replaced ✓');
-    } catch {
-      showToast('⚠ Could not load that image');
+    } catch (err) {
+      showToast(`⚠ ${(err as Error).message}`);
     }
   };
   const applyFrame = (id: string) => {

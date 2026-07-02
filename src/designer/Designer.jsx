@@ -151,13 +151,9 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
 
   const handleUpload = async (file) => {
     if (!file) return;
-    if (!/image\/(png|jpe?g|svg\+xml)/.test(file.type)) {
-      showToast("⚠ Please upload a PNG, JPG or SVG file");
-      return;
-    }
     setUploadBusy(true);
     try {
-      const { src, aspect } = await fileToDataUrl(file);
+      const { src, aspect } = await fileToDataUrl(file); // single service validates + compresses
       const entry = { id: uid(), src, aspect, name: file.name };
       const next = [entry, ...uploadedAssets].slice(0, 12);
       setUploadedAssets(next);

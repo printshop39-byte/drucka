@@ -2,7 +2,7 @@
    Everything is local-browser only: photos never leave the device;
    the customer shares the actual files on WhatsApp after ordering. */
 
-import { validateUpload } from "../utils/validateUpload";
+import { prepareUpload } from "../utils/validateUpload";
 
 export const WA_NUMBER = "917083811355";
 export const wa = (m: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(m)}`;
@@ -137,26 +137,10 @@ export function qualityFor(dpi: number): Quality {
 }
 export const slotQuality = (slot: PhotoSlot) => qualityFor(effectiveDpi(slot));
 
-/* ── upload: original dims preserved for DPI, preview baked ≤1600px ── */
+/* ── upload: single service; original dims preserved for DPI, preview ≤1600px ── */
 export const loadPhotoFile = async (file: File): Promise<Omit<PhotoSlot, "sizeId" | "crop" | "qty">> => {
-  const { valid, errors } = await validateUpload(file);
-  if (!valid) throw new Error(errors.join(" · "));
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error(`${file.name}: format not supported by this browser (HEIC? convert to JPG)`)); };
-    img.onload = () => {
-      const scale = Math.min(1, 1600 / Math.max(img.width, img.height));
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const src = canvas.toDataURL("image/jpeg", 0.9);
-      URL.revokeObjectURL(url);
-      resolve({ id: cuid(), name: file.name, src, pw: canvas.width, ph: canvas.height, ow: img.width, oh: img.height });
-    };
-    img.src = url;
-  });
+  const r = await prepareUpload(file, { maxDim: 1600 });
+  return { id: cuid(), name: file.name, src: r.src, pw: r.width, ph: r.height, ow: r.origWidth, oh: r.origHeight };
 };
 
 /* rotate (±90°) or flip the slot bitmap — baked in so all crop math stays
