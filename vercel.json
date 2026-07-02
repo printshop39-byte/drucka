@@ -19,5 +19,5 @@
     }
   ],
   "rewrites": [{ "source": "/(.*)", "destination": "/" }],
-  "crons": [{ "path": "/api/cron/poll-orders", "schedule": "*/30 * * * *" }]
+  "crons": [{ "path": "/api/cron/poll-orders", "schedule": "0 3 * * *" }]
 }
