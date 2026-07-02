@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import {
-  calcPrice, colorById, duplicateOf, fileToDataUrl, inr, newImageLayer, newTextLayer,
+  calcPrice, capsOf, colorById, duplicateOf, fileToDataUrl, inr, newImageLayer, newTextLayer,
   placementOf, uid,
 } from "./data";
 import { Icon, ic } from "./icons";
@@ -43,6 +43,11 @@ export default function ProductEditorShell({
   const setSel = (patch) => setSelState((s) => ({ ...s, ...patch }));
   const [qty, setQty] = useState(1);
   const [title, setTitle] = useState(`Custom ${product.productName}`);
+
+  /* editor capabilities from product config — no product-id branching here */
+  const caps = capsOf(product);
+  const tools = TOOLS.filter((t) =>
+    (t.id !== "text" || caps.allowText) && (t.id !== "image" || caps.allowImage));
 
   /* active print area — single (mug/frame/canvas/poster) or multiple (apparel) */
   const [selectedPlacement, setSelectedPlacement] = useState(product.printAreas[0].id);
@@ -154,7 +159,7 @@ export default function ProductEditorShell({
     if (!file) return;
     setUploadBusy(true);
     try {
-      const { src, aspect } = await fileToDataUrl(file); // shared validation runs inside
+      const { src, aspect } = await fileToDataUrl(file, 1400, caps.maxUploadBytes); // per-product cap
       const entry = { id: uid(), src, aspect, name: file.name };
       const next = [entry, ...uploadedAssets].slice(0, 12);
       setUploadedAssets(next);
@@ -317,7 +322,7 @@ export default function ProductEditorShell({
         {/* DESKTOP left: tool rail + active panel */}
         <aside className="hidden shrink-0 border-r border-ink/10 bg-white lg:flex">
           <nav className="flex w-[76px] shrink-0 flex-col items-center gap-1 border-r border-ink/8 py-3">
-            {TOOLS.map((t) => toolBtn(t, true))}
+            {tools.map((t) => toolBtn(t, true))}
           </nav>
           {activeTool && activeTool !== "preview" && <div className="w-[320px] min-w-0 overflow-y-auto">{panelFor(activeTool)}</div>}
         </aside>
@@ -385,7 +390,7 @@ export default function ProductEditorShell({
 
       {/* MOBILE bottom toolbar — thumb zone: Text · Image · Color · Layer · Preview · Cart */}
       <nav className="z-30 flex shrink-0 items-stretch justify-around border-t border-ink/10 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
-        {TOOLS.map((t) => toolBtn(t, false))}
+        {tools.map((t) => toolBtn(t, false))}
       </nav>
     </div>
   );

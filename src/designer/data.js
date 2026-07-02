@@ -5,7 +5,7 @@
    Cart items carry `qikinkId` so the existing checkout → Qikink product
    mapping keeps working unchanged. */
 
-import { prepareUpload } from "../utils/validateUpload";
+import { prepareUpload, MAX_UPLOAD_BYTES } from "../utils/validateUpload";
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -196,6 +196,7 @@ export const PRODUCTS = [
   {
     productId: "mug", qikinkId: "mug", category: "gifts",
     productName: "Photo Mug",
+    caps: { printAreaShape: "curved", maxUploadBytes: 10 * 1024 * 1024 }, // 10 MB
     basePrice: 299, taxRate: 12,
     availableColors: ["white"],
     availableSizes: ["325 ml"], sizeSurcharge: {}, sizeChart: null,
@@ -340,6 +341,18 @@ export const PRODUCTS = [
 ];
 
 export const productById = (id) => PRODUCTS.find((p) => p.productId === id);
+
+/* ── per-product editor capabilities — PURE CONFIG, no product-id branching.
+   A product carries an optional `caps` object; the editor reads these instead
+   of hardcoding `if (product === "mug")`. Add a product to the catalog with
+   its caps and the shell honours them — no editor code change. */
+export const DEFAULT_CAPS = {
+  allowText: true,        // Text tool available
+  allowImage: true,       // Image/upload + graphics tools available
+  maxUploadBytes: MAX_UPLOAD_BYTES,
+  printAreaShape: "rect", // "rect" | "curved" (mug wrap) — rendering hint
+};
+export const capsOf = (product) => ({ ...DEFAULT_CAPS, ...(product?.caps ?? {}) });
 // TODO(Sagar): Unhide stickers + invitation-cards in catalog once
 // real Qikink product photos replace keychain.jpg/frame.jpg placeholders
 export const productsInCategory = (cat) => PRODUCTS.filter((p) => p.category === cat && !p.hidden);
@@ -425,8 +438,9 @@ export const GRAPHICS = [
 export const graphicDataUrl = (g) => `data:image/svg+xml;utf8,${encodeURIComponent(g.svg)}`;
 
 /* thin adapter over the single upload service (src/utils/validateUpload.js) —
-   runs the full validate → magic-byte → size → sanitize → compress pipeline */
-export const fileToDataUrl = async (file, max = 1400) => {
-  const { src, aspect } = await prepareUpload(file, { maxDim: max });
+   runs the full validate → magic-byte → size → sanitize → compress pipeline.
+   maxBytes lets a caller apply a per-product upload cap (see capsOf). */
+export const fileToDataUrl = async (file, max = 1400, maxBytes) => {
+  const { src, aspect } = await prepareUpload(file, { maxDim: max, maxBytes });
   return { src, aspect };
 };

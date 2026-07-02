@@ -56,9 +56,10 @@ async function readMagic(file) {
   } catch { return null; }
 }
 
-export async function validateUpload(file) {
+export async function validateUpload(file, { maxBytes = MAX_UPLOAD_BYTES } = {}) {
   if (!file) return { valid: false, errors: ["No file selected"] };
   const errors = [];
+  const cap = Math.min(maxBytes || MAX_UPLOAD_BYTES, MAX_UPLOAD_BYTES); // never above the hard cap
 
   // 1 · declared MIME / extension whitelist
   const typeOk =
@@ -67,8 +68,8 @@ export async function validateUpload(file) {
     (!file.type && EXT_FALLBACK.test(file.name || ""));
   if (!typeOk) errors.push(`Unsupported file type "${file.type || "unknown"}" — please use PNG, JPG, WEBP, HEIC or SVG`);
 
-  // 2 · size
-  if (file.size > MAX_UPLOAD_BYTES) errors.push(`File is ${mb(file.size)} — maximum allowed is ${mb(MAX_UPLOAD_BYTES)}`);
+  // 2 · size (per-product cap, clamped to the global hard limit)
+  if (file.size > cap) errors.push(`File is ${mb(file.size)} — maximum allowed is ${mb(cap)}`);
 
   const isSvg = file.type === "image/svg+xml" || /\.svg$/i.test(file.name || "");
 
@@ -100,8 +101,8 @@ const loadImage = (src) =>
 /* full pipeline: validate → compress → preview. Returns the ready data URL and
    both preview and ORIGINAL dimensions (originals let the photo customizer keep
    its DPI/print-quality maths). Throws with a user-facing message on rejection. */
-export async function prepareUpload(file, { maxDim = 1600, quality = 0.9 } = {}) {
-  const { valid, errors } = await validateUpload(file);
+export async function prepareUpload(file, { maxDim = 1600, quality = 0.9, maxBytes = MAX_UPLOAD_BYTES } = {}) {
+  const { valid, errors } = await validateUpload(file, { maxBytes });
   if (!valid) throw new Error(errors.join(" · "));
 
   const isSvg = file.type === "image/svg+xml" || /\.svg$/i.test(file.name || "");
