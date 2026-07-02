@@ -7,32 +7,34 @@ import { Icon, ic } from "./icons";
 import DesignCanvas, { clampToArea } from "./DesignCanvas";
 import MockupPreview from "./MockupPreview";
 import {
-  GraphicsPanel, LayerSettingsPanel, ProductInfoPanel, TextPanel, UploadsPanel,
+  GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
 } from "./panels";
 
-/* ── ProductEditorShell — the NEW unified, tab-driven editor ──
-   Strangler-fig: currently wired for Mug only (see src/utils/editorFlags.js);
-   every other product still uses the classic Designer. It REUSES the proven
-   canvas, mockup, panels, pricing and validation so only the shell layout is
-   new — and it emits the exact same cart item the classic editor does, so
-   checkout / Qikink are unaffected.
+/* ── ProductEditorShell — the NEW unified, MOBILE-FIRST editor ──
+   Strangler-fig: opt-in per product via src/utils/editorFlags.js; everything
+   else uses the classic Designer. REUSES the proven canvas, mockup, panels,
+   pricing and validation, and emits the exact same cart item as the classic
+   editor (checkout / Qikink unaffected).
 
-   Tabs (Canva-style): Product · Upload · Text · Graphics · Preview · Order. */
+   ~85% of Drucka traffic is mobile, so the layout is designed for one thumb:
+     Mobile:  header · top placement tabs · canvas · bottom sheet · TOOLBAR
+     Desktop: header · [sidebar | canvas | settings] · bottom bar
+   Bottom toolbar (thumb zone): Text · Image · Color · Layer · Preview · Cart. */
 
-const TABS = [
-  { id: "product", label: "Product", icon: ic.shirt },
-  { id: "uploads", label: "Upload", icon: ic.upload },
+const TOOLS = [
   { id: "text", label: "Text", icon: ic.text },
-  { id: "graphics", label: "Graphics", icon: ic.sticker },
-  { id: "preview", label: "Preview", icon: ic.check },
-  { id: "order", label: "Order", icon: ic.cart ?? ic.check },
+  { id: "image", label: "Image", icon: ic.upload },
+  { id: "color", label: "Color", swatch: true },
+  { id: "layer", label: "Layer", icon: ic.layers },
+  { id: "preview", label: "Preview", icon: ic.eye },
+  { id: "cart", label: "Cart", icon: ic.cart },
 ];
+const PANEL_TOOLS = new Set(["text", "image", "color", "layer", "cart"]);
 
 export default function ProductEditorShell({
   product, initial = {}, onClose, onAddToCart, onOpenCart, showToast, onUseClassic,
 }) {
-  /* selections — mug is single-variant, but we resolve them so pricing and the
-     cart item match the classic flow exactly */
+  /* selections — resolved so pricing + cart item match the classic flow exactly */
   const [sel, setSelState] = useState({
     selectedColor: initial.selectedColor ?? product.availableColors[0],
     selectedSize: initial.selectedSize ?? product.availableSizes[Math.min(1, product.availableSizes.length - 1)],
@@ -42,8 +44,7 @@ export default function ProductEditorShell({
   const [qty, setQty] = useState(1);
   const [title, setTitle] = useState(`Custom ${product.productName}`);
 
-  /* active print area — single for mug/frame/canvas, multiple for apparel
-     (front/back/pockets). `placement` aliases it so every op below stays put. */
+  /* active print area — single (mug/frame/canvas/poster) or multiple (apparel) */
   const [selectedPlacement, setSelectedPlacement] = useState(product.printAreas[0].id);
   const placement = selectedPlacement;
   const switchPlacement = (id) => { setSelectedPlacement(id); setSelectedLayerId(null); };
@@ -84,7 +85,7 @@ export default function ProductEditorShell({
     forceHistory((n) => n + 1);
   };
 
-  const [tab, setTab] = useState("product");
+  const [activeTool, setActiveTool] = useState("image"); // opens ready to add art
   const [selectedLayerId, setSelectedLayerId] = useState(null);
   const [zoom, setZoom] = useState(86);
   const [uploadedAssets, setUploadedAssets] = useState(() => {
@@ -96,13 +97,15 @@ export default function ProductEditorShell({
   const selectedLayer = layers.find((l) => l.id === selectedLayerId) ?? null;
   const price = useMemo(() => calcPrice({ product, layersByPlacement, ...sel, qty }), [product, layersByPlacement, sel, qty]);
   const hasDesign = price.printed.length > 0;
-  const preview = tab === "preview";
+  const preview = activeTool === "preview";
 
-  /* reseller profit margin (₹ per unit) — 0 keeps the normal customer price.
-     selling = base unit + margin, exactly like the classic submit page. */
+  /* reseller profit margin (₹ per unit) — 0 keeps the normal customer price */
   const [margin, setMargin] = useState(0);
   const selling = price.unit + (Number(margin) || 0);
   const sellingTotal = selling * qty;
+
+  /* tapping the active panel-tool again closes it (one-handed toggle) */
+  const pickTool = (id) => setActiveTool((cur) => (PANEL_TOOLS.has(id) && cur === id ? null : id));
 
   /* ── layer ops (single history entry per gesture) ── */
   const patchLayer = (id, patch, live = false) => {
@@ -126,7 +129,7 @@ export default function ProductEditorShell({
     setSelectedLayerId(layer.id);
   };
   const addImage = (src, name, aspect = 1) => addLayer(newImageLayer(src, name, aspect, placementOf(product, placement).inches));
-  const addText = (text) => { addLayer(newTextLayer(text)); setTab("text"); };
+  const addText = (text) => { addLayer(newTextLayer(text)); setActiveTool("text"); };
   const deleteLayer = (id) => {
     commit({ ...layersByPlacement, [placement]: layers.filter((l) => l.id !== id) });
     if (selectedLayerId === id) setSelectedLayerId(null);
@@ -137,6 +140,14 @@ export default function ProductEditorShell({
     const copy = duplicateOf(src);
     commit({ ...layersByPlacement, [placement]: [...layers, clampToArea(copy)] });
     setSelectedLayerId(copy.id);
+  };
+  const moveLayer = (id, dir) => {
+    const idx = layers.findIndex((l) => l.id === id);
+    const to = idx + dir;
+    if (idx < 0 || to < 0 || to >= layers.length) return;
+    const next = [...layers];
+    [next[idx], next[to]] = [next[to], next[idx]];
+    commit({ ...layersByPlacement, [placement]: next });
   };
 
   const handleUpload = async (file) => {
@@ -158,7 +169,7 @@ export default function ProductEditorShell({
 
   /* ── add to cart — identical item shape to the classic editor ── */
   const handleAddToCart = () => {
-    if (!hasDesign) { showToast("Add a design first — upload, text or graphics"); setTab("uploads"); return; }
+    if (!hasDesign) { showToast("Add a design first — Image or Text"); setActiveTool("image"); return; }
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
     const name = title.trim() || `Custom ${product.productName}`;
     onAddToCart({
@@ -180,17 +191,25 @@ export default function ProductEditorShell({
     onOpenCart();
   };
 
-  const tabContent = () => {
-    switch (tab) {
-      case "product":
-        return <ProductInfoPanel product={product} state={sel} setSel={setSel} qty={qty} setQty={setQty} onClose={() => {}} />;
-      case "uploads":
-        return <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} onUse={(a) => addImage(a.src, a.name, a.aspect)} onClose={() => {}} />;
+  /* ── panel content per tool ── */
+  const panelFor = (tool) => {
+    switch (tool) {
       case "text":
-        return <TextPanel selected={selectedLayer} onAddText={addText} onPatch={(id, p) => patchLayer(id, p)} onClose={() => {}} />;
-      case "graphics":
-        return <GraphicsPanel onAddImage={addImage} onClose={() => {}} />;
-      case "order":
+        return <TextPanel selected={selectedLayer} onAddText={addText} onPatch={(id, p) => patchLayer(id, p)} onClose={() => setActiveTool(null)} />;
+      case "image":
+        return (
+          <>
+            <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} onUse={(a) => addImage(a.src, a.name, a.aspect)} onClose={() => setActiveTool(null)} />
+            <GraphicsPanel onAddImage={addImage} onClose={() => setActiveTool(null)} />
+          </>
+        );
+      case "color":
+        return <ProductInfoPanel product={product} state={sel} setSel={setSel} qty={qty} setQty={setQty} onClose={() => setActiveTool(null)} />;
+      case "layer":
+        return selectedLayer
+          ? <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement} onPatch={(id, p) => patchLayer(id, p)} onClose={() => setSelectedLayerId(null)} />
+          : <LayersPanel layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId} onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onDuplicate={duplicateLayer} onMove={moveLayer} placementLabel={placementOf(product, placement).label} onClose={() => setActiveTool(null)} />;
+      case "cart":
         return (
           <div className="space-y-4 p-4">
             <label className="block">
@@ -232,6 +251,43 @@ export default function ProductEditorShell({
     }
   };
 
+  /* colour swatch used as the "Color" tool glyph */
+  const swatch = (size) => (
+    <span className="rounded-full border border-black/15" style={{ width: size, height: size, backgroundColor: colorById(sel.selectedColor)?.hex ?? "#fff" }} />
+  );
+
+  const toolBtn = (t, vertical) => {
+    const on = activeTool === t.id;
+    return (
+      <button key={t.id} onClick={() => pickTool(t.id)} aria-label={t.label} aria-pressed={on}
+        className={vertical
+          ? `flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${on ? "bg-tangerine/10 text-tangerine" : "text-ink/50 hover:bg-ink/4 hover:text-ink"}`
+          : `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${on ? "text-tangerine" : "text-ink/55"}`}>
+        {t.swatch ? swatch(20) : <Icon d={t.icon} className="h-5 w-5" />}
+        {t.label}
+      </button>
+    );
+  };
+
+  const placementTabs = product.printAreas.length > 1 && !preview && (
+    <div className="z-20 flex shrink-0 justify-center gap-1.5 overflow-x-auto border-b border-ink/8 bg-white px-3 py-2">
+      {product.printAreas.map((p) => {
+        const n = (layersByPlacement[p.id] ?? []).filter((l) => l.visible !== false).length;
+        return (
+          <button key={p.id} onClick={() => switchPlacement(p.id)}
+            className={`relative shrink-0 rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
+              selectedPlacement === p.id ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
+            }`}>
+            {p.label}
+            {n > 0 && (
+              <span className={`absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full text-[9px] font-black ${selectedPlacement === p.id ? "bg-ink text-white" : "bg-tangerine text-white"}`}>{n}</span>
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className="fixed inset-0 z-[95] flex flex-col bg-[#f1f0f5]" role="dialog" aria-modal="true" aria-label="Drucka product editor (new)">
       {/* header */}
@@ -251,49 +307,30 @@ export default function ProductEditorShell({
         </div>
         {/* one-click escape hatch → classic editor, zero downtime */}
         <button onClick={onUseClassic}
-          className="rounded-full border border-ink/15 px-3 py-1.5 text-[11px] font-bold text-ink/60 transition hover:border-tangerine hover:text-tangerine">
-          Classic editor ↩
+          className="rounded-full border border-ink/15 px-2.5 py-1.5 text-[11px] font-bold text-ink/60 transition hover:border-tangerine hover:text-tangerine">
+          Classic ↩
         </button>
       </header>
 
       {/* body */}
       <div className="flex min-h-0 flex-1">
-        {/* left tab rail + panel (desktop) */}
+        {/* DESKTOP left: tool rail + active panel */}
         <aside className="hidden shrink-0 border-r border-ink/10 bg-white lg:flex">
           <nav className="flex w-[76px] shrink-0 flex-col items-center gap-1 border-r border-ink/8 py-3">
-            {TABS.map((t) => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                className={`flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${tab === t.id ? "bg-tangerine/10 text-tangerine" : "text-ink/50 hover:bg-ink/4 hover:text-ink"}`}>
-                <Icon d={t.icon} className="h-5 w-5" />
-                {t.label}
-              </button>
-            ))}
+            {TOOLS.map((t) => toolBtn(t, true))}
           </nav>
-          {!preview && <div className="min-w-0 w-[300px] overflow-y-auto">{tabContent()}</div>}
+          {activeTool && activeTool !== "preview" && <div className="w-[320px] min-w-0 overflow-y-auto">{panelFor(activeTool)}</div>}
         </aside>
 
-        {/* canvas / preview column */}
+        {/* canvas column */}
         <div className="relative flex min-w-0 flex-1 flex-col">
-          {/* placement switcher — only for multi-area products (apparel) */}
-          {!preview && product.printAreas.length > 1 && (
-            <div className="z-20 flex shrink-0 justify-center gap-1.5 overflow-x-auto px-3 py-2.5">
-              {product.printAreas.map((p) => {
-                const n = (layersByPlacement[p.id] ?? []).filter((l) => l.visible !== false).length;
-                return (
-                  <button key={p.id} onClick={() => switchPlacement(p.id)}
-                    className={`relative shrink-0 rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
-                      selectedPlacement === p.id ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
-                    }`}>
-                    {p.label}
-                    {n > 0 && (
-                      <span className={`absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full text-[9px] font-black ${selectedPlacement === p.id ? "bg-ink text-white" : "bg-tangerine text-white"}`}>{n}</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-          <div className="min-h-0 flex-1">
+          {placementTabs}
+          <div className="relative min-h-0 flex-1">
+            {/* price chip — always visible, taps to cart (mobile-friendly) */}
+            <button onClick={() => setActiveTool("cart")}
+              className="absolute right-2 top-2 z-10 rounded-full bg-ink/85 px-3 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur">
+              {hasDesign ? inr(sellingTotal) : "Add a design"}
+            </button>
             {preview ? (
               <MockupPreview product={product} color={sel.selectedColor} layersByPlacement={layersByPlacement} placement={placement} onPlacement={switchPlacement} zoom={zoom} />
             ) : (
@@ -303,10 +340,10 @@ export default function ProductEditorShell({
             )}
           </div>
 
-          {/* bottom bar: zoom + price + add to cart */}
-          <div className="z-20 flex shrink-0 items-center gap-3 border-t border-ink/10 bg-white px-3 py-2.5 sm:px-4">
+          {/* DESKTOP bottom bar: zoom + price + continue */}
+          <div className="z-20 hidden shrink-0 items-center gap-3 border-t border-ink/10 bg-white px-4 py-2.5 lg:flex">
             {!preview && (
-              <div className="hidden items-center gap-2 sm:flex">
+              <div className="flex items-center gap-2">
                 <Icon d={ic.zoomIn} className="h-4 w-4 text-ink/45" />
                 <input type="range" min={50} max={160} value={zoom} onChange={(e) => setZoom(+e.target.value)} className="w-28 accent-tangerine" aria-label="Zoom" />
                 <span className="w-10 text-xs font-bold text-ink/50">{zoom}%</span>
@@ -315,21 +352,21 @@ export default function ProductEditorShell({
             <div className="ml-auto flex items-center gap-3">
               {hasDesign ? (
                 <div className="text-right leading-tight">
-                  <p className="text-base font-extrabold text-ink sm:text-lg">{inr(sellingTotal)}</p>
+                  <p className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</p>
                   <p className="text-[10px] text-ink/45">{qty > 1 ? `${qty} × ${inr(selling)} · ` : ""}{price.method.label}</p>
                 </div>
               ) : (
                 <p className="text-xs font-semibold text-ink/45">Add a design to see price</p>
               )}
-              <button onClick={() => (hasDesign ? setTab("order") : showToast("Add a design first — upload, text or graphics"))}
+              <button onClick={() => (hasDesign ? setActiveTool("cart") : showToast("Add a design first — Image or Text"))}
                 className={`rounded-full px-6 py-2.5 text-sm font-bold transition ${hasDesign ? "bg-tangerine text-white shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
-                {tab === "order" ? "Review ✓" : "Continue →"}
+                {activeTool === "cart" ? "Review ✓" : "Continue →"}
               </button>
             </div>
           </div>
         </div>
 
-        {/* right layer-settings (desktop) */}
+        {/* DESKTOP right: selected-layer settings */}
         {!preview && selectedLayer && (
           <aside className="hidden w-[270px] shrink-0 border-l border-ink/10 bg-white xl:block">
             <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement}
@@ -338,23 +375,18 @@ export default function ProductEditorShell({
         )}
       </div>
 
-      {/* mobile tab bar */}
-      <nav className="z-30 flex shrink-0 items-stretch justify-around border-t border-ink/10 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
-        {TABS.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${tab === t.id ? "text-tangerine" : "text-ink/55"}`}>
-            <Icon d={t.icon} className="h-5 w-5" />
-            {t.label}
-          </button>
-        ))}
-      </nav>
-
-      {/* mobile panel (non-preview tabs) */}
-      {!preview && tab !== "product" && (
-        <div className="fixed inset-x-0 bottom-14 z-[96] max-h-[60vh] overflow-y-auto rounded-t-3xl border-t border-ink/10 bg-white shadow-2xl lg:hidden">
-          {tabContent()}
+      {/* MOBILE bottom sheet — the active tool's panel, above the toolbar */}
+      {activeTool && activeTool !== "preview" && (
+        <div className="shrink-0 border-t border-ink/10 bg-white shadow-[0_-8px_24px_rgba(26,18,8,0.08)] lg:hidden">
+          <div className="mx-auto mt-1.5 h-1 w-10 rounded-full bg-ink/15" />
+          <div className="max-h-[46vh] overflow-y-auto overscroll-contain">{panelFor(activeTool)}</div>
         </div>
       )}
+
+      {/* MOBILE bottom toolbar — thumb zone: Text · Image · Color · Layer · Preview · Cart */}
+      <nav className="z-30 flex shrink-0 items-stretch justify-around border-t border-ink/10 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
+        {TOOLS.map((t) => toolBtn(t, false))}
+      </nav>
     </div>
   );
 }
