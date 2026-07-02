@@ -2,7 +2,7 @@
    Cells are fractional rects {x,y,w,h} in 0–1 canvas space, so the same
    numbers drive the live preview (CSS %) and the full-res canvas export. */
 
-import { collagePrice } from "../utils/pricing";
+import { calculate } from "../utils/pricing";
 
 export const cuid = () => Math.random().toString(36).slice(2, 9);
 
@@ -106,7 +106,7 @@ export function calcCollagePrice({ size, frame, lamination, qty = 1 }) {
   const base = Number(size?.price) || 99;
   const framePrice = FRAME_OPTIONS.find((f) => f.id === frame)?.price ?? 0;
   const lamPrice = LAMINATION_OPTIONS.find((l) => l.id === lamination)?.price ?? 0;
-  return collagePrice({ base, framePrice, lamPrice, qty });
+  return calculate({ family: "collage", base, framePrice, lamPrice, qty });
 }
 
 export const PHOTO_FILTERS = [

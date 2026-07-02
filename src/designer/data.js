@@ -6,6 +6,7 @@
    mapping keeps working unchanged. */
 
 import { prepareUpload, MAX_UPLOAD_BYTES } from "../utils/validateUpload";
+import { calculate } from "../utils/pricing";
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -369,9 +370,10 @@ export const mockupSrc = (product, colorId, photo) => {
   return product.image ?? null;
 };
 
-/* ── pricing ── delegates to the shared engine (src/utils/pricing.js);
-   re-exported here so existing call sites keep their imports unchanged. */
-export { placementPrintCost, designerPrice as calcPrice } from "../utils/pricing";
+/* ── pricing ── everything prices through the single engine entry point.
+   calcPrice keeps its signature; internally it's pricingEngine.calculate. */
+export { placementPrintCost } from "../utils/pricing";
+export const calcPrice = (args) => calculate({ family: "designer", ...args });
 
 /* ── layer factories ──
    % of the active print area: x/y = layer CENTER, w/h = % of area size. */

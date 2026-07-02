@@ -52,3 +52,18 @@ export function miniPrice({ unitPrice, totalPrints, shipFee = 49 }) {
   const shipping = shippingFor(subtotal, shipFee);
   return { subtotal, shipping, total: subtotal + shipping };
 }
+
+/* ── the one public entry point ──
+   Every caller prices through pricingEngine.calculate({ family, ... }).
+   Product families price differently, so this dispatches to the right
+   calculator; a new family adds a case here, never a new pricing file. */
+export function calculate(input = {}) {
+  switch (input.family) {
+    case "designer": return designerPrice(input);
+    case "collage":  return collagePrice(input);
+    case "mini":     return miniPrice(input);
+    default: throw new Error(`pricingEngine.calculate: unknown family "${input.family}"`);
+  }
+}
+
+export const pricingEngine = { calculate };

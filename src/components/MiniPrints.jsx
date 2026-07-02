@@ -4,7 +4,7 @@ import {
   Crop, Copy, GripVertical, CalendarDays, Smile, X, Image as ImageIcon, ShieldCheck,
 } from "lucide-react";
 import { fileToDataUrl, inr, uid } from "../designer/data";
-import { miniPrice, FREE_SHIP_THRESHOLD } from "../utils/pricing";
+import { calculate, FREE_SHIP_THRESHOLD } from "../utils/pricing";
 import * as pixel from "../lib/metaPixel";
 import {
   BORDERS, MINI_FONTS, FILTERS, CAPTION_COLORS, STICKER_SETS, STICKER_POS,
@@ -173,7 +173,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
 
   const size = MINI_SIZES.find((s) => s.id === sizeId);
   const totalPrints = photos.reduce((n, p) => n + p.copies, 0);
-  const { subtotal, shipping, total } = miniPrice({ unitPrice: size.price, totalPrints });
+  const { subtotal, shipping, total } = calculate({ family: "mini", unitPrice: size.price, totalPrints });
   const cropPhoto = photos.find((p) => p.id === cropId);
   const previewPhoto = photos.find((p) => p.id === previewId) ?? photos[0] ?? null;
 
