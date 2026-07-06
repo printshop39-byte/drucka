@@ -106,7 +106,12 @@ export function toQikinkOrderPayload(p = {}) {
           height_inches: d.height_inches ?? "",
           placement_sku: d.placement_sku ?? placementSku(d.placement),
           design_link: d.design_link,
-          ...(d.mockup_link ? { mockup_link: d.mockup_link } : {}),
+          // Qikink requires a valid mockup_link URL (mandatory when
+          // search_from_my_products=0). The app leaves a "BACKEND_RENDER_OPTIONAL"
+          // placeholder here, which is not a URL — fall back to the (already
+          // http-validated) design_link, matching Qikink's own docs where
+          // design_link and mockup_link are the same URL.
+          mockup_link: /^https?:\/\//.test(d.mockup_link ?? "") ? d.mockup_link : d.design_link,
         }));
       return item;
     }),
