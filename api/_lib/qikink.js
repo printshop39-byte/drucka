@@ -21,6 +21,9 @@ export async function qikinkToken() {
   // "Invalid AccessToken or Client Id" 401.
   if (!process.env.QIKINK_CLIENT_ID || !process.env.QIKINK_CLIENT_SECRET)
     throw new Error("Qikink credentials missing — set QIKINK_CLIENT_ID and QIKINK_CLIENT_SECRET in this environment");
+  // Make the active mode/endpoint obvious in logs so a sandbox↔live mismatch
+  // (wrong creds for the mode) is caught at a glance before it 401s downstream.
+  console.log(`Qikink mode=${process.env.QIKINK_MODE === "live" ? "LIVE" : "sandbox"} endpoint=${qikinkBase()}`);
   const res = await fetch(`${qikinkBase()}/api/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },

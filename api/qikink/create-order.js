@@ -13,6 +13,17 @@ async function handler(req, res) {
     if (!payload?.order_number || !payload?.line_items?.length)
       return res.status(400).json({ ok: false, error: "Invalid payload" });
 
+    // ── idempotency: never double-create at Qikink ──
+    // A repeated "Retry send" (or a network retry) must not spawn a second
+    // Qikink order. If this order already carries a Qikink id, return it.
+    try {
+      const rows = await sb(`orders?id=eq.${encodeURIComponent(payload.order_number)}&select=qikink_order_id`);
+      const existing = rows?.[0]?.qikink_order_id;
+      if (existing) return res.json({ ok: true, qikinkOrderId: existing, alreadySent: true });
+    } catch (e) {
+      console.error("Idempotency check failed (continuing):", e.message);
+    }
+
     // ── server-side re-validation (never trust the browser) ──
     const addr = payload.shipping_address ?? {};
     if (!/^\d{6}$/.test(addr.zip ?? ""))
