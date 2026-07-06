@@ -137,6 +137,7 @@ export async function qikinkFetch(path, { method = "GET", body } = {}) {
   const payload = path === "/api/order/create" ? toQikinkOrderPayload(body) : body;
   if (path === "/api/order/create")
     console.log("Qikink Payload:", JSON.stringify(payload, null, 2));
+  const t0 = Date.now();
   const res = await fetch(`${qikinkBase()}${path}`, {
     method,
     headers: {
@@ -147,7 +148,15 @@ export async function qikinkFetch(path, { method = "GET", body } = {}) {
     body: payload ? JSON.stringify(payload) : undefined,
   });
   const text = await res.text();
-  console.log(`Qikink ${path} → ${res.status}:`, text);
+  const ms = Date.now() - t0;
+  console.log(`Qikink ${path} → ${res.status} in ${ms}ms:`, text);
+  // Grep-able one-line monitor record for order creates: order, SKUs, status, latency.
+  if (path === "/api/order/create") {
+    const skus = (payload?.line_items ?? []).map((li) => li.sku).join("|");
+    let qid = "";
+    try { qid = JSON.parse(text).order_id ?? ""; } catch {}
+    console.log(`[qikink-monitor] order=${payload?.order_number} skus=${skus} status=${res.status} qikink_id=${qid} ms=${ms}`);
+  }
   if (!res.ok) throw new Error(`Qikink ${path} failed (${res.status}): ${text}`);
   return JSON.parse(text);
 }
