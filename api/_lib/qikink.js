@@ -58,6 +58,20 @@ const placementSku = (p) => PLACEMENT_SKU[String(p ?? "").trim().toLowerCase()] 
 
 const alnum = (s) => String(s ?? "").replace(/[^a-zA-Z0-9]/g, "");
 
+/* Qikink SKUs use SHORT colour codes (verified by probing the sandbox
+   create endpoint): e.g. MRnHs-Wh-M, not MRnHs-White-M. The app builds SKUs
+   with the full colour label/id, so normalise the colour segment here — the
+   one choke-point both the admin send and the webhook auto-send flow through.
+   Confirmed codes below; extend as new colours are verified. */
+const QIKINK_COLOR_CODE = {
+  white: "Wh", black: "Bk", navy: "Nb", red: "Rd", yellow: "Yl",
+};
+const normalizeSku = (sku) =>
+  String(sku ?? "")
+    .split("-")
+    .map((seg) => QIKINK_COLOR_CODE[seg.toLowerCase()] ?? seg)
+    .join("-");
+
 /* Coerce any order payload into the EXACT shape Qikink's /api/order/create
    accepts. Qikink 400s on unknown keys, so this is a strict whitelist +
    rename, not a merge. Both create paths (admin "Send to Qikink" and the
@@ -72,7 +86,7 @@ export function toQikinkOrderPayload(p = {}) {
       const seller = Number(li.search_from_my_products) === 1;
       const item = {
         search_from_my_products: seller ? 1 : 0,
-        sku: li.sku,
+        sku: normalizeSku(li.sku),
         quantity: li.quantity,
         price: li.price,
       };
