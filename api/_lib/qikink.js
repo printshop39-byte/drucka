@@ -2,7 +2,7 @@
    Credentials come from Vercel env vars, never from the browser.
    ⚠ Confirm exact endpoint paths/headers in your Qikink dashboard docs. */
 
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 /* Privacy-safe artwork fingerprint: never logs the full (possibly signed)
    artwork URL. Reports only whether it's http, a short stable hash for
@@ -180,17 +180,18 @@ export async function qikinkFetch(path, { method = "GET", body } = {}) {
   console.log(`Qikink ${path} → ${res.status} in ${ms}ms:`, text);
   // Grep-able one-line monitor record for order creates: order, SKUs, status, latency.
   if (path === "/api/order/create") {
+    const reqId = randomBytes(4).toString("hex"); // correlates monitor + artwork lines for one request
     const skus = (payload?.line_items ?? []).map((li) => li.sku).join("|");
     let qid = "";
     try { qid = JSON.parse(text).order_id ?? ""; } catch {}
-    console.log(`[qikink-monitor] order=${payload?.order_number} skus=${skus} status=${res.status} qikink_id=${qid} ms=${ms}`);
+    console.log(`[qikink-monitor] request_id=${reqId} order=${payload?.order_number} skus=${skus} status=${res.status} qikink_id=${qid} ms=${ms}`);
     // Privacy-safe artwork proof (no full URLs): confirms both links are http,
     // whether they match, and the Cloudinary components — enough to prove no
     // placeholder slips through and to spot a wrong resource_type/format.
     for (const li of payload?.line_items ?? [])
       for (const d of li.designs ?? []) {
         const df = artworkFingerprint(d.design_link), mf = artworkFingerprint(d.mockup_link);
-        console.log(`[qikink-artwork] order=${payload?.order_number} design_is_http=${df.is_http} mockup_is_http=${mf.is_http} same_url=${d.design_link === d.mockup_link} design_hash=${df.hash} mockup_hash=${mf.hash} cloud=${df.cloud} resource=${df.resource} type=${df.type} format=${df.format}`);
+        console.log(`[qikink-artwork] request_id=${reqId} order=${payload?.order_number} design_is_http=${df.is_http} mockup_is_http=${mf.is_http} same_url=${d.design_link === d.mockup_link} design_hash=${df.hash} mockup_hash=${mf.hash} cloud=${df.cloud} resource=${df.resource} type=${df.type} format=${df.format}`);
       }
   }
   if (!res.ok) throw new Error(`Qikink ${path} failed (${res.status}): ${text}`);
