@@ -2,6 +2,26 @@
    Credentials come from Vercel env vars, never from the browser.
    ⚠ Confirm exact endpoint paths/headers in your Qikink dashboard docs. */
 
+import { createHash } from "node:crypto";
+
+/* Privacy-safe artwork fingerprint: never logs the full (possibly signed)
+   artwork URL. Reports only whether it's http, a short stable hash for
+   correlation, and the Cloudinary delivery components so a wrong resource_type
+   (raw/private) or bad format is obvious at a glance. */
+function artworkFingerprint(url) {
+  const u = String(url ?? "");
+  const fp = {
+    is_http: /^https?:\/\//.test(u),
+    hash: createHash("sha1").update(u).digest("hex").slice(0, 8),
+    cloud: "-", resource: "-", type: "-", format: "-",
+  };
+  const m = u.match(/res\.cloudinary\.com\/([^/]+)\/([^/]+)\/([^/]+)\//);
+  if (m) { fp.cloud = m[1]; fp.resource = m[2]; fp.type = m[3]; }
+  const ext = u.split("?")[0].match(/\.([a-zA-Z0-9]+)$/);
+  if (ext) fp.format = ext[1];
+  return fp;
+}
+
 const BASES = {
   sandbox: "https://sandbox.qikink.com",
   live: "https://api.qikink.com",
@@ -164,11 +184,14 @@ export async function qikinkFetch(path, { method = "GET", body } = {}) {
     let qid = "";
     try { qid = JSON.parse(text).order_id ?? ""; } catch {}
     console.log(`[qikink-monitor] order=${payload?.order_number} skus=${skus} status=${res.status} qikink_id=${qid} ms=${ms}`);
-    // Explicit artwork-link proof: confirms the exact design_link/mockup_link
-    // that left for Qikink (no placeholder slips through) on the next retry.
+    // Privacy-safe artwork proof (no full URLs): confirms both links are http,
+    // whether they match, and the Cloudinary components — enough to prove no
+    // placeholder slips through and to spot a wrong resource_type/format.
     for (const li of payload?.line_items ?? [])
-      for (const d of li.designs ?? [])
-        console.log(`[qikink-artwork] order=${payload?.order_number} design_link=${d.design_link} mockup_link=${d.mockup_link}`);
+      for (const d of li.designs ?? []) {
+        const df = artworkFingerprint(d.design_link), mf = artworkFingerprint(d.mockup_link);
+        console.log(`[qikink-artwork] order=${payload?.order_number} design_is_http=${df.is_http} mockup_is_http=${mf.is_http} same_url=${d.design_link === d.mockup_link} design_hash=${df.hash} mockup_hash=${mf.hash} cloud=${df.cloud} resource=${df.resource} type=${df.type} format=${df.format}`);
+      }
   }
   if (!res.ok) throw new Error(`Qikink ${path} failed (${res.status}): ${text}`);
   return JSON.parse(text);
