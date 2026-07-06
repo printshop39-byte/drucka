@@ -164,6 +164,11 @@ export async function qikinkFetch(path, { method = "GET", body } = {}) {
     let qid = "";
     try { qid = JSON.parse(text).order_id ?? ""; } catch {}
     console.log(`[qikink-monitor] order=${payload?.order_number} skus=${skus} status=${res.status} qikink_id=${qid} ms=${ms}`);
+    // Explicit artwork-link proof: confirms the exact design_link/mockup_link
+    // that left for Qikink (no placeholder slips through) on the next retry.
+    for (const li of payload?.line_items ?? [])
+      for (const d of li.designs ?? [])
+        console.log(`[qikink-artwork] order=${payload?.order_number} design_link=${d.design_link} mockup_link=${d.mockup_link}`);
   }
   if (!res.ok) throw new Error(`Qikink ${path} failed (${res.status}): ${text}`);
   return JSON.parse(text);
