@@ -357,11 +357,11 @@ const QIKINK_STATUSES = ["Draft", "Sent to Qikink", "In Production", "Shipped", 
    https://creator.qikink.com/dashboard → Products */
 const QIKINK_PRODUCT_MAP = [
   { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Male Standard Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "yellow"], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
-  { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Unisex Oversized Tee",       qikinkProductId: "MOSTS-240", skuPattern: "MOsTs-{color}-{size}", printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
-  { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Male Polo MP25",             qikinkProductId: "MP25",      skuPattern: "MP25-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
-  { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Kids Round Neck T-Shirt",    qikinkProductId: "KRNHS-160", skuPattern: "KRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"],                    active: true },
-  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Unisex Hooded Sweatshirt",   qikinkProductId: "MHOOD-320", skuPattern: "MHood-{color}-{size}", printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
-  { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Ceramic Mug 11oz",     qikinkProductId: "MUG11-W",   skuPattern: "Mug11-{color}",        printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
+  { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Oversized Classic T-Shirt | UC22", qikinkProductId: "UC22",  skuPattern: "UOsMRnHs-{color}-{size}", printMethod: "DTF",     colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
+  { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Polo | MP25",                qikinkProductId: "MP25",      skuPattern: "MPHs-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
+  { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["5Yrs", "7Yrs", "9Yrs", "11Yrs", "13Yrs"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"], active: false /* TODO: confirm Boy vs Girl stem + Drucka size labels before re-enabling */ },
+  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
+  { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Coffee Mug",           qikinkProductId: "UWCM",      skuPattern: "UWCM-{color}-11 OZ",   printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
 ];
 /* default shipping cost per mapping (editable in Admin → Product Mapping) */
 QIKINK_PRODUCT_MAP.forEach((m) => { if (m.shippingCost == null) m.shippingCost = m.druckaId === "hoodie" ? 69 : 49; });
@@ -3995,13 +3995,15 @@ export default function App() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const checkoutIdRef = useRef(null); // shared eventID: browser InitiateCheckout ⇆ server CAPI (COD)
   const [trackOpen, setTrackOpen] = useState(false);
-  const [productMap, setProductMap] = useState(() => load("drucka-product-map", QIKINK_PRODUCT_MAP));
+  // v2 key: forces a re-seed from the corrected QIKINK_PRODUCT_MAP (real Qikink
+  // SKU stems from the SKU Descriptions export) over any stale v1 localStorage map.
+  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v2", QIKINK_PRODUCT_MAP));
 
   useEffect(() => save("drucka-cart", cart), [cart]);
   useEffect(() => save("drucka-favs", favs), [favs]);
   useEffect(() => save("drucka-qikink-settings", qikinkSettings), [qikinkSettings]); // non-sensitive only
   useEffect(() => save("drucka-orders", orders), [orders]);
-  useEffect(() => save("drucka-product-map", productMap), [productMap]);
+  useEffect(() => save("drucka-product-map-v2", productMap), [productMap]);
 
   /* ── order lifecycle (Draft → Paid/COD Approved → Sent to Qikink → …) ── */
   const updateOrder = (id, patch) => {
