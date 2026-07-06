@@ -76,8 +76,10 @@ export function toQikinkOrderPayload(p = {}) {
         .filter((d) => d && d.design_link)
         .map((d) => ({
           design_code: alnum(d.design_code ?? d.placement ?? "design") || "design",
-          width_inches: d.width_inches ?? 11,
-          height_inches: d.height_inches ?? 14,
+          // Qikink's verified example sends these empty; leave "" unless a real
+          // print size is provided, so Qikink applies the placement default.
+          width_inches: d.width_inches ?? "",
+          height_inches: d.height_inches ?? "",
           placement_sku: d.placement_sku ?? placementSku(d.placement),
           design_link: d.design_link,
           ...(d.mockup_link ? { mockup_link: d.mockup_link } : {}),
