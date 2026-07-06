@@ -16,6 +16,11 @@ export async function qikinkToken() {
   if (cachedToken && Date.now() < cachedToken.expiresAt - 60_000) {
     return cachedToken.accessToken;
   }
+  // Fail loudly on missing creds — otherwise the token endpoint can 200 with an
+  // empty body and the real order-create call fails later with a misleading
+  // "Invalid AccessToken or Client Id" 401.
+  if (!process.env.QIKINK_CLIENT_ID || !process.env.QIKINK_CLIENT_SECRET)
+    throw new Error("Qikink credentials missing — set QIKINK_CLIENT_ID and QIKINK_CLIENT_SECRET in this environment");
   const res = await fetch(`${qikinkBase()}/api/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -26,6 +31,8 @@ export async function qikinkToken() {
   });
   if (!res.ok) throw new Error(`Qikink auth failed (${res.status}): ${await res.text()}`);
   const data = await res.json(); // { Accesstoken, expires_in }
+  if (!data.Accesstoken)
+    throw new Error(`Qikink auth returned no Accesstoken (check ClientId/secret): ${JSON.stringify(data)}`);
   cachedToken = {
     accessToken: data.Accesstoken,
     expiresAt: Date.now() + (Number(data.expires_in) || 3600) * 1000,
