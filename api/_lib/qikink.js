@@ -93,9 +93,29 @@ export function toQikinkOrderPayload(p = {}) {
         }));
       return item;
     }),
-    shipping_address: p.shipping_address,
+    shipping_address: cleanShippingAddress(p.shipping_address),
   };
   return out;
+}
+
+/* Qikink 400s on an empty email ("Empty field in shipping_address: email")
+   and rejects unknown keys. Whitelist the documented fields and guarantee a
+   non-empty email — falling back to a Drucka address keeps the white-label
+   intact (Qikink's order emails go to us, not the customer). */
+const SHIP_EMAIL_FALLBACK = "orders@drucka.in";
+function cleanShippingAddress(a = {}) {
+  return {
+    first_name: a.first_name ?? "",
+    last_name: a.last_name ?? "",
+    address1: a.address1 ?? "",
+    address2: a.address2 ?? "",
+    city: a.city ?? "",
+    province: a.province ?? "",
+    zip: a.zip ?? "",
+    country_code: a.country_code || "IN",
+    phone: a.phone ?? "",
+    email: (a.email ?? "").trim() || SHIP_EMAIL_FALLBACK,
+  };
 }
 
 export async function qikinkFetch(path, { method = "GET", body } = {}) {
