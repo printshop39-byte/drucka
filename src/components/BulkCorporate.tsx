@@ -14,7 +14,7 @@ const perks = [
 
 export default function BulkCorporate() {
   return (
-    <section className="py-8 lg:py-16" style={{ backgroundColor: '#FBFAF8' }}>
+    <section id="corporate" className="scroll-mt-24 py-8 lg:py-16" style={{ backgroundColor: '#FBFAF8' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className="overflow-hidden rounded-3xl bg-white p-7 sm:p-10 lg:p-12"

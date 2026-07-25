@@ -93,7 +93,11 @@ export default function ProductLanding({
             </div>
           </div>
           <div className="overflow-hidden rounded-2xl bg-white" style={{ ...card, aspectRatio: '4 / 3' }}>
-            <img src={data.image} alt={data.imageAlt} loading="eager" decoding="async" className="h-full w-full object-cover" />
+            {/* Visitors get the WebP; `data.image` stays a JPG because it is
+                also the og:image / twitter:image / JSON-LD image, and WhatsApp
+                link previews — Drucka's main order channel — are unreliable
+                with WebP. Falls back to the JPG where no WebP was adopted. */}
+            <img src={data.imageWebp ?? data.image} alt={data.imageAlt} loading="eager" decoding="async" className="h-full w-full object-cover" />
           </div>
         </div>
       </section>

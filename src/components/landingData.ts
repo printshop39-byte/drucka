@@ -17,7 +17,10 @@ export interface Landing {
   tagline?: string;
   introEn: string;
   introMr: string;
+  /** JPG — also serves as og:image / twitter:image / JSON-LD image */
   image: string;
+  /** WebP shown to visitors; absent where WebP saved <15% over the JPG */
+  imageWebp?: string;
   imageAlt: string;
   fromPrice: number;
   priceNote?: string;

@@ -3,9 +3,9 @@ import Lightbox, { LightboxItem } from './Lightbox';
 
 /* NOTE: prices are placeholders for the scrapbook restyle — confirm/replace. */
 const phoneCases = [
-  { name: 'Photo Collage Case', image: '/images/phonecases/case-1.jpg', desc: 'Your favourite photos in one custom collage case', price: '₹449' },
-  { name: 'Polaroid Memory Case', image: '/images/phonecases/case-2.jpg', desc: 'Cherished moments styled like keepsake polaroids', price: '₹499' },
-  { name: 'Custom Design Cases', image: '/images/phonecases/case-3.jpg', desc: 'Add names, dates & your own photos — fully personalised', price: '₹549' },
+  { name: 'Photo Collage Case', image: '/images/phonecases/case-1.webp', card: '/images/phonecases/case-1-640.webp', desc: 'Your favourite photos in one custom collage case', price: '₹449' },
+  { name: 'Polaroid Memory Case', image: '/images/phonecases/case-2.webp', card: '/images/phonecases/case-2-640.webp', desc: 'Cherished moments styled like keepsake polaroids', price: '₹499' },
+  { name: 'Custom Design Cases', image: '/images/phonecases/case-3.webp', card: '/images/phonecases/case-3-640.webp', desc: 'Add names, dates & your own photos — fully personalised', price: '₹549' },
 ];
 
 const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(m)}`;
@@ -64,8 +64,14 @@ export default function PhoneCases() {
               className="sb-card cursor-pointer p-3 text-left"
             >
               <div className="relative aspect-square bg-warm rounded-[2px] overflow-hidden mb-3">
+                {/* Widest slot is NOT desktop: below sm the grid is 1-up, so the
+                    card hits 591px @639 vs only 368px @1440. 640w covers that at
+                    1x and the desktop slot at 2x; the 900px original is the best
+                    available above that and is what the Lightbox (~648px) uses. */}
                 <img
-                  src={item.image}
+                  src={item.card}
+                  srcSet={`${item.card} 640w, ${item.image} 900w`}
+                  sizes="(min-width: 1280px) 375px, (min-width: 640px) 29vw, 93vw"
                   alt={`${item.name} — custom photo phone case gift | Drucka`}
                   loading="lazy"
                   decoding="async"

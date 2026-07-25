@@ -41,17 +41,17 @@ export interface FrameStyle {
 }
 export const FRAME_STYLES: FrameStyle[] = [
   { id: "classic-black", name: "Classic Black", mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null,
-    img: "/images/frames/classic-black.jpg", frameImg: "/images/frames/classic-black-live.jpg", opening: { x: 14, y: 9.5, w: 72, h: 81 } },
+    img: "/images/frames/classic-black.webp", frameImg: "/images/frames/classic-black-live.webp", opening: { x: 14, y: 9.5, w: 72, h: 81 } },
   { id: "premium-golden", name: "Premium Golden", mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c",
-    img: "/images/frames/premium-golden.jpg", frameImg: "/images/frames/premium-golden-live.jpg", opening: { x: 24.5, y: 20.5, w: 56, h: 62 } },
+    img: "/images/frames/premium-golden.webp", frameImg: "/images/frames/premium-golden-live.webp", opening: { x: 24.5, y: 20.5, w: 56, h: 62 } },
   { id: "wooden-brown", name: "Wooden Brown", mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null,
-    img: "/images/frames/wooden-brown.jpg", frameImg: "/images/frames/wooden-brown-live.jpg", opening: { x: 17, y: 12, w: 66, h: 75 } },
+    img: "/images/frames/wooden-brown.webp", frameImg: "/images/frames/wooden-brown-live.webp", opening: { x: 17, y: 12, w: 66, h: 75 } },
   { id: "white-minimal", name: "White Minimal", mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true,
-    img: "/images/frames/white-minimal.jpg", frameImg: "/images/frames/white-minimal-live.jpg", opening: { x: 14, y: 10.5, w: 73, h: 78 } },
+    img: "/images/frames/white-minimal.webp", frameImg: "/images/frames/white-minimal-live.webp", opening: { x: 14, y: 10.5, w: 73, h: 78 } },
   { id: "designer-black-gold", name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37",
-    img: "/images/frames/designer-black-gold.jpg", frameImg: "/images/frames/designer-black-gold-live.jpg", opening: { x: 16.5, y: 12.5, w: 68, h: 75 } },
+    img: "/images/frames/designer-black-gold.webp", frameImg: "/images/frames/designer-black-gold-live.webp", opening: { x: 16.5, y: 12.5, w: 68, h: 75 } },
   { id: "traditional-ornate", name: "Traditional Ornate", mat: "linear-gradient(135deg,#d8b358,#7a5414)", accent: "#f0d98f",
-    img: "/images/frames/traditional-ornate.jpg", frameImg: "/images/frames/traditional-ornate-live.jpg", opening: { x: 24, y: 17, w: 52, h: 64 } },
+    img: "/images/frames/traditional-ornate.webp", frameImg: "/images/frames/traditional-ornate-live.jpg", opening: { x: 24, y: 17, w: 52, h: 64 } },
 ];
 
 export const BORDER_OPTIONS = ["No Border", "White Border", "Premium Mat Border"];

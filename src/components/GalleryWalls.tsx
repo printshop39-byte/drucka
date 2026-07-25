@@ -7,37 +7,43 @@ const galleryWalls = [
     name: 'Osaka Trio',
     size: '3 Frames',
     price: '₹5,999',
-    image: '/images/gallery/osaka-trio.jpg',
+    image: '/images/gallery/osaka-trio.webp',
+    card: '/images/gallery/osaka-trio-720.webp',
   },
   {
     name: 'Uneven Trio',
     size: 'Metal Frame Set',
     price: '₹6,499',
-    image: '/images/gallery/uneven-trio.jpg',
+    image: '/images/gallery/uneven-trio.webp',
+    card: '/images/gallery/uneven-trio-720.webp',
   },
   {
     name: 'Snow Pair',
     size: '2 Frames',
     price: '₹4,299',
-    image: '/images/gallery/snow-pair.jpg',
+    image: '/images/gallery/snow-pair.webp',
+    card: '/images/gallery/snow-pair-720.webp',
   },
   {
     name: 'Gallery Wall Set',
     size: 'Set of 7',
     price: '₹12,999',
-    image: '/images/gallery/gallery-wall-set.jpg',
+    image: '/images/gallery/gallery-wall-set.webp',
+    card: '/images/gallery/gallery-wall-set-720.webp',
   },
   {
     name: 'Metallic Quint',
     size: 'Set of 5',
     price: '₹9,999',
-    image: '/images/gallery/metallic-quint.jpg',
+    image: '/images/gallery/metallic-quint.webp',
+    card: '/images/gallery/metallic-quint-720.webp',
   },
   {
     name: 'Grand Gallery',
     size: 'Set of 8',
     price: '₹14,999',
-    image: '/images/gallery/grand-gallery.jpg',
+    image: '/images/gallery/grand-gallery.webp',
+    card: '/images/gallery/grand-gallery-720.webp',
   },
 ];
 
@@ -135,8 +141,19 @@ export default function GalleryWalls() {
               className="gw-card flex-shrink-0 w-[360px] group text-left"
             >
               <div className="relative aspect-[7/5] bg-warm rounded-lg overflow-hidden mb-4">
+                {/* The card is a fixed 360px slot, but `wall.image` is 1200px
+                    because the Lightbox renders it at ~868px. Without a srcset
+                    every card downloaded the full lightbox-grade file up front.
+                    720w covers the card at 2x; the 1200w candidate is only
+                    fetched on a 3x display. The Lightbox still uses
+                    `wall.image` directly, so its quality is unchanged. */}
                 <img
-                  src={wall.image}
+                  src={wall.card}
+                  srcSet={`${wall.card} 720w, ${wall.image} 1200w`}
+                  sizes="360px"
+                  /* no width/height: these files have differing ratios
+                     (1200x896 vs grand-gallery's 1200x670) and the
+                     aspect-[7/5] wrapper already reserves the space */
                   alt={`${wall.name} gallery wall — custom photo frames online | Drucka`}
                   loading="lazy"
                   decoding="async"
