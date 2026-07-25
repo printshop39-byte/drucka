@@ -1,48 +1,26 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight, Quote, ExternalLink } from 'lucide-react';
 
-/* ⚠ SOCIAL PROOF — VERIFICATION GATE ────────────────────────────────
-   These three testimonials are named individuals with photos and 5-star
-   ratings. Their authenticity could not be verified from the codebase, and
-   unverifiable endorsements are a real exposure under India's consumer
-   protection rules on misleading advertising.
+/* ── SOCIAL PROOF ─────────────────────────────────────────────────────
+   EMPTY ON PURPOSE. Three testimonials used to live here — named people
+   ("Amit Deshpande, Architect" etc.) with portraits and 5-star ratings.
+   Drucka confirmed on 2026-07-25 that they were NOT real customers, so
+   they were deleted outright rather than left hidden. Their portrait
+   images moved to assets-src/images/testimonials/ (they are stock photos
+   of people who never bought anything and must not go back on the site).
 
-   So this section now FAILS SAFE: a testimonial renders only if it carries
-   a `sourceUrl` pointing at the publicly checkable review (Google Business
-   review permalink, Instagram post, etc.). With no proof URLs the whole
-   section renders nothing rather than making an unbacked claim.
+   Publishing invented endorsements is misleading advertising under the
+   Consumer Protection Act 2019 and the CCPA's 2022 guidelines on
+   endorsements, so this section stays empty until there is real proof.
 
-   TO PUT THEM BACK: paste the review permalink into `sourceUrl`. Each one
-   restored gets a "Verified review" link out to the source.
-   If a testimonial is not real, delete its entry outright.              */
+   TO ADD A REAL ONE: append an entry below. It renders ONLY with a
+   `sourceUrl` pointing at a publicly checkable review — a Google Business
+   review permalink or an Instagram post — which is surfaced to visitors as
+   a "Verified review" link. No proof, no render, and with an empty list
+   the whole section disappears from the homepage on its own.          */
 const testimonials: Array<{
   text: string; author: string; title: string; image: string; rating: number; sourceUrl: string | null;
-}> = [
-  {
-    text: 'A frame for every piece of art. Drucka\'s rich collection and personal guidance make choosing the right one genuinely satisfying — every project leaves my studio looking complete.',
-    author: 'Amit Deshpande',
-    title: 'Architect',
-    image: '/images/testimonials/amit.webp',
-    rating: 5,
-    sourceUrl: null, // ← paste the public review permalink here to publish this one
-  },
-  {
-    text: 'I specify Drucka for every home I style. The print clarity and frame finish elevate a space instantly, and my clients always ask where the art came from.',
-    author: 'Priya Sharma',
-    title: 'Interior Designer',
-    image: '/images/testimonials/priya.webp',
-    rating: 5,
-    sourceUrl: null, // ← paste the public review permalink here to publish this one
-  },
-  {
-    text: 'I framed my family\'s favourite memories with Drucka and they turned out beautifully. Gorgeous quality, caring service, and prints that feel like they\'ll last forever.',
-    author: 'Sneha Iyer',
-    title: 'Teacher',
-    image: '/images/testimonials/sneha.webp',
-    rating: 5,
-    sourceUrl: null, // ← paste the public review permalink here to publish this one
-  },
-];
+}> = [];
 
 /* Only testimonials backed by a public, checkable source are publishable. */
 const VERIFIED = testimonials.filter((t) => t.sourceUrl);

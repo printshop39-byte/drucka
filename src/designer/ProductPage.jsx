@@ -8,17 +8,6 @@ import { Icon, ic } from "./icons";
    Category tabs (Men / Women / Kids / Children / Gifts) switch products;
    the Start Designing CTA opens the single ProductDesigner. ── */
 
-const Stars = ({ value }) => (
-  <span className="inline-flex items-center gap-0.5" aria-label={`${value} out of 5 stars`}>
-    {[1, 2, 3, 4, 5].map((i) => (
-      <svg key={i} viewBox="0 0 24 24" className="h-4 w-4"
-        fill={i <= Math.round(value) ? "#f2a230" : "#e5e2ec"}>
-        <path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z" />
-      </svg>
-    ))}
-  </span>
-);
-
 function SizeChartModal({ product, onClose }) {
   return (
     <div className="fixed inset-0 z-[98] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Size chart">
@@ -145,11 +134,10 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
         {/* ── details ── */}
         <div>
           <h1 className="font-display text-2xl font-bold text-ink sm:text-3xl">{p.productName}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-            <Stars value={p.rating} />
-            <span className="font-bold text-ink">{p.rating}</span>
-            <span className="text-ink/45">({p.reviews.toLocaleString("en-IN")} reviews)</span>
-          </div>
+          {/* Star rating + "(1,238 reviews)" removed 2026-07-25: those numbers
+              were hardcoded in data.js and there is no review system anywhere
+              in the codebase that could have produced them. Restore only when
+              real review data exists to back it. */}
           <p className="mt-3 text-2xl font-extrabold text-ink">
             {inr(p.basePrice)} <span className="text-sm font-semibold text-ink/45">base price · printing extra</span>
           </p>

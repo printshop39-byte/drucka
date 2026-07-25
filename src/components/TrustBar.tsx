@@ -1,13 +1,19 @@
-import { Award, Leaf, Star, Package } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const stats = [
-  { icon: Award, label: 'Museum Grade', value: 'Quality' },
-  { icon: Leaf, label: '100% Sustainable', value: 'Materials' },
-  { icon: Star, label: '10,000+', value: 'Happy Customers' },
-  { icon: Package, label: 'Free Shipping', value: 'Across India' },
-];
+/* EMPTY ON PURPOSE. All four stats were removed 2026-07-25 because every one
+   of them was either unverifiable or wrong:
+     • "10,000+ Happy Customers"      — no source
+     • "100% Sustainable Materials"   — unsubstantiated environmental claim
+     • "Museum Grade Quality"         — unsubstantiated
+     • "Free Shipping Across India"   — contradicted the announcement bar,
+                                        which correctly says free above ₹2,999
+   This section is already off the homepage (folded into WhyDrucka). With an
+   empty list it renders nothing, so it cannot silently return with invented
+   figures. Re-add only claims Drucka can actually evidence. */
+const stats: Array<{ icon: LucideIcon; label: string; value: string }> = [];
 
 export default function TrustBar() {
+  if (stats.length === 0) return null;
   return (
     <section className="bg-white border-b border-stone/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

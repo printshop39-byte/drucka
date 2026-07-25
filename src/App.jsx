@@ -535,12 +535,6 @@ const icons = {
   search: "M21 21l-4.3-4.3M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z",
 };
 
-const Stars = () => (
-  <div className="flex gap-0.5 text-amber-400" aria-label="5 out of 5 stars">
-    {[...Array(5)].map((_, i) => <Icon key={i} d={icons.star} filled className="h-4 w-4" />)}
-  </div>
-);
-
 /* ═══════════════════════════════════════════════════════════════
    BLANK PRODUCT MOCKUPS — pure SVG, colour-aware (no images)
    ═══════════════════════════════════════════════════════════════ */
@@ -2346,7 +2340,6 @@ const NAV_LINKS = [
   { href: "#products", label: "Products" },
   { action: "collage", label: "Collage Maker" },
   { href: "#how", label: "How it Works" },
-  { href: "#reviews", label: "Reviews" },
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -3123,41 +3116,10 @@ function GiftIdeaTool({ onCustomize }) {
   );
 }
 
-const REVIEWS = [
-  { name: "Aarti Patil", city: "Pune", text: "Ordered a photo mug for my mom's birthday — the print quality genuinely surprised me. Colours are rich and it arrived in 3 days, beautifully packed.", product: "Photo Mug" },
-  { name: "Rohan Kulkarni", city: "Kolhapur", text: "Got 15 custom T-shirts for our college fest. The team helped finalise the design on WhatsApp and delivered before the deadline. Fabric is genuinely premium.", product: "Premium T-Shirts (bulk)" },
-  { name: "Sneha Deshmukh", city: "Mumbai", text: "The framed print of our wedding photo looks like it belongs in a gallery. My husband loved it. Drucka is now my go-to for every gift.", product: "Framed Print" },
-];
-
-function Reviews() {
-  return (
-    <section id="reviews" className="scroll-mt-20 py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="reveal text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">Reviews</p>
-          <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Loved by gifters across India</h2>
-        </div>
-        <div className="reveal mt-10 grid gap-6 md:grid-cols-3">
-          {REVIEWS.map((r) => (
-            <figure key={r.name} className="glass flex flex-col rounded-3xl p-6 shadow-[0_12px_36px_rgba(27,20,48,0.08)] transition hover:-translate-y-1 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
-              <Stars />
-              <blockquote className="mt-4 flex-1 leading-relaxed text-ink/70">&ldquo;{r.text}&rdquo;</blockquote>
-              <figcaption className="mt-5 flex items-center gap-3 border-t border-ink/8 pt-4">
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-plum to-tangerine font-bold text-white">
-                  {r.name.split(" ").map((w) => w[0]).join("")}
-                </span>
-                <div>
-                  <p className="font-semibold text-ink">{r.name}</p>
-                  <p className="text-xs text-ink/50">{r.city} · {r.product}</p>
-                </div>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+/* The REVIEWS array and Reviews() section were deleted 2026-07-25.
+   They held invented customer quotes ("Rohan Kulkarni", "Sneha Deshmukh")
+   rendered with a hardcoded 5-star <Stars />. The section was already
+   dead code - never rendered - but the fabricated content is gone too. */
 
 const FAQS = [
   { q: "Can I upload my own image?", a: "Yes! Open the Design Studio and upload any JPG, PNG or SVG — your photo, artwork, logo or screenshot. For best print quality we recommend images of at least 1000×1000 px. Our team manually checks every file before printing and will message you on WhatsApp if anything needs fixing." },

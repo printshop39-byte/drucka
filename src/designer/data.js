@@ -107,7 +107,6 @@ export const PRODUCTS = [
     printAreas: TEE_PLACEMENTS,
     productHighlights: ["180 GSM", "100% Cotton", "Super Combed", "Pre Shrunk", "Bio Washed", "Lycra Ribbed Neck"],
     description: "Classic-fit crew neck tee in 180 GSM super-combed cotton. Bio-washed for softness, pre-shrunk so the fit survives the wash, with a Lycra-ribbed neck that keeps its shape. Printed on demand in India and delivered in 2–4 days.",
-    rating: 4.6, reviews: 1238,
   },
   {
     productId: "tshirt-women", qikinkId: "tshirt", category: "women",
@@ -126,7 +125,6 @@ export const PRODUCTS = [
     printAreas: FRONT_BACK({ left: 39, top: 33, width: 22, height: 27 }, { left: 39, top: 32, width: 22, height: 28 }, { w: 11, h: 14 }),
     productHighlights: ["180 GSM", "100% Cotton", "Feminine Fit", "Pre Shrunk", "Bio Washed"],
     description: "Soft-touch women's crew tee with a relaxed feminine fit. 180 GSM combed cotton, bio-washed, printed on demand in India.",
-    rating: 4.7, reviews: 642,
   },
   {
     productId: "kids-tshirt", qikinkId: "kids-tshirt", category: "kids",
@@ -146,7 +144,6 @@ export const PRODUCTS = [
     printAreas: FRONT_BACK({ left: 31, top: 26, width: 38, height: 42 }, { left: 31, top: 26, width: 38, height: 42 }, { w: 9, h: 11 }),
     productHighlights: ["160 GSM", "100% Cotton", "Skin Friendly", "Bio Washed", "Easy Wash"],
     description: "Soft, skin-friendly cotton tee for kids 2–14 years. Holds colour and shape through school-day adventures and endless washes.",
-    rating: 4.8, reviews: 415,
   },
   {
     productId: "tshirt-children", qikinkId: "kids-tshirt", category: "children",
@@ -163,7 +160,6 @@ export const PRODUCTS = [
     printAreas: FRONT_BACK({ left: 31, top: 26, width: 38, height: 42 }, { left: 31, top: 26, width: 38, height: 42 }, { w: 8, h: 10 }),
     productHighlights: ["160 GSM", "100% Cotton", "Toddler Safe", "Tagless Comfort"],
     description: "Extra-soft round neck tee sized for the littlest ones (2–8 years). Tagless, breathable and made for daily play.",
-    rating: 4.8, reviews: 188,
   },
   {
     productId: "hoodie", qikinkId: "hoodie", category: "men",
@@ -181,7 +177,6 @@ export const PRODUCTS = [
     printAreas: FRONT_BACK({ left: 33, top: 30, width: 34, height: 27 }, { left: 33, top: 28, width: 34, height: 32 }, { w: 11, h: 12 }),
     productHighlights: ["320 GSM", "Cotton Fleece", "Kangaroo Pocket", "Drawstring Hood"],
     description: "Heavyweight 320 GSM fleece hoodie with kangaroo pocket. Printed front or back on demand.",
-    rating: 4.5, reviews: 256,
   },
   {
     productId: "kids-hoodie", qikinkId: "kids-hoodie", category: "kids",
@@ -194,7 +189,6 @@ export const PRODUCTS = [
     printAreas: FRONT_BACK({ left: 33, top: 30, width: 34, height: 26 }, { left: 33, top: 28, width: 34, height: 30 }, { w: 8, h: 9 }),
     productHighlights: ["280 GSM", "Cozy Fleece", "Skin Friendly"],
     description: "Cozy fleece hoodie for kids — warm, soft and ready for their favourite design.",
-    rating: 4.7, reviews: 97,
   },
   {
     productId: "mug", qikinkId: "mug", category: "gifts",
@@ -212,7 +206,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 26, top: 40, width: 32, height: 33 }, { w: 8, h: 3.5 }, "Wrap"),
     productHighlights: ["Ceramic", "Dishwasher Safe", "Vivid Print"],
     description: "Personalised ceramic mug with edge-to-edge photo print. Dishwasher and microwave safe.",
-    rating: 4.6, reviews: 880,
   },
   {
     productId: "frame", qikinkId: "frame", category: "gifts",
@@ -229,7 +222,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 31, top: 26, width: 31, height: 43 }, { w: 8.3, h: 11.7 }),
     productHighlights: ["Gallery Grade", "Matte Finish", "Ready to Hang"],
     description: "Gallery-grade framed photo print with a clean matte finish — ready to hang.",
-    rating: 4.7, reviews: 364,
   },
   {
     productId: "cushion", qikinkId: "cushion", category: "gifts",
@@ -245,7 +237,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 28, top: 31, width: 44, height: 42 }, { w: 14, h: 14 }),
     productHighlights: ["Soft Velvet Touch", "Hidden Zip", "Filler Included"],
     description: "Soft printed throw cushion with hidden zip — filler included.",
-    rating: 4.5, reviews: 291,
   },
   {
     productId: "canvas", qikinkId: "canvas", category: "gifts",
@@ -262,7 +253,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 21, top: 18, width: 45, height: 62 }, { w: 12, h: 18 }),
     productHighlights: ["Premium Canvas", "Wooden Frame", "Fade Resistant"],
     description: "Premium stretched canvas on a wooden frame — museum-style photo finish.",
-    rating: 4.8, reviews: 199,
   },
   {
     productId: "poster", qikinkId: "poster", category: "gifts",
@@ -282,7 +272,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 20, top: 15, width: 60, height: 70 }, { w: 12, h: 18 }),
     productHighlights: ["Large Format", "Premium Matte Paper", "Fade Resistant"],
     description: "Large-format matte poster print — vivid, fade-resistant and ready to frame.",
-    rating: 4.7, reviews: 128,
   },
   {
     productId: "keychain", qikinkId: "keychain", category: "gifts",
@@ -298,7 +287,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 35, top: 36, width: 24, height: 38 }, { w: 1.2, h: 2 }),
     productHighlights: ["Crystal Acrylic", "Double Sided", "Pocket Size"],
     description: "Pocket-size acrylic photo keepsake — crystal clear, printed both sides.",
-    rating: 4.4, reviews: 1023,
   },
   {
     productId: "stickers", qikinkId: "stickers", category: "gifts",
@@ -316,7 +304,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 25, top: 22, width: 50, height: 56 }, { w: 5.8, h: 8.3 }, "Sheet"),
     productHighlights: ["Waterproof Vinyl", "Matte / Glossy", "Any Quantity"],
     description: "Custom stickers & labels for branding, packaging, weddings and events — die-cut or sheet format.",
-    rating: 4.7, reviews: 58,
   },
   {
     productId: "invitation-cards", qikinkId: "invitation-cards", category: "gifts",
@@ -334,7 +321,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 30, top: 14, width: 40, height: 68 }, { w: 5, h: 7 }),
     productHighlights: ["Marathi / Hindi / English", "Digital + Print", "Premium Cardstock"],
     description: "Personalised wedding, birthday & event invitations — digital invites for WhatsApp plus premium printed cards.",
-    rating: 4.8, reviews: 73,
   },
   {
     productId: "kids-mug", qikinkId: "kids-mug", category: "kids",
@@ -349,7 +335,6 @@ export const PRODUCTS = [
     printAreas: SINGLE({ left: 26, top: 40, width: 32, height: 33 }, { w: 7, h: 3 }, "Wrap"),
     productHighlights: ["Break Resistant", "Kid Safe", "Bright Print"],
     description: "Break-resistant mug sized for small hands — a school gift that lasts.",
-    rating: 4.6, reviews: 144,
   },
 ];
 
