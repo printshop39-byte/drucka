@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   CATEGORIES, LIGHT_COLORS, colorById, defaultProductFor, inr, productById, productsInCategory,
 } from "./data";
@@ -53,6 +53,20 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
   const [method, setMethod] = useState(p.printingOptions[0].id);
   const [chartOpen, setChartOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+
+  /* Escape closes the topmost layer — the size chart or details sheet first,
+     then the page itself. Every other overlay on the site already does this;
+     this one only had the "Back to Drucka" button. */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (chartOpen) { setChartOpen(false); return; }
+      if (detailsOpen) { setDetailsOpen(false); return; }
+      onClose?.();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [chartOpen, detailsOpen, onClose]);
 
   const switchProduct = (np) => {
     setProductId(np.productId);

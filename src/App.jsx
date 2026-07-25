@@ -3450,12 +3450,12 @@ function TrackOrderModal({ onClose, localOrders }) {
           <div>
             <label htmlFor="trk-id" className="mb-0.5 block text-[11px] font-semibold text-charcoal/60">Drucka order ID</label>
             <input id="trk-id" value={id} onChange={(e) => setId(e.target.value)} placeholder="DRK-XXXXXXXX"
-              className="w-full rounded-xl border border-charcoal/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-gold" />
+              className="w-full min-h-[44px] rounded-xl border border-charcoal/10 px-3 py-2.5 text-base shadow-sm outline-none focus:border-gold" />
           </div>
           <div>
             <label htmlFor="trk-phone" className="mb-0.5 block text-[11px] font-semibold text-charcoal/60">Mobile number used at checkout</label>
             <input id="trk-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit"
-              className="w-full rounded-xl border border-charcoal/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-gold" />
+              className="w-full min-h-[44px] rounded-xl border border-charcoal/10 px-3 py-2.5 text-base shadow-sm outline-none focus:border-gold" />
           </div>
           <button onClick={lookup} disabled={busy || !id.trim() || phone.replace(/\D/g, "").length < 10}
             className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5 disabled:opacity-40">
@@ -3536,7 +3536,11 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
   };
 
   const canSend = order && ["Paid", "COD Approved"].includes(order.paymentStatus);
-  const inputCls = "w-full rounded-xl border border-charcoal/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20";
+  /* text-base (16px), not text-sm: iOS Safari auto-zooms the page on focus
+     for any input under 16px and never zooms back out — on the checkout form
+     that is the worst possible place for it. min-h-[44px] meets the tap-target
+     minimum too (these were 42px). */
+  const inputCls = "w-full min-h-[44px] rounded-xl border border-charcoal/10 px-3 py-2.5 text-base shadow-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20";
   const lblCls = "mb-0.5 block text-[11px] font-semibold text-charcoal/60";
 
   return (
