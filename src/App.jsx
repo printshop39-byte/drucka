@@ -4381,6 +4381,13 @@ export default function App() {
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
         {/* featured collection 2 */}
         <GalleryWalls />
+        {/* Mini Photo Prints is back on the homepage per Drucka, 2026-07-25.
+            It is the cheapest entry point (from ₹19/print) and has its own SEO
+            route, so it earns the scroll length the other hidden sections did
+            not. Grouped with the collections rather than after Corporate/Bulk,
+            so the page still reads hero → categories → how → collections →
+            trust → social proof → corporate → stores → FAQ. */}
+        <MiniPhotoPrints onOrder={openMini} />
         {/* Single consolidated trust block. TrustBar, FrameFeatures,
             TrustPolicies and StudioTrust all repeated the same
             delivery/quality/returns promises (and contradicted each other on
@@ -4397,7 +4404,6 @@ export default function App() {
             off the homepage to cut scroll length — re-enable if merchandising
             wants them back:
             {<StatementCollection onTryMini={openMini} />}
-            {<MiniPhotoPrints onOrder={openMini} />}
             {<PhoneCases />} {<BentoShowcase />} {<QualityBanner />}
             {<SignatureGift />} {<BestsellingFrames />} {<FeaturedProduct />} */}
         </>
