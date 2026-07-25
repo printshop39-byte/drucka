@@ -28,6 +28,35 @@
    site derives from it.                                                */
 export const RETURN_WINDOW_DAYS = 7;
 
+/* ═══ THE DELIVERY RULE ══════════════════════════════════════════════
+   Set by Drucka on 2026-07-25. Previously the order summary hardcoded
+   "FREE · 2–4 days" for EVERY order, contradicting the announcement bar
+   and the shipping policy on the same screen.
+
+   NEVER hardcode "FREE" again — derive it from deliveryLabel() so the
+   cart, order summary, product page and this policy page cannot drift.  */
+export const FREE_DELIVERY_MIN = 2999;   // ₹ subtotal at or above which delivery is free
+export const DELIVERY_FROM = 49;         // ₹ starting charge below that
+
+/** The one string the UI shows for delivery, given a subtotal in ₹. */
+export const deliveryLabel = (subtotal) =>
+  Number(subtotal) >= FREE_DELIVERY_MIN
+    ? 'FREE · 2–4 days'
+    : `Delivery calculated on WhatsApp · from ₹${DELIVERY_FROM}`;
+
+/** Same rule, phrased for the plain-text WhatsApp order message. */
+export const deliveryLine = (subtotal) =>
+  Number(subtotal) >= FREE_DELIVERY_MIN
+    ? 'Delivery: FREE (2-4 days)'
+    : `Delivery: from ₹${DELIVERY_FROM}, exact charge confirmed here on WhatsApp`;
+
+/** Threshold formatted for display, e.g. "2,999". */
+export const FREE_DELIVERY_MIN_LABEL = FREE_DELIVERY_MIN.toLocaleString('en-IN');
+
+/** The rule itself, for surfaces with no cart subtotal (product page, footers). */
+export const DELIVERY_RULE_SHORT =
+  `Free delivery over ₹${FREE_DELIVERY_MIN_LABEL} · below that from ₹${DELIVERY_FROM}, confirmed on WhatsApp`;
+
 /* Items that need Drucka's authoritative answer before publishing.
    Deliberately NOT rendered on the page — an incomplete policy is better
    than a confidently wrong one. */
@@ -65,7 +94,7 @@ export const POLICIES = {
       },
       {
         h: 'Delivery charges',
-        p: 'Delivery starts at ₹49 and varies with weight, size and destination. The exact charge is confirmed on WhatsApp before you pay. Delivery is free on orders above ₹2,999.',
+        p: `Delivery starts at ₹${DELIVERY_FROM} and varies with weight, size and destination. The exact charge is confirmed on WhatsApp before you pay. Delivery is free on orders of ₹${FREE_DELIVERY_MIN.toLocaleString('en-IN')} and above.`,
       },
       {
         h: 'Tracking',

@@ -1,4 +1,5 @@
 import { X } from 'lucide-react';
+import { FREE_DELIVERY_MIN_LABEL } from '../seo/policies';
 
 interface AnnouncementBarProps {
   visible: boolean;
@@ -15,10 +16,10 @@ export default function AnnouncementBar({ visible, onClose }: AnnouncementBarPro
           sentence wrapped to two lines and overflowed the bar. */}
       <div className="relative mx-auto flex h-9 max-w-[1280px] items-center justify-center gap-2 pr-10">
         <span className="truncate sm:hidden">
-          <span className="text-gold">FREE SHIPPING</span> over ₹2,999 &nbsp;•&nbsp; <span className="text-gold">FREE HD PRINT</span>
+          <span className="text-gold">FREE SHIPPING</span> over ₹{FREE_DELIVERY_MIN_LABEL} &nbsp;•&nbsp; <span className="text-gold">FREE HD PRINT</span>
         </span>
         <span className="hidden sm:inline">
-          <span className="text-gold">FREE SHIPPING</span> on orders above ₹2,999 &nbsp;•&nbsp; <span className="text-gold">FREE HD PHOTO PRINT</span> with every frame
+          <span className="text-gold">FREE SHIPPING</span> on orders above ₹{FREE_DELIVERY_MIN_LABEL} &nbsp;•&nbsp; <span className="text-gold">FREE HD PHOTO PRINT</span> with every frame
         </span>
         <button
           onClick={onClose}

@@ -3,6 +3,7 @@ import {
   CATEGORIES, LIGHT_COLORS, colorById, defaultProductFor, inr, productById, productsInCategory,
 } from "./data";
 import { Icon, ic } from "./icons";
+import { DELIVERY_RULE_SHORT } from "../seo/policies";
 
 /* ── Product detail page — one reusable page for every catalog product.
    Category tabs (Men / Women / Kids / Children / Gifts) switch products;
@@ -227,6 +228,9 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
               Start Designing →
             </button>
             <p className="text-xs text-ink/50">Free design preview · 2–4 day delivery · printed in India</p>
+            {/* the delivery rule, from the same constants as the cart, the
+                order summary and the shipping policy page */}
+            <p className="mt-1 text-xs text-ink/50">{DELIVERY_RULE_SHORT}</p>
           </div>
         </div>
       </div>

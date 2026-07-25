@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { DELIVERY_RULE_SHORT } from "../seo/policies";
 import {
   BG_SWATCHES, PRINT_SIZES, SOCIAL_SIZES, FRAME_OPTIONS, LAMINATION_OPTIONS,
   LAYOUTS, OCCASIONS, PATTERNS, PHOTO_FILTERS,
@@ -601,7 +602,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             className="w-full rounded-full bg-[#25D366] py-3 text-sm font-bold text-white transition hover:brightness-105 disabled:opacity-50">
             💬 Order on WhatsApp
           </button>
-          <p className="text-[10px] leading-relaxed text-charcoal/40">Printed &amp; shipped by Drucka in 2–4 days · COD available · Free shipping over {inr(2999)}.</p>
+          <p className="text-[10px] leading-relaxed text-charcoal/40">Printed &amp; shipped by Drucka in 2–4 days · COD available · {DELIVERY_RULE_SHORT}.</p>
         </div>
       );
       default: return null;

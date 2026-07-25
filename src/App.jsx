@@ -38,7 +38,7 @@ import TrustPolicies from "./components/TrustPolicies";
 import StudioTrust from "./components/StudioTrust";
 import ProductLanding from "./components/ProductLanding";
 import { LANDINGS } from "./components/landingData";
-import { POLICIES } from "./seo/policies";
+import { POLICIES, FREE_DELIVERY_MIN, deliveryLabel, deliveryLine } from "./seo/policies";
 import PolicyPage from "./components/PolicyPage";
 import BentoShowcase from "./components/BentoShowcase";
 import PhoneCases from "./components/PhoneCases";
@@ -3253,7 +3253,12 @@ function OrderSummary({ cart, total, colorLabel }) {
       </ul>
       <dl className="mt-4 grid gap-1.5 rounded-xl bg-charcoal/4 p-3 text-sm">
         <div className="flex justify-between"><dt className="text-charcoal/55">Subtotal</dt><dd className="font-semibold">{inr(total)}</dd></div>
-        <div className="flex justify-between"><dt className="text-charcoal/55">Delivery · डिलिव्हरी</dt><dd className="font-semibold text-emerald-600">FREE · 2–4 days</dd></div>
+        {/* Derived from deliveryLabel(), never hardcoded — this line used to
+            read "FREE · 2–4 days" for every order, contradicting the
+            announcement bar and the shipping policy on the same screen.
+            Green only when it really is free; neutral otherwise. */}
+        <div className="flex justify-between gap-3"><dt className="shrink-0 text-charcoal/55">Delivery · डिलिव्हरी</dt>
+          <dd className={`text-right font-semibold ${total >= FREE_DELIVERY_MIN ? "text-emerald-600" : "text-charcoal/70"}`}>{deliveryLabel(total)}</dd></div>
         <div className="flex justify-between border-t border-charcoal/10 pt-1.5"><dt className="font-bold text-charcoal">Total</dt><dd className="font-serif text-lg font-bold text-charcoal">{inr(total)}</dd></div>
       </dl>
       <div className="mt-4 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11.5px] leading-relaxed text-charcoal/75">
@@ -3289,7 +3294,7 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
         (colorLabel(i.color) ? `\n   Colour: ${colorLabel(i.color)}` : "") +
         (i.summary ? `\n   ${i.summary} (I'll attach my design files here)` : "")
       ).join("\n") +
-      `\n\nTotal: ${inr(total)}\nDelivery: 2–4 days\nPayment: UPI (${CONFIG.upiId}) / COD. Please confirm my order!`
+      `\n\nTotal: ${inr(total)}\n${deliveryLine(total)}\nPayment: UPI (${CONFIG.upiId}) / COD. Please confirm my order!`
   );
 
   return (
