@@ -1,13 +1,30 @@
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Quote, ExternalLink } from 'lucide-react';
 
-const testimonials = [
+/* ⚠ SOCIAL PROOF — VERIFICATION GATE ────────────────────────────────
+   These three testimonials are named individuals with photos and 5-star
+   ratings. Their authenticity could not be verified from the codebase, and
+   unverifiable endorsements are a real exposure under India's consumer
+   protection rules on misleading advertising.
+
+   So this section now FAILS SAFE: a testimonial renders only if it carries
+   a `sourceUrl` pointing at the publicly checkable review (Google Business
+   review permalink, Instagram post, etc.). With no proof URLs the whole
+   section renders nothing rather than making an unbacked claim.
+
+   TO PUT THEM BACK: paste the review permalink into `sourceUrl`. Each one
+   restored gets a "Verified review" link out to the source.
+   If a testimonial is not real, delete its entry outright.              */
+const testimonials: Array<{
+  text: string; author: string; title: string; image: string; rating: number; sourceUrl: string | null;
+}> = [
   {
     text: 'A frame for every piece of art. Drucka\'s rich collection and personal guidance make choosing the right one genuinely satisfying — every project leaves my studio looking complete.',
     author: 'Amit Deshpande',
     title: 'Architect',
     image: '/images/testimonials/amit.webp',
     rating: 5,
+    sourceUrl: null, // ← paste the public review permalink here to publish this one
   },
   {
     text: 'I specify Drucka for every home I style. The print clarity and frame finish elevate a space instantly, and my clients always ask where the art came from.',
@@ -15,6 +32,7 @@ const testimonials = [
     title: 'Interior Designer',
     image: '/images/testimonials/priya.webp',
     rating: 5,
+    sourceUrl: null, // ← paste the public review permalink here to publish this one
   },
   {
     text: 'I framed my family\'s favourite memories with Drucka and they turned out beautifully. Gorgeous quality, caring service, and prints that feel like they\'ll last forever.',
@@ -22,23 +40,30 @@ const testimonials = [
     title: 'Teacher',
     image: '/images/testimonials/sneha.webp',
     rating: 5,
+    sourceUrl: null, // ← paste the public review permalink here to publish this one
   },
 ];
+
+/* Only testimonials backed by a public, checkable source are publishable. */
+const VERIFIED = testimonials.filter((t) => t.sourceUrl);
 
 export default function Testimonials() {
   const [current, setCurrent] = useState(0);
 
-  const next = () => setCurrent((prev) => (prev + 1) % testimonials.length);
-  const prev = () => setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+  const next = () => setCurrent((prev) => (prev + 1) % VERIFIED.length);
+  const prev = () => setCurrent((prev) => (prev - 1 + VERIFIED.length) % VERIFIED.length);
 
-  const active = testimonials[current];
+  // No proof supplied yet → publish nothing rather than an unbacked claim.
+  if (VERIFIED.length === 0) return null;
+
+  const active = VERIFIED[Math.min(current, VERIFIED.length - 1)];
 
   return (
     <section className="relative py-20 lg:py-28 overflow-hidden">
       {/* Framed gallery-wall background */}
       <div className="absolute inset-0">
         <img
-          src="/images/gallery/grand-gallery.jpg"
+          src="/images/gallery/grand-gallery.webp"
           alt=""
           aria-hidden="true"
           loading="lazy"
@@ -54,8 +79,10 @@ export default function Testimonials() {
           <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">
             What People Say
           </span>
+          {/* was "Trusted by Thousands" — an unsubstantiated numeric claim,
+              retired along with TrustBar's "10,000+ Happy Customers" */}
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
-            Trusted by Thousands
+            In Their Words
           </h2>
         </div>
 
@@ -84,6 +111,15 @@ export default function Testimonials() {
             </div>
             <h4 className="font-semibold text-charcoal text-lg">{active.author}</h4>
             <p className="text-sm text-charcoal/50 uppercase tracking-wide mt-1">{active.title}</p>
+            <a
+              href={active.sourceUrl!}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gold-dark underline-offset-4 hover:underline"
+            >
+              Verified review
+              <ExternalLink size={12} aria-hidden="true" />
+            </a>
           </div>
 
           {/* Navigation */}
@@ -95,16 +131,23 @@ export default function Testimonials() {
             >
               <ChevronLeft size={18} />
             </button>
-            <div className="flex gap-2">
-              {testimonials.map((_, i) => (
+            {/* 8px dots were the smallest tap target on the page — the visible
+                dot stays small, the hit area is a full 44x44 grid cell */}
+            <div className="flex">
+              {VERIFIED.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
                   aria-label={`Go to testimonial ${i + 1}`}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    i === current ? 'bg-gold w-6' : 'bg-charcoal/20'
-                  }`}
-                />
+                  aria-current={i === current}
+                  className="grid h-11 w-11 place-items-center"
+                >
+                  <span
+                    className={`block h-2 rounded-full transition-all ${
+                      i === current ? 'w-6 bg-gold' : 'w-2 bg-charcoal/20'
+                    }`}
+                  />
+                </button>
               ))}
             </div>
             <button

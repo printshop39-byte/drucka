@@ -1,9 +1,9 @@
 import { Upload } from 'lucide-react';
 
 const miniPrints = [
-  { size: '2×3 inch', name: 'Wallet & Gift Inserts', image: '/images/mini/mini-2x3.jpg', desc: 'Pocket-size prints for wallets, cards & gift tags', price: 19 },
+  { size: '2×3 inch', name: 'Wallet & Gift Inserts', image: '/images/mini/mini-2x3.webp', desc: 'Pocket-size prints for wallets, cards & gift tags', price: 19 },
   { size: '3×3 inch', name: 'Instagram Square Prints', image: '/images/mini/mini-3x3.jpg', desc: 'Perfect square prints of your favourite feed photos', price: 25 },
-  { size: '4×3 inch', name: 'Memory & Scrapbook Prints', image: '/images/mini/mini-4x3.jpg', desc: 'Classic mini prints for albums & scrapbooks', price: 29 },
+  { size: '4×3 inch', name: 'Memory & Scrapbook Prints', image: '/images/mini/mini-4x3.webp', desc: 'Classic mini prints for albums & scrapbooks', price: 29 },
 ];
 
 export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {

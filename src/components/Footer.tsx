@@ -37,7 +37,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="w-9 h-9 border border-white/20 hover:border-gold rounded-full flex items-center justify-center transition-colors group"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 transition-colors hover:border-gold group"
               >
                 <Camera size={16} className="text-white/50 group-hover:text-gold transition-colors" />
               </a>
@@ -46,7 +46,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="WhatsApp"
-                className="w-9 h-9 border border-white/20 hover:border-gold rounded-full flex items-center justify-center transition-colors group"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 transition-colors hover:border-gold group"
               >
                 <MessageCircle size={16} className="text-white/50 group-hover:text-gold transition-colors" />
               </a>
@@ -56,10 +56,10 @@ export default function Footer({ onTrack }: FooterProps) {
           {/* Shop */}
           <div>
             <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Shop</h4>
-            <ul className="space-y-2.5">
+            <ul>
               {shopLinks.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="text-sm text-white/40 hover:text-white transition-colors">{item.label}</a>
+                  <a href={item.href} className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">{item.label}</a>
                 </li>
               ))}
             </ul>
@@ -68,26 +68,42 @@ export default function Footer({ onTrack }: FooterProps) {
           {/* Help */}
           <div>
             <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Help</h4>
-            <ul className="space-y-2.5">
+            <ul>
               <li>
-                <button onClick={onTrack} className="text-sm text-white/40 hover:text-white transition-colors">
+                <button onClick={onTrack} className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">
                   Track Order
                 </button>
               </li>
-              {['Shipping Policy', 'Return Policy', 'Bulk Orders'].map((item) => (
-                <li key={item}>
+              {/* Real internal policy pages — content in src/seo/policies.js,
+                  prerendered to static HTML by scripts/prerender.js */}
+              {[
+                { label: 'Shipping & Delivery', href: '/shipping-policy' },
+                { label: 'Returns & Replacement', href: '/returns-policy' },
+                { label: 'Privacy Policy', href: '/privacy-policy' },
+              ].map((item) => (
+                <li key={item.href}>
                   <a
-                    href={wa(`Hi Drucka! I have a question about: ${item}`)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-white/40 hover:text-white transition-colors"
+                    href={item.href}
+                    className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white"
                   >
-                    {item}
+                    {item.label}
                   </a>
                 </li>
               ))}
               <li>
-                <a href="#faq" className="text-sm text-white/40 hover:text-white transition-colors">FAQs</a>
+                <a
+                  href={wa('Hi Drucka! I have a question about bulk orders.')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Ask about bulk orders on WhatsApp"
+                  className="flex min-h-[44px] items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white"
+                >
+                  Bulk orders
+                  <MessageCircle size={12} aria-hidden="true" />
+                </a>
+              </li>
+              <li>
+                <a href="#faq" className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">FAQs</a>
               </li>
             </ul>
           </div>
@@ -95,12 +111,12 @@ export default function Footer({ onTrack }: FooterProps) {
           {/* Contact */}
           <div>
             <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Contact</h4>
-            <div className="space-y-3">
-              <a href="mailto:hello@drucka.in" className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
+            <div>
+              <a href="mailto:hello@drucka.in" className="flex min-h-[44px] items-center gap-2 text-sm text-white/40 transition-colors hover:text-white">
                 <Mail size={14} />
                 hello@drucka.in
               </a>
-              <a href="tel:+917083811355" className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors">
+              <a href="tel:+917083811355" className="flex min-h-[44px] items-center gap-2 text-sm text-white/40 transition-colors hover:text-white">
                 <Phone size={14} />
                 +91 70838 11355
               </a>
@@ -108,29 +124,28 @@ export default function Footer({ onTrack }: FooterProps) {
                 href={wa("Hi Drucka! I'd like to place a custom printing order.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors"
+                className="flex min-h-[44px] items-center gap-2 text-sm text-white/40 transition-colors hover:text-white"
               >
                 <MessageCircle size={14} />
                 WhatsApp Order
               </a>
             </div>
+            {/* Was an email field whose value was discarded — the button next to
+                it only ever opened WhatsApp. Now it's honestly a WhatsApp opt-in. */}
             <div className="mt-6">
-              <h5 className="text-sm font-medium mb-3">Newsletter</h5>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 min-w-0 bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 rounded-l-sm focus:outline-none focus:border-gold"
-                />
-                <a
-                  href={wa("Hi Drucka! I'd like to join the newsletter for offers & new designs.")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-gold hover:bg-gold-dark text-white text-sm font-medium rounded-r-sm transition-colors"
-                >
-                  Join
-                </a>
-              </div>
+              <h5 className="mb-2 text-sm font-medium">Offers &amp; new designs</h5>
+              <p className="mb-3 text-xs leading-relaxed text-white/40">
+                We send occasional offers on WhatsApp — no spam, leave any time.
+              </p>
+              <a
+                href={wa("Hi Drucka! I'd like to get offers & new design updates on WhatsApp.")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-gold px-5 text-sm font-medium text-white transition-colors hover:bg-gold-dark"
+              >
+                <MessageCircle size={15} aria-hidden="true" />
+                Get updates on WhatsApp
+              </a>
             </div>
           </div>
         </div>

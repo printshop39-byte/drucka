@@ -1,9 +1,14 @@
-import { BadgeCheck, Sparkles, ShieldCheck, Truck, Building2, MessageCircle } from 'lucide-react';
+import { BadgeCheck, RefreshCw, ShieldCheck, Truck, Building2, MessageCircle } from 'lucide-react';
+import { RETURN_SHORT } from '../seo/policies';
 
-/* Why Drucka — trust grid. White bg, single gold accent, bordered soft-shadow cards. */
+/* Why Drucka — THE single trust block for the homepage.
+   TrustBar, Features, TrustPolicies and StudioTrust previously repeated these
+   promises across four separate sections. The replacement wording is derived
+   from RETURN_WINDOW_DAYS in src/seo/policies.js so this card and the returns
+   policy page can never contradict each other again. */
 const points = [
   { icon: BadgeCheck, title: 'No minimum order', desc: 'Order a single print or hundreds — entirely your call.' },
-  { icon: Sparkles, title: 'Premium quality', desc: 'Rich, true-to-photo colours on premium paper & materials.' },
+  { icon: RefreshCw, title: 'Easy replacement', desc: RETURN_SHORT },
   { icon: ShieldCheck, title: 'Secure & private', desc: 'Your photos are used only for your order — never shared or sold.' },
   { icon: Truck, title: 'Fast India delivery', desc: 'Carefully packed and delivered across India in 2–4 days.' },
   { icon: Building2, title: 'Bulk & corporate', desc: 'Volume pricing for events, weddings & office gifting.' },

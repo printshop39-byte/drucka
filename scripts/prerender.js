@@ -8,6 +8,7 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANDINGS } from '../src/seo/landings.js';
+import { POLICIES } from '../src/seo/policies.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = resolve(ROOT, 'dist');
@@ -81,6 +82,33 @@ async function run() {
     await mkdir(resolve(DIST, d.slug), { recursive: true });
     await writeFile(resolve(DIST, d.slug, 'index.html'), html, 'utf8');
     console.log(`prerendered /${d.slug}`);
+  }
+
+  /* Policy pages. Payment-gateway reviewers and crawlers frequently fetch
+     these without running JS, so the copy is baked into the static HTML as
+     real <h1>/<h2>/<p> rather than left to client-side hydration. */
+  for (const d of Object.values(POLICIES)) {
+    const url = `${ABS}/${d.slug}`;
+    let html = shell;
+
+    html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(d.title)}</title>`);
+    html = replaceTag(html, 'name="description"', `<meta name="description" content="${esc(d.description)}" />`);
+    html = replaceTag(html, 'rel="canonical"', `<link rel="canonical" href="${url}" />`);
+    html = replaceTag(html, 'property="og:title"', `<meta property="og:title" content="${esc(d.title)}" />`);
+    html = replaceTag(html, 'property="og:description"', `<meta property="og:description" content="${esc(d.description)}" />`);
+    html = replaceTag(html, 'property="og:url"', `<meta property="og:url" content="${url}" />`);
+    html = replaceTag(html, 'name="twitter:title"', `<meta name="twitter:title" content="${esc(d.title)}" />`);
+    html = replaceTag(html, 'name="twitter:description"', `<meta name="twitter:description" content="${esc(d.description)}" />`);
+
+    const body =
+      `<h1>${esc(d.label)}</h1><p>${esc(d.intro)}</p>` +
+      d.sections.map((s) => `<h2>${esc(s.h)}</h2><p>${esc(s.p)}</p>`).join('');
+    // React replaces #root on hydration, so this is crawler-visible only.
+    html = html.replace('<div id="root"></div>', `<div id="root"><article>${body}</article></div>`);
+
+    await mkdir(resolve(DIST, d.slug), { recursive: true });
+    await writeFile(resolve(DIST, d.slug, 'index.html'), html, 'utf8');
+    console.log(`prerendered /${d.slug} (policy)`);
   }
 }
 

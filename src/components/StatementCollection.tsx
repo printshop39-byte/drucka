@@ -3,14 +3,14 @@ import Lightbox, { LightboxItem } from './Lightbox';
 
 /* NOTE: prices below are placeholders for the kinetic restyle — confirm/replace. */
 const statements = [
-  { name: 'Oslo', image: '/images/statement/oslo.jpg', price: '₹2,999', limited: true },
-  { name: 'Portland', image: '/images/statement/portland.jpg', price: '₹2,499' },
-  { name: 'Fuji', image: '/images/statement/fuji.jpg', price: '₹3,499' },
-  { name: 'Naples', image: '/images/statement/naples.jpg', price: '₹2,799' },
-  { name: 'Shibuya', image: '/images/statement/shibuya.jpg', price: '₹3,999', limited: true },
-  { name: 'Monaco', image: '/images/statement/monaco.jpg', price: '₹3,299' },
-  { name: 'Burano', image: '/images/statement/burano.jpg', price: '₹2,699' },
-  { name: 'Sariska', image: '/images/statement/sariska.jpg', price: '₹3,199' },
+  { name: 'Oslo', image: '/images/statement/oslo.webp', card: '/images/statement/oslo-640.webp', price: '₹2,999', limited: true },
+  { name: 'Portland', image: '/images/statement/portland.webp', card: '/images/statement/portland-640.webp', price: '₹2,499' },
+  { name: 'Fuji', image: '/images/statement/fuji.webp', card: '/images/statement/fuji-640.webp', price: '₹3,499' },
+  { name: 'Naples', image: '/images/statement/naples.webp', card: '/images/statement/naples-640.webp', price: '₹2,799' },
+  { name: 'Shibuya', image: '/images/statement/shibuya.webp', card: '/images/statement/shibuya-640.webp', price: '₹3,999', limited: true },
+  { name: 'Monaco', image: '/images/statement/monaco.webp', card: '/images/statement/monaco-640.webp', price: '₹3,299' },
+  { name: 'Burano', image: '/images/statement/burano.webp', card: '/images/statement/burano-640.webp', price: '₹2,699' },
+  { name: 'Sariska', image: '/images/statement/sariska.webp', card: '/images/statement/sariska-640.webp', price: '₹3,199' },
 ];
 
 const HEADING = 'The Masterpiece Collection';
@@ -94,8 +94,15 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
               aria-label={`View ${s.name}`}
             >
               <div className="relative aspect-square bg-warm rounded-lg overflow-hidden mb-3">
+                {/* Card is 2/3/4-up depending on breakpoint; `s.image` is
+                    1000px only because the Lightbox renders it at ~648px.
+                    Measured card widths: 296px @639, 304px @1023 (its widest),
+                    218px @1024, 286px @1440 — so 640w covers every slot at 2x.
+                    The Lightbox keeps using `s.image`, unchanged. */}
                 <img
-                  src={s.image}
+                  src={s.card}
+                  srcSet={`${s.card} 640w, ${s.image} 1000w`}
+                  sizes="(min-width: 1280px) 290px, (min-width: 1024px) 23vw, (min-width: 768px) 31vw, 47vw"
                   alt={`${s.name} — statement photo frame & wall art online | Drucka`}
                   loading="lazy"
                   decoding="async"

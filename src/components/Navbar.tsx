@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Menu, X, ShoppingBag, ChevronDown, Upload, Search } from 'lucide-react';
+import { Menu, X, ShoppingBag, ChevronDown, Search } from 'lucide-react';
 
 interface SearchProduct {
   id: string;
@@ -22,9 +22,34 @@ interface NavbarProps {
   onSearch?: (term: string) => void;
 }
 
+/* Desktop nav is deliberately three items — Products, Gallery Walls,
+   Corporate/Bulk — so the primary CTA stays the loudest thing in the bar.
+   Everything else lives inside the Products mega-menu. */
+const SHOP_LINKS: Array<{ name: string; href: string; action?: 'mini' }> = [
+  { name: 'Photo Frames', href: '#photo-frames' },
+  { name: 'Photo Prints', href: '#catalog' },
+  /* opens the real /mini-prints route rather than just scrolling — the previous
+     nav checked `link.action` on items that never had one, so this never fired */
+  { name: 'Mini Prints', href: '/mini-prints', action: 'mini' as const },
+  { name: 'Statement Collection', href: '#statement' },
+  { name: 'Phone Cases & Gifting', href: '#phone-cases' },
+];
+
+/* Preserved from the previous nav — these drive the frame-style picker in
+   PhotoFramesSection via onPickFrame. Removing them would drop a live feature. */
+const FRAME_STYLES = [
+  { name: 'Classic Black', id: 'classic-black' },
+  { name: 'Premium Golden', id: 'premium-golden' },
+  { name: 'Wooden Brown', id: 'wooden-brown' },
+  { name: 'White Minimal', id: 'white-minimal' },
+  { name: 'Designer Black Gold', id: 'designer-black-gold' },
+  { name: 'Traditional Ornate', id: 'traditional-ornate' },
+];
+
 export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onUpload, onPickFrame, searchProducts = [], onSearchSelect, onSearch }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [productsOpen, setProductsOpen] = useState(false);
+  const productsRef = useRef<HTMLDivElement>(null);
 
   /* ── Product search ─────────────────────────────────────────── */
   const [searchOpen, setSearchOpen] = useState(false);
@@ -39,46 +64,46 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
       .slice(0, 6);
   }, [q, searchProducts]);
 
-  /* focus the field when the search panel opens */
   useEffect(() => {
     if (searchOpen) searchInputRef.current?.focus();
   }, [searchOpen]);
 
-  /* fire Meta Pixel Search once typing settles (debounced) */
   useEffect(() => {
     if (!q) return;
     const t = window.setTimeout(() => onSearch?.(q), 600);
     return () => window.clearTimeout(t);
   }, [q, onSearch]);
 
+  /* The mega-menu opens on click AND hover, never hover-only — touch users and
+     keyboard users get the same access. Escape and outside-click close it. */
+  useEffect(() => {
+    if (!productsOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setProductsOpen(false); };
+    const onClick = (e: MouseEvent) => {
+      if (!productsRef.current?.contains(e.target as Node)) setProductsOpen(false);
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onClick);
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('mousedown', onClick); };
+  }, [productsOpen]);
+
   const closeSearch = () => { setSearchOpen(false); setQuery(''); };
   const pickResult = (id: string) => { onSearchSelect?.(id); closeSearch(); };
+  const closeAll = () => { setMobileOpen(false); setProductsOpen(false); };
 
-  const navLinks = [
-    { name: 'Frames', href: '#photo-frames', dropdown: [
-      { name: 'Classic Black', id: 'classic-black' },
-      { name: 'Premium Golden', id: 'premium-golden' },
-      { name: 'Wooden Brown', id: 'wooden-brown' },
-      { name: 'White Minimal', id: 'white-minimal' },
-      { name: 'Designer Black Gold', id: 'designer-black-gold' },
-      { name: 'Traditional Ornate', id: 'traditional-ornate' },
-    ] },
-    { name: 'Gallery Walls', href: '#gallery-walls' },
-    { name: 'Statement Collection', href: '#statement' },
-    { name: 'Mini Prints', href: '#mini-prints' },
-    { name: 'Gifting', href: '#phone-cases' },
-  ];
+  /* 44×44 minimum tap target for every icon control in the bar */
+  const iconBtn = 'grid h-11 w-11 place-items-center rounded-full text-charcoal/70 transition hover:bg-cream hover:text-charcoal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold';
 
   return (
     <nav
-      className="fixed left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-stone/50 transition-all duration-300"
+      className="fixed left-0 right-0 z-50 border-b border-stone/50 bg-white/95 backdrop-blur-md transition-all duration-300"
       style={{ top: topOffset ? '36px' : '0' }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-2">
           {/* Mobile menu button */}
           <button
-            className="lg:hidden p-2 -ml-2 text-charcoal"
+            className={`lg:hidden -ml-2 ${iconBtn}`}
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileOpen}
@@ -87,87 +112,108 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
           </button>
 
           {/* Logo */}
-          <a href="#top" className="flex items-center gap-2">
-            <div className="flex items-center">
-              <div className="w-8 h-8 border-2 border-charcoal flex items-center justify-center">
-                <div className="w-5 h-5 border border-gold"></div>
-              </div>
-              <span className="ml-3 text-xl lg:text-2xl font-serif font-bold tracking-wide text-charcoal">
-                DRUCKA
-              </span>
+          <a href="#top" className="flex items-center" onClick={closeAll}>
+            <div className="flex h-8 w-8 items-center justify-center border-2 border-charcoal">
+              <div className="h-5 w-5 border border-gold"></div>
             </div>
+            <span className="ml-3 font-serif text-xl font-bold tracking-wide text-charcoal lg:text-2xl">
+              DRUCKA
+            </span>
           </a>
 
-          {/* Desktop Nav */}
-          <div className="hidden lg:flex items-center gap-7">
-            {navLinks.map((link) => (
-              <div
-                key={link.name}
-                className="relative"
-                onMouseEnter={() => link.dropdown && setActiveDropdown(link.name)}
-                onMouseLeave={() => setActiveDropdown(null)}
+          {/* Desktop Nav — three destinations only */}
+          <div className="hidden items-center gap-8 lg:flex">
+            <div
+              ref={productsRef}
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+            >
+              <button
+                onClick={() => setProductsOpen((v) => !v)}
+                aria-expanded={productsOpen}
+                aria-haspopup="true"
+                className="flex items-center gap-1 text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal"
               >
-                <a
-                  href={link.href}
-                  onClick={link.action === 'mini' ? (e) => { e.preventDefault(); onMini?.(); } : undefined}
-                  className="flex items-center gap-1 text-sm font-medium text-charcoal/80 hover:text-charcoal transition-colors tracking-wide uppercase"
-                >
-                  {link.name}
-                  {link.dropdown && <ChevronDown size={14} />}
-                </a>
-                {link.dropdown && activeDropdown === link.name && (
-                  <div className="absolute top-full left-0 pt-2">
-                    <div className="bg-white shadow-xl rounded-lg border border-stone/50 py-2 min-w-[200px]">
-                      {link.dropdown.map((item) => (
+                Products
+                <ChevronDown size={14} className={productsOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+              </button>
+
+              {productsOpen && (
+                <div className="absolute left-0 top-full pt-2">
+                  <div className="grid grid-cols-2 gap-6 rounded-2xl border border-stone/50 bg-white p-6 shadow-xl">
+                    <div className="min-w-[190px]">
+                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Shop</p>
+                      {SHOP_LINKS.map((item) => (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          onClick={(e) => { if (item.action === 'mini') { e.preventDefault(); onMini?.(); } setProductsOpen(false); }}
+                          className="block rounded-lg px-2 py-2 text-sm text-charcoal/75 transition-colors hover:bg-cream hover:text-charcoal"
+                        >
+                          {item.name}
+                        </a>
+                      ))}
+                      <button
+                        onClick={() => { setProductsOpen(false); onCollage(); }}
+                        className="block w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-gold-dark transition-colors hover:bg-cream"
+                      >
+                        Collage Maker
+                      </button>
+                    </div>
+                    <div className="min-w-[190px]">
+                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Frame styles</p>
+                      {FRAME_STYLES.map((item) => (
                         <a
                           key={item.id}
                           href="#photo-frames"
-                          onClick={() => { setActiveDropdown(null); onPickFrame?.(item.id); }}
-                          className="block px-4 py-2 text-sm text-charcoal/70 hover:text-charcoal hover:bg-cream transition-colors"
+                          onClick={() => { setProductsOpen(false); onPickFrame?.(item.id); }}
+                          className="block rounded-lg px-2 py-2 text-sm text-charcoal/75 transition-colors hover:bg-cream hover:text-charcoal"
                         >
                           {item.name}
                         </a>
                       ))}
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-            <button
-              onClick={onCollage}
-              className="text-sm font-medium text-gold-dark hover:text-charcoal transition-colors tracking-wide uppercase"
-            >
-              Collage Maker
-            </button>
+                </div>
+              )}
+            </div>
+
+            <a href="#gallery-walls" className="text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal">
+              Gallery Walls
+            </a>
+            <a href="#corporate" className="text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal">
+              Corporate / Bulk
+            </a>
           </div>
 
-          {/* Right icons */}
-          <div className="flex items-center gap-3">
+          {/* Right controls */}
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setSearchOpen((v) => !v)}
-              className="p-2 text-charcoal/70 hover:text-charcoal transition-colors"
+              className={iconBtn}
               aria-label="Search products"
               aria-expanded={searchOpen}
             >
               {searchOpen ? <X size={20} /> : <Search size={20} />}
             </button>
             <button
-              onClick={onUpload}
-              className="hidden lg:flex items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark"
-            >
-              <Upload size={15} /> Choose Photo
-            </button>
-            <button
               onClick={onCartOpen}
-              className="p-2 text-charcoal/70 hover:text-charcoal transition-colors relative"
+              className={`relative ${iconBtn}`}
               aria-label={`Open cart, ${cartCount} items`}
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gold text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
                   {cartCount}
                 </span>
               )}
+            </button>
+            <button
+              onClick={onUpload}
+              className="ml-1 hidden min-h-[44px] items-center gap-2 rounded-xl bg-gold px-5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold lg:flex"
+            >
+              Start Customising
             </button>
           </div>
         </div>
@@ -185,7 +231,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                 onKeyDown={(e) => { if (e.key === 'Escape') closeSearch(); if (e.key === 'Enter' && results[0]) pickResult(results[0].id); }}
                 placeholder="Search products — t-shirt, mug, frame, canvas…"
                 aria-label="Search products"
-                className="w-full rounded-full border border-stone/60 bg-white py-3 pl-12 pr-4 text-sm text-charcoal outline-none transition placeholder:text-charcoal/40 focus:border-gold focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-full border border-stone/60 bg-white py-3 pl-12 pr-4 text-base text-charcoal outline-none transition placeholder:text-charcoal/40 focus:border-gold focus:ring-2 focus:ring-gold/20"
               />
             </div>
 
@@ -199,13 +245,13 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                       className="flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-cream"
                     >
                       {p.img && (
-                        <img src={p.img} alt="" className="h-10 w-10 flex-shrink-0 rounded-lg object-cover" loading="lazy" />
+                        <img src={p.img} alt="" width={40} height={40} className="h-10 w-10 flex-shrink-0 rounded-lg object-cover" loading="lazy" />
                       )}
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-semibold text-charcoal">{p.name}</span>
                         {p.tag && <span className="block truncate text-xs text-charcoal/50">{p.tag}</span>}
                       </span>
-                      <span className="text-xs font-medium uppercase tracking-wide text-gold-dark">Customize →</span>
+                      <span className="text-xs font-medium uppercase tracking-wide text-gold-dark">Customise →</span>
                     </button>
                   ))
                 ) : (
@@ -219,30 +265,60 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-white border-t border-stone/30">
-          <div className="px-4 py-4 space-y-3">
-            {navLinks.map((link) => (
+        <div className="max-h-[70vh] overflow-y-auto border-t border-stone/30 bg-white lg:hidden">
+          <div className="px-5 py-4">
+            <button
+              onClick={() => { setMobileOpen(false); onUpload?.(); }}
+              className="mb-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-gold text-sm font-bold uppercase tracking-wide text-white"
+            >
+              Start Customising
+            </button>
+
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Shop</p>
+            {SHOP_LINKS.map((item) => (
               <a
-                key={link.name}
-                href={link.href}
-                className="block py-2 text-sm font-medium text-charcoal/80 uppercase tracking-wide"
-                onClick={(e) => { if (link.action === 'mini') { e.preventDefault(); onMini?.(); } setMobileOpen(false); }}
+                key={item.name}
+                href={item.href}
+                className="flex min-h-[44px] items-center text-sm font-medium uppercase tracking-wide text-charcoal/80"
+                onClick={(e) => { if (item.action === 'mini') { e.preventDefault(); onMini?.(); } setMobileOpen(false); }}
               >
-                {link.name}
+                {item.name}
               </a>
             ))}
+            <a
+              href="#gallery-walls"
+              className="flex min-h-[44px] items-center text-sm font-medium uppercase tracking-wide text-charcoal/80"
+              onClick={() => setMobileOpen(false)}
+            >
+              Gallery Walls
+            </a>
+            <a
+              href="#corporate"
+              className="flex min-h-[44px] items-center text-sm font-medium uppercase tracking-wide text-charcoal/80"
+              onClick={() => setMobileOpen(false)}
+            >
+              Corporate / Bulk
+            </a>
             <button
               onClick={() => { setMobileOpen(false); onCollage(); }}
-              className="block w-full py-2 text-left text-sm font-medium text-gold-dark uppercase tracking-wide"
+              className="flex min-h-[44px] w-full items-center text-left text-sm font-medium uppercase tracking-wide text-gold-dark"
             >
               Collage Maker
             </button>
-            <button
-              onClick={() => { setMobileOpen(false); onUpload?.(); }}
-              className="mt-1 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-sm font-bold uppercase tracking-wide text-white"
-            >
-              <Upload size={16} /> Choose Photo
-            </button>
+
+            <p className="mb-1 mt-3 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Frame styles</p>
+            <div className="grid grid-cols-2 gap-x-3">
+              {FRAME_STYLES.map((item) => (
+                <a
+                  key={item.id}
+                  href="#photo-frames"
+                  onClick={() => { setMobileOpen(false); onPickFrame?.(item.id); }}
+                  className="flex min-h-[44px] items-center text-sm text-charcoal/70"
+                >
+                  {item.name}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       )}

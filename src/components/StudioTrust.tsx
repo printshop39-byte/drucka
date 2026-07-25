@@ -18,10 +18,10 @@ const PHONE_DISPLAY = '+91 70838 11355';
    ⚠ OWNER: drop real macro/quality photos at these paths to replace. */
 const STUDIO_PHOTO = '/images/studio/made-in-studio.webp';
 const SAMPLES = [
-  { src: '/images/frames/premium-golden-live.jpg', label: 'Framed prints' },
+  { src: '/images/frames/premium-golden-live.webp', label: 'Framed prints' },
   { src: '/images/mini/mini-3x3.jpg', label: 'Mini prints' },
-  { src: '/images/prints/print-1.jpg', label: 'Photo prints' },
-  { src: '/images/mug.jpg', label: 'Photo mugs' },
+  { src: '/images/prints/print-1.webp', label: 'Photo prints' },
+  { src: '/images/mug.webp', label: 'Photo mugs' },
 ];
 
 const card: React.CSSProperties = { border: '1px solid rgba(26,18,8,0.08)', boxShadow: '0 2px 14px rgba(26,18,8,0.05)' };

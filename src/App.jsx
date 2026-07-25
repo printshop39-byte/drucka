@@ -17,7 +17,14 @@ const MiniPrints = lazy(() => import("./components/MiniPrints"));
 import AnnouncementBar from "./components/AnnouncementBar";
 import FrameNavbar from "./components/Navbar";
 import FrameHero from "./components/Hero";
-import ScrollShowcase from "./components/ScrollShowcase";
+/* ScrollShowcase is intentionally NOT imported: it runs gsap.registerPlugin at
+   module scope, so a bare import keeps GSAP + Lenis in the homepage bundle even
+   when the component never renders.
+   TO RE-ENABLE THE INTRO, THREE THINGS ARE NEEDED:
+     1. restore this import:  import ScrollShowcase from "./components/ScrollShowcase";
+     2. uncomment <ScrollShowcase /> in the homepage below;
+     3. move assets-src/images/scroll/ back to public/images/scroll/ — its 1.57 MB
+        of art was pulled out of the deploy since nothing rendered it. */
 import TrustBar from "./components/TrustBar";
 import BestsellingFrames from "./components/BestsellingFrames";
 import FeaturedProduct from "./components/FeaturedProduct";
@@ -31,6 +38,8 @@ import TrustPolicies from "./components/TrustPolicies";
 import StudioTrust from "./components/StudioTrust";
 import ProductLanding from "./components/ProductLanding";
 import { LANDINGS } from "./components/landingData";
+import { POLICIES } from "./seo/policies";
+import PolicyPage from "./components/PolicyPage";
 import BentoShowcase from "./components/BentoShowcase";
 import PhoneCases from "./components/PhoneCases";
 import QualityBanner from "./components/QualityBanner";
@@ -107,15 +116,15 @@ const IS_STAGING = import.meta.env.VITE_STAGING === "true";
 
 /* Landing-page catalogue (images live in /public/images/) */
 const PRODUCTS = [
-  { id: "tshirt",   name: "Premium T-Shirt",  category: "tshirts",   price: 599, delivery: "2–4 days", img: "/images/tshirt.jpg",   tag: "Bestseller", blurb: "Soft cotton, full-colour print" },
-  { id: "mug",      name: "Photo Mug",        category: "mugs",      price: 299, delivery: "2–4 days", img: "/images/mug.jpg",      tag: "Popular",    blurb: "Personalised ceramic mug" },
-  { id: "frame",    name: "Framed Print",     category: "frames",    price: 899, delivery: "2–4 days", img: "/images/frame.jpg",    tag: "Premium",    blurb: "Gallery-grade photo frame" },
-  { id: "cushion",  name: "Cushion",          category: "cushions",  price: 649, delivery: "2–4 days", img: "/images/cushion.jpg",  tag: "Cozy Pick",  blurb: "Soft printed throw cushion" },
-  { id: "canvas",   name: "Canvas",           category: "frames",    price: 999, delivery: "2–4 days", img: "/images/canvas.jpg",   tag: "Premium",    blurb: "Stretched premium canvas" },
-  { id: "keychain", name: "Acrylic Keychain", category: "keychains", price: 149, delivery: "2–4 days", img: "/images/keychain.jpg", tag: "Under ₹200", blurb: "Pocket-size photo keepsake" },
-  { id: "kids-tshirt", name: "Kids T-Shirt",          category: "kids", price: 449, delivery: "2–4 days", img: "/mockups/kids-tshirt-front-white.png", fallbackImg: "/images/tshirt.jpg", tag: "Kids 2–12Y", blurb: "Soft cotton tee for little ones" },
-  { id: "kids-hoodie", name: "Kids Hoodie",           category: "kids", price: 799, delivery: "2–4 days", img: "/images/categories/kids-jacket.jpg", fallbackImg: "/images/tshirt.jpg", tag: "Kids 2–12Y", blurb: "Cozy printed hoodie for kids" },
-  { id: "kids-mug",    name: "Kids Mug / School Gift", category: "kids", price: 279, delivery: "2–4 days", img: "/images/mug.jpg", tag: "School Gift", blurb: "Break-resistant mug for school" },
+  { id: "tshirt",   name: "Premium T-Shirt",  category: "tshirts",   price: 599, delivery: "2–4 days", img: "/images/tshirt.webp",   tag: "Bestseller", blurb: "Soft cotton, full-colour print" },
+  { id: "mug",      name: "Photo Mug",        category: "mugs",      price: 299, delivery: "2–4 days", img: "/images/mug.webp",      tag: "Popular",    blurb: "Personalised ceramic mug" },
+  { id: "frame",    name: "Framed Print",     category: "frames",    price: 899, delivery: "2–4 days", img: "/images/frame.webp",    tag: "Premium",    blurb: "Gallery-grade photo frame" },
+  { id: "cushion",  name: "Cushion",          category: "cushions",  price: 649, delivery: "2–4 days", img: "/images/cushion.webp",  tag: "Cozy Pick",  blurb: "Soft printed throw cushion" },
+  { id: "canvas",   name: "Canvas",           category: "frames",    price: 999, delivery: "2–4 days", img: "/images/canvas.webp",   tag: "Premium",    blurb: "Stretched premium canvas" },
+  { id: "keychain", name: "Acrylic Keychain", category: "keychains", price: 149, delivery: "2–4 days", img: "/images/keychain.webp", tag: "Under ₹200", blurb: "Pocket-size photo keepsake" },
+  { id: "kids-tshirt", name: "Kids T-Shirt",          category: "kids", price: 449, delivery: "2–4 days", img: "/mockups/kids-tshirt-front-white.png", fallbackImg: "/images/tshirt.webp", tag: "Kids 2–12Y", blurb: "Soft cotton tee for little ones" },
+  { id: "kids-hoodie", name: "Kids Hoodie",           category: "kids", price: 799, delivery: "2–4 days", img: "/images/categories/kids-jacket.webp", fallbackImg: "/images/tshirt.webp", tag: "Kids 2–12Y", blurb: "Cozy printed hoodie for kids" },
+  { id: "kids-mug",    name: "Kids Mug / School Gift", category: "kids", price: 279, delivery: "2–4 days", img: "/images/mug.webp", tag: "School Gift", blurb: "Break-resistant mug for school" },
 ];
 
 const CATEGORIES = [
@@ -182,7 +191,10 @@ function getMockupAsset(productId, colorId, view, side = "front") {
   }
   const urls = [];
   for (const c of colorId === "white" ? ["white"] : [colorId, "white"]) {
-    urls.push(`/mockups/${stem}-${c}.png`, `/mockups/${stem}-${c}.jpg`);
+    /* .webp first (the mockups are now WebP — see ASSET-MIGRATION.md §4);
+       .png/.jpg stay in the chain as fallbacks, so dropping a legacy file in
+       still works and a missing WebP simply falls through. */
+    urls.push(`/mockups/${stem}-${c}.webp`, `/mockups/${stem}-${c}.png`, `/mockups/${stem}-${c}.jpg`);
   }
   return urls;
 }
@@ -357,11 +369,11 @@ const QIKINK_STATUSES = ["Draft", "Sent to Qikink", "In Production", "Shipped", 
    https://creator.qikink.com/dashboard → Products */
 const QIKINK_PRODUCT_MAP = [
   { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Male Standard Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "yellow"], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
-  { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Unisex Oversized Tee",       qikinkProductId: "MOSTS-240", skuPattern: "MOsTs-{color}-{size}", printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
-  { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Male Polo MP25",             qikinkProductId: "MP25",      skuPattern: "MP25-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
-  { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Kids Round Neck T-Shirt",    qikinkProductId: "KRNHS-160", skuPattern: "KRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"],                    active: true },
-  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Unisex Hooded Sweatshirt",   qikinkProductId: "MHOOD-320", skuPattern: "MHood-{color}-{size}", printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
-  { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Ceramic Mug 11oz",     qikinkProductId: "MUG11-W",   skuPattern: "Mug11-{color}",        printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
+  { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Oversized Classic T-Shirt | UC22", qikinkProductId: "UC22",  skuPattern: "UOsMRnHs-{color}-{size}", printMethod: "DTF",     colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
+  { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Polo | MP25",                qikinkProductId: "MP25",      skuPattern: "MPHs-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
+  { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["5Yrs", "7Yrs", "9Yrs", "11Yrs", "13Yrs"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"], active: false /* TODO: confirm Boy vs Girl stem + Drucka size labels before re-enabling */ },
+  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
+  { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Coffee Mug",           qikinkProductId: "UWCM",      skuPattern: "UWCM-{color}-11 OZ",   printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
 ];
 /* default shipping cost per mapping (editable in Admin → Product Mapping) */
 QIKINK_PRODUCT_MAP.forEach((m) => { if (m.shippingCost == null) m.shippingCost = m.druckaId === "hoodie" ? 69 : 49; });
@@ -2457,7 +2469,7 @@ function Hero() {
           </ul>
         </div>
         <div className="anim-slide-right relative mx-auto w-full max-w-xl" style={{ "--d": ".3s" }}>
-          <img src="/images/hero-lifestyle.jpg" alt="Custom printed T-shirt by Drucka, worn on a road trip in India"
+          <img src="/images/hero-lifestyle.webp" alt="Custom printed T-shirt by Drucka, worn on a road trip in India"
             fetchpriority="high"
             className="animate-float-soft w-full rounded-[2rem] border border-white/60 object-cover shadow-[0_34px_80px_rgba(27,20,48,0.28)]" />
           <div className="badge-pop-float glass absolute -bottom-5 left-6 flex items-center gap-3 rounded-2xl px-4 py-3 shadow-xl"
@@ -2478,15 +2490,15 @@ function Hero() {
 
 /* ── Shop-by-category showcase — real model mockups (mix 11 shoot) ── */
 const SHOWCASE_CATEGORIES = [
-  { id: "men-tshirt", label: "Men T-Shirts", sub: "Classic crew · 180 GSM", img: "/images/categories/men-tshirt.jpg", productId: "tshirt" },
-  { id: "men-polo", label: "Men Polos", sub: "Smart casual staple", img: "/images/categories/men-polo.jpg", productId: "tshirt" },
-  { id: "hoodie", label: "Hoodies", sub: "Cozy 320 GSM fleece", img: "/images/categories/hoodie-2.jpg", productId: "hoodie" },
-  { id: "oversized", label: "Oversized Tees", sub: "Streetwear black drop", img: "/images/categories/oversized-black-tee.jpg", productId: "tshirt" },
-  { id: "women-tshirt", label: "Women T-Shirts", sub: "Feminine relaxed fit", img: "/images/categories/women-tshirt.jpg", productId: "tshirt-women" },
-  { id: "women-crop", label: "Women Crop Tops", sub: "Trend-ready cut", img: "/images/categories/women-crop-top.jpg", productId: "tshirt-women" },
-  { id: "kids-tshirt", label: "Kids T-Shirts", sub: "Soft & skin friendly", img: "/images/categories/kids-tshirt.jpg", productId: "kids-tshirt" },
-  { id: "girls-tshirt", label: "Girls T-Shirts", sub: "2–14 years", img: "/images/categories/girls-tshirt.jpg", productId: "kids-tshirt" },
-  { id: "kids-jacket", label: "Kids Jackets & Hoodies", sub: "Warm everyday layers", img: "/images/categories/kids-jacket.jpg", productId: "kids-hoodie" },
+  { id: "men-tshirt", label: "Men T-Shirts", sub: "Classic crew · 180 GSM", img: "/images/categories/men-tshirt.webp", productId: "tshirt" },
+  { id: "men-polo", label: "Men Polos", sub: "Smart casual staple", img: "/images/categories/men-polo.webp", productId: "tshirt" },
+  { id: "hoodie", label: "Hoodies", sub: "Cozy 320 GSM fleece", img: "/images/categories/hoodie-2.webp", productId: "hoodie" },
+  { id: "oversized", label: "Oversized Tees", sub: "Streetwear black drop", img: "/images/categories/oversized-black-tee.webp", productId: "tshirt" },
+  { id: "women-tshirt", label: "Women T-Shirts", sub: "Feminine relaxed fit", img: "/images/categories/women-tshirt.webp", productId: "tshirt-women" },
+  { id: "women-crop", label: "Women Crop Tops", sub: "Trend-ready cut", img: "/images/categories/women-crop-top.webp", productId: "tshirt-women" },
+  { id: "kids-tshirt", label: "Kids T-Shirts", sub: "Soft & skin friendly", img: "/images/categories/kids-tshirt.webp", productId: "kids-tshirt" },
+  { id: "girls-tshirt", label: "Girls T-Shirts", sub: "2–14 years", img: "/images/categories/girls-tshirt.webp", productId: "kids-tshirt" },
+  { id: "kids-jacket", label: "Kids Jackets & Hoodies", sub: "Warm everyday layers", img: "/images/categories/kids-jacket.webp", productId: "kids-hoodie" },
 ];
 
 function CategoryShowcase({ onCustomize }) {
@@ -2542,11 +2554,11 @@ const PRINT_TYPES = ["Glossy Photo Print", "Matte Photo Print", "Passport Size P
 const PRINT_SIZES = ["4x6", "5x7", "6x8", "8x10", "12x18", "A4", "A3"];
 
 const FRAME_STYLES = [
-  { id: "classic-black",      name: "Classic Black",       mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null,       frameImg: "/images/frames/classic-black-live.jpg" },
-  { id: "premium-golden",     name: "Premium Golden",      mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c", frameImg: "/images/frames/premium-golden-live.jpg" },
-  { id: "wooden-brown",       name: "Wooden Brown",        mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null,       frameImg: "/images/frames/wooden-brown-live.jpg" },
-  { id: "white-minimal",      name: "White Minimal",       mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true, frameImg: "/images/frames/white-minimal-live.jpg" },
-  { id: "designer-black-gold",name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37",  frameImg: "/images/frames/designer-black-gold-live.jpg" },
+  { id: "classic-black",      name: "Classic Black",       mat: "linear-gradient(135deg,#3a3a3a,#0c0c0c)", accent: null,       frameImg: "/images/frames/classic-black-live.webp" },
+  { id: "premium-golden",     name: "Premium Golden",      mat: "linear-gradient(135deg,#f6e09a,#caa033 48%,#8c5f17)", accent: "#f2d98c", frameImg: "/images/frames/premium-golden-live.webp" },
+  { id: "wooden-brown",       name: "Wooden Brown",        mat: "linear-gradient(135deg,#a06f40,#5d3819)", accent: null,       frameImg: "/images/frames/wooden-brown-live.webp" },
+  { id: "white-minimal",      name: "White Minimal",       mat: "linear-gradient(135deg,#ffffff,#e7e7ea)", accent: null, light: true, frameImg: "/images/frames/white-minimal-live.webp" },
+  { id: "designer-black-gold",name: "Designer Black Gold", mat: "linear-gradient(135deg,#1c1c1c,#000)", accent: "#d4af37",  frameImg: "/images/frames/designer-black-gold-live.webp" },
   { id: "traditional-ornate", name: "Traditional Ornate",  mat: "linear-gradient(135deg,#d8b358,#7a5414)", accent: "#f0d98f", frameImg: "/images/frames/traditional-ornate-live.jpg" },
 ];
 
@@ -2617,74 +2629,74 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
           <span className="block uppercase" style={{ color: '#C9A84C', letterSpacing: '5px', fontSize: '10px', fontWeight: 400 }}>
             Our Collection
           </span>
-          <h2 className="mt-4 font-display" style={{ fontWeight: 300, fontSize: 'clamp(32px,5vw,56px)', color: '#1a1208', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
+          <h2 className="mt-4 font-serif" style={{ fontWeight: 300, fontSize: 'clamp(32px,5vw,56px)', color: '#1a1208', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
             Photo Prints <span style={{ color: '#C9A84C' }}>&amp;</span> Custom Frames
           </h2>
           <div style={{ height: '0.5px', width: 60, background: '#C9A84C', opacity: 0.7, margin: '16px auto' }} />
-          <p className="mx-auto mt-3 max-w-xl text-ink/60">
+          <p className="mx-auto mt-3 max-w-xl text-charcoal/60">
             Upload your photo, choose print size, select frame style, and get a ready-to-hang customized frame.
           </p>
-          <p className="mx-auto mt-5 max-w-md font-display italic text-ink/45" style={{ fontWeight: 300 }}>
+          <p className="mx-auto mt-5 max-w-md font-serif italic text-charcoal/45" style={{ fontWeight: 300 }}>
             &ldquo;Every photo deserves a perfect frame.&rdquo;
           </p>
         </div>
 
         <div className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
           {/* ═══ Photo Prints ═══ */}
-          <div className="reveal group relative overflow-hidden rounded-[1.75rem] border border-ink/8 bg-white p-6 shadow-[0_10px_40px_rgba(27,20,48,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(27,20,48,0.12)] sm:p-8">
-            <span className="absolute right-5 top-5 z-10 rounded-full bg-tangerine px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
+          <div className="reveal group relative overflow-hidden rounded-[1.75rem] border border-charcoal/8 bg-white p-6 shadow-[0_10px_40px_rgba(27,20,48,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(27,20,48,0.12)] sm:p-8">
+            <span className="absolute right-5 top-5 z-10 rounded-full bg-gold-dark px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
               Fast Printing
             </span>
 
             {/* sample stack visual */}
             <div className="mb-6 flex h-40 items-end justify-center gap-2.5" aria-hidden="true">
-              {["/images/prints/print-1.jpg", "/images/prints/print-2.jpg", "/images/prints/print-3.jpg", "/images/prints/print-4.jpg"].map((src, i) => (
+              {["/images/prints/print-1.webp", "/images/prints/print-2.webp", "/images/prints/print-3.webp", "/images/prints/print-4.webp"].map((src, i) => (
                 <div key={i}
-                  className="relative aspect-[3/4] w-16 overflow-hidden rounded-xl bg-white p-1 shadow-lg ring-1 ring-ink/5 transition-transform duration-500 group-hover:-translate-y-1 sm:w-20"
+                  className="relative aspect-[3/4] w-16 overflow-hidden rounded-xl bg-white p-1 shadow-lg ring-1 ring-charcoal/5 transition-transform duration-500 group-hover:-translate-y-1 sm:w-20"
                   style={{ transform: `rotate(${(i - 1.5) * 5}deg)`, transitionDelay: `${i * 60}ms` }}>
                   <img src={src} alt="" loading="lazy" className="h-full w-full rounded-lg object-cover" />
                 </div>
               ))}
             </div>
 
-            <h3 className="font-display text-2xl font-bold text-ink">Photo Prints</h3>
-            <p className="mt-1 text-sm text-ink/55">Premium lab-quality prints, delivered crisp and vivid.</p>
+            <h3 className="font-serif text-2xl font-bold text-charcoal">Photo Prints</h3>
+            <p className="mt-1 text-sm text-charcoal/55">Premium lab-quality prints, delivered crisp and vivid.</p>
 
             <div className="mt-4 flex flex-wrap gap-2">
               {PRINT_TYPES.map((t) => (
                 <button key={t} onClick={() => setPrintType(printType === t ? null : t)}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                    printType === t ? "border-amber-500 bg-amber-500 text-white shadow" : "border-ink/12 bg-white text-ink/70 hover:border-amber-400 hover:text-amber-700"
+                  className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-xs font-semibold transition ${
+                    printType === t ? "border-gold bg-gold text-white shadow" : "border-charcoal/12 bg-white text-charcoal/70 hover:border-gold hover:text-gold-dark"
                   }`}>
                   {t}
                 </button>
               ))}
             </div>
 
-            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-ink/40">Choose a size</p>
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-charcoal/40">Choose a size</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {PRINT_SIZES.map((s) => (
                 <button key={s} onClick={() => setPrintSize(printSize === s ? null : s)}
-                  className={`min-w-12 rounded-lg border-2 px-2.5 py-1.5 text-xs font-bold transition ${
-                    printSize === s ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/40"
+                  className={`inline-flex min-h-[44px] min-w-12 items-center justify-center rounded-lg border-2 px-3 text-xs font-bold transition ${
+                    printSize === s ? "border-charcoal bg-charcoal text-white" : "border-charcoal/12 bg-white text-charcoal/70 hover:border-charcoal/40"
                   }`}>
                   {s}
                 </button>
               ))}
             </div>
 
-            <p className="mt-4 flex items-center gap-1.5 text-xs text-ink/50">
+            <p className="mt-4 flex items-center gap-1.5 text-xs text-charcoal/50">
               <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> High quality color print with sharp finishing.
             </p>
 
             <button onClick={openPrint}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 py-3.5 font-bold text-white shadow-lg shadow-amber-500/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-500/35">
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-3.5 font-bold text-white shadow-lg shadow-charcoal/15 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-charcoal/25">
               <Icon d={icons.upload} className="h-4.5 w-4.5" /> Upload Photo for Print
             </button>
           </div>
 
           {/* ═══ Custom Frames ═══ */}
-          <div className="reveal group relative overflow-hidden rounded-[1.75rem] border-2 border-amber-300/50 bg-white p-6 shadow-[0_12px_44px_rgba(180,138,46,0.14)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_56px_rgba(180,138,46,0.22)] sm:p-8">
+          <div className="reveal group relative overflow-hidden rounded-[1.75rem] border-2 border-gold/30 bg-white p-6 shadow-[0_12px_44px_rgba(180,138,46,0.14)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_56px_rgba(180,138,46,0.22)] sm:p-8">
             <span className="absolute right-5 top-5 z-10 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[2px] text-white shadow-md" style={{ background: '#C9A84C' }}>
               Most Popular
             </span>
@@ -2694,8 +2706,8 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
                 <FrameMock frame={frame} big />
               </div>
               <div>
-                <h3 className="font-display text-2xl font-bold text-ink">Custom Frames</h3>
-                <p className="mt-1 text-sm text-ink/55">Ready-to-hang frames, built around your photo.</p>
+                <h3 className="font-serif text-2xl font-bold text-charcoal">Custom Frames</h3>
+                <p className="mt-1 text-sm text-charcoal/55">Ready-to-hang frames, built around your photo.</p>
                 <p className="mt-2 text-xs font-semibold" style={{ color: '#C9A84C' }}>Selected: {frame.name}</p>
               </div>
             </div>
@@ -2705,16 +2717,16 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               {FRAME_STEPS.map((s, i) => (
                 <li key={s} className="flex flex-1 items-center gap-1">
                   <span className="flex flex-col items-center gap-1 text-center">
-                    <span className="grid h-7 w-7 place-items-center rounded-full bg-ink text-[11px] font-bold text-white">{i + 1}</span>
-                    <span className="text-[9px] font-semibold leading-tight text-ink/55">{s}</span>
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-charcoal text-[11px] font-bold text-white">{i + 1}</span>
+                    <span className="text-[9px] font-semibold leading-tight text-charcoal/55">{s}</span>
                   </span>
-                  {i < FRAME_STEPS.length - 1 && <span className="mb-4 h-px flex-1 bg-ink/15" />}
+                  {i < FRAME_STEPS.length - 1 && <span className="mb-4 h-px flex-1 bg-charcoal/15" />}
                 </li>
               ))}
             </ol>
 
             {/* frame style grid */}
-            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-ink/40">Choose your frame</p>
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-charcoal/40">Choose your frame</p>
             <div className="mt-2 grid grid-cols-3 gap-2.5">
               {FRAME_STYLES.map((f) => {
                 const active = frame.id === f.id;
@@ -2725,7 +2737,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
                     <div className="transition-transform duration-500 group-hover:scale-[1.03]">
                       <FrameMock frame={f} />
                     </div>
-                    <p className="mt-2 truncate font-display text-[13px]" style={{ color: '#1a1208', letterSpacing: '0.5px' }}>{f.name}</p>
+                    <p className="mt-2 truncate font-serif text-[13px]" style={{ color: '#1a1208', letterSpacing: '0.5px' }}>{f.name}</p>
                     <span className={`mt-1.5 block py-1.5 text-center text-[10px] font-semibold uppercase ${active ? "ef-pill-on" : "ef-pill"}`}>
                       {active ? "✓ Selected" : "Select Frame"}
                     </span>
@@ -2735,24 +2747,24 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </div>
 
             {/* size + customization choices */}
-            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-ink/40">Print size</p>
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-charcoal/40">Print size</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {PRINT_SIZES.map((s) => (
                 <button key={s} onClick={() => setFrameSize(frameSize === s ? null : s)}
-                  className={`min-w-12 rounded-lg border-2 px-2.5 py-1.5 text-xs font-bold transition ${
-                    frameSize === s ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/40"
+                  className={`inline-flex min-h-[44px] min-w-12 items-center justify-center rounded-lg border-2 px-3 text-xs font-bold transition ${
+                    frameSize === s ? "border-charcoal bg-charcoal text-white" : "border-charcoal/12 bg-white text-charcoal/70 hover:border-charcoal/40"
                   }`}>
                   {s}
                 </button>
               ))}
             </div>
 
-            <p className="mt-4 flex items-center gap-1.5 text-xs text-ink/50">
+            <p className="mt-4 flex items-center gap-1.5 text-xs text-charcoal/50">
               <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> Select frame design and we will adjust your photo perfectly.
             </p>
 
             <button onClick={openFrame}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-ink to-plum py-3.5 font-bold text-white shadow-lg shadow-plum/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-plum/35">
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-charcoal to-gold py-3.5 font-bold text-white shadow-lg shadow-charcoal/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-charcoal/35">
               <Icon d={icons.image} className="h-4.5 w-4.5" /> Customize Frame
             </button>
             <button onClick={() => onCustomize("frame")}
@@ -2768,7 +2780,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
 
 function ProductCard({ product, fav, onFav, onCustomize }) {
   return (
-    <article className="group relative overflow-hidden rounded-3xl border border-ink/5 bg-white shadow-[0_8px_30px_rgba(27,20,48,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
+    <article className="group relative overflow-hidden rounded-3xl border border-charcoal/5 bg-white shadow-[0_8px_30px_rgba(27,20,48,0.06)] transition duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_44px_rgba(91,33,182,0.14)]">
       <div className="relative overflow-hidden">
         <img src={product.img} alt={product.name} loading="lazy"
           onError={(e) => {
@@ -2776,32 +2788,32 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
               e.currentTarget.src = product.fallbackImg;
           }}
           className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
-        <span className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-bold tracking-wide text-plum shadow-sm backdrop-blur">{product.tag}</span>
+        <span className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-bold tracking-wide text-gold shadow-sm backdrop-blur">{product.tag}</span>
         <button onClick={() => onFav(product.id)} aria-pressed={fav}
           aria-label={fav ? `Remove ${product.name} from favourites` : `Add ${product.name} to favourites`}
           className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full shadow-md backdrop-blur transition ${
-            fav ? "bg-blush/90 text-rose-600" : "bg-white/85 text-ink/50 hover:text-rose-500"
+            fav ? "bg-blush/90 text-rose-600" : "bg-white/85 text-charcoal/50 hover:text-rose-500"
           }`}>
           <Icon d={icons.heart} filled={fav} className="h-4.5 w-4.5" />
         </button>
       </div>
       <div className="p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-ink/40">
+        <p className="text-xs font-semibold uppercase tracking-wider text-charcoal/40">
           {CATEGORIES.find((c) => c.id === product.category)?.label}
         </p>
-        <h3 className="mt-1 font-display text-xl font-bold text-ink">{product.name}</h3>
-        <p className="mt-0.5 text-sm text-ink/55">{product.blurb}</p>
+        <h3 className="mt-1 font-serif text-xl font-bold text-charcoal">{product.name}</h3>
+        <p className="mt-0.5 text-sm text-charcoal/55">{product.blurb}</p>
         <div className="mt-3 flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-medium text-ink/45">Starting at</p>
-            <p className="text-lg font-extrabold text-plum">{inr(product.price)}</p>
+            <p className="text-[11px] font-medium text-charcoal/45">Starting at</p>
+            <p className="text-lg font-extrabold text-gold">{inr(product.price)}</p>
           </div>
-          <p className="flex items-center gap-1.5 text-xs font-medium text-ink/55">
-            <Icon d={icons.truck} className="h-4 w-4 text-tangerine" /> {product.delivery}
+          <p className="flex items-center gap-1.5 text-xs font-medium text-charcoal/55">
+            <Icon d={icons.truck} className="h-4 w-4 text-gold-dark" /> {product.delivery}
           </p>
         </div>
         <button onClick={() => onCustomize(product.id)}
-          className="btn-shine group/cta mt-4 w-full rounded-full bg-ink py-2.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-plum hover:shadow-lg hover:shadow-plum/25">
+          className="btn-shine group/cta mt-4 w-full rounded-full bg-charcoal py-2.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-gold hover:shadow-lg hover:shadow-charcoal/25">
           Customize{" "}
           <span className="inline-block transition-transform duration-300 group-hover/cta:translate-x-1">→</span>
         </button>
@@ -2817,17 +2829,17 @@ function ProductTabs({ favs, onFav, onCustomize }) {
     <section id="products" className="scroll-mt-20 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">Our Products</p>
-          <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Pick it. We&rsquo;ll print it.</h2>
-          <p className="mx-auto mt-3 max-w-xl text-ink/60">Every product is printed on demand with your photo, art or message.</p>
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-gold-dark">Our Products</p>
+          <h2 className="mt-2 font-serif text-4xl font-bold text-charcoal sm:text-5xl">Pick it. We&rsquo;ll print it.</h2>
+          <p className="mx-auto mt-3 max-w-xl text-charcoal/60">Every product is printed on demand with your photo, art or message.</p>
         </div>
         <div className="reveal mt-8 flex flex-wrap justify-center gap-2" role="tablist" aria-label="Product categories">
           {CATEGORIES.map((c) => (
             <button key={c.id} role="tab" aria-selected={tab === c.id} onClick={() => setTab(c.id)}
               className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
                 tab === c.id
-                  ? "bg-gradient-to-r from-plum to-plum-soft text-white shadow-lg shadow-plum/25"
-                  : "bg-white text-ink/60 shadow-sm ring-1 ring-ink/10 hover:text-plum hover:ring-plum/30"
+                  ? "bg-gradient-to-r from-gold to-gold-dark text-white shadow-lg shadow-charcoal/25"
+                  : "bg-white text-charcoal/60 shadow-sm ring-1 ring-charcoal/10 hover:text-gold hover:ring-gold/30"
               }`}>
               {c.label}
             </button>
@@ -2846,42 +2858,49 @@ function ProductTabs({ favs, onFav, onCustomize }) {
 /* ── Shop catalog — the ready-made product cards (promo art in /designs).
    Each card opens the designer for that product; the customer places their
    photo/art and adds to cart. Images are the marketing cards as-is. ── */
+/* Six categories, one card shape. The seventh ("Poster Print") was dropped
+   from the grid because it borrowed /images/prints/print-1.webp as placeholder
+   art — posters stay reachable via search and the /posters landing route. */
 const CATALOG_CARDS = [
-  { productId: "tshirt",   title: "Premium T-Shirt", price: 599, img: "/designs/catalog-1.png" },
-  { productId: "mug",      title: "Photo Mug",       price: 299, img: "/designs/catalog-2.png" },
-  { productId: "frame",    title: "Framed Print",    price: 899, img: "/designs/catalog-3.png" },
-  { productId: "cushion",  title: "Cushion",         price: 649, img: "/designs/catalog-4.png" },
-  { productId: "canvas",   title: "Canvas",          price: 999, img: "/designs/catalog-5.png" },
-  { productId: "keychain", title: "Keychain",        price: 149, img: "/designs/catalog-6.png" },
-  // TODO(Sagar): swap placeholder art once a real poster mockup/photo exists
-  { productId: "poster",   title: "Poster Print",    price: 199, img: "/images/prints/print-1.jpg" },
+  { productId: "tshirt",   title: "Premium T-Shirt", price: 599, img: "/designs/catalog-1-800.webp", img400: "/designs/catalog-1-400.webp", alt: "Custom printed premium cotton t-shirt by Drucka" },
+  { productId: "mug",      title: "Photo Mug",       price: 299, img: "/designs/catalog-2-800.webp", img400: "/designs/catalog-2-400.webp", alt: "Personalised photo mug printed by Drucka" },
+  { productId: "frame",    title: "Framed Print",    price: 899, img: "/designs/catalog-3-800.webp", img400: "/designs/catalog-3-400.webp", alt: "Custom framed photo print in a premium frame by Drucka" },
+  { productId: "cushion",  title: "Cushion",         price: 649, img: "/designs/catalog-4-800.webp", img400: "/designs/catalog-4-400.webp", alt: "Personalised photo cushion cover printed by Drucka" },
+  { productId: "canvas",   title: "Canvas",          price: 999, img: "/designs/catalog-5-800.webp", img400: "/designs/catalog-5-400.webp", alt: "Gallery-wrapped custom canvas print by Drucka" },
+  { productId: "keychain", title: "Keychain",        price: 149, img: "/designs/catalog-6-800.webp", img400: "/designs/catalog-6-400.webp", alt: "Personalised acrylic photo keychain by Drucka" },
 ];
 
 function ShopCatalog({ onCustomize }) {
   return (
-    <section id="catalog" className="scroll-mt-20 py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section id="catalog" className="scroll-mt-24 bg-white py-14 lg:py-20">
+      <div className="mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">Popular Products</p>
-          <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Print it. Gift it. Feel it.</h2>
-          <p className="mx-auto mt-3 max-w-xl text-ink/60">Pick a product, add your photo or design, and we&rsquo;ll print &amp; deliver it across India in 2–4 days.</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-dark">Shop by category</p>
+          <h2 className="mt-3 font-serif text-3xl font-bold text-charcoal sm:text-4xl lg:text-5xl">Print it. Gift it. Keep it.</h2>
+          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">Pick a product, add your photo or design, and we&rsquo;ll print &amp; deliver it across India.</p>
         </div>
-        <div className="reveal mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* two per row on phones, three from lg — never more than two on mobile */}
+        <div className="reveal mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
           {CATALOG_CARDS.map((c) => (
             <button key={c.productId} onClick={() => onCustomize(c.productId)}
-              aria-label={`Customize ${c.title}`}
-              className="group overflow-hidden rounded-3xl bg-white text-left shadow-sm ring-1 ring-ink/10 transition hover:-translate-y-1 hover:shadow-xl hover:ring-plum/30">
-              <div className="overflow-hidden">
-                <img src={c.img} alt={c.title} loading="lazy"
+              aria-label={`Customise ${c.title}`}
+              className="group overflow-hidden rounded-2xl border border-stone/60 bg-white text-left shadow-[0_2px_14px_rgba(26,18,8,0.05)] transition hover:-translate-y-1 hover:border-gold/40 hover:shadow-[0_10px_28px_rgba(26,18,8,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold">
+              <div className="overflow-hidden bg-cream">
+                {/* WebP q82 at two widths — 400w for the 2-up mobile grid, 800w
+                    for the 3-up desktop grid. Replaced 1.6 MB lossless PNGs;
+                    width/height preserve the 4:5 ratio so nothing shifts. */}
+                <img src={c.img} srcSet={`${c.img400} 400w, ${c.img} 800w`}
+                  sizes="(min-width: 1024px) 400px, 50vw"
+                  alt={c.alt} loading="lazy" decoding="async" width={800} height={1000}
                   className="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-105" />
               </div>
-              <div className="flex items-center justify-between gap-2 px-5 py-4">
-                <div>
-                  <p className="font-display text-lg font-bold text-ink">{c.title}</p>
-                  <p className="text-sm text-ink/50">Starting at {inr(c.price)}</p>
+              <div className="flex items-center justify-between gap-2 px-4 py-4 sm:px-5">
+                <div className="min-w-0">
+                  <p className="truncate font-serif text-base font-bold text-charcoal sm:text-lg">{c.title}</p>
+                  <p className="text-sm text-charcoal/50">From {inr(c.price)}</p>
                 </div>
-                <span className="flex items-center gap-1 rounded-full bg-plum px-4 py-2 text-xs font-bold text-white transition group-hover:bg-plum-soft">
-                  Customize →
+                <span aria-hidden="true" className="hidden shrink-0 items-center rounded-full bg-charcoal px-4 py-2 text-xs font-bold text-white transition group-hover:bg-gold sm:flex">
+                  Customise →
                 </span>
               </div>
             </button>
@@ -3151,27 +3170,27 @@ const FAQS = [
 function FAQ() {
   const [open, setOpen] = useState(0);
   return (
-    <section id="faq" className="scroll-mt-20 py-20">
-      <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+    <section id="faq" className="scroll-mt-24 bg-cream py-14 lg:py-20">
+      <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">FAQ</p>
-          <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Help &amp; Support</h2>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-dark">FAQ</p>
+          <h2 className="mt-3 font-serif text-3xl font-bold text-charcoal sm:text-4xl lg:text-5xl">Help &amp; Support</h2>
         </div>
         <div className="reveal mt-10 grid gap-3">
           {FAQS.map((f, i) => {
             const isOpen = open === i;
             return (
               <div key={f.q} className={`overflow-hidden rounded-2xl border bg-white transition ${
-                isOpen ? "border-plum/25 shadow-[0_12px_32px_rgba(91,33,182,0.1)]" : "border-ink/8 shadow-sm"
+                isOpen ? "border-gold/35 shadow-[0_10px_28px_rgba(26,18,8,0.10)]" : "border-stone/60 shadow-[0_2px_14px_rgba(26,18,8,0.05)]"
               }`}>
                 <button onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-ink sm:px-6">
+                  className="flex min-h-[56px] w-full items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-charcoal sm:px-6">
                   {f.q}
-                  <Icon d={icons.chevron} className={`h-5 w-5 shrink-0 text-plum transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                  <Icon d={icons.chevron} className={`h-5 w-5 shrink-0 text-gold-dark transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
                 </button>
                 <div className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                   <div className="overflow-hidden">
-                    <p className="px-5 pb-5 text-sm leading-relaxed text-ink/65 sm:px-6">{f.a}</p>
+                    <p className="px-5 pb-5 text-base leading-relaxed text-charcoal/65 sm:px-6">{f.a}</p>
                   </div>
                 </div>
               </div>
@@ -3257,31 +3276,31 @@ const customSizeText = (cs) =>
 function OrderSummary({ cart, total, colorLabel }) {
   return (
     <div>
-      <h3 className="font-display text-lg font-bold text-ink">Order Summary · ऑर्डर समरी</h3>
+      <h3 className="font-serif text-lg font-bold text-charcoal">Order Summary · ऑर्डर समरी</h3>
       <ul className="mt-3 grid gap-2.5">
         {cart.map((i) => (
-          <li key={i.key} className="flex items-start justify-between gap-3 rounded-xl border border-ink/8 px-3 py-2.5 text-sm">
+          <li key={i.key} className="flex items-start justify-between gap-3 rounded-xl border border-charcoal/8 px-3 py-2.5 text-sm">
             <div className="min-w-0">
-              <p className="font-semibold text-ink">{i.name} × {i.qty}</p>
-              <p className="truncate text-xs text-ink/50">{[i.size, colorLabel(i.color), i.summary].filter(Boolean).join(" · ")}</p>
-              {i.customSize && <p className="text-[11px] text-ink/50">{customSizeText(i.customSize)}</p>}
+              <p className="font-semibold text-charcoal">{i.name} × {i.qty}</p>
+              <p className="truncate text-xs text-charcoal/50">{[i.size, colorLabel(i.color), i.summary].filter(Boolean).join(" · ")}</p>
+              {i.customSize && <p className="text-[11px] text-charcoal/50">{customSizeText(i.customSize)}</p>}
             </div>
-            <p className="shrink-0 font-bold text-plum">{inr(i.price * i.qty)}</p>
+            <p className="shrink-0 font-bold text-gold">{inr(i.price * i.qty)}</p>
           </li>
         ))}
       </ul>
-      <dl className="mt-4 grid gap-1.5 rounded-xl bg-ink/4 p-3 text-sm">
-        <div className="flex justify-between"><dt className="text-ink/55">Subtotal</dt><dd className="font-semibold">{inr(total)}</dd></div>
-        <div className="flex justify-between"><dt className="text-ink/55">Delivery · डिलिव्हरी</dt><dd className="font-semibold text-emerald-600">FREE · 2–4 days</dd></div>
-        <div className="flex justify-between border-t border-ink/10 pt-1.5"><dt className="font-bold text-ink">Total</dt><dd className="font-display text-lg font-bold text-ink">{inr(total)}</dd></div>
+      <dl className="mt-4 grid gap-1.5 rounded-xl bg-charcoal/4 p-3 text-sm">
+        <div className="flex justify-between"><dt className="text-charcoal/55">Subtotal</dt><dd className="font-semibold">{inr(total)}</dd></div>
+        <div className="flex justify-between"><dt className="text-charcoal/55">Delivery · डिलिव्हरी</dt><dd className="font-semibold text-emerald-600">FREE · 2–4 days</dd></div>
+        <div className="flex justify-between border-t border-charcoal/10 pt-1.5"><dt className="font-bold text-charcoal">Total</dt><dd className="font-serif text-lg font-bold text-charcoal">{inr(total)}</dd></div>
       </dl>
-      <div className="mt-4 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11.5px] leading-relaxed text-ink/75">
+      <div className="mt-4 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11.5px] leading-relaxed text-charcoal/75">
         <p className="font-bold text-emerald-700">Payment options · पेमेंट</p>
         <p>UPI — GPay / PhonePe / Paytm ({CONFIG.upiId})</p>
         <p>Cash on Delivery — available on request</p>
         <p>Order confirmed on WhatsApp before printing</p>
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-ink/45">
+      <p className="mt-3 text-[11px] leading-relaxed text-charcoal/45">
         Background removal available on request — just mention it in the WhatsApp chat.
       </p>
     </div>
@@ -3313,15 +3332,15 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
 
   return (
     <>
-      <div className={`fixed inset-0 z-[100] bg-ink/40 backdrop-blur-sm transition-opacity ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      <div className={`fixed inset-0 z-[100] bg-charcoal/40 backdrop-blur-sm transition-opacity ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
         onClick={onClose} aria-hidden="true" />
       <aside className={`fixed right-0 top-0 z-[110] flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
         role="dialog" aria-modal="true" aria-label="Shopping cart">
-        <div className="flex items-center justify-between border-b border-ink/8 px-5 py-4">
-          <h2 className="font-display text-xl font-bold text-ink">
-            Your Cart {cart.length > 0 && <span className="font-sans text-sm font-medium text-ink/50">({cart.length})</span>}
+        <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
+          <h2 className="font-serif text-xl font-bold text-charcoal">
+            Your Cart {cart.length > 0 && <span className="font-sans text-sm font-medium text-charcoal/50">({cart.length})</span>}
           </h2>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-ink/5 transition hover:bg-ink/10" aria-label="Close cart">
+          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 transition hover:bg-charcoal/10" aria-label="Close cart">
             <Icon d={icons.x} className="h-4.5 w-4.5" />
           </button>
         </div>
@@ -3330,14 +3349,14 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
           {cart.length === 0 ? (
             <div className="grid h-full place-items-center text-center">
               <div>
-                <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-plum/8 text-plum">
+                <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold/8 text-gold">
                   <Icon d={icons.cart} className="h-7 w-7" />
                 </span>
-                <p className="mt-4 font-semibold text-ink">Your cart is empty</p>
-                <p className="mt-1 text-sm text-ink/50">Upload a photo and design something beautiful.</p>
+                <p className="mt-4 font-semibold text-charcoal">Your cart is empty</p>
+                <p className="mt-1 text-sm text-charcoal/50">Upload a photo and design something beautiful.</p>
                 <button onClick={onStartDesigning}
                   className="mt-5 inline-flex items-center gap-2 rounded-full bg-charcoal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-charcoal/90">
-                  Choose Photo →
+                  Start Customising →
                 </button>
               </div>
             </div>
@@ -3346,27 +3365,27 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
           ) : (
             <ul className="grid gap-4">
               {cart.map((item) => (
-                <li key={item.key} className="flex gap-3 rounded-2xl border border-ink/8 p-3">
+                <li key={item.key} className="flex gap-3 rounded-2xl border border-charcoal/8 p-3">
                   {item.type === "custom"
                     ? <MiniMockup item={item} />
                     : <img src={item.img} alt={item.name} className="h-20 w-[68px] rounded-xl object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-semibold text-ink">{item.name}</p>
-                    <p className="mt-0.5 text-xs text-ink/50">
+                    <p className="truncate font-semibold text-charcoal">{item.name}</p>
+                    <p className="mt-0.5 text-xs text-charcoal/50">
                       {[item.size, colorLabel(item.color)].filter(Boolean).join(" · ")}
                     </p>
-                    {item.customSize && <p className="truncate text-[11px] text-ink/50">{customSizeText(item.customSize)}</p>}
-                    {item.summary && <p className="truncate text-xs text-ink/50">{item.summary}</p>}
+                    {item.customSize && <p className="truncate text-[11px] text-charcoal/50">{customSizeText(item.customSize)}</p>}
+                    {item.summary && <p className="truncate text-xs text-charcoal/50">{item.summary}</p>}
                     <div className="mt-2 flex items-center justify-between">
-                      <div className="inline-flex items-center rounded-lg border border-ink/10">
-                        <button onClick={() => onQty(item.key, -1)} className="px-2.5 py-1 font-bold text-ink/60" aria-label="Decrease quantity">−</button>
+                      <div className="inline-flex items-center rounded-lg border border-charcoal/10">
+                        <button onClick={() => onQty(item.key, -1)} className="px-2.5 py-1 font-bold text-charcoal/60" aria-label="Decrease quantity">−</button>
                         <span className="min-w-7 text-center text-sm font-bold">{item.qty}</span>
-                        <button onClick={() => onQty(item.key, 1)} className="px-2.5 py-1 font-bold text-ink/60" aria-label="Increase quantity">+</button>
+                        <button onClick={() => onQty(item.key, 1)} className="px-2.5 py-1 font-bold text-charcoal/60" aria-label="Increase quantity">+</button>
                       </div>
-                      <p className="font-bold text-plum">{inr(item.price * item.qty)}</p>
+                      <p className="font-bold text-gold">{inr(item.price * item.qty)}</p>
                     </div>
                   </div>
-                  <button onClick={() => onRemove(item.key)} className="self-start text-ink/30 transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
+                  <button onClick={() => onRemove(item.key)} className="self-start text-charcoal/30 transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
                     <Icon d={icons.trash} className="h-4.5 w-4.5" />
                   </button>
                 </li>
@@ -3376,22 +3395,22 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
         </div>
 
         {cart.length > 0 && (
-          <div className="border-t border-ink/8 px-5 py-4">
+          <div className="border-t border-charcoal/8 px-5 py-4">
             {!summary ? (
               <>
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-medium text-ink/60">Total</span>
-                  <span className="font-display text-2xl font-bold text-ink">{inr(total)}</span>
+                  <span className="text-sm font-medium text-charcoal/60">Total</span>
+                  <span className="font-serif text-2xl font-bold text-charcoal">{inr(total)}</span>
                 </div>
                 <button onClick={() => setSummary(true)}
-                  className="w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-6 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5">
+                  className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
                   Review order · ऑर्डर समरी →
                 </button>
               </>
             ) : (
               <>
                 <button onClick={() => onCheckout?.()}
-                  className="w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-6 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5">
+                  className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
                   Proceed to Checkout · चेकआउट →
                 </button>
                 <a href={checkoutMsg} target="_blank" rel="noopener noreferrer"
@@ -3399,12 +3418,12 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
                   <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Or order directly on WhatsApp
                 </a>
                 <button onClick={() => setSummary(false)}
-                  className="mt-2 w-full text-center text-xs font-semibold text-ink/50 transition hover:text-plum">
+                  className="mt-2 w-full text-center text-xs font-semibold text-charcoal/50 transition hover:text-gold">
                   ← Back to cart
                 </button>
               </>
             )}
-            <p className="mt-2.5 text-center text-[11px] leading-relaxed text-ink/45">
+            <p className="mt-2.5 text-center text-[11px] leading-relaxed text-charcoal/45">
               Pay securely via UPI or COD after we confirm your order. Attach your design photo in the WhatsApp chat.
             </p>
           </div>
@@ -3456,39 +3475,39 @@ function TrackOrderModal({ onClose, localOrders }) {
     : 0;
 
   return (
-    <div className="fixed inset-0 z-[120] grid place-items-center bg-ink/50 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[120] grid place-items-center bg-charcoal/50 p-4 backdrop-blur-sm" onClick={onClose}>
       <div className="animate-sheet w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl" role="dialog" aria-modal="true"
         aria-label="Track order" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-xl font-bold text-ink">Track Order · ऑर्डर ट्रॅक करा</h2>
-          <button onClick={onClose} aria-label="Close tracking" className="grid h-9 w-9 place-items-center rounded-full bg-ink/5 text-ink/60 hover:bg-ink/10">
+          <h2 className="font-serif text-xl font-bold text-charcoal">Track Order · ऑर्डर ट्रॅक करा</h2>
+          <button onClick={onClose} aria-label="Close tracking" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
         </div>
         <div className="mt-4 grid gap-3">
           <div>
-            <label htmlFor="trk-id" className="mb-0.5 block text-[11px] font-semibold text-ink/60">Drucka order ID</label>
+            <label htmlFor="trk-id" className="mb-0.5 block text-[11px] font-semibold text-charcoal/60">Drucka order ID</label>
             <input id="trk-id" value={id} onChange={(e) => setId(e.target.value)} placeholder="DRK-XXXXXXXX"
-              className="w-full rounded-xl border border-ink/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-plum" />
+              className="w-full rounded-xl border border-charcoal/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-gold" />
           </div>
           <div>
-            <label htmlFor="trk-phone" className="mb-0.5 block text-[11px] font-semibold text-ink/60">Mobile number used at checkout</label>
+            <label htmlFor="trk-phone" className="mb-0.5 block text-[11px] font-semibold text-charcoal/60">Mobile number used at checkout</label>
             <input id="trk-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit"
-              className="w-full rounded-xl border border-ink/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-plum" />
+              className="w-full rounded-xl border border-charcoal/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-gold" />
           </div>
           <button onClick={lookup} disabled={busy || !id.trim() || phone.replace(/\D/g, "").length < 10}
-            className="w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-4 py-3 text-sm font-bold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5 disabled:opacity-40">
+            className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5 disabled:opacity-40">
             {busy ? <span className="inline-flex items-center gap-2"><span className="dru-spinner dru-spinner--light h-4 w-4" aria-hidden="true" /> Checking…</span> : "Track my order"}
           </button>
           {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600" role="alert">⚠ {error}</p>}
 
           {result && (
-            <div className="rounded-2xl border border-ink/8 bg-ink/3 p-4">
+            <div className="rounded-2xl border border-charcoal/8 bg-charcoal/3 p-4">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-ink">{result.id}</p>
-                <p className="text-sm font-bold text-plum">{inr(result.total)}</p>
+                <p className="text-sm font-bold text-charcoal">{result.id}</p>
+                <p className="text-sm font-bold text-gold">{inr(result.total)}</p>
               </div>
-              <p className="mt-1 text-xs text-ink/55">
+              <p className="mt-1 text-xs text-charcoal/55">
                 {result.items.map((i) => `${i.name} ×${i.qty}`).join(", ")} · {result.paymentStatus}
               </p>
               {/* status timeline */}
@@ -3501,9 +3520,9 @@ function TrackOrderModal({ onClose, localOrders }) {
                   {TRACK_STEPS.map((s, i) => (
                     <li key={s} className="flex items-center gap-2 text-xs">
                       <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold ${
-                        i <= stepIdx ? "bg-emerald-500 text-white" : "bg-ink/10 text-ink/40"
+                        i <= stepIdx ? "bg-emerald-500 text-white" : "bg-charcoal/10 text-charcoal/40"
                       }`}>{i <= stepIdx ? "✓" : i + 1}</span>
-                      <span className={i <= stepIdx ? "font-bold text-ink" : "text-ink/45"}>{s}</span>
+                      <span className={i <= stepIdx ? "font-bold text-charcoal" : "text-charcoal/45"}>{s}</span>
                       {i === stepIdx && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">current</span>}
                     </li>
                   ))}
@@ -3555,16 +3574,16 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
   };
 
   const canSend = order && ["Paid", "COD Approved"].includes(order.paymentStatus);
-  const inputCls = "w-full rounded-xl border border-ink/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-plum focus:ring-2 focus:ring-plum/20";
-  const lblCls = "mb-0.5 block text-[11px] font-semibold text-ink/60";
+  const inputCls = "w-full rounded-xl border border-charcoal/10 px-3 py-2.5 text-sm shadow-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20";
+  const lblCls = "mb-0.5 block text-[11px] font-semibold text-charcoal/60";
 
   return (
-    <div className="fixed inset-0 z-[120] grid place-items-center bg-ink/50 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[120] grid place-items-center bg-charcoal/50 p-4 backdrop-blur-sm" onClick={onClose}>
       <div className="animate-sheet flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         role="dialog" aria-modal="true" aria-label="Checkout" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-ink/8 px-5 py-4">
-          <h2 className="font-display text-xl font-bold text-ink">{order ? "Order placed" : "Checkout · चेकआउट"}</h2>
-          <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-ink/5 text-ink/60 hover:bg-ink/10">
+        <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
+          <h2 className="font-serif text-xl font-bold text-charcoal">{order ? "Order placed" : "Checkout · चेकआउट"}</h2>
+          <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
         </div>
@@ -3597,7 +3616,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     ).map(([v, l]) => (
                       <button key={v} onClick={() => setForm((s) => ({ ...s, paymentMode: v }))} aria-pressed={form.paymentMode === v}
                         className={`flex-1 rounded-xl border px-2 py-2.5 text-xs font-bold transition ${
-                          form.paymentMode === v ? "border-plum bg-plum text-white" : "border-ink/15 text-ink/60"
+                          form.paymentMode === v ? "border-gold bg-gold text-white" : "border-charcoal/15 text-charcoal/60"
                         }`}>{l}</button>
                     ))}
                   </div></div>
@@ -3609,9 +3628,9 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
           ) : (
             <>
               {/* order summary */}
-              <div className="rounded-2xl bg-ink/4 p-3 text-sm">
-                <p className="font-bold text-ink">{order.id} <span className="font-sans text-xs font-medium text-ink/45">· {order.items.length} item(s)</span></p>
-                <ul className="mt-2 grid gap-1 text-xs text-ink/65">
+              <div className="rounded-2xl bg-charcoal/4 p-3 text-sm">
+                <p className="font-bold text-charcoal">{order.id} <span className="font-sans text-xs font-medium text-charcoal/45">· {order.items.length} item(s)</span></p>
+                <ul className="mt-2 grid gap-1 text-xs text-charcoal/65">
                   {order.items.map((i) => (
                     <li key={i.key} className="flex justify-between">
                       <span>{i.name} × {i.qty} ({[i.size, i.color].filter(Boolean).join(", ")})</span>
@@ -3619,14 +3638,14 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     </li>
                   ))}
                 </ul>
-                <p className="mt-2 flex justify-between border-t border-ink/10 pt-2 font-bold text-ink">
+                <p className="mt-2 flex justify-between border-t border-charcoal/10 pt-2 font-bold text-charcoal">
                   <span>Total</span><span>{inr(order.total)}</span>
                 </p>
               </div>
 
               {/* payment status */}
-              <div className="mt-3 flex items-center justify-between rounded-2xl border border-ink/8 px-3 py-2.5">
-                <span className="text-xs font-semibold text-ink/60">Payment status</span>
+              <div className="mt-3 flex items-center justify-between rounded-2xl border border-charcoal/8 px-3 py-2.5">
+                <span className="text-xs font-semibold text-charcoal/60">Payment status</span>
                 <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${
                   ["Paid", "COD Approved"].includes(order.paymentStatus) ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
                 }`}>{order.paymentStatus}</span>
@@ -3634,9 +3653,9 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
 
               {["Paid", "COD Approved"].includes(order.paymentStatus) && (
                 <div className="mt-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-center">
-                  <p className="font-display text-lg font-bold text-emerald-700">Order confirmed!</p>
-                  <p className="mt-1 text-xs leading-relaxed text-ink/60">
-                    Save your order ID <strong className="text-ink">{order.id}</strong> — track it anytime from the
+                  <p className="font-serif text-lg font-bold text-emerald-700">Order confirmed!</p>
+                  <p className="mt-1 text-xs leading-relaxed text-charcoal/60">
+                    Save your order ID <strong className="text-charcoal">{order.id}</strong> — track it anytime from the
                     footer → <strong>Track Order</strong> with this ID + your phone number. Updates also come on WhatsApp.
                   </p>
                 </div>
@@ -3654,11 +3673,11 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                       setSending(false);
                     }}
                     disabled={sending}
-                    className="w-full rounded-full bg-ink px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-plum disabled:opacity-50">
+                    className="w-full rounded-full bg-charcoal px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-gold disabled:opacity-50">
                     {sending ? "Opening secure payment…" : `Pay ${inr(order.total)} — UPI / Card / Netbanking`}
                   </button>
                   )}
-                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-relaxed text-ink/70">
+                  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-3 text-xs leading-relaxed text-charcoal/70">
                     <p className="font-bold text-emerald-700">Or pay via UPI manually · पेमेंट करा</p>
                     <p className="mt-1">Send {inr(order.total)} to <strong>{CONFIG.upiId}</strong> (GPay / PhonePe / Paytm), then tap below. Our team verifies before printing.</p>
                     <button onClick={() => setOrder(onMarkPaid(order.id))}
@@ -3684,7 +3703,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                   setSending(false);
                 }}
                 disabled={!canSend || sending || !["Draft", "Failed"].includes(order.qikinkStatus)}
-                className="mt-4 w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-4 py-3 text-sm font-bold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0">
+                className="mt-4 w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0">
                 {sending ? "Uploading artwork & sending…"
                   : order.qikinkStatus === "Draft" ? "Send to Qikink fulfillment →"
                   : order.qikinkStatus === "Failed" ? "Retry send to Qikink →"
@@ -3705,12 +3724,12 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
         </div>
 
         {!order && (
-          <div className="border-t border-ink/8 px-5 py-4">
+          <div className="border-t border-charcoal/8 px-5 py-4">
             <button onClick={submit}
-              className="w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-6 py-3.5 font-semibold text-white shadow-lg shadow-plum/30 transition hover:-translate-y-0.5">
+              className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
               {form.paymentMode === "cod" ? `Place COD Test Order — ${inr(total)}` : `Place order — ${inr(total)}`}
             </button>
-            <p className="mt-2 text-center text-[10.5px] text-ink/45">Free 2–4 day delivery · UPI · COD on approval · Printed & shipped under the Drucka brand</p>
+            <p className="mt-2 text-center text-[10.5px] text-charcoal/45">Free 2–4 day delivery · UPI · COD on approval · Printed & shipped under the Drucka brand</p>
           </div>
         )}
       </div>
@@ -3985,6 +4004,7 @@ export default function App() {
   const [collageInitial, setCollageInitial] = useState(null); // template chosen on welcome
   const [miniOpen, setMiniOpen] = useState(false); // standalone Mini Prints flow
   const [landing, setLanding] = useState(null); // SEO product landing page slug (null = homepage)
+  const [policy, setPolicy] = useState(null);   // /shipping-policy · /returns-policy · /privacy-policy
   const [announceOpen, setAnnounceOpen] = useState(true);
   const [customizer, setCustomizer] = useState(null); // null | { mode: "print"|"frame", initial }
   const [framePick, setFramePick] = useState(null); // { id, n } — frame chosen from the nav dropdown
@@ -3995,13 +4015,15 @@ export default function App() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const checkoutIdRef = useRef(null); // shared eventID: browser InitiateCheckout ⇆ server CAPI (COD)
   const [trackOpen, setTrackOpen] = useState(false);
-  const [productMap, setProductMap] = useState(() => load("drucka-product-map", QIKINK_PRODUCT_MAP));
+  // v2 key: forces a re-seed from the corrected QIKINK_PRODUCT_MAP (real Qikink
+  // SKU stems from the SKU Descriptions export) over any stale v1 localStorage map.
+  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v2", QIKINK_PRODUCT_MAP));
 
   useEffect(() => save("drucka-cart", cart), [cart]);
   useEffect(() => save("drucka-favs", favs), [favs]);
   useEffect(() => save("drucka-qikink-settings", qikinkSettings), [qikinkSettings]); // non-sensitive only
   useEffect(() => save("drucka-orders", orders), [orders]);
-  useEffect(() => save("drucka-product-map", productMap), [productMap]);
+  useEffect(() => save("drucka-product-map-v2", productMap), [productMap]);
 
   /* ── order lifecycle (Draft → Paid/COD Approved → Sent to Qikink → …) ── */
   const updateOrder = (id, patch) => {
@@ -4236,6 +4258,17 @@ export default function App() {
       const p = window.location.pathname.replace(/\/+$/, "").toLowerCase();
       console.log("[DRUCKA] route resolved:", JSON.stringify(p));
       const slug = p.replace(/^\//, "");
+      /* Static policy pages — shipping / returns / privacy. Checked before
+         the landings so a slug collision can never swallow a policy route. */
+      if (POLICIES[slug]) {
+        setPolicy(slug);
+        setLanding(null);
+        document.title = POLICIES[slug].title;
+        document.querySelector('meta[name="description"]')?.setAttribute("content", POLICIES[slug].description);
+        window.scrollTo(0, 0);
+        return;
+      }
+      setPolicy(null);
       if (LANDINGS[slug]) {
         // SEO landing page — rendered in <main>. ProductLanding also sets
         // its own title/meta/JSON-LD on mount; set here too to avoid a flash.
@@ -4293,6 +4326,13 @@ export default function App() {
     try { window.history.pushState({}, "", "/mini-prints"); document.title = "Mini Photo Prints Online — 2×3, 3×3, 4×3 inch | Drucka"; } catch { /* noop */ }
     setMiniOpen(true);
   };
+  /* Client-side navigation for the policy pages. pushState then replay the
+     existing popstate listener, so there is exactly ONE routing code path. */
+  const goTo = (path) => {
+    try { window.history.pushState({}, "", path); } catch { /* noop */ }
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
   const closeMini = () => {
     setMiniOpen(false);
     if (window.location.pathname.replace(/\/+$/, "").toLowerCase() === "/mini-prints") {
@@ -4322,7 +4362,13 @@ export default function App() {
         </div>
       )}
       <main>
-        {landing ? (
+        {policy ? (
+          <PolicyPage
+            data={POLICIES[policy]}
+            siblings={Object.values(POLICIES).map((x) => ({ slug: x.slug, label: x.label }))}
+            onNavigate={goTo}
+          />
+        ) : landing ? (
           <ProductLanding
             data={LANDINGS[landing]}
             whatsappUrl={wa(LANDINGS[landing].waText)}
@@ -4338,39 +4384,45 @@ export default function App() {
           />
         ) : (
         <>
-        <ScrollShowcase onCta={() => setCustomizer({ mode: "frame", initial: null })} />
+        {/* ── Homepage section order ───────────────────────────────────
+            Hero → category grid → how it works → 2 featured collections →
+            one trust block → social proof → corporate → stores → FAQ.
+
+            ScrollShowcase is OFF: on desktop first visit it put 500vh of
+            pinned intro above the real hero, so the value proposition and
+            primary CTA started below the fold. Kept in code — re-enable by
+            uncommenting the line below.
+            {<ScrollShowcase onCta={() => setCustomizer({ mode: "frame", initial: null })} />} */}
         <FrameHero
           onUpload={() => setCustomizer({ mode: "frame", initial: null })}
           whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
         />
-        <TrustBar />
-        {/* <BentoShowcase /> — removed per request (kept in code) */}
-        <HowItWorksSection />
         <ShopCatalog onCustomize={openEditor} />
-        {/* featured promo — photo prints & custom frames (kept highlighted) */}
+        <HowItWorksSection />
+        {/* featured collection 1 — photo prints & custom frames */}
         <PhotoFramesSection onCustomize={openEditor} framePick={framePick}
           onOpenCustomizer={(mode, initial) => setCustomizer({ mode, initial })} />
-        {/* existing custom-product business: apparel / kids / gifts designer */}
-        {/* Hidden per request — "Pick your canvas" / Shop by category section.
-            Kept in code (CategoryShowcase) so it can be re-enabled later. */}
-        {/* <CategoryShowcase onCustomize={openEditor} /> */}
-        {/* Hidden per request — components kept in code for later */}
-        {/* <BestsellingFrames /> */}
-        {/* <FeaturedProduct /> */}
+        {/* featured collection 2 */}
         <GalleryWalls />
-        <StatementCollection onTryMini={openMini} />
-        <MiniPhotoPrints onOrder={openMini} />
+        {/* Single consolidated trust block. TrustBar, FrameFeatures,
+            TrustPolicies and StudioTrust all repeated the same
+            delivery/quality/returns promises (and contradicted each other on
+            the replacement window and the free-shipping threshold), so they
+            are off the homepage and folded into WhyDrucka. Kept in code:
+            {<TrustBar />} {<FrameFeatures />} {<TrustPolicies />} {<StudioTrust />} */}
         <WhyDrucka />
-        {/* <QualityBanner /> */}
-        {/* <SignatureGift /> */}
-        <PhoneCases />
-        <BulkCorporate />
-        <FrameFeatures />
         <FrameTestimonials />
-        <StudioTrust />
+        <BulkCorporate />
         <StoreLocations />
-        <TrustPolicies />
         <FAQ />
+        {/* Further product sections, kept in code and reachable from the
+            category grid, the Products menu and their own SEO routes. Moved
+            off the homepage to cut scroll length — re-enable if merchandising
+            wants them back:
+            {<StatementCollection onTryMini={openMini} />}
+            {<MiniPhotoPrints onOrder={openMini} />}
+            {<PhoneCases />} {<BentoShowcase />} {<QualityBanner />}
+            {<SignatureGift />} {<BestsellingFrames />} {<FeaturedProduct />} */}
         </>
         )}
       </main>

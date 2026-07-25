@@ -28,7 +28,7 @@ export default function BentoShowcase() {
           <a href="#photo-frames"
             className="bento-cell b1 relative flex flex-col justify-end overflow-hidden"
             style={{ background: '#1A1208', border: '0.5px solid rgba(201,168,76,0.2)', borderRadius: '14px', padding: '28px' }}>
-            <img src="/images/frames/premium-golden-live.jpg" alt="" aria-hidden="true"
+            <img src="/images/frames/premium-golden-live.webp" alt="" aria-hidden="true"
               className="pointer-events-none absolute inset-0 h-full w-full object-cover" style={{ opacity: 0.15 }} />
             <div className="relative">
               <span className="kd-mono" style={{ color: '#C9A84C', fontFamily: "'Courier New',monospace", fontSize: '10px', letterSpacing: '1px' }}>BESTSELLER</span>
