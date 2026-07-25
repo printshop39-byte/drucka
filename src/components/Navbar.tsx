@@ -50,6 +50,11 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const productsRef = useRef<HTMLDivElement>(null);
+  /* True while the menu is open only because the pointer is hovering it.
+     Without this, hover opens the menu and the very next click toggles it
+     shut — so clicking "Products" on a mouse looked like it did nothing,
+     and the Collage Maker entry inside was unreachable that way. */
+  const openedByHoverRef = useRef(false);
 
   /* ── Product search ─────────────────────────────────────────── */
   const [searchOpen, setSearchOpen] = useState(false);
@@ -126,11 +131,21 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
             <div
               ref={productsRef}
               className="relative"
-              onMouseEnter={() => setProductsOpen(true)}
-              onMouseLeave={() => setProductsOpen(false)}
+              onMouseEnter={() => { if (!productsOpen) openedByHoverRef.current = true; setProductsOpen(true); }}
+              onMouseLeave={() => { openedByHoverRef.current = false; setProductsOpen(false); }}
             >
               <button
-                onClick={() => setProductsOpen((v) => !v)}
+                /* Click-first: if hover already opened the menu, the first
+                   click pins it open instead of toggling it shut. A second
+                   click then closes it. Touch and keyboard never set the
+                   hover flag, so there it behaves as a plain toggle. */
+                onClick={() => {
+                  if (productsOpen && openedByHoverRef.current) {
+                    openedByHoverRef.current = false; // now owned by the click
+                    return;
+                  }
+                  setProductsOpen((v) => !v);
+                }}
                 aria-expanded={productsOpen}
                 aria-haspopup="true"
                 className="flex items-center gap-1 text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal"
