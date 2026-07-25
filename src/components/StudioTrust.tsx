@@ -1,4 +1,4 @@
-import { BadgeCheck, Star, MessageCircle, Truck, Store, Lock } from 'lucide-react';
+import { BadgeCheck, MessageCircle, Truck, Store, Lock } from 'lucide-react';
 
 /* ── Trust / "real studio" block ──
    Custom-order shoppers look for proof before they pay. This bundles the
@@ -7,10 +7,10 @@ import { BadgeCheck, Star, MessageCircle, Truck, Store, Lock } from 'lucide-reac
    pickup options and the privacy promise.
 
    ⚠ OWNER: confirm/replace the placeholders below with your real values. */
-const EST_YEAR = 1996;                 // ← set your real founding year (or remove the badge)
-const GOOGLE_REVIEWS_URL = '#';        // ← paste your Google Business "write a review" / profile link
-const GOOGLE_RATING = '4.9';           // ← your real Google rating
-const GOOGLE_COUNT = '500+';           // ← number of Google reviews
+/* 0 = badge hidden. Was 1996 with the comment "set your real founding year",
+   i.e. a placeholder that rendered "Since 1996 · 30+ yrs" to customers.
+   Set the real founding year to bring the badge back. */
+const EST_YEAR = 0;
 const WA = 'https://wa.me/917083811355?text=' + encodeURIComponent("Hi Drucka! I'd like to place a custom order.");
 const PHONE_DISPLAY = '+91 70838 11355';
 
@@ -34,8 +34,8 @@ export default function StudioTrust() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 lg:mb-14">
           <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">A real studio you can talk to</span>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">Trusted by thousands, printed by people</h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">No faceless app — a real Kolhapur print studio you can message before you order.</p>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">Printed by people, not a faceless app</h2>
+          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">A real Kolhapur print studio you can message before you order.</p>
         </div>
 
         <div className="grid items-stretch gap-6 lg:grid-cols-2">
@@ -48,7 +48,9 @@ export default function StudioTrust() {
                   Since {EST_YEAR} · {years}+ yrs
                 </span>
               )}
-              <span className="rounded-full bg-gold px-3 py-1.5 text-xs font-bold text-white">10,000+ orders delivered</span>
+              {/* "10,000+ orders delivered" removed 2026-07-25 — unverifiable,
+                  same claim family as TrustBar's retired "10,000+ Happy
+                  Customers". Restore only with a real, checkable figure. */}
             </div>
           </div>
 
@@ -75,19 +77,12 @@ export default function StudioTrust() {
               </div>
             </div>
 
-            {/* Google reviews */}
-            <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-3 rounded-2xl bg-white p-5 transition hover:bg-[#FBFAF8]" style={card}>
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full" style={goldTint}><Star size={22} /></span>
-              <div>
-                <p className="flex items-center gap-1.5 font-bold text-charcoal">
-                  {GOOGLE_RATING}
-                  <span className="text-gold">★★★★★</span>
-                </p>
-                <p className="text-xs text-charcoal/55">{GOOGLE_COUNT} Google reviews · read what customers say →</p>
-              </div>
-            </a>
-
+            {/* Google reviews block removed 2026-07-25: it displayed a
+                hardcoded "4.9 ★★★★★ / 500+ Google reviews" whose own source
+                comments read "← your real Google rating", i.e. placeholders
+                that were never filled in — and it linked to href="#".
+                Restore only with the real rating, the real count, and the
+                real Google Business profile URL. */}
             {/* Delivery / pickup + privacy */}
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="flex items-start gap-3 rounded-2xl bg-white p-4" style={card}>
