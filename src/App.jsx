@@ -1146,9 +1146,15 @@ function LibraryPanel({ onClose, library, onAddImage, onDeleteFromLibrary }) {
               <button onClick={() => onAddImage(src, false)} className="checker block w-full overflow-hidden rounded-lg border border-ink/10 p-1 transition hover:border-plum">
                 <img src={src} alt={`Library item ${i + 1}`} className="h-16 w-full object-contain" />
               </button>
-              <button onClick={() => onDeleteFromLibrary(i)} aria-label="Delete from library"
-                className="absolute -right-1.5 -top-1.5 grid h-5 w-5 place-items-center rounded-full bg-rose-500 text-white opacity-0 shadow transition group-hover:opacity-100">
-                <Icon d={icons.x} className="h-3 w-3" />
+              {/* Delete badge. Was opacity-0 + group-hover, i.e. hover-only —
+                  on a touch device it never appeared, so uploaded images could
+                  not be deleted on mobile at all. Now always visible, and only
+                  hover-revealed on devices that actually have a pointer.
+                  Also moved inside the tile (it used to sit on the gap/next
+                  thumbnail) and grown from 20px to a 32px tap target. */}
+              <button onClick={() => onDeleteFromLibrary(i)} aria-label={`Delete library item ${i + 1}`}
+                className="absolute right-1 top-1 grid h-8 w-8 place-items-center rounded-full bg-rose-500 text-white opacity-100 shadow ring-2 ring-white transition [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100">
+                <Icon d={icons.x} className="h-3.5 w-3.5" />
               </button>
             </div>
           ))}

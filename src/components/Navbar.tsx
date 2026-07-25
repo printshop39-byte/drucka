@@ -155,7 +155,14 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               </button>
 
               {productsOpen && (
-                <div className="absolute left-0 top-full pt-2">
+                <div
+                  /* w-max: an absolutely-positioned box shrink-to-fits against
+                     its containing block, which here is only as wide as the
+                     "Products" button (~98px). Without it the white card stayed
+                     98px while the two 190px columns rendered outside it, on
+                     top of the page behind. */
+                  className="absolute left-0 top-full w-max pt-2"
+                >
                   <div className="grid grid-cols-2 gap-6 rounded-2xl border border-stone/50 bg-white p-6 shadow-xl">
                     <div className="min-w-[190px]">
                       <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Shop</p>
