@@ -7,7 +7,13 @@
    primitive per family rather than forcing a single formula. Each editor's
    existing pricing function delegates here; displayed prices are unchanged. */
 
-export const FREE_SHIP_THRESHOLD = 2999;
+import { FREE_DELIVERY_MIN } from "../seo/policies";
+
+/* Derived, NOT redefined. This used to be a second hardcoded 2999 sitting
+   alongside FREE_DELIVERY_MIN in src/seo/policies.js — change one and the
+   Mini Prints / Collage editors would silently disagree with the checkout,
+   the announcement bar and the published shipping policy. One number now. */
+export const FREE_SHIP_THRESHOLD = FREE_DELIVERY_MIN;
 
 /* free at/above the threshold (or when the cart is empty), else `fee` */
 export const shippingFor = (subtotal, fee) =>
