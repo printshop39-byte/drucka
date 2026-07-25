@@ -1,13 +1,19 @@
 # Asset migration — JPG/PNG → WebP (+ AVIF)
 
-**Status:**
-- ✅ **Priority 1 (the six catalog PNGs) is DONE** — §2.
-- ✅ **Priority 2 (57 JPGs under `public/images/`) is DONE** — §3.
-- ✅ **Priority 3 (`public/mockups/`) is DONE** — §4. 9.69 MB → 0.30 MB.
+**Status — all five passes complete:**
+- ✅ **P1 — the six catalog PNGs** — §2. 10.33 → 0.31 MB.
+- ✅ **P2 — 57 JPGs under `public/images/`** — §3. −38% on the adopted set.
+- ✅ **P3 — `public/mockups/`** — §4. 9.69 → 0.30 MB.
+- ✅ **P4 — resizing to measured slots** — §5. Plus 1.57 MB of dead art removed.
+- ✅ **P5 — `srcset` for card-vs-lightbox sections** — §6. Card bytes −50%.
+- ⏳ **AVIF** — §8. Not started, low priority.
 - ❌ Nothing has been **deleted**. Masters moved to `assets-src/` (outside
   `public/`, so they no longer deploy). See `assets-src/README.md`.
 
-Measured from the working tree on 2026-07-25.
+**Net: `dist/` ~30.0 MB → 8.67 MB (−71%).**
+
+Measured from the working tree on 2026-07-25. Figures inside each section are
+snapshots *at that step*; §7 is the only authoritative final tally.
 
 ---
 
@@ -75,7 +81,7 @@ WebP q82, **same dimensions** (no downscaling — these are used at varied sizes
 | Adopted set | 3.69 MB JPG → **2.28 MB WebP (−38.2%)** |
 | JPG originals retired to `assets-src/images/` | **50 files, 3.21 MB** |
 | JPGs deliberately kept in `public/` | **7** |
-| `dist/images/` | 6.36 MB → **5.43 MB** |
+| `dist/images/` *(after this step; §5 and §6 change it again)* | 6.36 MB → **5.43 MB** |
 
 ### The ≥15% adoption threshold
 Two files were converted, measured, and then **rejected** because WebP barely
@@ -302,13 +308,21 @@ Card bytes actually transferred, per section, at desktop:
 > down**. Both the 720w and 1200w gallery files ship, but no one fetches both.
 > Deploy size and transferred bytes are different metrics — optimise the second.
 
-Remaining `dist/images/` weight is files correctly sized for their slots. The
-next candidates would be `statement/` (0.64 MB) and `phonecases/` (0.17 MB),
-which are currently off the homepage but carry the same card-vs-lightbox
-pattern as `gallery/` — apply §6 to them if those sections are re-enabled.
+Remaining `dist/images/` weight is files correctly sized for their slots —
+`gallery/`, `statement/` and `phonecases/` have all had the §6 treatment, so
+there is no obvious blanket win left.
 
-## 7. AVIF — still not started
+The two places still worth a look, both deliberately skipped:
+
+- **The non-`-live` frame files** (`customizerData.ts`, inside the lazy-loaded
+  `PhotoFrameCustomizer`). Their display size was never measured because the
+  modal would not open during testing — see §5. Measure before touching.
+- **`hero/`** at 0.66 MB. Correctly sized at 1.3× for a full-bleed slot, but
+  `hero-2.webp` is 218 KB and could take a lower quality setting without a
+  visible cost, since it is a background under a dark gradient.
+
+## 8. AVIF — still not started
 
 Optional pass via `<picture>`. Typically another 15–25% over WebP at the cost of
 slower encodes and a second variant set. Low priority now that the payload is
-down 73%.
+down 71%.
