@@ -267,7 +267,17 @@ export const PRODUCTS = [
     mockups: { base: "canvas", ext: "webp", colors: ["white"] },
     image: "/images/canvas.webp",
     gallery: [{ src: "/images/canvas.webp", label: "Canvas" }],
-    printAreas: SINGLE({ left: 21, top: 18, width: 45, height: 62 }, { w: 12, h: 18 }),
+    /* Box measured off canvas-front-white.webp (the canvas face reads 19.0–79.3%
+       across and 19.8–84.2% down in the photo's own 928×1152, converted here
+       into the 42:50 canvas allowing for the object-cover crop). The authored
+       box was 45% wide against a face that is 60.3% — three quarters of it,
+       so the print never reached the edges of the canvas in the preview.
+
+       Inches are 18 × 24, not 12 × 18: the photographed canvas measures
+       0.754 w:h, which is 18×24 (0.75), and 18×24 is also the size the editor
+       selects by default. See the note on availableSizes above — the two sizes
+       are different shapes and the print area does not yet follow the choice. */
+    printAreas: SINGLE({ left: 19.0, top: 18.51, width: 60.3, height: 67.15 }, { w: 18, h: 24 }),
     productHighlights: ["Premium Canvas", "Wooden Frame", "Fade Resistant"],
     description: "Premium stretched canvas on a wooden frame — museum-style photo finish.",
   },

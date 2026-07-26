@@ -80,11 +80,56 @@ function PreviewPlaceholder({ border, aspect }) {
   );
 }
 
+/* Defined out here on purpose. As a function declared inside CropModal it was
+   a brand-new component type on every render, so React threw the range input
+   away and rebuilt it after each change — the thumb lost the pointer and the
+   sliders could not be dragged, only clicked. */
+const CropSlider = ({ label, val, min, max, step, onChange, fmt }) => (
+  <label className="block">
+    <span className="mb-0.5 flex justify-between text-[10px] font-bold uppercase tracking-wide text-charcoal/50">{label}<span className="text-charcoal/70">{fmt(val)}</span></span>
+    <input type="range" min={min} max={max} step={step} value={val}
+      onChange={(e) => onChange(+e.target.value)} className="w-full accent-gold" />
+  </label>
+);
+
 /* ── Crop & adjust modal — drag to pan, zoom, rotate, brightness, contrast ── */
 function CropModal({ photo, sizeId, onApply, onClose }) {
   const [d, setD] = useState({ rotation: photo.rotation, zoom: photo.zoom, ox: photo.ox, oy: photo.oy, brightness: photo.brightness, contrast: photo.contrast });
   const frameRef = useRef(null);
   const aspect = SIZE_ASPECT[sizeId] ?? 1;
+  /* natural size of the photo — the cover maths needs it, and reading it off
+     the loaded element keeps older saved photos working too */
+  const [nat, setNat] = useState(null);
+
+  const swap = d.rotation % 180 !== 0;
+
+  /* Mirrors miniCard's drawImage exactly, in frame units (width = aspect,
+     height = 1). The old CSS set width:100% AND min-height:100% on the image,
+     which stretched it — a 1400×900 photo was drawn square in the preview
+     while the printed card kept its proportions. */
+  const fit = (() => {
+    if (!nat) return null;
+    const [tW, tH] = swap ? [1, aspect] : [aspect, 1];
+    const iAsp = nat.w / nat.h, tAsp = tW / tH;
+    let dw, dh;
+    if (iAsp > tAsp) { dh = tH; dw = tH * iAsp; } else { dw = tW; dh = tW / iAsp; }
+    dw *= d.zoom; dh *= d.zoom;
+    /* how far the photo can slide before it stops covering the window */
+    const overX = (swap ? dh : dw) / aspect, overY = swap ? dw : dh;
+    return {
+      wPct: (dw / aspect) * 100,
+      hPct: dh * 100,
+      maxOx: Math.max(0, (overX - 1) * 50),
+      maxOy: Math.max(0, (overY - 1) * 50),
+    };
+  })();
+
+  const clampPan = (ox, oy) => (fit
+    ? {
+      ox: Math.max(-fit.maxOx, Math.min(fit.maxOx, ox)),
+      oy: Math.max(-fit.maxOy, Math.min(fit.maxOy, oy)),
+    }
+    : { ox: 0, oy: 0 });
 
   const pan = (e) => {
     e.preventDefault();
@@ -95,8 +140,10 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
       if (ev.pointerId !== id) return;
       setD((s) => ({
         ...s,
-        ox: Math.max(-60, Math.min(60, start.ox + ((ev.clientX - start.x) / rect.width) * 100)),
-        oy: Math.max(-60, Math.min(60, start.oy + ((ev.clientY - start.y) / rect.height) * 100)),
+        ...clampPan(
+          start.ox + ((ev.clientX - start.x) / rect.width) * 100,
+          start.oy + ((ev.clientY - start.y) / rect.height) * 100,
+        ),
       }));
     };
     const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
@@ -104,13 +151,15 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
     window.addEventListener("pointerup", up);
   };
 
-  const swap = d.rotation % 180 !== 0;
-  const Slider = ({ label, val, min, max, step, k, fmt }) => (
-    <label className="block">
-      <span className="mb-0.5 flex justify-between text-[10px] font-bold uppercase tracking-wide text-charcoal/50">{label}<span className="text-charcoal/70">{fmt(val)}</span></span>
-      <input type="range" min={min} max={max} step={step} value={val} onChange={(e) => setD((s) => ({ ...s, [k]: +e.target.value }))} className="w-full accent-gold" />
-    </label>
-  );
+  /* zooming back out can leave the photo panned further than the smaller
+     overflow allows, so re-clamp whenever the fit changes */
+  const setZoom = (zoom) => setD((s) => ({ ...s, zoom }));
+  useEffect(() => {
+    if (!fit) return;
+    const c = clampPan(d.ox, d.oy);
+    if (c.ox !== d.ox || c.oy !== d.oy) setD((s) => ({ ...s, ...c }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fit?.maxOx, fit?.maxOy]);
 
   return (
     <div className="fixed inset-0 z-[98] flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
@@ -123,19 +172,21 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
         <div ref={frameRef} onPointerDown={pan}
           className="relative mx-auto max-h-[46vh] cursor-move touch-none overflow-hidden rounded-lg bg-black/[0.06] ring-1 ring-black/10"
           style={{ aspectRatio: `${aspect}`, width: aspect >= 1 ? "min(100%,360px)" : "auto", height: aspect < 1 ? "46vh" : "auto" }}>
-          <img src={photo.src} alt="" draggable={false}
-            className="pointer-events-none absolute left-1/2 top-1/2 max-w-none select-none"
-            style={{
-              transform: `translate(-50%,-50%) translate(${d.ox}%,${d.oy}%) rotate(${d.rotation}deg) scale(${d.zoom})`,
-              ...(swap
-                ? { height: "auto", width: `${100 * (1 / aspect)}%` }
-                : {}),
-              ...(() => {
-                // cover-fit the frame: pick the dimension that fills
-                return aspect >= 1 ? { width: "100%", height: "auto", minHeight: "100%" } : { height: "100%", width: "auto", minWidth: "100%" };
-              })(),
-              filter: `brightness(${d.brightness}%) contrast(${d.contrast}%)`,
-            }} />
+          {/* the pan lives on a full-size wrapper so its % translate is read
+              against the WINDOW, the way miniCard's ox/oy are — on the image
+              itself a % meant "of the image", so preview and print disagreed */}
+          <div className="absolute inset-0" style={{ transform: `translate(${d.ox}%,${d.oy}%)` }}>
+            <img src={photo.src} alt="" draggable={false}
+              onLoad={(e) => setNat({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
+              className="pointer-events-none absolute left-1/2 top-1/2 max-w-none select-none"
+              style={{
+                transform: `translate(-50%,-50%) rotate(${d.rotation}deg)`,
+                ...(fit
+                  ? { width: `${fit.wPct}%`, height: `${fit.hPct}%` }
+                  : { width: "100%", height: "100%", objectFit: "cover" }),
+                filter: `brightness(${d.brightness}%) contrast(${d.contrast}%)`,
+              }} />
+          </div>
           <span className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/40" />
         </div>
         <p className="mt-1.5 text-center text-[10px] text-charcoal/40">Drag the photo to reposition</p>
@@ -147,9 +198,9 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
             <button onClick={() => setD((s) => ({ ...s, ox: 0, oy: 0, zoom: 1 }))}
               className="rounded-full bg-black/5 px-3 py-2 text-[11px] font-bold text-charcoal/70 hover:bg-black/10">Reset</button>
           </div>
-          <Slider label="Zoom" val={d.zoom} min={1} max={3} step={0.02} k="zoom" fmt={(v) => `${Math.round(v * 100)}%`} />
-          <Slider label="Brightness" val={d.brightness} min={50} max={150} step={1} k="brightness" fmt={(v) => `${v}%`} />
-          <Slider label="Contrast" val={d.contrast} min={50} max={150} step={1} k="contrast" fmt={(v) => `${v}%`} />
+          <CropSlider label="Zoom" val={d.zoom} min={1} max={3} step={0.02} onChange={setZoom} fmt={(v) => `${Math.round(v * 100)}%`} />
+          <CropSlider label="Brightness" val={d.brightness} min={50} max={150} step={1} onChange={(v) => setD((s) => ({ ...s, brightness: v }))} fmt={(v) => `${v}%`} />
+          <CropSlider label="Contrast" val={d.contrast} min={50} max={150} step={1} onChange={(v) => setD((s) => ({ ...s, contrast: v }))} fmt={(v) => `${v}%`} />
         </div>
         <button onClick={() => onApply(d)} className="mt-4 w-full rounded-full bg-gold py-2.5 text-sm font-bold text-white transition hover:brightness-110">Apply</button>
       </div>
