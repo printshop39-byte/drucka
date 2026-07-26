@@ -270,11 +270,16 @@ export const PRODUCTS = [
   {
     productId: "canvas", qikinkId: "canvas", category: "gifts",
     productName: "Stretched Canvas",
-    catalog: { order: 5, title: "Canvas", price: 999, img: "/designs/catalog-5-800.webp" },
+    catalog: { order: 5, title: "Canvas", price: 500, img: "/designs/catalog-5-800.webp" },
     editor: { shell: true, family: "designer" },
-    basePrice: 999, taxRate: 12,
+    /* Sizes are Qikink's, per Drucka — the old 12×18″ and 18×24″ were not made
+       by anyone in the supply chain. Retail is Qikink's item cost doubled,
+       delivery charged separately as usual:
+         8×8″  250→500   8×12″ 300→600   16×20″ 550→1100   20×30″ 800→1600 */
+    basePrice: 500, taxRate: 12,
     availableColors: ["white"],
-    availableSizes: ['12×18"', '18×24"'], sizeSurcharge: { '18×24"': 300 }, sizeChart: null,
+    availableSizes: ['8×8"', '8×12"', '16×20"', '20×30"'],
+    sizeSurcharge: { '8×12"': 100, '16×20"': 600, '20×30"': 1100 }, sizeChart: null,
     printingOptions: FULL_COLOUR,
     mockups: { base: "canvas", ext: "webp", colors: ["white"] },
     image: "/images/canvas.webp",
@@ -285,17 +290,20 @@ export const PRODUCTS = [
        box was 45% wide against a face that is 60.3% — three quarters of it,
        so the print never reached the edges of the canvas in the preview.
 
-       Inches are 18 × 24, not 12 × 18: the photographed canvas measures
-       0.754 w:h, which is 18×24 (0.75), and 18×24 is also the size the editor
-       selects by default. See the note on availableSizes above — the two sizes
-       are different shapes and the print area does not yet follow the choice. */
+       The photographed canvas is 0.754 w:h. None of Qikink's four sizes is
+       exactly that, so each is inscribed in the face at its own shape — a
+       square 8×8″ sits inside the same photo as a tall 20×30″. */
     printAreas: [{
       id: "front", label: "Front", photo: "front",
       area: { left: 19.0, top: 18.51, width: 60.3, height: 67.15 },
-      /* the two sizes are different shapes, so the print box follows the
-         choice; `inches` is the default (18×24″, what the photo shows) */
-      inches: { w: 18, h: 24 },
-      inchesBySize: { '12×18"': { w: 12, h: 18 }, '18×24"': { w: 18, h: 24 } },
+      /* `inches` is the default size (8×12″, the second in the list) */
+      inches: { w: 8, h: 12 },
+      inchesBySize: {
+        '8×8"': { w: 8, h: 8 },
+        '8×12"': { w: 8, h: 12 },
+        '16×20"': { w: 16, h: 20 },
+        '20×30"': { w: 20, h: 30 },
+      },
     }],
     productHighlights: ["Premium Canvas", "Wooden Frame", "Fade Resistant"],
     description: "Premium stretched canvas on a wooden frame — museum-style photo finish.",

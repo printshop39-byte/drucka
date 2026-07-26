@@ -439,12 +439,9 @@ const QIKINK_PRODUCT_MAP = [
      availableSizes in data.js, where it has been withdrawn. */
   { druckaId: "poster",      druckaName: "Poster Print",      qikinkProduct: "Poster",                     qikinkProductId: "UPoster",   skuPattern: "UPoster-{color}-{size}", skuSizeToken: { A3: "A3 poster", '12×18"': "12x18pos", '24×36"': "24x36 pos" }, printMethod: "Sublimation", colors: ["white"], sizes: ["A3", '12×18"', '24×36"'], baseCostBySize: { A3: 50, '12×18"': 80, '24×36"': 250 }, baseCost: 80, sellingPrice: 199, printAreas: ["Front"], active: true },
 
-  /* INACTIVE — Drucka has chosen to move the catalogue to Qikink's canvas
-     sizes (8x8, 8X12, 16X20, 20X30). Waiting on the retail price for each
-     before the storefront sizes change; Qikink's item costs are 250, 300,
-     550 and 800. Activate together with that change, not before, or the
-     editor would offer sizes with no price. */
-  { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", skuSizeToken: {}, printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 550, sellingPrice: 999, printAreas: ["Front"], active: false },
+  /* Catalogue now carries Qikink's four canvas sizes (see data.js). Note the
+     tokens: 8x8 is lower-case, the other three are 8X12 / 16X20 / 20X30. */
+  { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", skuSizeToken: { '8×8"': "8x8", '8×12"': "8X12", '16×20"': "16X20", '20×30"': "20X30" }, printMethod: "Sublimation", colors: ["white"], sizes: ['8×8"', '8×12"', '16×20"', '20×30"'], baseCostBySize: { '8×8"': 250, '8×12"': 300, '16×20"': 550, '20×30"': 800 }, baseCost: 300, sellingPrice: 600, printAreas: ["Front"], active: true },
 
   /* NOT FULFILLED BY QIKINK, per Drucka — stickers are sourced elsewhere.
      Qikink die-cuts by the inch (2x2 … 15x3) and makes no A5/A4 sheets, so
