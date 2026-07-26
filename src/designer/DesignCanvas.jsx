@@ -289,13 +289,22 @@ export default function DesignCanvas({
         <MockupImage product={product} color={color} photo={p.photo} />
 
         {/* printable area — blue dotted; size container so cqh text tracks it */}
-        <div ref={areaRef}
-          className={`absolute rounded-sm ${preview ? "overflow-hidden" : "border-2 border-dotted border-sky-500/70"}`}
+        {/* No border on this element: box-sizing is border-box, so a 2px
+            dotted border shrinks the content box that every layer's % width
+            and height resolve against — and it shrinks the two axes by
+            different fractions. On the mug's 174×76 box that alone drew
+            designs 3% out of proportion. The outline is a sibling overlay
+            instead, which takes no layout space at all. */}
+        <div ref={areaRef} data-print-area={p.id}
+          className={`absolute rounded-sm ${preview ? "overflow-hidden" : ""}`}
           style={{
             left: `${area.left}%`, top: `${area.top}%`,
             width: `${area.width}%`, height: `${area.height}%`,
             containerType: "size",
           }}>
+          {!preview && (
+            <div className="pointer-events-none absolute inset-0 rounded-sm border-2 border-dotted border-sky-500/70" style={{ margin: -2 }} />
+          )}
           {layers.map(renderLayer)}
           {!preview && !layers.length && (
             <p className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 px-2 text-center text-[10px] font-semibold text-sky-600/60">
