@@ -372,8 +372,8 @@ export function GraphicsPanel({ onAddImage, onClose }) {
    Aspect-ratio lock keeps W/H proportional from either input. */
 export function LayerSettingsPanel({ layer, product, placement, size, onPatch, onDelete, onClose }) {
   const p = placementOf(product, placement);
-  /* the print size follows the size the customer picked — a Canvas at 12×18″
-     is a different shape from the same Canvas at 18×24″ */
+  /* the print size follows the size the customer picked — a Canvas at 8×8″
+     is a different shape from the same Canvas at 20×30″ */
   const inches = inchesFor(p, size);
   const { w: AW, h: AH } = inches;
   if (!layer) return null;

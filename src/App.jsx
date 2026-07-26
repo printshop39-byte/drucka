@@ -120,7 +120,7 @@ const PRODUCTS = [
   { id: "mug",      name: "Photo Mug",        category: "mugs",      price: 299, delivery: "2–4 days", img: "/images/mug.webp",      tag: "Popular",    blurb: "Personalised ceramic mug" },
   { id: "frame",    name: "Framed Print",     category: "frames",    price: 899, delivery: "2–4 days", img: "/images/frame.webp",    tag: "Premium",    blurb: "Gallery-grade photo frame" },
   { id: "cushion",  name: "Cushion",          category: "cushions",  price: 649, delivery: "2–4 days", img: "/images/cushion.webp",  tag: "Cozy Pick",  blurb: "Soft printed throw cushion" },
-  { id: "canvas",   name: "Canvas",           category: "frames",    price: 999, delivery: "2–4 days", img: "/images/canvas.webp",   tag: "Premium",    blurb: "Stretched premium canvas" },
+  { id: "canvas",   name: "Canvas",           category: "frames",    price: 500, delivery: "2–4 days", img: "/images/canvas.webp",   tag: "Premium",    blurb: "Stretched premium canvas" },
   { id: "keychain", name: "Acrylic Keychain", category: "keychains", price: 149, delivery: "2–4 days", img: "/images/keychain.webp", tag: "Under ₹200", blurb: "Pocket-size photo keepsake" },
   { id: "kids-tshirt", name: "Kids T-Shirt",          category: "kids", price: 449, delivery: "2–4 days", img: "/mockups/kids-tshirt-front-white.png", fallbackImg: "/images/tshirt.webp", tag: "Kids 2–12Y", blurb: "Soft cotton tee for little ones" },
   { id: "kids-hoodie", name: "Kids Hoodie",           category: "kids", price: 799, delivery: "2–4 days", img: "/images/categories/kids-jacket.webp", fallbackImg: "/images/tshirt.webp", tag: "Kids 2–12Y", blurb: "Cozy printed hoodie for kids" },
@@ -147,7 +147,7 @@ const EDITOR_PRODUCTS = [
   { id: "mug",       name: "Photo Mug",         price: 299, cost: 179, sizes: ["325 ml"],                   apparel: false, printArea: "20 × 9 cm",  area: { left: 33, top: 35, width: 34, height: 33 } },
   { id: "frame",     name: "Framed Print",      price: 899, cost: 539, sizes: ["A4", "A3"],                 apparel: false, printArea: "21 × 30 cm", area: { left: 35, top: 24, width: 30, height: 42 } },
   { id: "cushion",   name: "Cushion",           price: 649, cost: 389, sizes: ['16"', '18"'],               apparel: false, printArea: "40 × 40 cm", area: { left: 31, top: 27, width: 38, height: 38 } },
-  { id: "canvas",    name: "Canvas",            price: 999, cost: 599, sizes: ['12×18"', '18×24"'],         apparel: false, printArea: "30 × 45 cm", area: { left: 31.5, top: 21, width: 39, height: 54 } },
+  { id: "canvas",    name: "Canvas",            price: 500, cost: 250, sizes: ['8×8"', '8×12"', '16×20"', '20×30"'], apparel: false, printArea: "20 × 20 cm", area: { left: 31.5, top: 21, width: 39, height: 54 } },
   { id: "keychain",  name: "Acrylic Keychain",  price: 149, cost: 79,  sizes: ["Standard"],                 apparel: false, printArea: "3 × 5 cm",   area: { left: 39.5, top: 35.5, width: 21, height: 28 } },
   { id: "kids-tshirt", name: "Kids T-Shirt",           price: 449, cost: 269, sizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], apparel: true,  kids: true, printArea: "25 × 32 cm", area: { left: 31, top: 26, width: 38, height: 42 } },
   { id: "kids-hoodie", name: "Kids Hoodie",            price: 799, cost: 499, sizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], apparel: true,  kids: true, printArea: "22 × 26 cm", area: { left: 33, top: 28, width: 34, height: 26 } },
@@ -2294,7 +2294,7 @@ const QUICK_REPLIES = [
   { id: "customize", label: "Customize T-shirt", reply: "Great! Upload your design, choose size and color, then click Order on WhatsApp. Our team will confirm print quality before printing." },
   { id: "bulk", label: "Bulk order", form: true, reply: "For bulk orders above 10 pieces, we offer special pricing. Share quantity, product type and design on WhatsApp." },
   { id: "track", label: "Track order", reply: "Please share your order name or WhatsApp number. Our team will check and update you." },
-  { id: "price", label: "Price list", reply: "T-shirt from ₹599, Mug from ₹299, Frame from ₹899, Cushion from ₹649, Canvas from ₹999, Keychain from ₹149." },
+  { id: "price", label: "Price list", reply: "T-shirt from ₹599, Mug from ₹299, Frame from ₹899, Cushion from ₹649, Canvas from ₹500, Keychain from ₹149." },
   { id: "human", label: "Talk to human", human: true },
 ];
 
@@ -2966,12 +2966,18 @@ function ProductTabs({ favs, onFav, onCustomize }) {
 /* Six categories, one card shape. The seventh ("Poster Print") was dropped
    from the grid because it borrowed /images/prints/print-1.webp as placeholder
    art — posters stay reachable via search and the /posters landing route. */
+/* "From ₹" on the homepage cards. These are a SECOND copy of prices that
+   really live in designer/data.js, so they drift — canvas advertised ₹999
+   here for a while after its sizes moved to Qikink's and its cheapest became
+   ₹500. Five of the six equal the product's basePrice; the tee is the odd one
+   out at 599 against a real cheapest of 429 (basePrice 349 + DTG 80), which
+   is a pricing decision rather than a bug, so it is left alone. */
 const CATALOG_CARDS = [
   { productId: "tshirt",   title: "Premium T-Shirt", price: 599, img: "/designs/catalog-1-800.webp", img400: "/designs/catalog-1-400.webp", alt: "Custom printed premium cotton t-shirt by Drucka" },
   { productId: "mug",      title: "Photo Mug",       price: 299, img: "/designs/catalog-2-800.webp", img400: "/designs/catalog-2-400.webp", alt: "Personalised photo mug printed by Drucka" },
   { productId: "frame",    title: "Framed Print",    price: 899, img: "/designs/catalog-3-800.webp", img400: "/designs/catalog-3-400.webp", alt: "Custom framed photo print in a premium frame by Drucka" },
   { productId: "cushion",  title: "Cushion",         price: 649, img: "/designs/catalog-4-800.webp", img400: "/designs/catalog-4-400.webp", alt: "Personalised photo cushion cover printed by Drucka" },
-  { productId: "canvas",   title: "Canvas",          price: 999, img: "/designs/catalog-5-800.webp", img400: "/designs/catalog-5-400.webp", alt: "Gallery-wrapped custom canvas print by Drucka" },
+  { productId: "canvas",   title: "Canvas",          price: 500, img: "/designs/catalog-5-800.webp", img400: "/designs/catalog-5-400.webp", alt: "Gallery-wrapped custom canvas print by Drucka" },
   { productId: "keychain", title: "Keychain",        price: 149, img: "/designs/catalog-6-800.webp", img400: "/designs/catalog-6-400.webp", alt: "Personalised acrylic photo keychain by Drucka" },
 ];
 
