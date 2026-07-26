@@ -4157,15 +4157,25 @@ export default function App() {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const checkoutIdRef = useRef(null); // shared eventID: browser InitiateCheckout ⇆ server CAPI (COD)
   const [trackOpen, setTrackOpen] = useState(false);
-  // v2 key: forces a re-seed from the corrected QIKINK_PRODUCT_MAP (real Qikink
-  // SKU stems from the SKU Descriptions export) over any stale v1 localStorage map.
-  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v2", QIKINK_PRODUCT_MAP));
+  /* The key carries a version because this is a CACHE of the built-in map, and
+     localStorage wins over the default — so a browser that has ever loaded the
+     app keeps its old map forever unless the key moves with it.
+
+     v3: the map went from 6 products to 11. A browser still on v2 had no frame,
+     poster, canvas, keychain or stickers entry at all, so sending any of them
+     to Qikink died on "No active Qikink mapping" — caught placing a framed A3
+     test order. It also still had the five-colour palette and the XS–3XL size
+     list, both of which have since changed.
+
+     Bump this whenever QIKINK_PRODUCT_MAP changes shape. Admin edits are saved
+     to Supabase, not here, so a re-seed only discards a stale copy. */
+  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v3", QIKINK_PRODUCT_MAP));
 
   useEffect(() => save("drucka-cart", cart), [cart]);
   useEffect(() => save("drucka-favs", favs), [favs]);
   useEffect(() => save("drucka-qikink-settings", qikinkSettings), [qikinkSettings]); // non-sensitive only
   useEffect(() => save("drucka-orders", orders), [orders]);
-  useEffect(() => save("drucka-product-map-v2", productMap), [productMap]);
+  useEffect(() => save("drucka-product-map-v3", productMap), [productMap]);
 
   /* ── order lifecycle (Draft → Paid/COD Approved → Sent to Qikink → …) ── */
   const updateOrder = (id, patch) => {
