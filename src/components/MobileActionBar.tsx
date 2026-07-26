@@ -1,3 +1,4 @@
+import type { MouseEvent } from 'react';
 import { Home, LayoutGrid, Upload, ShoppingBag, MessageCircle } from 'lucide-react';
 
 /* ── Mobile sticky bottom nav ──
@@ -10,11 +11,21 @@ interface Props {
   onUpload: () => void;
   onCart: () => void;
   whatsappUrl: string;
+  /* Same reason as the navbar: this bar renders on every route, including the
+     SEO landings and policy pages where the homepage sections do not exist.
+     Bare `#top` / `#photo-frames` were inert on exactly those pages. */
+  onNavigate?: (path: string) => void;
 }
 
-export default function MobileActionBar({ cartCount, onUpload, onCart, whatsappUrl }: Props) {
+export default function MobileActionBar({ cartCount, onUpload, onCart, whatsappUrl, onNavigate }: Props) {
   const itemCls =
     'flex flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-semibold text-charcoal/70 transition active:scale-95';
+
+  const navigate = (e: MouseEvent, href: string) => {
+    if (!onNavigate) return;
+    e.preventDefault();
+    onNavigate(href);
+  };
 
   return (
     <nav
@@ -23,11 +34,11 @@ export default function MobileActionBar({ cartCount, onUpload, onCart, whatsappU
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-stretch">
-        <a href="#top" className={itemCls}>
+        <a href="/#top" onClick={(e) => navigate(e, '/#top')} className={itemCls}>
           <Home size={20} />
           Home
         </a>
-        <a href="#photo-frames" className={itemCls}>
+        <a href="/#catalog" onClick={(e) => navigate(e, '/#catalog')} className={itemCls}>
           <LayoutGrid size={20} />
           Products
         </a>

@@ -21,7 +21,7 @@ export default function PhoneCases() {
   } : null;
 
   return (
-    <section id="phone-cases" className="sb-section relative py-20 lg:py-28">
+    <section id="phone-cases" className="sb-section relative scroll-mt-24 py-20 lg:py-28">
       <style>{`
         .sb-section { background-color: #FEF9F0; background-image: radial-gradient(circle, rgba(201,116,76,0.12) 1px, transparent 1px); background-size: 20px 20px; }
         .sb-label { font-family: 'Courier New', monospace; letter-spacing: 3px; color: #C9744C; font-size: 11px; }
