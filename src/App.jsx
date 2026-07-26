@@ -4231,6 +4231,64 @@ export default function App() {
       document.title = title;
       document.querySelector('meta[name="description"]')?.setAttribute("content", desc);
     };
+    /* Scroll to the `#section` in the URL, if any — called after the route has
+       been applied.
+
+       Two cases, and they need different treatment:
+
+       • The section is already in the DOM and the document has finished
+         loading (an in-page click on the homepage) — nothing is going to move
+         under us, so one smooth scroll is right.
+       • Anything else — arriving from a landing or policy route, or a cold load
+         straight onto drucka.in/#gallery-walls — the homepage is mounting
+         and/or still growing for a while as its images arrive. Scrolling once,
+         the moment the target first exists, lands hundreds of pixels short and
+         stays there. So re-aim on a timer until
+         the layout stops moving (target offset and page height unchanged for
+         three ticks), give up after 3s, and bail out the instant the visitor
+         scrolls for themselves rather than fighting them for the scrollbar.
+
+       "instant" in that second case is load-bearing, not a preference: index.css
+       sets `html { scroll-behavior: smooth }`, so an "auto" scrollIntoView
+       inherits smooth, and re-issuing it every tick restarts the animation from
+       a standstill each time — the page never actually moves. */
+    const scrollToId = (id) => {
+      if (!id) return;
+      const settled = document.getElementById(id);
+      if (settled && document.readyState === "complete") {
+        settled.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+
+      let cancelled = false;
+      const stop = () => { cancelled = true; };
+      const done = () => {
+        window.removeEventListener("wheel", stop);
+        window.removeEventListener("touchstart", stop);
+      };
+      window.addEventListener("wheel", stop, { passive: true, once: true });
+      window.addEventListener("touchstart", stop, { passive: true, once: true });
+
+      const start = Date.now();
+      let lastLayout = "";
+      let stable = 0;
+      /* setTimeout, not requestAnimationFrame: rAF is paused outright in a
+         backgrounded tab, so a hash link opened in one never resolved. */
+      const tick = () => {
+        if (cancelled) { done(); return; }
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: "instant" });
+          const layout = `${el.offsetTop}:${document.body.scrollHeight}`;
+          if (layout === lastLayout) stable += 1;
+          else { lastLayout = layout; stable = 0; }
+        }
+        if (stable >= 3 || Date.now() - start > 3000) { done(); return; }
+        window.setTimeout(tick, 50);
+      };
+      tick();
+    };
+    const scrollToHash = () => scrollToId(window.location.hash.slice(1));
     const applyRoute = () => {
       const p = window.location.pathname.replace(/\/+$/, "").toLowerCase();
       console.log("[DRUCKA] route resolved:", JSON.stringify(p));
@@ -4265,8 +4323,10 @@ export default function App() {
         case "/catalog":
         case "/catalogue":
         case "/shop":
-          requestAnimationFrame(() =>
-            document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" }));
+          /* was "categories" — that id lives in CategoryShowcase, which is not
+             rendered any more, so /catalog landed at the top of the page and
+             stayed there. ShopCatalog carries id="catalog". */
+          scrollToId("catalog");
           break;
         case "/cart":
           setCartOpen(true);
@@ -4286,6 +4346,7 @@ export default function App() {
         default:
           break;
       }
+      scrollToHash();
     };
     applyRoute();
     window.addEventListener("popstate", applyRoute);
@@ -4331,6 +4392,7 @@ export default function App() {
         searchProducts={PRODUCTS.map((p) => ({ id: p.id, name: p.name, category: p.category, tag: p.tag, img: p.img }))}
         onSearchSelect={openEditor}
         onSearch={(term) => pixel.search(term)}
+        onNavigate={goTo}
       />
       {IS_STAGING && (
         <div className="fixed inset-x-0 bottom-0 z-[45] bg-amber-400/95 py-1 text-center text-[11px] font-bold tracking-wide text-amber-950 shadow"
@@ -4418,6 +4480,7 @@ export default function App() {
         onUpload={() => setCustomizer({ mode: "frame", initial: null })}
         onCart={() => setCartOpen(true)}
         whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
+        onNavigate={goTo}
       />
 
       <Suspense fallback={<EditorFallback />}>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import { Menu, X, ShoppingBag, ChevronDown, Search } from 'lucide-react';
 
 interface SearchProduct {
@@ -20,19 +20,26 @@ interface NavbarProps {
   searchProducts?: SearchProduct[];
   onSearchSelect?: (id: string) => void;
   onSearch?: (term: string) => void;
+  /* Client-side route change. Section links are absolute (`/#id`) because the
+     homepage sections are NOT mounted on an SEO landing or a policy route —
+     a bare `#gallery-walls` there only rewrote the URL and scrolled nowhere. */
+  onNavigate?: (path: string) => void;
 }
 
 /* Desktop nav is deliberately three items — Products, Gallery Walls,
    Corporate/Bulk — so the primary CTA stays the loudest thing in the bar.
    Everything else lives inside the Products mega-menu. */
+/* Statement Collection (#statement) and Phone Cases & Gifting (#phone-cases)
+   used to sit here. Both sections were taken off the homepage and neither has
+   an SEO route, so those two entries pointed at ids that exist nowhere in the
+   DOM — clicking them did nothing at all. Removed rather than repointed; put
+   them back here the day their sections are rendered again. */
 const SHOP_LINKS: Array<{ name: string; href: string; action?: 'mini' }> = [
-  { name: 'Photo Frames', href: '#photo-frames' },
-  { name: 'Photo Prints', href: '#catalog' },
+  { name: 'Photo Frames', href: '/#photo-frames' },
+  { name: 'Photo Prints', href: '/#catalog' },
   /* opens the real /mini-prints route rather than just scrolling — the previous
      nav checked `link.action` on items that never had one, so this never fired */
   { name: 'Mini Prints', href: '/mini-prints', action: 'mini' as const },
-  { name: 'Statement Collection', href: '#statement' },
-  { name: 'Phone Cases & Gifting', href: '#phone-cases' },
 ];
 
 /* Preserved from the previous nav — these drive the frame-style picker in
@@ -46,7 +53,7 @@ const FRAME_STYLES = [
   { name: 'Traditional Ornate', id: 'traditional-ornate' },
 ];
 
-export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onUpload, onPickFrame, searchProducts = [], onSearchSelect, onSearch }: NavbarProps) {
+export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, onMini, onUpload, onPickFrame, searchProducts = [], onSearchSelect, onSearch, onNavigate }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const productsRef = useRef<HTMLDivElement>(null);
@@ -96,6 +103,15 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
   const pickResult = (id: string) => { onSearchSelect?.(id); closeSearch(); };
   const closeAll = () => { setMobileOpen(false); setProductsOpen(false); };
 
+  /* Hand `/#section` links to the SPA router so they work from every route,
+     not just the homepage. The href stays absolute so middle-click, "open in
+     new tab" and crawlers still get a real URL. */
+  const navigate = (e: MouseEvent, href: string) => {
+    if (!onNavigate || !href.startsWith('/#')) return;
+    e.preventDefault();
+    onNavigate(href);
+  };
+
   /* 44×44 minimum tap target for every icon control in the bar */
   const iconBtn = 'grid h-11 w-11 place-items-center rounded-full text-charcoal/70 transition hover:bg-cream hover:text-charcoal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold';
 
@@ -117,7 +133,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
           </button>
 
           {/* Logo */}
-          <a href="#top" className="flex items-center" onClick={closeAll}>
+          <a href="/#top" className="flex items-center" onClick={(e) => { navigate(e, '/#top'); closeAll(); }}>
             <div className="flex h-8 w-8 items-center justify-center border-2 border-charcoal">
               <div className="h-5 w-5 border border-gold"></div>
             </div>
@@ -170,7 +186,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                         <a
                           key={item.name}
                           href={item.href}
-                          onClick={(e) => { if (item.action === 'mini') { e.preventDefault(); onMini?.(); } setProductsOpen(false); }}
+                          onClick={(e) => { if (item.action === 'mini') { e.preventDefault(); onMini?.(); } else navigate(e, item.href); setProductsOpen(false); }}
                           className="block rounded-lg px-2 py-2 text-sm text-charcoal/75 transition-colors hover:bg-cream hover:text-charcoal"
                         >
                           {item.name}
@@ -188,8 +204,8 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                       {FRAME_STYLES.map((item) => (
                         <a
                           key={item.id}
-                          href="#photo-frames"
-                          onClick={() => { setProductsOpen(false); onPickFrame?.(item.id); }}
+                          href="/#photo-frames"
+                          onClick={(e) => { navigate(e, '/#photo-frames'); setProductsOpen(false); onPickFrame?.(item.id); }}
                           className="block rounded-lg px-2 py-2 text-sm text-charcoal/75 transition-colors hover:bg-cream hover:text-charcoal"
                         >
                           {item.name}
@@ -201,10 +217,10 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               )}
             </div>
 
-            <a href="#gallery-walls" className="text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal">
+            <a href="/#gallery-walls" onClick={(e) => navigate(e, '/#gallery-walls')} className="text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal">
               Gallery Walls
             </a>
-            <a href="#corporate" className="text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal">
+            <a href="/#corporate" onClick={(e) => navigate(e, '/#corporate')} className="text-sm font-medium uppercase tracking-wide text-charcoal/80 transition-colors hover:text-charcoal">
               Corporate / Bulk
             </a>
           </div>
@@ -296,28 +312,38 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               Start Customising
             </button>
 
-            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Shop</p>
+            {/* Home had no entry here at all — on a landing or policy route the
+                only way back was the logo, which was itself a bare `#top`. */}
+            <a
+              href="/#top"
+              className="flex min-h-[44px] items-center text-sm font-medium uppercase tracking-wide text-charcoal/80"
+              onClick={(e) => { navigate(e, '/#top'); setMobileOpen(false); }}
+            >
+              Home
+            </a>
+
+            <p className="mb-1 mt-3 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Shop</p>
             {SHOP_LINKS.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
                 className="flex min-h-[44px] items-center text-sm font-medium uppercase tracking-wide text-charcoal/80"
-                onClick={(e) => { if (item.action === 'mini') { e.preventDefault(); onMini?.(); } setMobileOpen(false); }}
+                onClick={(e) => { if (item.action === 'mini') { e.preventDefault(); onMini?.(); } else navigate(e, item.href); setMobileOpen(false); }}
               >
                 {item.name}
               </a>
             ))}
             <a
-              href="#gallery-walls"
+              href="/#gallery-walls"
               className="flex min-h-[44px] items-center text-sm font-medium uppercase tracking-wide text-charcoal/80"
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => { navigate(e, '/#gallery-walls'); setMobileOpen(false); }}
             >
               Gallery Walls
             </a>
             <a
-              href="#corporate"
+              href="/#corporate"
               className="flex min-h-[44px] items-center text-sm font-medium uppercase tracking-wide text-charcoal/80"
-              onClick={() => setMobileOpen(false)}
+              onClick={(e) => { navigate(e, '/#corporate'); setMobileOpen(false); }}
             >
               Corporate / Bulk
             </a>
@@ -333,8 +359,8 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               {FRAME_STYLES.map((item) => (
                 <a
                   key={item.id}
-                  href="#photo-frames"
-                  onClick={() => { setMobileOpen(false); onPickFrame?.(item.id); }}
+                  href="/#photo-frames"
+                  onClick={(e) => { navigate(e, '/#photo-frames'); setMobileOpen(false); onPickFrame?.(item.id); }}
                   className="flex min-h-[44px] items-center text-sm text-charcoal/70"
                 >
                   {item.name}

@@ -103,7 +103,10 @@ export default function Footer({ onTrack }: FooterProps) {
                 </a>
               </li>
               <li>
-                <a href="#faq" className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">FAQs</a>
+                {/* absolute, like every other footer link — the FAQ section only
+                    exists on the homepage, so a bare "#faq" was inert on the
+                    landing and policy routes this footer also renders on */}
+                <a href="/#faq" className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">FAQs</a>
               </li>
             </ul>
           </div>

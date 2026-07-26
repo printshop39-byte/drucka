@@ -83,8 +83,10 @@ export default function GalleryWalls() {
     }
   };
 
+  /* scroll-mt clears the fixed navbar — without it the nav's own
+     "Gallery Walls" link parked the heading underneath the bar */
   return (
-    <section ref={sectionRef} id="gallery-walls" className="py-20 lg:py-28 bg-white">
+    <section ref={sectionRef} id="gallery-walls" className="scroll-mt-24 py-20 lg:py-28 bg-white">
       {/* hover lift/zoom only on real hover devices (disabled on touch/mobile) */}
       <style>{`
         @keyframes gwFadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
