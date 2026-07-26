@@ -408,14 +408,14 @@ const QIKINK_PRODUCT_MAP = [
      sizesByColor: Qikink stops Yellow, Lavender and Baby Pink at 4XL while the
      other seven run to 7XL. Two independent lists cannot say that, and the
      nine missing combinations are real — MRnHs-Yl-7XL does not exist. */
-  { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Classic Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"], sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL"], sizesByColor: { yellow: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], lavender: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], "baby-pink": ["S", "M", "L", "XL", "XXL", "3XL", "4XL"] }, baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
+  { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Classic Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"], sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL"], baseCostBySize: { S: 359, M: 359, L: 359, XL: 359, XXL: 359, "3XL": 379, "4XL": 399, "5XL": 419, "6XL": 439, "7XL": 459 }, sizesByColor: { yellow: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], lavender: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], "baby-pink": ["S", "M", "L", "XL", "XXL", "3XL", "4XL"] }, baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
   { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Oversized Classic T-Shirt | UC22", qikinkProductId: "UC22",  skuPattern: "UOsMRnHs-{color}-{size}", printMethod: "DTF",     colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
   { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Polo | MP25",                qikinkProductId: "MP25",      skuPattern: "MPHs-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
   { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["5Yrs", "7Yrs", "9Yrs", "11Yrs", "13Yrs"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"], active: false /* TODO: confirm Boy vs Girl stem + Drucka size labels before re-enabling */ },
   /* UHd — 15 colours, XS–3XL in the export. Drucka's five all exist on it.
      Note: this stem has no plain Yellow (only Mustard), so do not add yellow
      to the hoodie without checking the export again. */
-  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy", "maroon", "bottle-green"], sizes: ["S", "M", "L", "XL", "XXL", "3XL"],       baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
+  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy", "maroon", "bottle-green"], sizes: ["S", "M", "L", "XL", "XXL", "3XL"], baseCostBySize: { S: 649, M: 649, L: 649, XL: 649, XXL: 649, "3XL": 689 }, baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
   { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Coffee Mug",           qikinkProductId: "UWCM",      skuPattern: "UWCM-{color}-11 OZ",   printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
 
   /* ── Gift products ──
@@ -424,28 +424,37 @@ const QIKINK_PRODUCT_MAP = [
 
      Qikink's size tokens are not a pattern — "A4 Frame poster", "12x18Fpos",
      "24x36 pos" and "8X12" all appear — so skuSizeToken spells out the exact
-     token per Drucka size instead of substituting {size} blindly. */
+     token per Drucka size instead of substituting {size} blindly.
+
+     baseCost excludes shipping everywhere — the Admin margin subtracts
+     shippingCost separately and says "after ship". For these three it is
+     Qikink's listed item price ONLY: the print charge is not in the
+     sku_descriptions export, so they are a floor, whereas the apparel figures
+     above came from a quote that already included printing. */
 
   /* UFPos in Wh/Bk/Yl/Gn/Rb/OG; Drucka's black and white both exist. */
-  { druckaId: "frame",       druckaName: "Framed Print",      qikinkProduct: "Framed Poster",              qikinkProductId: "UFPos",     skuPattern: "UFPos-{color}-{size}", skuSizeToken: { A4: "A4 Frame poster", A3: "A3 Frame poster" }, printMethod: "Sublimation", colors: ["black", "white"], sizes: ["A4", "A3"],   baseCost: 350, sellingPrice: 899, printAreas: ["Front"], active: true },
+  { druckaId: "frame",       druckaName: "Framed Print",      qikinkProduct: "Framed Poster",              qikinkProductId: "UFPos",     skuPattern: "UFPos-{color}-{size}", skuSizeToken: { A4: "A4 Frame poster", A3: "A3 Frame poster" }, printMethod: "Sublimation", colors: ["black", "white"], sizes: ["A4", "A3"], baseCostBySize: { A4: 250, A3: 350 }, baseCost: 350, sellingPrice: 899, printAreas: ["Front"], active: true },
 
   /* UPoster is white only. A2 is not made by Qikink at all — see the poster's
      availableSizes in data.js, where it has been withdrawn. */
-  { druckaId: "poster",      druckaName: "Poster Print",      qikinkProduct: "Poster",                     qikinkProductId: "UPoster",   skuPattern: "UPoster-{color}-{size}", skuSizeToken: { A3: "A3 poster", '12×18"': "12x18pos", '24×36"': "24x36 pos" }, printMethod: "Sublimation", colors: ["white"], sizes: ["A3", '12×18"', '24×36"'], baseCost: 80, sellingPrice: 199, printAreas: ["Front"], active: true },
+  { druckaId: "poster",      druckaName: "Poster Print",      qikinkProduct: "Poster",                     qikinkProductId: "UPoster",   skuPattern: "UPoster-{color}-{size}", skuSizeToken: { A3: "A3 poster", '12×18"': "12x18pos", '24×36"': "24x36 pos" }, printMethod: "Sublimation", colors: ["white"], sizes: ["A3", '12×18"', '24×36"'], baseCostBySize: { A3: 50, '12×18"': 80, '24×36"': 250 }, baseCost: 80, sellingPrice: 199, printAreas: ["Front"], active: true },
 
-  /* INACTIVE — Qikink makes canvas in 8x8, 8X12, 16X20 and 20X30. Drucka
-     sells 12×18″ and 18×24″, neither of which exists. Either the catalogue
-     sizes move to Qikink's, or canvas needs a different supplier. */
+  /* INACTIVE — Drucka has chosen to move the catalogue to Qikink's canvas
+     sizes (8x8, 8X12, 16X20, 20X30). Waiting on the retail price for each
+     before the storefront sizes change; Qikink's item costs are 250, 300,
+     550 and 800. Activate together with that change, not before, or the
+     editor would offer sizes with no price. */
   { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", skuSizeToken: {}, printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 550, sellingPrice: 999, printAreas: ["Front"], active: false },
 
-  /* INACTIVE — Qikink die-cuts stickers by the inch (2x2 … 15x3). Drucka
-     sells A5 and A4 sheets, which Qikink does not make. */
+  /* NOT FULFILLED BY QIKINK, per Drucka — stickers are sourced elsewhere.
+     Qikink die-cuts by the inch (2x2 … 15x3) and makes no A5/A4 sheets, so
+     this stays off; the stem is kept only so the gap is visible here rather
+     than looking like an oversight. */
   { druckaId: "stickers",    druckaName: "Custom Stickers",   qikinkProduct: "Stickers",                   qikinkProductId: "UStickers", skuPattern: "UStickers-{color}-{size}", skuSizeToken: {}, printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 85, sellingPrice: 99, printAreas: ["Front"], active: false },
 
-  /* INACTIVE — three shapes at ₹60 each (Rect, Slim, sqr) against Drucka's
-     single "Standard". Rect is mapped as the likely intent; confirm the shape
-     before turning this on, because the wrong one ships silently. */
-  { druckaId: "keychain",    druckaName: "Acrylic Keychain",  qikinkProduct: "Keychain",                   qikinkProductId: "UAcryKyChnUV", skuPattern: "UAcryKyChnUV-{color}-{size}", skuSizeToken: { Standard: "Rect" }, printMethod: "Sublimation", colors: ["white"], sizes: ["Standard"], baseCost: 60, sellingPrice: 149, printAreas: ["Front"], active: false },
+  /* "Standard" is the square shape, per Drucka. Qikink also makes Rect and
+     Slim at the same ₹60 if another shape is ever added to the catalogue. */
+  { druckaId: "keychain",    druckaName: "Acrylic Keychain",  qikinkProduct: "Keychain",                   qikinkProductId: "UAcryKyChnUV", skuPattern: "UAcryKyChnUV-{color}-{size}", skuSizeToken: { Standard: "sqr" }, printMethod: "Sublimation", colors: ["white"], sizes: ["Standard"], baseCost: 60, baseCostBySize: { Standard: 60 }, sellingPrice: 149, printAreas: ["Front"], active: true },
 ];
 /* default shipping cost per mapping (editable in Admin → Product Mapping) */
 QIKINK_PRODUCT_MAP.forEach((m) => { if (m.shippingCost == null) m.shippingCost = m.druckaId === "hoodie" ? 69 : 49; });
@@ -3972,6 +3981,13 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                       <div><dt className="font-semibold text-ink/40">Sizes</dt><dd>{m.sizes.join(", ")}</dd></div>
                       <div><dt className="font-semibold text-ink/40">Print areas</dt><dd>{m.printAreas.join(", ")}</dd></div>
                       <div><dt className="font-semibold text-ink/40">Margin</dt><dd className="font-bold text-emerald-600">{inr(m.sellingPrice - m.baseCost - (m.shippingCost ?? 0))} <span className="font-normal text-ink/40">(after ship)</span></dd></div>
+                      {m.baseCostBySize && (
+                        /* Qikink charges more for the bigger sizes, so a single
+                           base cost understates them — 7XL costs ₹100 more than
+                           an M. Shown here rather than hidden in the data. */
+                        <div className="col-span-2 sm:col-span-4"><dt className="font-semibold text-ink/40">Cost by size</dt>
+                          <dd>{Object.entries(m.baseCostBySize).map(([sz, c]) => `${sz} ${inr(c)}`).join(" · ")}</dd></div>
+                      )}
                     </dl>
                   </div>
                 );
