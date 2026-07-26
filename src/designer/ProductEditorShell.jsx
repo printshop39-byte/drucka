@@ -6,6 +6,7 @@ import {
 import { Icon, ic } from "./icons";
 import DesignCanvas, { clampToArea } from "./DesignCanvas";
 import MockupPreview from "./MockupPreview";
+import { uploadPlacementArtwork } from "./renderArtwork";
 import {
   GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
 } from "./panels";
@@ -173,8 +174,11 @@ export default function ProductEditorShell({
   };
 
   /* ── add to cart — identical item shape to the classic editor ── */
-  const handleAddToCart = () => {
+  const [addingToCart, setAddingToCart] = useState(false);
+  const handleAddToCart = async () => {
     if (!hasDesign) { showToast("Add a design first — Image or Text"); setActiveTool("image"); return; }
+    if (addingToCart) return;
+    setAddingToCart(true);
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
     /* what each placement will actually print at, so Qikink receives the size
        the customer designed instead of falling back to its placement default */
@@ -182,8 +186,17 @@ export default function ProductEditorShell({
       p.id, printSizeInches(layersByPlacement[p.id], inchesFor(p, sel.selectedSize)),
     ]).filter(([, v]) => v));
     const name = title.trim() || `Custom ${product.productName}`;
+    const key = uid();
+    /* Flatten each print area to a single image and park it on Cloudinary.
+       Fulfillment used to upload the first image layer raw, so text never
+       reached the printer and a second image was dropped. */
+    const artwork = await uploadPlacementArtwork({
+      areas: price.printed, layersByPlacement,
+      inchesFor: (p) => inchesFor(p, sel.selectedSize), size: sel.selectedSize, key,
+    });
+    setAddingToCart(false);
     onAddToCart({
-      key: uid(),
+      key,
       productId: product.qikinkId,
       type: "custom",
       name,
@@ -195,6 +208,7 @@ export default function ProductEditorShell({
       placement: price.printed.map((p) => p.label).join(", "),
       design,
       printSize,
+      artwork,
       summary: `${price.method.label} print · ${price.printed.map((p) => p.label).join(", ")}`,
     });
     showToast(`${name} added to cart ✓`);
@@ -263,9 +277,11 @@ export default function ProductEditorShell({
               <div className="flex justify-between py-1"><span className="text-ink/55">Quantity</span><span className="font-bold text-ink">{qty}</span></div>
               <div className="mt-2 flex justify-between border-t border-ink/10 pt-2"><span className="text-ink/55">Total</span><span className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</span></div>
             </div>
-            <button onClick={handleAddToCart} disabled={!hasDesign}
-              className={`w-full rounded-full px-6 py-3 text-sm font-bold transition ${hasDesign ? "bg-tangerine text-white shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
-              Add to cart · {inr(sellingTotal)}
+            {/* flattening and uploading the artwork takes a moment — say so
+                rather than letting a second tap queue another cart line */}
+            <button onClick={handleAddToCart} disabled={!hasDesign || addingToCart}
+              className={`w-full rounded-full px-6 py-3 text-sm font-bold transition ${hasDesign && !addingToCart ? "bg-tangerine text-white shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
+              {addingToCart ? "Preparing your artwork…" : `Add to cart · ${inr(sellingTotal)}`}
             </button>
           </div>
         );
