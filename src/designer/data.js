@@ -93,7 +93,15 @@ export const PRODUCTS = [
     productName: "Male Classic Crew T-Shirt",
     catalog: { order: 1, title: "Premium T-Shirt", price: 599, img: "/designs/catalog-1-800.webp" },
     editor: { shell: true, family: "designer" },
-    basePrice: 349, taxRate: 5,
+    /* 519 + ₹80 DTG = the ₹599 advertised on the card, the landing page and
+       the chat price list, and the number the Admin margin was computed
+       against. basePrice was 349, so the editor charged 429 — ₹21 over a
+       landed cost of ₹408 (Qikink 359 + ₹49 shipping). Everything else in
+       the system already agreed on 599; this was the one figure that did
+       not. Size surcharges stay as they are: they run ahead of Qikink's own
+       size steps (+50…+150 against +20…+100), so the bigger sizes earn more,
+       not less. */
+    basePrice: 519, taxRate: 5,
     availableColors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"],
     availableSizes: ADULT_SIZES, sizeSurcharge: ADULT_SURCHARGE, sizeChart: SIZE_CHART,
     /* Qikink stocks Yellow, Lavender and Baby Pink only to 4XL — the other
@@ -119,7 +127,9 @@ export const PRODUCTS = [
   {
     productId: "tshirt-women", qikinkId: "tshirt", category: "women",
     productName: "Women Classic Crew T-Shirt",
-    basePrice: 349, taxRate: 5,
+    /* same 519 as the men's tee — it shares the tshirt mapping, so it shared
+       the ₹21 margin too */
+    basePrice: 519, taxRate: 5,
     availableColors: ["white", "black", "lavender", "baby-pink", "maroon", "yellow", "bottle-green"],
     availableSizes: ADULT_SIZES, sizeSurcharge: ADULT_SURCHARGE, sizeChart: SIZE_CHART,
     printingOptions: PRINT_METHODS,
