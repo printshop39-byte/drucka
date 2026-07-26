@@ -364,15 +364,58 @@ const DEFAULT_QIKINK_SETTINGS = {
 const ORDER_STATUSES = ["Draft", "Payment Pending", "COD Pending Approval", "Paid", "COD Approved", "Sent to Qikink", "In Production", "Shipped", "Delivered", "Failed"];
 const QIKINK_STATUSES = ["Draft", "Sent to Qikink", "In Production", "Shipped", "Delivered", "Failed"];
 
+/* ── Drucka colour → the code Qikink puts in its SKUs ──
+   Qikink SKUs read MRnHs-Bk-M, not MRnHs-Black-M. Every code below is taken
+   from the sku_descriptions export and holds across the tee, hoodie,
+   oversized and mug stems.
+
+   Keyed by BOTH the palette id and the label because the two editors write
+   the cart item's `color` as the LABEL (`colorById(...).label`), while this
+   file's PRODUCT_COLORS is keyed by id — so neither form can be assumed. */
+const QIKINK_COLORS = [
+  { id: "white", code: "Wh", aliases: ["white"] },
+  { id: "black", code: "Bk", aliases: ["black"] },
+  { id: "navy", code: "Nb", aliases: ["navy", "navy blue"] },
+  { id: "red", code: "Rd", aliases: ["red"] },
+  { id: "royal-blue", code: "Rb", aliases: ["royal-blue", "royal blue"] },
+  { id: "bottle-green", code: "Gn", aliases: ["bottle-green", "bottle green"] },
+  { id: "maroon", code: "Mn", aliases: ["maroon"] },
+  { id: "yellow", code: "Yl", aliases: ["yellow"] },
+  { id: "lavender", code: "Lv", aliases: ["lavender"] },
+  { id: "baby-pink", code: "LBp", aliases: ["baby-pink", "baby pink", "light baby pink"] },
+];
+const QIKINK_COLOR_BY_ALIAS = new Map();
+QIKINK_COLORS.forEach((c) => {
+  QIKINK_COLOR_BY_ALIAS.set(c.id, c);
+  c.aliases.forEach((a) => QIKINK_COLOR_BY_ALIAS.set(a, c));
+});
+const resolveQikinkColor = (value) =>
+  QIKINK_COLOR_BY_ALIAS.get(String(value ?? "").trim().toLowerCase()) ?? null;
+const qikinkColorCode = (value) => resolveQikinkColor(value)?.code ?? null;
+const colorIdOf = (value) => resolveQikinkColor(value)?.id ?? null;
+
 /* Drucka product → Qikink product/SKU mapping.
+   Colours and sizes below are the ones the sku_descriptions export actually
+   carries for that stem, intersected with what Drucka sells — validateQikink-
+   Order rejects anything outside them, so an order can no longer be sent with
+   a SKU Qikink has never heard of.
    Confirm product IDs + SKU patterns in your Qikink dashboard:
    https://creator.qikink.com/dashboard → Products */
 const QIKINK_PRODUCT_MAP = [
-  { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Male Standard Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "yellow"], sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
+  /* MRnHs — export calls it "Classic Crew T-Shirt" and carries 34 colours and
+     XS–7XL. Listed here: every colour Drucka sells (all ten exist on this
+     stem) and every size Drucka sells.
+     sizesByColor: Qikink stops Yellow, Lavender and Baby Pink at 4XL while the
+     other seven run to 7XL. Two independent lists cannot say that, and the
+     nine missing combinations are real — MRnHs-Yl-7XL does not exist. */
+  { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Classic Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"], sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL"], sizesByColor: { yellow: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], lavender: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], "baby-pink": ["S", "M", "L", "XL", "XXL", "3XL", "4XL"] }, baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
   { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Oversized Classic T-Shirt | UC22", qikinkProductId: "UC22",  skuPattern: "UOsMRnHs-{color}-{size}", printMethod: "DTF",     colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
   { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Polo | MP25",                qikinkProductId: "MP25",      skuPattern: "MPHs-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
   { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["5Yrs", "7Yrs", "9Yrs", "11Yrs", "13Yrs"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"], active: false /* TODO: confirm Boy vs Girl stem + Drucka size labels before re-enabling */ },
-  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
+  /* UHd — 15 colours, XS–3XL in the export. Drucka's five all exist on it.
+     Note: this stem has no plain Yellow (only Mustard), so do not add yellow
+     to the hoodie without checking the export again. */
+  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy", "maroon", "bottle-green"], sizes: ["S", "M", "L", "XL", "XXL", "3XL"],       baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
   { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Coffee Mug",           qikinkProductId: "UWCM",      skuPattern: "UWCM-{color}-11 OZ",   printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
 ];
 /* default shipping cost per mapping (editable in Admin → Product Mapping) */
@@ -413,7 +456,6 @@ const mapEntryToRow = (m) => ({
    /api/qikink/create-order instead. Field names follow Qikink's docs;
    confirm the exact schema in your dashboard before going live. */
 function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
-  const colorName = (id) => PRODUCT_COLORS.find((c) => c.id === id)?.label ?? id;
   return {
     order_number: order.id,
     brand_name: settings.packingSlipBrand || "Drucka", // white-label packing slip
@@ -426,8 +468,13 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
       return {
         search_from_my_products: 0,
         qikink_product_id: m?.qikinkProductId ?? "UNMAPPED",
+        /* Qikink's own colour code, not the human label — see
+           QIKINK_COLOR_CODE. validateQikinkOrder blocks the send if the colour
+           has no code, so UNKNOWN should never leave the building. */
         sku: m
-          ? m.skuPattern.replace("{color}", colorName(i.color)).replace("{size}", i.size ?? "")
+          ? m.skuPattern
+            .replace("{color}", qikinkColorCode(i.color) ?? "UNKNOWN")
+            .replace("{size}", i.size ?? "")
           : `UNMAPPED-${i.productId}`,
         print_type: m?.printMethod ?? "DTG",
         quantity: i.qty,
@@ -476,10 +523,27 @@ function validateQikinkOrder(order, map = QIKINK_PRODUCT_MAP) {
   if (!["Paid", "COD Approved"].includes(order.paymentStatus))
     problems.push("Payment must be completed (or COD approved) before sending to Qikink");
   order.items.forEach((i) => {
-    if (!map.find((m) => m.druckaId === i.productId && m.active))
-      problems.push(`No active Qikink mapping for "${i.name}"`);
+    const m = map.find((x) => x.druckaId === i.productId && x.active);
+    if (!m) problems.push(`No active Qikink mapping for "${i.name}"`);
     if (!i.design || !Object.values(i.design).some((ls) => ls.length))
       problems.push(`No artwork on "${i.name}" — design required before fulfillment`);
+    /* The SKU is assembled from the colour and size, so an unrecognised one
+       used to sail through and reach Qikink as "MRnHs-Navy Blue-M". Catch it
+       here instead — a rejected send is recoverable, a wrong SKU in
+       production is not. */
+    if (m) {
+      const code = qikinkColorCode(i.color);
+      if (!code) {
+        problems.push(`"${i.name}" — no Qikink colour code for "${i.color}"`);
+      } else if (m.colors.length && !m.colors.includes(colorIdOf(i.color))) {
+        problems.push(`"${i.name}" — ${i.color} is not in the Qikink mapping for this product`);
+      }
+      /* sizesByColor narrows the list for colours Qikink does not stock in
+         every size — checked against the colour actually ordered */
+      const allowed = m.sizesByColor?.[colorIdOf(i.color)] ?? m.sizes;
+      if (allowed?.length && i.size && !allowed.includes(i.size))
+        problems.push(`"${i.name}" — Qikink does not stock ${i.color} in ${i.size}`);
+    }
   });
   return problems;
 }

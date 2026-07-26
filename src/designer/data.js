@@ -96,6 +96,14 @@ export const PRODUCTS = [
     basePrice: 349, taxRate: 5,
     availableColors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"],
     availableSizes: ADULT_SIZES, sizeSurcharge: ADULT_SURCHARGE, sizeChart: SIZE_CHART,
+    /* Qikink stocks Yellow, Lavender and Baby Pink only to 4XL — the other
+       seven colours run to 7XL. Offering the nine missing combinations meant
+       a customer could pay for a tee that cannot be made. */
+    sizesByColor: {
+      yellow: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"],
+      lavender: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"],
+      "baby-pink": ["S", "M", "L", "XL", "XXL", "3XL", "4XL"],
+    },
     printingOptions: PRINT_METHODS,
     mockups: { base: "tshirt", ext: "webp", colors: ["white", "black", "navy"] },
     gallery: [
@@ -450,6 +458,11 @@ export const areaFor = (product, p, colorId) => {
    the wrong shape and quoted the wrong inches. Placements that genuinely have
    one print size (a mug wrap, a tee front) just omit inchesBySize. */
 export const inchesFor = (p, size) => p.inchesBySize?.[size] ?? p.inches;
+
+/* Sizes a product is actually made in for a given colour. Most products stock
+   every size in every colour and simply omit sizesByColor. */
+export const sizesFor = (product, colorId) =>
+  product?.sizesByColor?.[colorId] ?? product?.availableSizes ?? [];
 
 export const renderArea = (p, product = null, colorId = null, size = null) => {
   const a = product ? areaFor(product, p, colorId) : p.area;
