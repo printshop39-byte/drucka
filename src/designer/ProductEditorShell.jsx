@@ -133,7 +133,7 @@ export default function ProductEditorShell({
     commit({ ...layersByPlacement, [placement]: [...layers, clampToArea(layer)] });
     setSelectedLayerId(layer.id);
   };
-  const addImage = (src, name, aspect = 1) => addLayer(newImageLayer(src, name, aspect, placementOf(product, placement).inches));
+  const addImage = (src, name, aspect = 1, px = null) => addLayer(newImageLayer(src, name, aspect, placementOf(product, placement).inches, px));
   const addText = (text) => { addLayer(newTextLayer(text)); setActiveTool("text"); };
   const deleteLayer = (id) => {
     commit({ ...layersByPlacement, [placement]: layers.filter((l) => l.id !== id) });
@@ -159,12 +159,12 @@ export default function ProductEditorShell({
     if (!file) return;
     setUploadBusy(true);
     try {
-      const { src, aspect } = await fileToDataUrl(file, 1400, caps.maxUploadBytes); // per-product cap
-      const entry = { id: uid(), src, aspect, name: file.name };
+      const { src, aspect, px } = await fileToDataUrl(file, 1400, caps.maxUploadBytes); // per-product cap
+      const entry = { id: uid(), src, aspect, px, name: file.name };
       const next = [entry, ...uploadedAssets].slice(0, 12);
       setUploadedAssets(next);
       try { localStorage.setItem("drucka-library", JSON.stringify(next)); } catch { /* quota */ }
-      addImage(src, file.name, aspect);
+      addImage(src, file.name, aspect, px);
     } catch (err) {
       showToast(`⚠ ${err.message}`);
     } finally {
@@ -204,16 +204,28 @@ export default function ProductEditorShell({
       case "image":
         return (
           <>
-            <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} onUse={(a) => addImage(a.src, a.name, a.aspect)} onClose={() => setActiveTool(null)} />
+            <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} onUse={(a) => addImage(a.src, a.name, a.aspect, a.px)} onClose={() => setActiveTool(null)} />
             <GraphicsPanel onAddImage={addImage} onClose={() => setActiveTool(null)} />
           </>
         );
       case "color":
         return <ProductInfoPanel product={product} state={sel} setSel={setSel} qty={qty} setQty={setQty} onClose={() => setActiveTool(null)} />;
       case "layer":
-        return selectedLayer
-          ? <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement} onPatch={(id, p) => patchLayer(id, p)} onClose={() => setSelectedLayerId(null)} />
-          : <LayersPanel layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId} onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onDuplicate={duplicateLayer} onMove={moveLayer} placementLabel={placementOf(product, placement).label} onClose={() => setActiveTool(null)} />;
+        /* The layer list is always here — it used to be replaced by the
+           settings panel the moment a layer was selected, which both hid the
+           only delete button in the editor and put an identical LAYER SETTINGS
+           panel on the left while the right-hand one was already showing it.
+           Below xl there is no right panel, so the settings ride along here. */
+        return (
+          <>
+            <LayersPanel layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId} onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onDuplicate={duplicateLayer} onMove={moveLayer} placementLabel={placementOf(product, placement).label} onClose={() => setActiveTool(null)} />
+            {selectedLayer && (
+              <div className="xl:hidden">
+                <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement} onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onClose={() => setSelectedLayerId(null)} />
+              </div>
+            )}
+          </>
+        );
       case "cart":
         return (
           <div className="space-y-4 p-4">
@@ -341,7 +353,7 @@ export default function ProductEditorShell({
             ) : (
               <DesignCanvas product={product} placement={placement} color={sel.selectedColor}
                 layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId}
-                onPatch={patchLayer} zoom={zoom} preview={false} showToast={showToast} />
+                onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast} />
             )}
           </div>
 
@@ -373,9 +385,9 @@ export default function ProductEditorShell({
 
         {/* DESKTOP right: selected-layer settings */}
         {!preview && selectedLayer && (
-          <aside className="hidden w-[270px] shrink-0 border-l border-ink/10 bg-white xl:block">
+          <aside className="hidden w-[270px] shrink-0 overflow-hidden border-l border-ink/10 bg-white xl:block">
             <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement}
-              onPatch={(id, p) => patchLayer(id, p)} onClose={() => setSelectedLayerId(null)} />
+              onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onClose={() => setSelectedLayerId(null)} />
           </aside>
         )}
       </div>
