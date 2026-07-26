@@ -98,7 +98,13 @@ export default function ProductSubmitInfo({
                 <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Pricing Details</p>
                 <dl className="space-y-1.5 text-sm">
                   <div className="flex justify-between"><dt className="text-ink/55">Price Range</dt><dd className="font-bold text-ink">{inr(price.unit)}</dd></div>
-                  <div className="flex justify-between"><dt className="text-ink/55">Tax Rate (GST)</dt><dd className="font-bold text-ink">{product.taxRate}%</dd></div>
+                  <div className="flex justify-between">
+                    <dt className="text-ink/55">Tax Rate (GST)</dt>
+                    <dd className="font-bold text-ink">
+                      {product.taxRate}%
+                      {product.hsn && <span className="ml-1 font-sans text-[11px] font-medium text-ink/40">HSN {product.hsn}</span>}
+                    </dd>
+                  </div>
                   <div className="flex items-center justify-between gap-3">
                     <dt className="text-ink/55">Profit Margin</dt>
                     <dd className="flex items-center gap-1">
