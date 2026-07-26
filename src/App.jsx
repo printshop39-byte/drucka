@@ -417,6 +417,35 @@ const QIKINK_PRODUCT_MAP = [
      to the hoodie without checking the export again. */
   { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy", "maroon", "bottle-green"], sizes: ["S", "M", "L", "XL", "XXL", "3XL"],       baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
   { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Coffee Mug",           qikinkProductId: "UWCM",      skuPattern: "UWCM-{color}-11 OZ",   printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
+
+  /* ── Gift products ──
+     These were unmapped, so a frame or poster order built a line item reading
+     "UNMAPPED-frame". All five stems exist in the sku_descriptions export.
+
+     Qikink's size tokens are not a pattern — "A4 Frame poster", "12x18Fpos",
+     "24x36 pos" and "8X12" all appear — so skuSizeToken spells out the exact
+     token per Drucka size instead of substituting {size} blindly. */
+
+  /* UFPos in Wh/Bk/Yl/Gn/Rb/OG; Drucka's black and white both exist. */
+  { druckaId: "frame",       druckaName: "Framed Print",      qikinkProduct: "Framed Poster",              qikinkProductId: "UFPos",     skuPattern: "UFPos-{color}-{size}", skuSizeToken: { A4: "A4 Frame poster", A3: "A3 Frame poster" }, printMethod: "Sublimation", colors: ["black", "white"], sizes: ["A4", "A3"],   baseCost: 350, sellingPrice: 899, printAreas: ["Front"], active: true },
+
+  /* UPoster is white only. A2 is not made by Qikink at all — see the poster's
+     availableSizes in data.js, where it has been withdrawn. */
+  { druckaId: "poster",      druckaName: "Poster Print",      qikinkProduct: "Poster",                     qikinkProductId: "UPoster",   skuPattern: "UPoster-{color}-{size}", skuSizeToken: { A3: "A3 poster", '12×18"': "12x18pos", '24×36"': "24x36 pos" }, printMethod: "Sublimation", colors: ["white"], sizes: ["A3", '12×18"', '24×36"'], baseCost: 80, sellingPrice: 199, printAreas: ["Front"], active: true },
+
+  /* INACTIVE — Qikink makes canvas in 8x8, 8X12, 16X20 and 20X30. Drucka
+     sells 12×18″ and 18×24″, neither of which exists. Either the catalogue
+     sizes move to Qikink's, or canvas needs a different supplier. */
+  { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", skuSizeToken: {}, printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 550, sellingPrice: 999, printAreas: ["Front"], active: false },
+
+  /* INACTIVE — Qikink die-cuts stickers by the inch (2x2 … 15x3). Drucka
+     sells A5 and A4 sheets, which Qikink does not make. */
+  { druckaId: "stickers",    druckaName: "Custom Stickers",   qikinkProduct: "Stickers",                   qikinkProductId: "UStickers", skuPattern: "UStickers-{color}-{size}", skuSizeToken: {}, printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 85, sellingPrice: 99, printAreas: ["Front"], active: false },
+
+  /* INACTIVE — three shapes at ₹60 each (Rect, Slim, sqr) against Drucka's
+     single "Standard". Rect is mapped as the likely intent; confirm the shape
+     before turning this on, because the wrong one ships silently. */
+  { druckaId: "keychain",    druckaName: "Acrylic Keychain",  qikinkProduct: "Keychain",                   qikinkProductId: "UAcryKyChnUV", skuPattern: "UAcryKyChnUV-{color}-{size}", skuSizeToken: { Standard: "Rect" }, printMethod: "Sublimation", colors: ["white"], sizes: ["Standard"], baseCost: 60, sellingPrice: 149, printAreas: ["Front"], active: false },
 ];
 /* default shipping cost per mapping (editable in Admin → Product Mapping) */
 QIKINK_PRODUCT_MAP.forEach((m) => { if (m.shippingCost == null) m.shippingCost = m.druckaId === "hoodie" ? 69 : 49; });
@@ -474,7 +503,10 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
         sku: m
           ? m.skuPattern
             .replace("{color}", qikinkColorCode(i.color) ?? "UNKNOWN")
-            .replace("{size}", i.size ?? "")
+            /* Qikink's size token, which is rarely the size we display —
+               "A3" is "A3 Frame poster" on a frame and "A3 poster" on a
+               plain one. Products whose sizes match verbatim have no table. */
+            .replace("{size}", m.skuSizeToken?.[i.size] ?? i.size ?? "")
           : `UNMAPPED-${i.productId}`,
         print_type: m?.printMethod ?? "DTG",
         quantity: i.qty,
@@ -543,6 +575,10 @@ function validateQikinkOrder(order, map = QIKINK_PRODUCT_MAP) {
       const allowed = m.sizesByColor?.[colorIdOf(i.color)] ?? m.sizes;
       if (allowed?.length && i.size && !allowed.includes(i.size))
         problems.push(`"${i.name}" — Qikink does not stock ${i.color} in ${i.size}`);
+      /* A mapping that spells out its size tokens can only fulfil the sizes it
+         lists — anything else would build a SKU Qikink has never issued. */
+      if (m.skuSizeToken && i.size && !m.skuSizeToken[i.size])
+        problems.push(`"${i.name}" — no Qikink SKU for size ${i.size}`);
     }
   });
   return problems;

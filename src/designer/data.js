@@ -307,7 +307,10 @@ export const PRODUCTS = [
     editor: { shell: true, family: "designer" },
     basePrice: 199, taxRate: 12,
     availableColors: ["white"],
-    availableSizes: ["A3", "A2", '12×18"', '24×36"'], sizeSurcharge: { A2: 120, '24×36"': 250 }, sizeChart: null,
+    /* A2 withdrawn: Qikink's poster comes in A5, A4, A3 and a range of inch
+       sizes, but not A2 — and A2 was the size this product opened on, so the
+       default was one that could not be fulfilled. */
+    availableSizes: ["A3", '12×18"', '24×36"'], sizeSurcharge: { '24×36"': 250 }, sizeChart: null,
     printingOptions: FULL_COLOUR,
     /* poster-front-white.png is DRAWN, not photographed — there is no poster
        shot from Qikink and the editor was falling back to an unrelated
@@ -322,12 +325,12 @@ export const PRODUCTS = [
       id: "front", label: "Front", photo: "front",
       /* exactly the poster face drawn in the mockup */
       area: { left: 21.97, top: 15, width: 55.95, height: 66.45 },
-      /* four sizes, three different shapes — A2 is the default, and the
-         drawn poster is A2-shaped so it fills the face */
-      inches: { w: 16.5, h: 23.4 },
+      /* three sizes, two different shapes. 12×18″ is the default now that A2
+         is gone; the drawn poster face is A2-shaped, so a 12×18″ print is
+         inscribed very slightly narrower than the paper — which is honest. */
+      inches: { w: 12, h: 18 },
       inchesBySize: {
         A3: { w: 11.7, h: 16.5 },
-        A2: { w: 16.5, h: 23.4 },
         '12×18"': { w: 12, h: 18 },
         '24×36"': { w: 24, h: 36 },
       },
