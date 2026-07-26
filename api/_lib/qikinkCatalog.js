@@ -109,7 +109,9 @@ export const SKU_SIZE_TOKEN = {
   UAopCuCvr: { '16"': "16x16", '24"': "24x24" },
   /* die-cut stickers: the catalogue shows ×, Qikink's token uses a plain x */
   UStickers: { '2×2"': "2x2", '3×3"': "3x3", '4×4"': "4x4", '6×6"': "6x6", '8×8"': "8x8" },
-  UGrtCr: { A5: "A5" },
+  /* the catalogue says "A5 Print" to distinguish it from the digital invite;
+     Qikink's token is bare "A5" */
+  UGrtCr: { "A5 Print": "A5", A5: "A5" },
 };
 export const sizeTokenFor = (stem, size) => SKU_SIZE_TOKEN[stem]?.[size] ?? size ?? "";
 

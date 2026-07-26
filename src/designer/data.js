@@ -416,9 +416,14 @@ export const PRODUCTS = [
     productId: "invitation-cards", qikinkId: "invitation-cards", category: "gifts",
     hidden: true, // hidden from catalog grid until real product photos arrive; /invitation-cards landing stays live
     productName: "Invitation Cards",
-    basePrice: 149, taxRate: 12,
+    /* Two different things sold as one product. "Digital" is a file Drucka
+       designs and sends on WhatsApp — nothing is printed and Qikink has no
+       SKU for it, so the mapping lists it under inHouseSizes. The printed
+       card is Qikink's Greeting Card, which is A5; it was advertised as 5×7″,
+       a size Qikink does not make. Tax follows the stem at 18%. */
+    basePrice: 149, taxRate: 18,
     availableColors: ["white"],
-    availableSizes: ["Digital", '5×7" Print'], sizeSurcharge: { '5×7" Print': 100 }, sizeChart: null,
+    availableSizes: ["Digital", "A5 Print"], sizeSurcharge: { "A5 Print": 100 }, sizeChart: null,
     printingOptions: FULL_COLOUR,
     /* TODO(Sagar): add /mockups/invitation-cards-blank.png from Qikink, then switch to
        mockups: { base: "invitation-cards", ext: "png", colors: ["white"] } (file must be
