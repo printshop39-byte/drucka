@@ -203,7 +203,8 @@ export const PRODUCTS = [
     mockups: { base: "mug", ext: "webp", colors: ["white"] },
     image: "/images/mug.webp",
     gallery: [{ src: "/images/mug.webp", label: "Mug" }],
-    printAreas: SINGLE({ left: 26, top: 40, width: 32, height: 33 }, { w: 8, h: 3.5 }, "Wrap"),
+    /* 8.5″ × 3.5″ is the standard 11oz wrap — was 8″ */
+    printAreas: SINGLE({ left: 26, top: 40, width: 32, height: 33 }, { w: 8.5, h: 3.5 }, "Wrap"),
     productHighlights: ["Ceramic", "Dishwasher Safe", "Vivid Print"],
     description: "Personalised ceramic mug with edge-to-edge photo print. Dishwasher and microwave safe.",
   },
