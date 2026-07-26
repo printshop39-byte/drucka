@@ -25,10 +25,17 @@ export const IN_FLIGHT = ["Sent to Qikink", "In Production", "Shipped"];
    Returns { druckaStatus, tracking, courier }. Throws only on a Qikink error;
    Supabase/CAPI failures are best-effort and logged. */
 export async function syncOrderStatus({ qikinkOrderId, druckaOrderId }) {
-  const data = await qikinkFetch(`/api/order/status?order_id=${encodeURIComponent(qikinkOrderId)}`);
-  const druckaStatus = STATUS_MAP[String(data.status ?? "").toLowerCase()] ?? "Sent to Qikink";
-  const tracking = data.tracking_number ?? data.awb ?? null;
-  const courier = data.courier ?? data.courier_partner ?? null;
+  /* Qikink has no /api/order/status route — it 404s with "Can't find a route
+     for 'get: api/order/status'", which is why the admin's ⟳ Status button and
+     the nightly poll-orders sweep never once updated a tracking number.
+     Retrieving one order is GET /api/order?id=<id>, per Qikink's API reference. */
+  const raw = await qikinkFetch(`/api/order?id=${encodeURIComponent(qikinkOrderId)}`);
+  /* that endpoint answers with the order, or with a list containing it */
+  const data = Array.isArray(raw) ? (raw[0] ?? {}) : (raw?.data ?? raw ?? {});
+
+  const druckaStatus = STATUS_MAP[String(data.status ?? data.order_status ?? "").toLowerCase()] ?? "Sent to Qikink";
+  const tracking = data.tracking_number ?? data.awb ?? data.awb_number ?? null;
+  const courier = data.courier ?? data.courier_partner ?? data.courier_name ?? null;
 
   if (druckaOrderId) {
     // Read prior state first so we can detect the FIRST flip into Delivered.
