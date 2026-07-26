@@ -118,14 +118,23 @@ export async function renderMiniCard(photo, photoW = 1100) {
   ctx.rect(px, py, photoW, photoH);
   ctx.clip();
   ctx.filter = combinedFilter(photo);
-  ctx.translate(px + photoW / 2 + (ox / 100) * photoW, py + photoH / 2 + (oy / 100) * photoH);
-  ctx.rotate((rotation * Math.PI) / 180);
   const swap = rotation % 180 !== 0;
   const tW = swap ? photoH : photoW, tH = swap ? photoW : photoH;
   const iAsp = img.naturalWidth / img.naturalHeight, tAsp = tW / tH;
   let dw, dh;
   if (iAsp > tAsp) { dh = tH; dw = tH * iAsp; } else { dw = tW; dh = tW / iAsp; }
   dw *= zoom; dh *= zoom;
+  /* Pan was free to ±60% of the window regardless of how much photo there
+     actually was to slide, so dragging pulled the photo off its window and
+     printed a band of bare card. Limit it to the real overflow — at 100% zoom
+     a cover-fitted photo has none on its short axis, so it simply cannot be
+     dragged out of frame. The on-screen extents swap when rotated 90°. */
+  const overX = (swap ? dh : dw) / photoW, overY = (swap ? dw : dh) / photoH;
+  const maxOx = Math.max(0, (overX - 1) * 50), maxOy = Math.max(0, (overY - 1) * 50);
+  const cx = Math.max(-maxOx, Math.min(maxOx, ox));
+  const cy = Math.max(-maxOy, Math.min(maxOy, oy));
+  ctx.translate(px + photoW / 2 + (cx / 100) * photoW, py + photoH / 2 + (cy / 100) * photoH);
+  ctx.rotate((rotation * Math.PI) / 180);
   ctx.drawImage(img, -dw / 2, -dh / 2, dw, dh);
   ctx.restore();
 
