@@ -4735,13 +4735,24 @@ export default function App() {
 
       {designerPage && (
         <DesignerProductPage
+          key={designerPage.productId}
           initialProductId={designerPage.productId}
           onClose={() => setDesignerPage(null)}
           onStartDesigning={({ productId, selections }) => setDesigner({ productId, selections })}
         />
       )}
       {designer && (
+        /* Keyed on the product: the editors hold the whole design in local
+           state — chosen size, colour, the layers on each print area, the
+           title on the submit step — and none of it is derived from `product`
+           after mount. Without a key React reuses the instance when the
+           customer switches products, so a Framed Print inherited the tee's
+           size "M" (a size it is not made in) and reached the cart titled
+           "Custom Male Classic Crew T-Shirt". Remounting is the correct
+           behaviour anyway: a design drawn on a 12×16″ tee front means
+           nothing on a mug wrap. */
         <ProductDesigner
+          key={designer.productId}
           product={designerProductById(designer.productId)}
           initial={designer.selections}
           onClose={() => setDesigner(null)}
@@ -4752,6 +4763,7 @@ export default function App() {
       )}
       {editorShell && (
         <ProductEditorShell
+          key={editorShell.productId}
           product={designerProductById(editorShell.productId)}
           onClose={() => setEditorShell(null)}
           onAddToCart={addToCart}
