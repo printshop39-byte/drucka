@@ -220,7 +220,23 @@ export const PRODUCTS = [
     mockups: { base: "frame", ext: "webp", colors: ["white", "black"] },
     image: "/images/frame.webp",
     gallery: [{ src: "/images/frame.webp", label: "Frame" }],
-    printAreas: SINGLE({ left: 31, top: 26, width: 31, height: 43 }, { w: 8.3, h: 11.7 }),
+    /* Boxes measured off the mockup photos themselves (luminance step at the
+       mat's inner bevel), converted from the photos' native 928×1152 into the
+       42:50 canvas allowing for the object-cover crop. The old single box was
+       31% wide where the black frame's opening is 44% — the design sat small
+       and up-left inside the mat instead of filling the frame.
+
+       The two photos are not shot alike: the black frame's opening is 44% of
+       the canvas wide, the white frame's 34.4%, and they start at different
+       heights. One box cannot serve both, hence areaByColor. */
+    printAreas: [{
+      id: "front", label: "Front", photo: "front", inches: { w: 8.3, h: 11.7 },
+      area: { left: 28.6, top: 24.97, width: 44.0, height: 51.72 },
+      areaByColor: {
+        black: { left: 28.6, top: 24.97, width: 44.0, height: 51.72 },
+        white: { left: 33.0, top: 28.52, width: 34.4, height: 43.17 },
+      },
+    }],
     productHighlights: ["Gallery Grade", "Matte Finish", "Ready to Hang"],
     description: "Gallery-grade framed photo print with a clean matte finish — ready to hang.",
   },
@@ -376,9 +392,22 @@ export const MOCKUP_ASPECT = { w: 42, h: 50 };
    inside and inscribe the true-to-inches rectangle in it, centred. The print
    can then never land outside the region the box was authored for, and
    width% and height% finally mean the same number of pixels per inch — so
-   "7.4 × 7.1 inch" in the panel is 7.4 × 7.1 on the garment. */
-export const renderArea = (p) => {
-  const a = p.area;
+   "7.4 × 7.1 inch" in the panel is 7.4 × 7.1 on the garment.
+
+   `colorId` picks the per-colour box when a placement has one. Mockup photos
+   for different colours are not always shot at the same distance — the Framed
+   Print's black and white photos put the frame's opening in visibly different
+   places — so one box per placement cannot fit both. Falls back to `area`,
+   and mirrors MockupImage's rule that a colour without its own photo is shown
+   on the white one. */
+export const areaFor = (product, p, colorId) => {
+  if (!p.areaByColor) return p.area;
+  const shown = product?.mockups?.colors?.includes(colorId) ? colorId : "white";
+  return p.areaByColor[shown] ?? p.area;
+};
+
+export const renderArea = (p, product = null, colorId = null) => {
+  const a = product ? areaFor(product, p, colorId) : p.area;
   const boxW = a.width * MOCKUP_ASPECT.w;
   const boxH = a.height * MOCKUP_ASPECT.h;
   const target = p.inches.w / p.inches.h; // desired on-screen w:h

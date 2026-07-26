@@ -103,8 +103,10 @@ export default function DesignCanvas({
   const areaRef = useRef(null);
   const warnedRef = useRef(false);
   const p = placementOf(product, placement);
-  /* true-to-inches box, not the raw authored one — see renderArea in data.js */
-  const area = useMemo(() => renderArea(p), [p]);
+  /* true-to-inches box, not the raw authored one — see renderArea in data.js.
+     Passing the colour matters: some products carry a different box per
+     mockup photo. */
+  const area = useMemo(() => renderArea(p, product, color), [p, product, color]);
 
   /* what the selected layer will actually measure on the product */
   const inch = (n) => Math.round(n * 10) / 10;

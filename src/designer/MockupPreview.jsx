@@ -9,7 +9,7 @@ import { renderArea } from "./data";
 export const MiniMockup = ({ product, color, placement, layers, className = "", style }) => {
   /* same true-to-inches box the design canvas uses — drawing the raw authored
      `area` here would make the preview disagree with what was just designed */
-  const area = renderArea(placement);
+  const area = renderArea(placement, product, color);
   return (
     <div className={`relative overflow-hidden bg-white ${className}`} style={{ aspectRatio: "42 / 50", ...style }}>
       <MockupImage product={product} color={color} photo={placement.photo} />
