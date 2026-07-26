@@ -521,7 +521,13 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
         designs: Object.entries(i.design ?? {})
           .filter(([, ls]) => ls.length)
           .map(([side, ls]) => ({
-            placement: i.placement && i.placement !== "center" ? i.placement : side,
+            /* `side` is this design's own print area id — "front", "back",
+               "left-pocket". It used to be overridden by i.placement, which is
+               a JOINED HUMAN LABEL of every printed area ("Front, Back"), so
+               every design in the order reported the same placement and the
+               backend, unable to match it, defaulted all of them to the front.
+               A back print was being sent to Qikink as a front print. */
+            placement: side,
             layer_count: ls.length,
             // TODO BACKEND: customer artwork lives as data-URLs in this order.
             // Upload each image layer to your CDN (S3/Cloudinary) server-side

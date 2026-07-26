@@ -75,8 +75,19 @@ const printTypeId = (li) =>
     ? li.print_type_id
     : (PRINT_TYPE_ID[String(li.print_type ?? "").trim().toLowerCase()] ?? 1);
 
-/* placement label → Qikink placement_sku (front print = "fr" in the proven recipe) */
-const PLACEMENT_SKU = { front: "fr", center: "fr", back: "bk", "left chest": "lc", "right chest": "rc" };
+/* placement → Qikink placement_sku (front print = "fr" in the proven recipe).
+
+   Keyed by the print-area IDS the app sends ("left-pocket") as well as the
+   human labels, because only the labels were listed before: a pocket or back
+   print fell through to the default and was sent as a front print. Drucka
+   calls the chest placements "pocket" where Qikink calls them "chest" — same
+   spot on the garment, different word. */
+const PLACEMENT_SKU = {
+  front: "fr", center: "fr", wrap: "fr",
+  back: "bk",
+  "left-pocket": "lc", "left pocket": "lc", "left chest": "lc",
+  "right-pocket": "rc", "right pocket": "rc", "right chest": "rc",
+};
 const placementSku = (p) => PLACEMENT_SKU[String(p ?? "").trim().toLowerCase()] ?? "fr";
 
 const alnum = (s) => String(s ?? "").replace(/[^a-zA-Z0-9]/g, "");
