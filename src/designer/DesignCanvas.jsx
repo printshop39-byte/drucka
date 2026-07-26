@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fontStack, placementOf } from "./data";
+import { fontStack, placementOf, renderArea } from "./data";
+import { Icon, ic } from "./icons";
 
 /* ── DesignCanvas — mockup photo + printable area + interactive layers ──
    Layer coords are % of the print area: x/y = center, w/h = size as % of
@@ -97,11 +98,37 @@ export const MockupImage = ({ product, color, photo, className = "" }) => {
 };
 
 export default function DesignCanvas({
-  product, placement, color, layers, selectedId, onSelect, onPatch, zoom, preview, showToast,
+  product, placement, color, layers, selectedId, onSelect, onPatch, onDelete, zoom, preview, showToast,
 }) {
   const areaRef = useRef(null);
   const warnedRef = useRef(false);
   const p = placementOf(product, placement);
+  /* true-to-inches box, not the raw authored one — see renderArea in data.js */
+  const area = useMemo(() => renderArea(p), [p]);
+
+  /* what the selected layer will actually measure on the product */
+  const inch = (n) => Math.round(n * 10) / 10;
+  const sizeLabel = (l) => (l.type === "text"
+    /* text is sized in cqh — 1 unit = 1% of the print height */
+    ? `${inch(((l.fontSize ?? 11) / 100) * p.inches.h)}″ tall`
+    : `${inch(((l.w ?? 30) / 100) * p.inches.w)}″ × ${inch(((l.h ?? 30) / 100) * p.inches.h)}″`);
+
+  /* Delete / Backspace removes the selected layer, the way every editor
+     behaves. Ignored while typing, so the text panel keeps working. */
+  useEffect(() => {
+    if (preview || !selectedId || !onDelete) return;
+    const onKey = (e) => {
+      if (e.key !== "Delete" && e.key !== "Backspace") return;
+      const t = e.target;
+      const typing = t instanceof HTMLElement &&
+        (t.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName));
+      if (typing) return;
+      e.preventDefault();
+      onDelete(selectedId);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [preview, selectedId, onDelete]);
 
   /* ── drag / resize / rotate ── */
   const startGesture = (e, layer, kind) => {
@@ -137,8 +164,15 @@ export default function DesignCanvas({
         if (layer.type === "text") {
           onPatch(layer.id, { fontSize: clamp(start.fontSize * factor, 3, 40) }, true);
         } else {
-          const w = clamp(start.w * factor, 4, 140);
-          const h = clamp(start.h * factor, 4, 140);
+          /* Clamp the SCALE, not each side. Clamping width and height
+             independently let the wider side stop at 140 while the other kept
+             growing, so dragging a wide design past the limit slowly squashed
+             it. One factor for both keeps the artwork's proportions. */
+          const f = clamp(factor,
+            Math.max(4 / start.w, 4 / start.h),
+            Math.min(140 / start.w, 140 / start.h));
+          const w = start.w * f;
+          const h = start.h * f;
           if ((w > 100 || h > 100) && !warnedRef.current) {
             warnedRef.current = true;
             showToast?.("⚠ Design is larger than the printable area");
@@ -223,6 +257,21 @@ export default function DesignCanvas({
                   className="absolute -top-8 left-1/2 h-4 w-4 -translate-x-1/2 cursor-grab rounded-full border-2 border-tangerine bg-white shadow touch-none">
                   <div className="pointer-events-none absolute left-1/2 top-full h-3 w-px -translate-x-1/2 bg-tangerine/70" />
                 </div>
+                {/* delete lives on the selection itself — it used to exist only
+                    in the Layers list, so with a layer selected there was no
+                    way to remove it from the canvas or the settings panel */}
+                {onDelete && (
+                  <button title="Delete layer" aria-label={`Delete ${layer.name}`}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => { e.stopPropagation(); onDelete(layer.id); }}
+                    className="absolute -right-2.5 -top-8 grid h-6 w-6 place-items-center rounded-full border-2 border-red-500 bg-white text-red-500 shadow transition hover:bg-red-500 hover:text-white">
+                    <Icon d={ic.trash} className="h-3 w-3" />
+                  </button>
+                )}
+                {/* live print size — the number that actually gets printed */}
+                <span className="pointer-events-none absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink/85 px-2 py-0.5 text-[9px] font-bold text-white">
+                  {sizeLabel(layer)}
+                </span>
               </>
             )}
           </>
@@ -243,8 +292,8 @@ export default function DesignCanvas({
         <div ref={areaRef}
           className={`absolute rounded-sm ${preview ? "overflow-hidden" : "border-2 border-dotted border-sky-500/70"}`}
           style={{
-            left: `${p.area.left}%`, top: `${p.area.top}%`,
-            width: `${p.area.width}%`, height: `${p.area.height}%`,
+            left: `${area.left}%`, top: `${area.top}%`,
+            width: `${area.width}%`, height: `${area.height}%`,
             containerType: "size",
           }}>
           {layers.map(renderLayer)}

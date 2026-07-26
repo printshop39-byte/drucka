@@ -344,7 +344,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
             ) : (
               <DesignCanvas product={product} placement={selectedPlacement} color={sel.selectedColor}
                 layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId}
-                onPatch={patchLayer} zoom={zoom} preview={false} showToast={showToast} />
+                onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast} />
             )}
           </div>
 

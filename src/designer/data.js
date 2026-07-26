@@ -357,6 +357,43 @@ export const productsInCategory = (cat) => PRODUCTS.filter((p) => p.category ===
 export const defaultProductFor = (cat) => productsInCategory(cat)[0] ?? PRODUCTS[0];
 export const placementOf = (product, id) => product.printAreas.find((p) => p.id === id) ?? product.printAreas[0];
 
+/* every Drucka mockup crop is 42:50 (w:h) — `area` percentages are read
+   against those two different axes, so a box that is 10% × 10% is NOT square
+   on screen. */
+export const MOCKUP_ASPECT = { w: 42, h: 50 };
+
+/* ── renderArea — the print box actually drawn on the mockup ──
+   A placement carries two facts that have to agree: `area`, the box on the
+   mockup photo, and `inches`, the real print size. They did not. Left Pocket,
+   for instance, declared 4″ × 4″ but its box drew at 0.84:1 on screen, so a
+   square design previewed as a portrait rectangle — and the mug's 8″ × 3.5″
+   wrap previewed almost square, off by nearly 3×. Every design was shown at
+   the wrong proportions, which is the one thing a print preview must not do.
+
+   Rather than re-authoring fifteen hand-tuned boxes (and re-checking each
+   against its photo), treat `area` as the bounding box the print must stay
+   inside and inscribe the true-to-inches rectangle in it, centred. The print
+   can then never land outside the region the box was authored for, and
+   width% and height% finally mean the same number of pixels per inch — so
+   "7.4 × 7.1 inch" in the panel is 7.4 × 7.1 on the garment. */
+export const renderArea = (p) => {
+  const a = p.area;
+  const boxW = a.width * MOCKUP_ASPECT.w;
+  const boxH = a.height * MOCKUP_ASPECT.h;
+  const target = p.inches.w / p.inches.h; // desired on-screen w:h
+  let w = boxW;
+  let h = boxW / target;
+  if (h > boxH) { h = boxH; w = boxH * target; }
+  const width = w / MOCKUP_ASPECT.w;
+  const height = h / MOCKUP_ASPECT.h;
+  return {
+    left: a.left + (a.width - width) / 2,
+    top: a.top + (a.height - height) / 2,
+    width,
+    height,
+  };
+};
+
 /* mockup photo for a product/color/photo-key; colors without a photo fall
    back to white; products without mockups fall back to `image` or null */
 export const mockupSrc = (product, colorId, photo) => {
@@ -374,16 +411,39 @@ export const calcPrice = (args) => calculate({ family: "designer", ...args });
 
 /* ── layer factories ──
    % of the active print area: x/y = layer CENTER, w/h = % of area size. */
-export const newImageLayer = (src, name, aspect = 1, areaInches = { w: 12, h: 16 }) => {
-  const wIn = Math.min(areaInches.w * 0.62, areaInches.w);
-  const hIn = Math.min(wIn * aspect, areaInches.h);
+export const newImageLayer = (src, name, aspect = 1, areaInches = { w: 12, h: 16 }, px = null) => {
+  /* Start at 62% of the print width, then scale BOTH sides down if that makes
+     the art taller than the area. Clamping the height alone (the old
+     behaviour) silently squashed every portrait image on the way in: a 1:3
+     photo came out at 1:2.15. */
+  let wIn = Math.min(areaInches.w * 0.62, areaInches.w);
+  let hIn = wIn * aspect;
+  if (hIn > areaInches.h) {
+    const k = areaInches.h / hIn;
+    wIn *= k;
+    hIn *= k;
+  }
   return {
     id: uid(), type: "image", name: name || "Design", src,
     x: 50, y: 42,
     w: (wIn / areaInches.w) * 100, h: (hIn / areaInches.h) * 100,
     rot: 0, opacity: 1, flipH: false, flipV: false,
     visible: true, locked: false, aspectLock: true,
+    /* source pixels, so the editor can work out the effective print DPI */
+    px: px && px.w && px.h ? { w: px.w, h: px.h } : null,
   };
+};
+
+/* Effective print resolution — source pixels ÷ printed inches. 300 is the
+   press standard, 150 the floor below which a garment print looks soft. */
+export const MIN_PRINT_DPI = 150;
+export const GOOD_PRINT_DPI = 300;
+export const layerDpi = (layer, areaInches) => {
+  if (!layer?.px || layer.type === "text") return null;
+  const wIn = ((layer.w ?? 30) / 100) * areaInches.w;
+  const hIn = ((layer.h ?? 30) / 100) * areaInches.h;
+  if (wIn <= 0 || hIn <= 0) return null;
+  return Math.round(Math.min(layer.px.w / wIn, layer.px.h / hIn));
 };
 
 export const newTextLayer = (text) => ({
@@ -440,6 +500,8 @@ export const graphicDataUrl = (g) => `data:image/svg+xml;utf8,${encodeURICompone
    runs the full validate → magic-byte → size → sanitize → compress pipeline.
    maxBytes lets a caller apply a per-product upload cap (see capsOf). */
 export const fileToDataUrl = async (file, max = 1400, maxBytes) => {
-  const { src, aspect } = await prepareUpload(file, { maxDim: max, maxBytes });
-  return { src, aspect };
+  const { src, aspect, origWidth, origHeight } = await prepareUpload(file, { maxDim: max, maxBytes });
+  /* original pixel dimensions travel with the asset so the editor can warn
+     when a design is being printed larger than its resolution supports */
+  return { src, aspect, px: { w: origWidth, h: origHeight } };
 };

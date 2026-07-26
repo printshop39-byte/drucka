@@ -1,23 +1,29 @@
 import { LayerView, MockupImage } from "./DesignCanvas";
+import { renderArea } from "./data";
 
 /* ── Mockup view (Preview mode) ──
    Clean mockups with the designs applied — no handles, no dotted area.
    Thumbnail grid switches placements; active thumb gets an orange border. */
 
 /* small reusable mockup with layers applied — also used on the submit page */
-export const MiniMockup = ({ product, color, placement, layers, className = "", style }) => (
-  <div className={`relative overflow-hidden bg-white ${className}`} style={{ aspectRatio: "42 / 50", ...style }}>
-    <MockupImage product={product} color={color} photo={placement.photo} />
-    <div className="absolute overflow-hidden"
-      style={{
-        left: `${placement.area.left}%`, top: `${placement.area.top}%`,
-        width: `${placement.area.width}%`, height: `${placement.area.height}%`,
-        containerType: "size",
-      }}>
-      {(layers ?? []).map((l) => <LayerView key={l.id} layer={l} />)}
+export const MiniMockup = ({ product, color, placement, layers, className = "", style }) => {
+  /* same true-to-inches box the design canvas uses — drawing the raw authored
+     `area` here would make the preview disagree with what was just designed */
+  const area = renderArea(placement);
+  return (
+    <div className={`relative overflow-hidden bg-white ${className}`} style={{ aspectRatio: "42 / 50", ...style }}>
+      <MockupImage product={product} color={color} photo={placement.photo} />
+      <div className="absolute overflow-hidden"
+        style={{
+          left: `${area.left}%`, top: `${area.top}%`,
+          width: `${area.width}%`, height: `${area.height}%`,
+          containerType: "size",
+        }}>
+        {(layers ?? []).map((l) => <LayerView key={l.id} layer={l} />)}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default function MockupPreview({ product, color, layersByPlacement, placement, onPlacement, zoom }) {
   const active = product.printAreas.find((p) => p.id === placement) ?? product.printAreas[0];

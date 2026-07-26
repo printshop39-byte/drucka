@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import {
-  COLOR_PALETTE, FONTS, GRAPHICS, GRAPHIC_CATEGORIES, LIGHT_COLORS, TEXT_COLORS,
-  colorById, fontStack, graphicDataUrl, inr, placementOf,
+  COLOR_PALETTE, FONTS, GRAPHICS, GRAPHIC_CATEGORIES, LIGHT_COLORS, MIN_PRINT_DPI,
+  GOOD_PRINT_DPI, TEXT_COLORS, colorById, fontStack, graphicDataUrl, inr, layerDpi, placementOf,
 } from "./data";
 import { Icon, ic } from "./icons";
 import { clampToArea } from "./DesignCanvas";
@@ -29,9 +29,13 @@ const Field = ({ label, children }) => (
   </label>
 );
 
+/* min-w-0 matters: a number input carries an intrinsic min-content width of
+   roughly 170px, and as a flex/grid child that min-width wins over `w-full`.
+   Firefox honours it strictly, so the 270px settings column overflowed and
+   clipped the Height field and the Vertical flip button off the edge. */
 const NumInput = (props) => (
   <input type="number" {...props}
-    className="w-full rounded-lg border border-ink/15 bg-white px-2 py-1.5 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
+    className="w-full min-w-0 rounded-lg border border-ink/15 bg-white px-2 py-1.5 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
 );
 
 /* smooth open/close accordion (grid-rows trick) */
@@ -354,13 +358,14 @@ export function GraphicsPanel({ onAddImage, onClose }) {
 /* ── LAYER SETTINGS (right panel) ──
    W/H/X/Y in inches, mapped through the placement's physical print size.
    Aspect-ratio lock keeps W/H proportional from either input. */
-export function LayerSettingsPanel({ layer, product, placement, onPatch, onClose }) {
+export function LayerSettingsPanel({ layer, product, placement, onPatch, onDelete, onClose }) {
   const p = placementOf(product, placement);
   const { w: AW, h: AH } = p.inches;
   if (!layer) return null;
   const isText = layer.type === "text";
   const round1 = (n) => Math.round(n * 10) / 10;
   const disabled = layer.locked;
+  const dpi = layerDpi(layer, p.inches);
 
   const set = (patch) => onPatch(layer.id, clampToArea({ ...layer, ...patch }));
   const setW = (wIn) => {
@@ -398,35 +403,49 @@ export function LayerSettingsPanel({ layer, product, placement, onPatch, onClose
 
         <fieldset disabled={disabled} className="space-y-3 disabled:pointer-events-none disabled:opacity-50">
           {!isText && (
-            <div className="flex items-end gap-1.5">
-              <div className="flex-1">
-                <Field label="Width (inch)">
-                  <NumInput min={0.5} max={AW * 1.4} step={0.1} value={round1(((layer.w ?? 30) / 100) * AW)}
-                    onChange={(e) => setW(+e.target.value || 0.5)} />
-                </Field>
+            <>
+              <div className="flex items-end gap-1.5">
+                <div className="min-w-0 flex-1">
+                  <Field label="Width (inch)">
+                    <NumInput min={0.5} max={AW * 1.4} step={0.1} value={round1(((layer.w ?? 30) / 100) * AW)}
+                      onChange={(e) => setW(+e.target.value || 0.5)} />
+                  </Field>
+                </div>
+                <button title={layer.aspectLock ? "Aspect ratio locked" : "Aspect ratio free"}
+                  onClick={() => onPatch(layer.id, { aspectLock: !layer.aspectLock })}
+                  className={`mb-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2 transition ${
+                    layer.aspectLock ? "border-tangerine bg-tangerine/10 text-tangerine" : "border-ink/12 text-ink/45"
+                  }`}>
+                  <Icon d={layer.aspectLock ? ic.link : ic.unlink} className="h-4 w-4" />
+                </button>
+                <div className="min-w-0 flex-1">
+                  <Field label="Height (inch)">
+                    <NumInput min={0.5} max={AH * 1.4} step={0.1} value={round1(((layer.h ?? 30) / 100) * AH)}
+                      onChange={(e) => setH(+e.target.value || 0.5)} />
+                  </Field>
+                </div>
               </div>
-              <button title={layer.aspectLock ? "Aspect ratio locked" : "Aspect ratio free"}
-                onClick={() => onPatch(layer.id, { aspectLock: !layer.aspectLock })}
-                className={`mb-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2 transition ${
-                  layer.aspectLock ? "border-tangerine bg-tangerine/10 text-tangerine" : "border-ink/12 text-ink/45"
-                }`}>
-                <Icon d={layer.aspectLock ? ic.link : ic.unlink} className="h-4 w-4" />
-              </button>
-              <div className="flex-1">
-                <Field label="Height (inch)">
-                  <NumInput min={0.5} max={AH * 1.4} step={0.1} value={round1(((layer.h ?? 30) / 100) * AH)}
-                    onChange={(e) => setH(+e.target.value || 0.5)} />
-                </Field>
-              </div>
-            </div>
+              <p className="text-[10px] text-ink/45">
+                Print area {AW}″ × {AH}″
+                {/* effective resolution at the current print size — the check
+                    every print shop runs before it accepts artwork */}
+                {dpi !== null && (
+                  <span className={`ml-1.5 font-bold ${dpi < MIN_PRINT_DPI ? "text-red-500" : dpi < GOOD_PRINT_DPI ? "text-amber-600" : "text-emerald-600"}`}>
+                    · {dpi} DPI{dpi < MIN_PRINT_DPI ? " — too low, print will look soft" : dpi < GOOD_PRINT_DPI ? " — usable, 300 is ideal" : " ✓"}
+                  </span>
+                )}
+              </p>
+            </>
           )}
 
+          {/* X/Y are the layer's CENTRE, not its top-left — an unlabelled
+              "Position (X)" of 6 on a 12″ area reads like an offset */}
           <div className="grid grid-cols-2 gap-2">
-            <Field label="Position (X)">
+            <Field label="Centre X (inch)">
               <NumInput step={0.1} value={round1((layer.x / 100) * AW)}
                 onChange={(e) => set({ x: ((+e.target.value || 0) / AW) * 100 })} />
             </Field>
-            <Field label="Position (Y)">
+            <Field label="Centre Y (inch)">
               <NumInput step={0.1} value={round1((layer.y / 100) * AH)}
                 onChange={(e) => set({ y: ((+e.target.value || 0) / AH) * 100 })} />
             </Field>
@@ -465,7 +484,7 @@ export function LayerSettingsPanel({ layer, product, placement, onPatch, onClose
           <Field label="Rotate">
             <div className="flex items-center gap-2">
               <input type="range" min={0} max={359} value={layer.rot ?? 0}
-                onChange={(e) => set({ rot: +e.target.value })} className="flex-1 accent-tangerine" />
+                onChange={(e) => set({ rot: +e.target.value })} className="min-w-0 flex-1 accent-tangerine" />
               <NumInput min={0} max={359} value={layer.rot ?? 0}
                 onChange={(e) => set({ rot: Math.min(359, Math.max(0, Math.round(+e.target.value || 0))) })}
                 style={{ width: 64 }} />
@@ -476,7 +495,7 @@ export function LayerSettingsPanel({ layer, product, placement, onPatch, onClose
           <Field label="Layer Opacity">
             <div className="flex items-center gap-2">
               <input type="range" min={10} max={100} value={Math.round((layer.opacity ?? 1) * 100)}
-                onChange={(e) => set({ opacity: +e.target.value / 100 })} className="flex-1 accent-tangerine" />
+                onChange={(e) => set({ opacity: +e.target.value / 100 })} className="min-w-0 flex-1 accent-tangerine" />
               <NumInput min={10} max={100} value={Math.round((layer.opacity ?? 1) * 100)}
                 onChange={(e) => set({ opacity: Math.min(100, Math.max(10, Math.round(+e.target.value || 10))) / 100 })}
                 style={{ width: 64 }} />
@@ -484,6 +503,18 @@ export function LayerSettingsPanel({ layer, product, placement, onPatch, onClose
             </div>
           </Field>
         </fieldset>
+
+        {/* Delete was reachable only from the Layers list, and selecting a
+            layer used to swap that list out — so with a design selected there
+            was no delete button anywhere. Stays enabled while the layer is
+            locked: locking should prevent accidental edits, not trap the layer. */}
+        {onDelete && (
+          <button onClick={() => onDelete(layer.id)}
+            className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-red-200 bg-red-50 py-2.5 text-xs font-bold text-red-600 transition hover:border-red-400 hover:bg-red-100">
+            <Icon d={ic.trash} className="h-4 w-4" />
+            Delete {isText ? "text" : "image"}
+          </button>
+        )}
       </div>
     </div>
   );
