@@ -4238,7 +4238,8 @@ export default function App() {
 
        • The section is already in the DOM and the document has finished
          loading (an in-page click on the homepage) — nothing is going to move
-         under us, so one smooth scroll is right.
+         under us, so one smooth scroll is right, with a check afterwards that
+         it actually happened.
        • Anything else — arriving from a landing or policy route, or a cold load
          straight onto drucka.in/#gallery-walls — the homepage is mounting
          and/or still growing for a while as its images arrive. Scrolling once,
@@ -4254,11 +4255,6 @@ export default function App() {
        a standstill each time — the page never actually moves. */
     const scrollToId = (id) => {
       if (!id) return;
-      const settled = document.getElementById(id);
-      if (settled && document.readyState === "complete") {
-        settled.scrollIntoView({ behavior: "smooth" });
-        return;
-      }
 
       let cancelled = false;
       const stop = () => { cancelled = true; };
@@ -4268,6 +4264,28 @@ export default function App() {
       };
       window.addEventListener("wheel", stop, { passive: true, once: true });
       window.addEventListener("touchstart", stop, { passive: true, once: true });
+
+      const settled = document.getElementById(id);
+      if (settled && document.readyState === "complete") {
+        settled.scrollIntoView({
+          /* the CSS honours prefers-reduced-motion; an explicit JS "smooth"
+             would override it, so ask before animating */
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "instant"
+            : "smooth",
+        });
+        /* Safety net: a smooth scroll is silently dropped in some states (a
+           backgrounded tab, for one). Check where we actually ended up and
+           snap if the link turned out to be a no-op. */
+        window.setTimeout(() => {
+          const el = cancelled ? null : document.getElementById(id);
+          if (el && Math.abs(el.getBoundingClientRect().top) > 200) {
+            el.scrollIntoView({ behavior: "instant" });
+          }
+          done();
+        }, 900);
+        return;
+      }
 
       const start = Date.now();
       let lastLayout = "";
@@ -4450,6 +4468,16 @@ export default function App() {
             so the page still reads hero → categories → how → collections →
             trust → social proof → corporate → stores → FAQ. */}
         <MiniPhotoPrints onOrder={openMini} />
+        {/* Statement Collection and Phone Cases are back on the homepage per
+            Drucka, 2026-07-26. They are the two destinations the Products menu
+            advertises but could not reach — neither has an SEO route, so with
+            the sections hidden those menu entries pointed at ids that existed
+            nowhere. Restoring the sections is the merchandising answer to that;
+            the alternative was deleting the two menu entries. Kept with the
+            other collections so the page still reads hero → categories → how →
+            collections → trust → social proof → corporate → stores → FAQ. */}
+        <StatementCollection onTryMini={openMini} />
+        <PhoneCases />
         {/* Single consolidated trust block. TrustBar, FrameFeatures,
             TrustPolicies and StudioTrust all repeated the same
             delivery/quality/returns promises (and contradicted each other on
@@ -4461,12 +4489,11 @@ export default function App() {
         <BulkCorporate />
         <StoreLocations />
         <FAQ />
-        {/* Further product sections, kept in code and reachable from the
-            category grid, the Products menu and their own SEO routes. Moved
-            off the homepage to cut scroll length — re-enable if merchandising
-            wants them back:
-            {<StatementCollection onTryMini={openMini} />}
-            {<PhoneCases />} {<BentoShowcase />} {<QualityBanner />}
+        {/* Further product sections, still off the homepage to cut scroll
+            length. Unlike Statement Collection and Phone Cases above, nothing
+            in the navigation links to these, so hiding them strands nothing —
+            re-enable if merchandising wants them back:
+            {<BentoShowcase />} {<QualityBanner />}
             {<SignatureGift />} {<BestsellingFrames />} {<FeaturedProduct />} */}
         </>
         )}

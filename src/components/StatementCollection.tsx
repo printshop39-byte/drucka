@@ -38,8 +38,9 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
     return () => obs.disconnect();
   }, []);
 
+  /* scroll-mt clears the fixed navbar for the Products menu's own link */
   return (
-    <section ref={sectionRef} id="statement" className="py-20 lg:py-28 bg-cream">
+    <section ref={sectionRef} id="statement" className="scroll-mt-24 py-20 lg:py-28 bg-cream">
       <style>{`
         @keyframes stFadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
         @keyframes stClip { to { clip-path: inset(0 0 0 0); } }

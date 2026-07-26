@@ -29,17 +29,18 @@ interface NavbarProps {
 /* Desktop nav is deliberately three items — Products, Gallery Walls,
    Corporate/Bulk — so the primary CTA stays the loudest thing in the bar.
    Everything else lives inside the Products mega-menu. */
-/* Statement Collection (#statement) and Phone Cases & Gifting (#phone-cases)
-   used to sit here. Both sections were taken off the homepage and neither has
-   an SEO route, so those two entries pointed at ids that exist nowhere in the
-   DOM — clicking them did nothing at all. Removed rather than repointed; put
-   them back here the day their sections are rendered again. */
+/* Every entry here must resolve to something that actually renders. Statement
+   Collection and Phone Cases spent a while pointing at ids whose sections had
+   been taken off the homepage, which is a dead menu item, not a link — both
+   sections are back on the homepage now, so both entries are live again. */
 const SHOP_LINKS: Array<{ name: string; href: string; action?: 'mini' }> = [
   { name: 'Photo Frames', href: '/#photo-frames' },
   { name: 'Photo Prints', href: '/#catalog' },
   /* opens the real /mini-prints route rather than just scrolling — the previous
      nav checked `link.action` on items that never had one, so this never fired */
   { name: 'Mini Prints', href: '/mini-prints', action: 'mini' as const },
+  { name: 'Statement Collection', href: '/#statement' },
+  { name: 'Phone Cases & Gifting', href: '/#phone-cases' },
 ];
 
 /* Preserved from the previous nav — these drive the frame-style picker in
