@@ -351,14 +351,16 @@ const save = (key, value) => {
    ═══════════════════════════════════════════════════════════════ */
 const DEFAULT_QIKINK_SETTINGS = {
   status: "not_connected", // not_connected | sandbox | live
-  sandbox: true,
+  /* `sandbox` and `autoSend` used to live here and were rendered as checkboxes.
+     Neither was ever sent anywhere: the server reads QIKINK_MODE and
+     AUTO_SEND_ON_PAID from its own environment. Removed rather than left
+     unused, so nobody trusts them again — /api/qikink/mode reports the truth. */
   clientId: "", // demo placeholder — real auth lives in backend env vars
   storeName: "Drucka",
   pickupAddress: "Drucka Print Studio, Kolhapur, Maharashtra 416001",
   supportWhatsapp: CONFIG.whatsappNumber,
   supportEmail: CONFIG.email,
   paymentMode: "prepaid", // prepaid | cod | both
-  autoSend: false, // auto-send PAID orders to Qikink (backend feature)
   packingSlipBrand: "Drucka", // white-label: customer sees Drucka, not Qikink
 };
 
@@ -3825,6 +3827,54 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
 /* ═══════════════════════════════════════════════════════════════
    ADMIN PANEL — Fulfillment settings · Qikink mapping · Orders
    ═══════════════════════════════════════════════════════════════ */
+/* Which Qikink account a send will actually reach, read from the server.
+
+   This exists because the thing it replaces lied: a checkbox in the browser
+   that said "Sandbox mode" and controlled nothing. Anyone about to press
+   "Send to Qikink" needs the real answer, and the only place that knows it is
+   the server holding QIKINK_MODE. */
+function QikinkServerMode() {
+  const [state, setState] = useState({ loading: true });
+  const load = () => {
+    setState({ loading: true });
+    fetch("/api/qikink/mode", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setState({ ...d, loading: false }))
+      .catch((e) => setState({ loading: false, error: e.message }));
+  };
+  useEffect(load, []);
+
+  if (state.loading) return <p className="text-xs text-ink/45">Checking which Qikink account this sends to…</p>;
+  if (!state.ok) {
+    return (
+      <p className="rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] font-semibold text-amber-800">
+        ⚠ Could not reach the server to check the Qikink mode
+        {state.error ? ` (${state.error})` : ""} — do not send until this answers.
+        <button onClick={load} className="ml-2 underline">Retry</button>
+      </p>
+    );
+  }
+  const live = state.mode === "live";
+  return (
+    <div className={`rounded-xl px-3 py-2.5 text-[11px] leading-relaxed ${live ? "bg-red-50 text-red-800" : "bg-emerald-50 text-emerald-800"}`}>
+      <p className="font-bold">
+        {live
+          ? "⚠ LIVE — sending prints and ships a real order, and costs real money"
+          : "✓ Sandbox — sends are test orders, nothing is printed"}
+      </p>
+      <p className="mt-1 opacity-80">
+        {state.endpoint} · credentials {state.credentialsConfigured ? "configured" : "MISSING — every send will 401"}
+        {" · "}auto-send on paid {state.autoSendOnPaid ? "ON" : "off"}
+      </p>
+      <p className="mt-1 opacity-70">
+        Set by <code>QIKINK_MODE</code> on the server, not here. Change it in Vercel
+        → Settings → Environment Variables, then redeploy.
+        <button onClick={load} className="ml-2 underline">Re-check</button>
+      </p>
+    </div>
+  );
+}
+
 function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, onSendToQikink, onRefreshStatus, onSyncOrders, productMap, onSaveMap, onLoadMap, showToast }) {
   const [tab, setTab] = useState("settings");
   const [local, setLocal] = useState(settings);
@@ -3912,16 +3962,13 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                 <div><label className={lblCls}>Packing slip brand name (white-label)</label>
                   <input value={local.packingSlipBrand} onChange={set("packingSlipBrand")} className={inputCls} /></div>
               </div>
-              <div className="flex flex-wrap gap-4">
-                <label className="flex items-center gap-2 text-xs font-semibold text-ink/70">
-                  <input type="checkbox" checked={local.sandbox} onChange={set("sandbox")} className="h-4 w-4 accent-plum" />
-                  Sandbox mode
-                </label>
-                <label className="flex items-center gap-2 text-xs font-semibold text-ink/70">
-                  <input type="checkbox" checked={local.autoSend} onChange={set("autoSend")} className="h-4 w-4 accent-plum" />
-                  Auto-send paid orders to Qikink (backend feature)
-                </label>
-              </div>
+              {/* Both of these used to be checkboxes bound to values in this
+                  browser's localStorage, wired to nothing. The server chooses
+                  the Qikink account from QIKINK_MODE and decides auto-send from
+                  AUTO_SEND_ON_PAID, and is never told what the browser thinks —
+                  so "Sandbox mode" could sit ticked while a send printed and
+                  shipped a real garment. Read from the server instead. */}
+              <QikinkServerMode />
               <p className="rounded-xl bg-ink/4 px-3 py-2.5 text-[11px] leading-relaxed text-ink/55">
                 ℹ Branding/packing slip options depend on Qikink account settings. Confirm in the Qikink dashboard.
                 Customers always see <strong>{local.packingSlipBrand || "Drucka"}</strong> — never Qikink.
@@ -3996,6 +4043,9 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
 
           {tab === "orders" && (
             <div className="grid gap-3">
+              {/* "Send to Qikink" lives on this tab, so the account it reaches
+                  belongs on this tab too — not buried in Settings */}
+              <QikinkServerMode />
               <div className="flex justify-end">
                 <button onClick={onSyncOrders}
                   className="rounded-full border border-plum px-4 py-2 text-[11px] font-bold text-plum transition hover:bg-plum/5">
