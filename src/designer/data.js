@@ -230,7 +230,11 @@ export const PRODUCTS = [
        the canvas wide, the white frame's 34.4%, and they start at different
        heights. One box cannot serve both, hence areaByColor. */
     printAreas: [{
-      id: "front", label: "Front", photo: "front", inches: { w: 8.3, h: 11.7 },
+      id: "front", label: "Front", photo: "front",
+      /* A4 and A3 are the same 1:√2 shape, so the box does not move — but the
+         inches differ, and those drive the size readout and the DPI check */
+      inches: { w: 8.3, h: 11.7 },
+      inchesBySize: { A4: { w: 8.3, h: 11.7 }, A3: { w: 11.7, h: 16.5 } },
       area: { left: 28.6, top: 24.97, width: 44.0, height: 51.72 },
       areaByColor: {
         black: { left: 28.6, top: 24.97, width: 44.0, height: 51.72 },
@@ -277,7 +281,14 @@ export const PRODUCTS = [
        0.754 w:h, which is 18×24 (0.75), and 18×24 is also the size the editor
        selects by default. See the note on availableSizes above — the two sizes
        are different shapes and the print area does not yet follow the choice. */
-    printAreas: SINGLE({ left: 19.0, top: 18.51, width: 60.3, height: 67.15 }, { w: 18, h: 24 }),
+    printAreas: [{
+      id: "front", label: "Front", photo: "front",
+      area: { left: 19.0, top: 18.51, width: 60.3, height: 67.15 },
+      /* the two sizes are different shapes, so the print box follows the
+         choice; `inches` is the default (18×24″, what the photo shows) */
+      inches: { w: 18, h: 24 },
+      inchesBySize: { '12×18"': { w: 12, h: 18 }, '18×24"': { w: 18, h: 24 } },
+    }],
     productHighlights: ["Premium Canvas", "Wooden Frame", "Fade Resistant"],
     description: "Premium stretched canvas on a wooden frame — museum-style photo finish.",
   },
@@ -296,7 +307,18 @@ export const PRODUCTS = [
     mockups: { base: "poster", ext: "png", colors: ["white"] },
     image: "/images/prints/print-1.webp",
     gallery: [{ src: "/images/prints/print-1.webp", label: "Poster (placeholder image)" }],
-    printAreas: SINGLE({ left: 20, top: 15, width: 60, height: 70 }, { w: 12, h: 18 }),
+    printAreas: [{
+      id: "front", label: "Front", photo: "front",
+      area: { left: 20, top: 15, width: 60, height: 70 },
+      /* four sizes, three different shapes — A2 is the default */
+      inches: { w: 16.5, h: 23.4 },
+      inchesBySize: {
+        A3: { w: 11.7, h: 16.5 },
+        A2: { w: 16.5, h: 23.4 },
+        '12×18"': { w: 12, h: 18 },
+        '24×36"': { w: 24, h: 36 },
+      },
+    }],
     productHighlights: ["Large Format", "Premium Matte Paper", "Fade Resistant"],
     description: "Large-format matte poster print — vivid, fade-resistant and ready to frame.",
   },
@@ -416,11 +438,20 @@ export const areaFor = (product, p, colorId) => {
   return p.areaByColor[shown] ?? p.area;
 };
 
-export const renderArea = (p, product = null, colorId = null) => {
+/* ── inchesFor — the print size for the size the customer picked ──
+   A Canvas is sold as 12×18″ AND 18×24″, a Poster as A3, A2, 12×18″ and
+   24×36″ — different shapes, not just different scales. The placement used to
+   declare one fixed `inches`, so picking anything but the default previewed
+   the wrong shape and quoted the wrong inches. Placements that genuinely have
+   one print size (a mug wrap, a tee front) just omit inchesBySize. */
+export const inchesFor = (p, size) => p.inchesBySize?.[size] ?? p.inches;
+
+export const renderArea = (p, product = null, colorId = null, size = null) => {
   const a = product ? areaFor(product, p, colorId) : p.area;
+  const inches = inchesFor(p, size);
   const boxW = a.width * MOCKUP_ASPECT.w;
   const boxH = a.height * MOCKUP_ASPECT.h;
-  const target = p.inches.w / p.inches.h; // desired on-screen w:h
+  const target = inches.w / inches.h; // desired on-screen w:h
   let w = boxW;
   let h = boxW / target;
   if (h > boxH) { h = boxH; w = boxH * target; }

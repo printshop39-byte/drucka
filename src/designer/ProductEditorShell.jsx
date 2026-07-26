@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import {
-  calcPrice, capsOf, colorById, duplicateOf, fileToDataUrl, inr, newImageLayer, newTextLayer,
+  calcPrice, capsOf, colorById, duplicateOf, fileToDataUrl, inchesFor, inr, newImageLayer, newTextLayer,
   placementOf, uid,
 } from "./data";
 import { Icon, ic } from "./icons";
@@ -133,7 +133,7 @@ export default function ProductEditorShell({
     commit({ ...layersByPlacement, [placement]: [...layers, clampToArea(layer)] });
     setSelectedLayerId(layer.id);
   };
-  const addImage = (src, name, aspect = 1, px = null) => addLayer(newImageLayer(src, name, aspect, placementOf(product, placement).inches, px));
+  const addImage = (src, name, aspect = 1, px = null) => addLayer(newImageLayer(src, name, aspect, inchesFor(placementOf(product, placement), sel.selectedSize), px));
   const addText = (text) => { addLayer(newTextLayer(text)); setActiveTool("text"); };
   const deleteLayer = (id) => {
     commit({ ...layersByPlacement, [placement]: layers.filter((l) => l.id !== id) });
@@ -221,7 +221,7 @@ export default function ProductEditorShell({
             <LayersPanel layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId} onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onDuplicate={duplicateLayer} onMove={moveLayer} placementLabel={placementOf(product, placement).label} onClose={() => setActiveTool(null)} />
             {selectedLayer && (
               <div className="xl:hidden">
-                <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement} onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onClose={() => setSelectedLayerId(null)} />
+                <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement} size={sel.selectedSize} onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onClose={() => setSelectedLayerId(null)} />
               </div>
             )}
           </>
@@ -349,9 +349,9 @@ export default function ProductEditorShell({
               {hasDesign ? inr(sellingTotal) : "Add a design"}
             </button>
             {preview ? (
-              <MockupPreview product={product} color={sel.selectedColor} layersByPlacement={layersByPlacement} placement={placement} onPlacement={switchPlacement} zoom={zoom} />
+              <MockupPreview product={product} color={sel.selectedColor} size={sel.selectedSize} layersByPlacement={layersByPlacement} placement={placement} onPlacement={switchPlacement} zoom={zoom} />
             ) : (
-              <DesignCanvas product={product} placement={placement} color={sel.selectedColor}
+              <DesignCanvas product={product} placement={placement} color={sel.selectedColor} size={sel.selectedSize}
                 layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId}
                 onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast} />
             )}
@@ -386,7 +386,7 @@ export default function ProductEditorShell({
         {/* DESKTOP right: selected-layer settings */}
         {!preview && selectedLayer && (
           <aside className="hidden w-[270px] shrink-0 overflow-hidden border-l border-ink/10 bg-white xl:block">
-            <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement}
+            <LayerSettingsPanel layer={selectedLayer} product={product} placement={placement} size={sel.selectedSize}
               onPatch={(id, p) => patchLayer(id, p)} onDelete={deleteLayer} onClose={() => setSelectedLayerId(null)} />
           </aside>
         )}

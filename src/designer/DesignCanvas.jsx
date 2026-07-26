@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { fontStack, placementOf, renderArea } from "./data";
+import { fontStack, inchesFor, placementOf, renderArea } from "./data";
 import { Icon, ic } from "./icons";
 
 /* ── DesignCanvas — mockup photo + printable area + interactive layers ──
@@ -112,22 +112,23 @@ export const MockupImage = ({ product, color, photo, className = "" }) => {
 };
 
 export default function DesignCanvas({
-  product, placement, color, layers, selectedId, onSelect, onPatch, onDelete, zoom, preview, showToast,
+  product, placement, color, size, layers, selectedId, onSelect, onPatch, onDelete, zoom, preview, showToast,
 }) {
   const areaRef = useRef(null);
   const warnedRef = useRef(false);
   const p = placementOf(product, placement);
   /* true-to-inches box, not the raw authored one — see renderArea in data.js.
-     Passing the colour matters: some products carry a different box per
-     mockup photo. */
-  const area = useMemo(() => renderArea(p, product, color), [p, product, color]);
+     Colour and size both matter: some products carry a different box per
+     mockup photo, and some sell sizes that are different shapes. */
+  const area = useMemo(() => renderArea(p, product, color, size), [p, product, color, size]);
+  const inches = inchesFor(p, size);
 
   /* what the selected layer will actually measure on the product */
   const inch = (n) => Math.round(n * 10) / 10;
   const sizeLabel = (l) => (l.type === "text"
     /* text is sized in cqh — 1 unit = 1% of the print height */
-    ? `${inch(((l.fontSize ?? 11) / 100) * p.inches.h)}″ tall`
-    : `${inch(((l.w ?? 30) / 100) * p.inches.w)}″ × ${inch(((l.h ?? 30) / 100) * p.inches.h)}″`);
+    ? `${inch(((l.fontSize ?? 11) / 100) * inches.h)}″ tall`
+    : `${inch(((l.w ?? 30) / 100) * inches.w)}″ × ${inch(((l.h ?? 30) / 100) * inches.h)}″`);
 
   /* Delete / Backspace removes the selected layer, the way every editor
      behaves. Ignored while typing, so the text panel keeps working. */
@@ -339,7 +340,7 @@ export default function DesignCanvas({
           {!preview && !layers.length && (
             <p className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 px-2 text-center text-[10px] font-semibold text-sky-600/60">
               {p.label} print area
-              <span className="block text-[9px] font-medium">{p.inches.w}″ × {p.inches.h}″</span>
+              <span className="block text-[9px] font-medium">{inches.w}″ × {inches.h}″</span>
             </p>
           )}
         </div>
