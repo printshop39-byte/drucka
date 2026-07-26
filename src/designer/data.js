@@ -470,6 +470,23 @@ export const areaFor = (product, p, colorId) => {
    one print size (a mug wrap, a tee front) just omit inchesBySize. */
 export const inchesFor = (p, size) => p.inchesBySize?.[size] ?? p.inches;
 
+/* The printed size of a placement's artwork, in inches.
+
+   Only image layers are uploaded to Qikink, and only the first one, so that is
+   the layer whose size describes what gets printed. Qikink prints at the
+   placement's default size when width/height are left empty, which is what
+   happened until now — everything the editor knows about print size stopped at
+   the preview. */
+export const printSizeInches = (layers, inches) => {
+  const first = (layers ?? []).find((l) => l.visible !== false && l.type === "image");
+  if (!first || !inches) return null;
+  const r = (n) => Math.round(n * 100) / 100;
+  return {
+    w: r(((first.w ?? 30) / 100) * inches.w),
+    h: r(((first.h ?? 30) / 100) * inches.h),
+  };
+};
+
 /* Sizes a product is actually made in for a given colour. Most products stock
    every size in every colour and simply omit sizesByColor. */
 export const sizesFor = (product, colorId) =>

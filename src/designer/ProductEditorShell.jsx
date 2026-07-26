@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import {
   calcPrice, capsOf, colorById, duplicateOf, fileToDataUrl, inchesFor, inr, newImageLayer, newTextLayer,
-  placementOf, uid,
+  placementOf, printSizeInches, uid,
 } from "./data";
 import { Icon, ic } from "./icons";
 import DesignCanvas, { clampToArea } from "./DesignCanvas";
@@ -176,6 +176,11 @@ export default function ProductEditorShell({
   const handleAddToCart = () => {
     if (!hasDesign) { showToast("Add a design first — Image or Text"); setActiveTool("image"); return; }
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
+    /* what each placement will actually print at, so Qikink receives the size
+       the customer designed instead of falling back to its placement default */
+    const printSize = Object.fromEntries(price.printed.map((p) => [
+      p.id, printSizeInches(layersByPlacement[p.id], inchesFor(p, sel.selectedSize)),
+    ]).filter(([, v]) => v));
     const name = title.trim() || `Custom ${product.productName}`;
     onAddToCart({
       key: uid(),
@@ -189,6 +194,7 @@ export default function ProductEditorShell({
       printMethod: price.method.label,
       placement: price.printed.map((p) => p.label).join(", "),
       design,
+      printSize,
       summary: `${price.method.label} print · ${price.printed.map((p) => p.label).join(", ")}`,
     });
     showToast(`${name} added to cart ✓`);

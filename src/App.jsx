@@ -5,6 +5,7 @@ import { payWithRazorpay } from "./lib/paymentClient";
 import * as pixel from "./lib/metaPixel";
 import { productById as designerProductById } from "./designer/data";
 import { usesNewShell, setForceClassicEditor } from "./utils/editorFlags";
+import { qikinkColorCode, colorIdOf, sizeTokenFor, SKU_SIZE_TOKEN } from "../api/_lib/qikinkCatalog";
 /* Heavy editors/modals — lazy-loaded so they stay OUT of the homepage bundle
    and only download when the user actually opens one */
 const DesignerProductPage = lazy(() => import("./designer/ProductPage"));
@@ -372,27 +373,10 @@ const QIKINK_STATUSES = ["Draft", "Sent to Qikink", "In Production", "Shipped", 
    Keyed by BOTH the palette id and the label because the two editors write
    the cart item's `color` as the LABEL (`colorById(...).label`), while this
    file's PRODUCT_COLORS is keyed by id — so neither form can be assumed. */
-const QIKINK_COLORS = [
-  { id: "white", code: "Wh", aliases: ["white"] },
-  { id: "black", code: "Bk", aliases: ["black"] },
-  { id: "navy", code: "Nb", aliases: ["navy", "navy blue"] },
-  { id: "red", code: "Rd", aliases: ["red"] },
-  { id: "royal-blue", code: "Rb", aliases: ["royal-blue", "royal blue"] },
-  { id: "bottle-green", code: "Gn", aliases: ["bottle-green", "bottle green"] },
-  { id: "maroon", code: "Mn", aliases: ["maroon"] },
-  { id: "yellow", code: "Yl", aliases: ["yellow"] },
-  { id: "lavender", code: "Lv", aliases: ["lavender"] },
-  { id: "baby-pink", code: "LBp", aliases: ["baby-pink", "baby pink", "light baby pink"] },
-];
-const QIKINK_COLOR_BY_ALIAS = new Map();
-QIKINK_COLORS.forEach((c) => {
-  QIKINK_COLOR_BY_ALIAS.set(c.id, c);
-  c.aliases.forEach((a) => QIKINK_COLOR_BY_ALIAS.set(a, c));
-});
-const resolveQikinkColor = (value) =>
-  QIKINK_COLOR_BY_ALIAS.get(String(value ?? "").trim().toLowerCase()) ?? null;
-const qikinkColorCode = (value) => resolveQikinkColor(value)?.code ?? null;
-const colorIdOf = (value) => resolveQikinkColor(value)?.id ?? null;
+/* Colour codes, placement codes and Qikink's size tokens all live in
+   api/_lib/qikinkCatalog.js — the same module the Razorpay auto-send path
+   imports. They were separate tables until the auto-send path was found to be
+   sending six of the ten colours as unusable SKUs. */
 
 /* Drucka product → Qikink product/SKU mapping.
    Colours and sizes below are the ones the sku_descriptions export actually
@@ -423,8 +407,9 @@ const QIKINK_PRODUCT_MAP = [
      "UNMAPPED-frame". All five stems exist in the sku_descriptions export.
 
      Qikink's size tokens are not a pattern — "A4 Frame poster", "12x18Fpos",
-     "24x36 pos" and "8X12" all appear — so skuSizeToken spells out the exact
-     token per Drucka size instead of substituting {size} blindly.
+     "24x36 pos" and "8X12" all appear, and "A3" means a different token on a
+     framed poster than on a plain one. They live in qikinkCatalog's
+     SKU_SIZE_TOKEN, keyed by SKU stem, so both order paths spell them alike.
 
      baseCost excludes shipping everywhere — the Admin margin subtracts
      shippingCost separately and says "after ship". For these three it is
@@ -433,25 +418,25 @@ const QIKINK_PRODUCT_MAP = [
      above came from a quote that already included printing. */
 
   /* UFPos in Wh/Bk/Yl/Gn/Rb/OG; Drucka's black and white both exist. */
-  { druckaId: "frame",       druckaName: "Framed Print",      qikinkProduct: "Framed Poster",              qikinkProductId: "UFPos",     skuPattern: "UFPos-{color}-{size}", skuSizeToken: { A4: "A4 Frame poster", A3: "A3 Frame poster" }, printMethod: "Sublimation", colors: ["black", "white"], sizes: ["A4", "A3"], baseCostBySize: { A4: 250, A3: 350 }, baseCost: 350, sellingPrice: 899, printAreas: ["Front"], active: true },
+  { druckaId: "frame",       druckaName: "Framed Print",      qikinkProduct: "Framed Poster",              qikinkProductId: "UFPos",     skuPattern: "UFPos-{color}-{size}", printMethod: "Sublimation", colors: ["black", "white"], sizes: ["A4", "A3"], baseCostBySize: { A4: 250, A3: 350 }, baseCost: 350, sellingPrice: 899, printAreas: ["Front"], active: true },
 
   /* UPoster is white only. A2 is not made by Qikink at all — see the poster's
      availableSizes in data.js, where it has been withdrawn. */
-  { druckaId: "poster",      druckaName: "Poster Print",      qikinkProduct: "Poster",                     qikinkProductId: "UPoster",   skuPattern: "UPoster-{color}-{size}", skuSizeToken: { A3: "A3 poster", '12×18"': "12x18pos", '24×36"': "24x36 pos" }, printMethod: "Sublimation", colors: ["white"], sizes: ["A3", '12×18"', '24×36"'], baseCostBySize: { A3: 50, '12×18"': 80, '24×36"': 250 }, baseCost: 80, sellingPrice: 199, printAreas: ["Front"], active: true },
+  { druckaId: "poster",      druckaName: "Poster Print",      qikinkProduct: "Poster",                     qikinkProductId: "UPoster",   skuPattern: "UPoster-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ["A3", '12×18"', '24×36"'], baseCostBySize: { A3: 50, '12×18"': 80, '24×36"': 250 }, baseCost: 80, sellingPrice: 199, printAreas: ["Front"], active: true },
 
   /* Catalogue now carries Qikink's four canvas sizes (see data.js). Note the
      tokens: 8x8 is lower-case, the other three are 8X12 / 16X20 / 20X30. */
-  { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", skuSizeToken: { '8×8"': "8x8", '8×12"': "8X12", '16×20"': "16X20", '20×30"': "20X30" }, printMethod: "Sublimation", colors: ["white"], sizes: ['8×8"', '8×12"', '16×20"', '20×30"'], baseCostBySize: { '8×8"': 250, '8×12"': 300, '16×20"': 550, '20×30"': 800 }, baseCost: 300, sellingPrice: 600, printAreas: ["Front"], active: true },
+  { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ['8×8"', '8×12"', '16×20"', '20×30"'], baseCostBySize: { '8×8"': 250, '8×12"': 300, '16×20"': 550, '20×30"': 800 }, baseCost: 300, sellingPrice: 600, printAreas: ["Front"], active: true },
 
   /* NOT FULFILLED BY QIKINK, per Drucka — stickers are sourced elsewhere.
      Qikink die-cuts by the inch (2x2 … 15x3) and makes no A5/A4 sheets, so
      this stays off; the stem is kept only so the gap is visible here rather
      than looking like an oversight. */
-  { druckaId: "stickers",    druckaName: "Custom Stickers",   qikinkProduct: "Stickers",                   qikinkProductId: "UStickers", skuPattern: "UStickers-{color}-{size}", skuSizeToken: {}, printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 85, sellingPrice: 99, printAreas: ["Front"], active: false },
+  { druckaId: "stickers",    druckaName: "Custom Stickers",   qikinkProduct: "Stickers",                   qikinkProductId: "UStickers", skuPattern: "UStickers-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 85, sellingPrice: 99, printAreas: ["Front"], active: false },
 
   /* "Standard" is the square shape, per Drucka. Qikink also makes Rect and
      Slim at the same ₹60 if another shape is ever added to the catalogue. */
-  { druckaId: "keychain",    druckaName: "Acrylic Keychain",  qikinkProduct: "Keychain",                   qikinkProductId: "UAcryKyChnUV", skuPattern: "UAcryKyChnUV-{color}-{size}", skuSizeToken: { Standard: "sqr" }, printMethod: "Sublimation", colors: ["white"], sizes: ["Standard"], baseCost: 60, baseCostBySize: { Standard: 60 }, sellingPrice: 149, printAreas: ["Front"], active: true },
+  { druckaId: "keychain",    druckaName: "Acrylic Keychain",  qikinkProduct: "Keychain",                   qikinkProductId: "UAcryKyChnUV", skuPattern: "UAcryKyChnUV-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ["Standard"], baseCost: 60, baseCostBySize: { Standard: 60 }, sellingPrice: 149, printAreas: ["Front"], active: true },
 ];
 /* default shipping cost per mapping (editable in Admin → Product Mapping) */
 QIKINK_PRODUCT_MAP.forEach((m) => { if (m.shippingCost == null) m.shippingCost = m.druckaId === "hoodie" ? 69 : 49; });
@@ -512,7 +497,7 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
             /* Qikink's size token, which is rarely the size we display —
                "A3" is "A3 Frame poster" on a frame and "A3 poster" on a
                plain one. Products whose sizes match verbatim have no table. */
-            .replace("{size}", m.skuSizeToken?.[i.size] ?? i.size ?? "")
+            .replace("{size}", sizeTokenFor(m.skuPattern.split("-")[0], i.size))
           : `UNMAPPED-${i.productId}`,
         print_type: m?.printMethod ?? "DTG",
         quantity: i.qty,
@@ -529,6 +514,10 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
                A back print was being sent to Qikink as a front print. */
             placement: side,
             layer_count: ls.length,
+            /* the real printed size — left empty Qikink prints at its own
+               placement default, so the size the customer chose never arrived */
+            width_inches: i.printSize?.[side]?.w ?? "",
+            height_inches: i.printSize?.[side]?.h ?? "",
             // TODO BACKEND: customer artwork lives as data-URLs in this order.
             // Upload each image layer to your CDN (S3/Cloudinary) server-side
             // and put the public URLs here before calling Qikink:
@@ -589,7 +578,8 @@ function validateQikinkOrder(order, map = QIKINK_PRODUCT_MAP) {
         problems.push(`"${i.name}" — Qikink does not stock ${i.color} in ${i.size}`);
       /* A mapping that spells out its size tokens can only fulfil the sizes it
          lists — anything else would build a SKU Qikink has never issued. */
-      if (m.skuSizeToken && i.size && !m.skuSizeToken[i.size])
+      const tokens = SKU_SIZE_TOKEN[m.skuPattern.split("-")[0]];
+      if (tokens && i.size && !tokens[i.size])
         problems.push(`"${i.name}" — no Qikink SKU for size ${i.size}`);
     }
   });
