@@ -7,6 +7,9 @@
 
 import { prepareUpload, MAX_UPLOAD_BYTES } from "../utils/validateUpload";
 import { calculate } from "../utils/pricing";
+/* The kids size labels live with the Qikink tokens they map to, so the
+   catalogue and the SKU builder cannot drift apart. */
+import { KIDS_SIZES } from "../../api/_lib/qikinkCatalog";
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -147,9 +150,15 @@ export const PRODUCTS = [
   {
     productId: "kids-tshirt", qikinkId: "kids-tshirt", category: "kids",
     productName: "Kids Classic T-Shirt",
-    basePrice: 299, taxRate: 5,
+    /* 379 + ₹80 DTG = ₹459 against a landed ₹209 (Qikink 160 + ₹49 ship) on
+       the year sizes. The infant sizes cost ₹130, so they earn more. */
+    basePrice: 379, taxRate: 5,
     availableColors: ["white", "yellow", "baby-pink", "royal-blue", "red"],
-    availableSizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], sizeSurcharge: {}, sizeChart: KIDS_SIZE_CHART,
+    /* Qikink's own kids sizes — infants in months, children in years, and
+       nothing above 13. The catalogue used to say 2Y–14Y, none of which
+       Qikink issues, so every kids order was unfulfillable. See
+       KIDS_SIZE_TOKEN for the labels ⇆ Qikink token mapping. */
+    availableSizes: KIDS_SIZES, sizeSurcharge: {}, sizeChart: KIDS_SIZE_CHART,
     printingOptions: PRINT_METHODS,
     mockups: { base: "kids-tshirt", ext: "webp", colors: ["white"] },
     gallery: [
@@ -165,10 +174,13 @@ export const PRODUCTS = [
   },
   {
     productId: "tshirt-children", qikinkId: "kids-tshirt", category: "children",
-    productName: "Children Round Neck Tee (2–8Y)",
-    basePrice: 279, taxRate: 5,
+    productName: "Children Round Neck Tee (0–4Y)",
+    /* Shares the kids-tshirt mapping, so it is the same BRnHs garment — this
+       entry is the infant end of it. Qikink's month sizes cost ₹130, ₹30 less
+       than the year sizes, which is why it is cheaper than kids-tshirt. */
+    basePrice: 349, taxRate: 5,
     availableColors: ["white", "yellow", "baby-pink", "red"],
-    availableSizes: ["2Y", "4Y", "6Y", "8Y"], sizeSurcharge: {}, sizeChart: KIDS_SIZE_CHART.slice(0, 4),
+    availableSizes: KIDS_SIZES.slice(0, 4), sizeSurcharge: {}, sizeChart: KIDS_SIZE_CHART.slice(0, 4),
     printingOptions: PRINT_METHODS,
     mockups: { base: "kids-tshirt", ext: "webp", colors: ["white"] },
     gallery: [
@@ -177,7 +189,7 @@ export const PRODUCTS = [
     ],
     printAreas: FRONT_BACK({ left: 31, top: 26, width: 38, height: 42 }, { left: 31, top: 26, width: 38, height: 42 }, { w: 8, h: 10 }),
     productHighlights: ["160 GSM", "100% Cotton", "Toddler Safe", "Tagless Comfort"],
-    description: "Extra-soft round neck tee sized for the littlest ones (2–8 years). Tagless, breathable and made for daily play.",
+    description: "Extra-soft round neck tee sized for the littlest ones (0–4 years). Tagless, breathable and made for daily play.",
   },
   {
     productId: "hoodie", qikinkId: "hoodie", category: "men",
@@ -199,9 +211,13 @@ export const PRODUCTS = [
   {
     productId: "kids-hoodie", qikinkId: "kids-hoodie", category: "kids",
     productName: "Kids Hoodie",
-    basePrice: 649, taxRate: 5,
-    availableColors: ["white", "navy", "red", "yellow"],
-    availableSizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], sizeSurcharge: {}, sizeChart: KIDS_SIZE_CHART,
+    /* 619 + ₹80 DTF = ₹699 against a landed ₹389 (Qikink 340 + ₹49 ship) */
+    basePrice: 619, taxRate: 5,
+    /* KHd is made in Black, Grey Melange, Red, Yellow and Baby Pink only.
+       White and Navy were on sale here and Qikink makes neither, so they are
+       withdrawn rather than left to fail at fulfillment. */
+    availableColors: ["black", "red", "yellow", "baby-pink"],
+    availableSizes: KIDS_SIZES, sizeSurcharge: {}, sizeChart: KIDS_SIZE_CHART,
     printingOptions: PRINT_METHODS,
     gallery: [{ src: "/images/categories/kids-jacket.webp", label: "On model" }],
     printAreas: FRONT_BACK({ left: 33, top: 30, width: 34, height: 26 }, { left: 33, top: 28, width: 34, height: 30 }, { w: 8, h: 9 }),
@@ -266,9 +282,12 @@ export const PRODUCTS = [
     productId: "cushion", qikinkId: "cushion", category: "gifts",
     productName: "Photo Cushion",
     catalog: { order: 4, title: "Cushion", price: 649, img: "/designs/catalog-4-800.webp" },
+    /* Qikink's AOP Cushion Cover comes in 16x16 and 24x24 only. Drucka sold
+       16″ and 18″; 18″ does not exist, so it is withdrawn and 16″ stays.
+       Landed ₹189 (Qikink 140 + ₹49 ship) against ₹649. */
     basePrice: 649, taxRate: 12,
     availableColors: ["white"],
-    availableSizes: ['16"', '18"'], sizeSurcharge: { '18"': 100 }, sizeChart: null,
+    availableSizes: ['16"'], sizeSurcharge: {}, sizeChart: null,
     printingOptions: FULL_COLOUR,
     mockups: { base: "cushion", ext: "webp", colors: ["white"] },
     image: "/images/cushion.webp",
@@ -375,9 +394,14 @@ export const PRODUCTS = [
     productId: "stickers", qikinkId: "stickers", category: "gifts",
     hidden: true, // hidden from catalog grid until real product photos arrive; /stickers landing stays live
     productName: "Custom Stickers & Labels",
-    basePrice: 99, taxRate: 12,
+    /* Qikink die-cuts stickers by the inch and makes no A5/A4 sheets, so the
+       two sheet sizes sold here could never be fulfilled. Switched to the
+       stem's real sizes. Shipping (₹49) dominates a ₹25–85 item, so the base
+       carries it and the surcharges track Qikink's own steps. */
+    basePrice: 149, taxRate: 18,
     availableColors: ["white"],
-    availableSizes: ["A5 Sheet", "A4 Sheet"], sizeSurcharge: { "A4 Sheet": 60 }, sizeChart: null,
+    availableSizes: ['2×2"', '3×3"', '4×4"', '6×6"', '8×8"'],
+    sizeSurcharge: { '3×3"': 20, '4×4"': 40, '6×6"': 80, '8×8"': 140 }, sizeChart: null,
     printingOptions: FULL_COLOUR,
     /* TODO(Sagar): add /mockups/stickers-blank.png from Qikink, then switch to
        mockups: { base: "stickers", ext: "png", colors: ["white"] } (file must be
@@ -406,11 +430,15 @@ export const PRODUCTS = [
     description: "Personalised wedding, birthday & event invitations — digital invites for WhatsApp plus premium printed cards.",
   },
   {
-    productId: "kids-mug", qikinkId: "kids-mug", category: "kids",
+    productId: "kids-mug", qikinkId: "mug", category: "kids",
     productName: "Kids Mug / School Gift",
-    basePrice: 279, taxRate: 12,
+    /* Qikink has no kids-specific mug — the White Coffee Mug is the only one
+       it prints, so this listing is that mug presented for school gifting and
+       shares its mapping. It advertised 250 ml, which was never what would
+       have shipped. */
+    basePrice: 299, taxRate: 12,
     availableColors: ["white"],
-    availableSizes: ["250 ml"], sizeSurcharge: {}, sizeChart: null,
+    availableSizes: ["325 ml"], sizeSurcharge: {}, sizeChart: null,
     printingOptions: FULL_COLOUR,
     mockups: { base: "mug", ext: "webp", colors: ["white"] },
     image: "/images/mug.webp",

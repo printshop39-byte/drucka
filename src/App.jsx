@@ -5,7 +5,7 @@ import { payWithRazorpay } from "./lib/paymentClient";
 import * as pixel from "./lib/metaPixel";
 import { productById as designerProductById } from "./designer/data";
 import { usesNewShell, setForceClassicEditor } from "./utils/editorFlags";
-import { qikinkColorCode, colorIdOf, sizeTokenFor, SKU_SIZE_TOKEN } from "../api/_lib/qikinkCatalog";
+import { qikinkColorCode, colorIdOf, sizeTokenFor, SKU_SIZE_TOKEN, KIDS_SIZES } from "../api/_lib/qikinkCatalog";
 /* Heavy editors/modals — lazy-loaded so they stay OUT of the homepage bundle
    and only download when the user actually opens one */
 const DesignerProductPage = lazy(() => import("./designer/ProductPage"));
@@ -397,7 +397,28 @@ const QIKINK_PRODUCT_MAP = [
   { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Classic Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"], sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL"], baseCostBySize: { S: 359, M: 359, L: 359, XL: 359, XXL: 359, "3XL": 379, "4XL": 399, "5XL": 419, "6XL": 439, "7XL": 459 }, sizesByColor: { yellow: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], lavender: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], "baby-pink": ["S", "M", "L", "XL", "XXL", "3XL", "4XL"] }, baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
   { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Oversized Classic T-Shirt | UC22", qikinkProductId: "UC22",  skuPattern: "UOsMRnHs-{color}-{size}", printMethod: "DTF",     colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
   { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Polo | MP25",                qikinkProductId: "MP25",      skuPattern: "MPHs-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
-  { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black"],                          sizes: ["5Yrs", "7Yrs", "9Yrs", "11Yrs", "13Yrs"], baseCost: 269, sellingPrice: 449, printAreas: ["Front", "Back"], active: false /* TODO: confirm Boy vs Girl stem + Drucka size labels before re-enabling */ },
+  /* BRnHs — Boy Classic Crew, 25 colours, infants in months and children in
+     years to 13. The catalogue used to sell 2Y–14Y, not one of which Qikink
+     issues, so every kids order was unfulfillable and this sat inactive.
+     Sizes now come from KIDS_SIZE_TOKEN, which also holds the label ⇆ token
+     mapping ("5Y" → "5Yrs", "0–12M" → "0_12").
+     Colour note: this stem has NO plain Yellow — only New / Golden / Mustard.
+     STEM_COLOR_CODE maps yellow → NYl for it.
+
+     baseCost = the export's garment price PLUS the print charge, which is how
+     every other apparel row here is built: the export lists the blank only,
+     and the adult rows came from a quote that already included printing
+     (MRnHs-Wh-S is ₹190 in the export against ₹359 here — ₹169 of DTG). The
+     same ₹169 DTG / ₹155 DTF is carried below. Confirm against a real Qikink
+     invoice for kids when the first one lands. */
+  { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "yellow", "baby-pink", "royal-blue", "red"], sizes: KIDS_SIZES, baseCostBySize: { "0–12M": 299, "12–23M": 299, "24–35M": 299, "36–47M": 299, "5Y": 329, "7Y": 329, "9Y": 329, "11Y": 329, "13Y": 329 }, baseCost: 329, sellingPrice: 459, printAreas: ["Front", "Back"], active: true },
+
+  /* KHd — kids hoodie, same size list as the tee. Made in Black, Grey
+     Melange, Red, Yellow and Baby Pink ONLY; White and Navy were on sale in
+     the catalogue and have been withdrawn. Baby pink is BPk here and LBp on
+     the tee stem, which is why colour codes are resolved per stem.
+     baseCost = export garment (₹290 / ₹340) + ₹155 DTF, as above. */
+  { druckaId: "kids-hoodie", druckaName: "Kids Hoodie",       qikinkProduct: "Hoodie (Kids)",              qikinkProductId: "KHd",       skuPattern: "KHd-{color}-{size}",   printMethod: "DTF",         colors: ["black", "red", "yellow", "baby-pink"], sizes: KIDS_SIZES, baseCostBySize: { "0–12M": 445, "12–23M": 445, "24–35M": 445, "36–47M": 445, "5Y": 495, "7Y": 495, "9Y": 495, "11Y": 495, "13Y": 495 }, baseCost: 495, sellingPrice: 699, printAreas: ["Front", "Back"], active: true },
   /* UHd — 15 colours, XS–3XL in the export. Drucka's five all exist on it.
      Note: this stem has no plain Yellow (only Mustard), so do not add yellow
      to the hoodie without checking the export again. */
@@ -430,11 +451,16 @@ const QIKINK_PRODUCT_MAP = [
      tokens: 8x8 is lower-case, the other three are 8X12 / 16X20 / 20X30. */
   { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ['8×8"', '8×12"', '16×20"', '20×30"'], baseCostBySize: { '8×8"': 250, '8×12"': 300, '16×20"': 550, '20×30"': 800 }, baseCost: 300, sellingPrice: 600, printAreas: ["Front"], active: true },
 
-  /* NOT FULFILLED BY QIKINK, per Drucka — stickers are sourced elsewhere.
-     Qikink die-cuts by the inch (2x2 … 15x3) and makes no A5/A4 sheets, so
-     this stays off; the stem is kept only so the gap is visible here rather
-     than looking like an oversight. */
-  { druckaId: "stickers",    druckaName: "Custom Stickers",   qikinkProduct: "Stickers",                   qikinkProductId: "UStickers", skuPattern: "UStickers-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: [], baseCost: 85, sellingPrice: 99, printAreas: ["Front"], active: false },
+  /* Qikink die-cuts stickers by the inch and makes no A5/A4 sheets. The
+     catalogue sold sheets, which is why this was off; it now sells the five
+     die-cut sizes below and the mapping is live. Tax is 18% here, not the
+     12% the catalogue used to apply. */
+  { druckaId: "stickers",    druckaName: "Custom Stickers",   qikinkProduct: "Stickers",                   qikinkProductId: "UStickers", skuPattern: "UStickers-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ['2×2"', '3×3"', '4×4"', '6×6"', '8×8"'], baseCostBySize: { '2×2"': 25, '3×3"': 30, '4×4"': 40, '6×6"': 55, '8×8"': 85 }, baseCost: 25, sellingPrice: 149, printAreas: ["Front"], active: true },
+
+  /* UAopCuCvr — the only cushion Qikink prints, White only, 16x16 and 24x24.
+     Drucka sold 16″ and 18″; 18″ does not exist and has been withdrawn.
+     All-over print, so print_type_id is 2 rather than DTG's 1. */
+  { druckaId: "cushion",     druckaName: "Photo Cushion",     qikinkProduct: "AOP Cushion Cover",          qikinkProductId: "UAopCuCvr", skuPattern: "UAopCuCvr-{color}-{size}", printMethod: "All over", colors: ["white"], sizes: ['16"'], baseCostBySize: { '16"': 140 }, baseCost: 140, sellingPrice: 649, printAreas: ["Front"], active: true },
 
   /* "Standard" is the square shape, per Drucka. Qikink also makes Rect and
      Slim at the same ₹60 if another shape is ever added to the catalogue. */
@@ -490,12 +516,14 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
       return {
         search_from_my_products: 0,
         qikink_product_id: m?.qikinkProductId ?? "UNMAPPED",
-        /* Qikink's own colour code, not the human label — see
-           QIKINK_COLOR_CODE. validateQikinkOrder blocks the send if the colour
-           has no code, so UNKNOWN should never leave the building. */
+        /* Qikink's own colour code, not the human label — and resolved
+           against the SKU stem, because Qikink codes a colour per product:
+           baby pink is LBp on the kids tee and BPk on the kids hoodie.
+           validateQikinkOrder blocks the send if the colour has no code, so
+           UNKNOWN should never leave the building. */
         sku: m
           ? m.skuPattern
-            .replace("{color}", qikinkColorCode(i.color) ?? "UNKNOWN")
+            .replace("{color}", qikinkColorCode(i.color, m.skuPattern.split("-")[0]) ?? "UNKNOWN")
             /* Qikink's size token, which is rarely the size we display —
                "A3" is "A3 Frame poster" on a frame and "A3 poster" on a
                plain one. Products whose sizes match verbatim have no table. */
@@ -567,7 +595,7 @@ function validateQikinkOrder(order, map = QIKINK_PRODUCT_MAP) {
        here instead — a rejected send is recoverable, a wrong SKU in
        production is not. */
     if (m) {
-      const code = qikinkColorCode(i.color);
+      const code = qikinkColorCode(i.color, m.skuPattern?.split("-")[0]);
       if (!code) {
         problems.push(`"${i.name}" — no Qikink colour code for "${i.color}"`);
       } else if (m.colors.length && !m.colors.includes(colorIdOf(i.color))) {
@@ -4167,15 +4195,18 @@ export default function App() {
      test order. It also still had the five-colour palette and the XS–3XL size
      list, both of which have since changed.
 
+     v4: kids-tshirt and stickers went active, kids-hoodie and cushion were
+     added, and the kids size lists changed to Qikink's own.
+
      Bump this whenever QIKINK_PRODUCT_MAP changes shape. Admin edits are saved
      to Supabase, not here, so a re-seed only discards a stale copy. */
-  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v3", QIKINK_PRODUCT_MAP));
+  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v4", QIKINK_PRODUCT_MAP));
 
   useEffect(() => save("drucka-cart", cart), [cart]);
   useEffect(() => save("drucka-favs", favs), [favs]);
   useEffect(() => save("drucka-qikink-settings", qikinkSettings), [qikinkSettings]); // non-sensitive only
   useEffect(() => save("drucka-orders", orders), [orders]);
-  useEffect(() => save("drucka-product-map-v3", productMap), [productMap]);
+  useEffect(() => save("drucka-product-map-v4", productMap), [productMap]);
 
   /* ── order lifecycle (Draft → Paid/COD Approved → Sent to Qikink → …) ── */
   const updateOrder = (id, patch) => {
