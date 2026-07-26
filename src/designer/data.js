@@ -301,16 +301,21 @@ export const PRODUCTS = [
     availableColors: ["white"],
     availableSizes: ["A3", "A2", '12×18"', '24×36"'], sizeSurcharge: { A2: 120, '24×36"': 250 }, sizeChart: null,
     printingOptions: FULL_COLOUR,
-    /* TODO(Sagar): add /mockups/poster-front-white.png from Qikink. Until then
-       the editor degrades to a placeholder via the mockup candidate-chain
-       fallback (missing blank never breaks the editor). */
+    /* poster-front-white.png is DRAWN, not photographed — there is no poster
+       shot from Qikink and the editor was falling back to an unrelated
+       lifestyle image with a print box over it. Generated at exactly 924×1100
+       (42:50), so no object-cover crop moves the print area, with the poster
+       face at a known 21.97 / 15 / 55.95 / 66.45. Replace it with a real photo
+       when one arrives and re-measure the face. */
     mockups: { base: "poster", ext: "png", colors: ["white"] },
     image: "/images/prints/print-1.webp",
     gallery: [{ src: "/images/prints/print-1.webp", label: "Poster (placeholder image)" }],
     printAreas: [{
       id: "front", label: "Front", photo: "front",
-      area: { left: 20, top: 15, width: 60, height: 70 },
-      /* four sizes, three different shapes — A2 is the default */
+      /* exactly the poster face drawn in the mockup */
+      area: { left: 21.97, top: 15, width: 55.95, height: 66.45 },
+      /* four sizes, three different shapes — A2 is the default, and the
+         drawn poster is A2-shaped so it fills the face */
       inches: { w: 16.5, h: 23.4 },
       inchesBySize: {
         A3: { w: 11.7, h: 16.5 },
