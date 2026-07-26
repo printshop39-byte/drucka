@@ -180,11 +180,6 @@ export default function ProductEditorShell({
     if (addingToCart) return;
     setAddingToCart(true);
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
-    /* what each placement will actually print at, so Qikink receives the size
-       the customer designed instead of falling back to its placement default */
-    const printSize = Object.fromEntries(price.printed.map((p) => [
-      p.id, printSizeInches(layersByPlacement[p.id], inchesFor(p, sel.selectedSize)),
-    ]).filter(([, v]) => v));
     const name = title.trim() || `Custom ${product.productName}`;
     const key = uid();
     /* Flatten each print area to a single image and park it on Cloudinary.
@@ -194,6 +189,23 @@ export default function ProductEditorShell({
       areas: price.printed, layersByPlacement,
       inchesFor: (p) => inchesFor(p, sel.selectedSize), size: sel.selectedSize, key,
     });
+    /* What each placement will actually print at, so Qikink receives the size
+       the customer designed instead of falling back to its placement default.
+
+       Must be computed AFTER the flatten above, because it depends on it: that
+       artwork covers the WHOLE print area, so when it exists the printed size
+       is the area itself. printSizeInches measures the first image layer, and
+       sending that alongside a full-area canvas told Qikink to shrink the
+       canvas to the layer's box — a 12×16″ back print arriving as 7.4×7.4″.
+       It also returned null for a text-only design, so no size was sent at all.
+
+       printSizeInches still describes the fallback path, where the server
+       uploads the raw first image layer on its own. */
+    const printSize = Object.fromEntries(price.printed.map((p) => {
+      const inches = inchesFor(p, sel.selectedSize);
+      return [p.id, artwork?.[p.id] ? (inches && { w: inches.w, h: inches.h })
+                                    : printSizeInches(layersByPlacement[p.id], inches)];
+    }).filter(([, v]) => v));
     setAddingToCart(false);
     onAddToCart({
       key,
