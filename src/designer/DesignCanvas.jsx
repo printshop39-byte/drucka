@@ -13,11 +13,25 @@ import { Icon, ic } from "./icons";
 
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-/* keep a layer's center inside the printable area for its current size */
-export const clampToArea = (l) => {
-  const halfW = l.type === "text" ? 0 : Math.min((l.w ?? 30) / 2, 50);
-  const halfH = l.type === "text" ? 0 : Math.min((l.h ?? 30) / 2, 50);
-  return { ...l, x: clamp(l.x, halfW, 100 - halfW), y: clamp(l.y, halfH, 100 - halfH) };
+/* Keep a layer's centre inside the printable area for its current size.
+
+   `half` is the layer's half-width/half-height as a % of the area, measured
+   from the DOM. It exists because a text layer has no w/h of its own — the
+   old fallback of 0 meant text was clamped by its centre point alone, so a
+   caption could be dragged until nearly all of it sat outside the print area
+   and got cut off in production. Measuring also handles rotation, which the
+   w/h numbers do not describe.
+
+   A layer larger than the area on an axis cannot satisfy the clamp, so it is
+   centred on that axis rather than pinned to an arbitrary edge. */
+export const clampToArea = (l, half = null) => {
+  const halfW = half ? half.w : l.type === "text" ? 0 : Math.min((l.w ?? 30) / 2, 50);
+  const halfH = half ? half.h : l.type === "text" ? 0 : Math.min((l.h ?? 30) / 2, 50);
+  return {
+    ...l,
+    x: halfW >= 50 ? 50 : clamp(l.x, halfW, 100 - halfW),
+    y: halfH >= 50 ? 50 : clamp(l.y, halfH, 100 - halfH),
+  };
 };
 
 /* shared layer renderer — used by the live canvas and the mini mockups */
@@ -155,12 +169,26 @@ export default function DesignCanvas({
     };
     const startDist = Math.max(8, Math.hypot(e.clientX - center.x, e.clientY - center.y));
 
+    /* The layer's real on-screen half-extents, as a % of the print area — the
+       only way to keep a text layer inside, since text carries no w/h. Read
+       once per gesture from the element being dragged. */
+    const box = kind === "drag" ? e.currentTarget.getBoundingClientRect() : null;
+    const half = box
+      ? { w: (box.width / rect.width) * 50, h: (box.height / rect.height) * 50 }
+      : null;
+    /* Oversized text can only be centred, never fitted by dragging — say so.
+       Images already warned on resize; text warned nowhere. */
+    if (half && (half.w >= 50 || half.h >= 50) && !warnedRef.current) {
+      warnedRef.current = true;
+      showToast?.("⚠ Design is larger than the printable area");
+    }
+
     const move = (ev) => {
       if (ev.pointerId !== pointerId) return;
       if (kind === "drag") {
         const nx = start.x + ((ev.clientX - start.px) / rect.width) * 100;
         const ny = start.y + ((ev.clientY - start.py) / rect.height) * 100;
-        onPatch(layer.id, clampToArea({ ...layer, x: nx, y: ny }), true);
+        onPatch(layer.id, clampToArea({ ...layer, x: nx, y: ny }, half), true);
       } else if (kind === "resize") {
         const factor = Math.hypot(ev.clientX - center.x, ev.clientY - center.y) / startDist;
         if (layer.type === "text") {
