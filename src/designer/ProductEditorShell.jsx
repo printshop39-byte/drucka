@@ -287,6 +287,16 @@ export default function ProductEditorShell({
                 <div className="flex justify-between py-1"><span className="text-ink/55">Margin</span><span className="font-bold text-ink">+ {inr(margin)}</span></div>
               )}
               <div className="flex justify-between py-1"><span className="text-ink/55">Quantity</span><span className="font-bold text-ink">{qty}</span></div>
+              {/* the classic editor has shown this on its submit step all
+                  along; the shell never did, so the five products that moved
+                  to it quietly stopped displaying a GST rate at all */}
+              <div className="flex justify-between py-1">
+                <span className="text-ink/55">Tax Rate (GST)</span>
+                <span className="font-bold text-ink">
+                  {product.taxRate}%
+                  {product.hsn && <span className="ml-1 text-[11px] font-medium text-ink/40">HSN {product.hsn}</span>}
+                </span>
+              </div>
               <div className="mt-2 flex justify-between border-t border-ink/10 pt-2"><span className="text-ink/55">Total</span><span className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</span></div>
             </div>
             {/* flattening and uploading the artwork takes a moment — say so
