@@ -47,6 +47,24 @@ export async function fulfillOrder(order, payload) {
     const sides = Object.entries(item.design ?? {}).filter(([, ls]) => ls.length);
     for (let d = 0; d < sides.length; d++) {
       const [side, layers] = sides[d];
+      /* The editor already flattened this print area — every layer, text
+         included — and uploaded it when the item went into the cart.
+         buildQikinkOrderPayload put that URL in design_link; re-uploading the
+         raw layers here would overwrite it and throw the text away again.
+
+         It also failed outright: the built-in graphics are SVG data URLs and
+         /api/upload-artwork refuses SVG, so "Send to Qikink" died with
+         "Only JPG, PNG, WebP or GIF artwork is allowed" on any order using
+         one. The flattened artwork is a PNG, so that goes away too. */
+      const flattened = item.artwork?.[side];
+      if (flattened) {
+        if (designs[d]) {
+          designs[d].design_link = flattened;
+          designs[d].all_artwork = [flattened];
+        }
+        continue;
+      }
+      /* older cart items, saved before the editor flattened anything */
       const urls = [];
       for (const layer of layers) {
         if (layer.type !== "image" || !layer.src?.startsWith("data:")) continue;
