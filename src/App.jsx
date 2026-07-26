@@ -462,6 +462,13 @@ const QIKINK_PRODUCT_MAP = [
      All-over print, so print_type_id is 2 rather than DTG's 1. */
   { druckaId: "cushion",     druckaName: "Photo Cushion",     qikinkProduct: "AOP Cushion Cover",          qikinkProductId: "UAopCuCvr", skuPattern: "UAopCuCvr-{color}-{size}", printMethod: "All over", colors: ["white"], sizes: ['16"'], baseCostBySize: { '16"': 140 }, baseCost: 140, sellingPrice: 649, printAreas: ["Front"], active: true },
 
+  /* UGrtCr — Qikink's Greeting Card, A5, the only card it makes. The printed
+     invitation maps to it; the digital invitation does not map to anything,
+     because it is a file Drucka sends on WhatsApp. inHouseSizes keeps it out
+     of the Qikink path with an honest reason instead of a missing-SKU error.
+     Tax is 18% on this stem, not the 12% the catalogue used to apply. */
+  { druckaId: "invitation-cards", druckaName: "Invitation Cards", qikinkProduct: "Greeting Cards",        qikinkProductId: "UGrtCr",    skuPattern: "UGrtCr-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ["A5 Print"], inHouseSizes: ["Digital"], baseCostBySize: { "A5 Print": 30 }, baseCost: 30, sellingPrice: 249, printAreas: ["Front"], active: true },
+
   /* "Standard" is the square shape, per Drucka. Qikink also makes Rect and
      Slim at the same ₹60 if another shape is ever added to the catalogue. */
   { druckaId: "keychain",    druckaName: "Acrylic Keychain",  qikinkProduct: "Keychain",                   qikinkProductId: "UAcryKyChnUV", skuPattern: "UAcryKyChnUV-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ["Standard"], baseCost: 60, baseCostBySize: { Standard: 60 }, sellingPrice: 149, printAreas: ["Front"], active: true },
@@ -470,21 +477,34 @@ const QIKINK_PRODUCT_MAP = [
 QIKINK_PRODUCT_MAP.forEach((m) => { if (m.shippingCost == null) m.shippingCost = m.druckaId === "hoodie" ? 69 : 49; });
 
 /* product_map DB rows (snake_case, /api/admin/product-map) ⇆ frontend entries */
-const mapRowToEntry = (r) => ({
-  druckaId: r.drucka_id,
-  druckaName: r.product_name,
-  qikinkProduct: r.product_name,
-  qikinkProductId: r.qikink_product_id,
-  skuPattern: r.sku_pattern,
-  printMethod: r.print_method,
-  colors: r.colors ?? [],
-  sizes: r.sizes ?? [],
-  baseCost: r.base_cost ?? 0,
-  shippingCost: r.shipping_cost ?? 0,
-  sellingPrice: EDITOR_PRODUCTS.find((p) => p.id === r.drucka_id)?.price ?? 0,
-  printAreas: r.print_areas ?? [],
-  active: !!r.active,
-});
+const mapRowToEntry = (r) => {
+  /* The product_map table has no columns for the three fields that encode
+     what Qikink will and will not accept — sizesByColor, baseCostBySize and
+     inHouseSizes. Dropping them on a server load does not just lose detail,
+     it loosens validation: the nine tee combinations Qikink does not make
+     would become sellable again, and a digital invitation would start
+     reporting a missing SKU. Carry them over from the built-in map, which is
+     where they are maintained. */
+  const builtIn = QIKINK_PRODUCT_MAP.find((m) => m.druckaId === r.drucka_id);
+  return {
+    druckaId: r.drucka_id,
+    druckaName: r.product_name,
+    qikinkProduct: r.product_name,
+    qikinkProductId: r.qikink_product_id,
+    skuPattern: r.sku_pattern,
+    printMethod: r.print_method,
+    colors: r.colors ?? [],
+    sizes: r.sizes ?? [],
+    baseCost: r.base_cost ?? 0,
+    shippingCost: r.shipping_cost ?? 0,
+    sellingPrice: EDITOR_PRODUCTS.find((p) => p.id === r.drucka_id)?.price ?? 0,
+    printAreas: r.print_areas ?? [],
+    active: !!r.active,
+    ...(builtIn?.sizesByColor && { sizesByColor: builtIn.sizesByColor }),
+    ...(builtIn?.baseCostBySize && { baseCostBySize: builtIn.baseCostBySize }),
+    ...(builtIn?.inHouseSizes && { inHouseSizes: builtIn.inHouseSizes }),
+  };
+};
 const mapEntryToRow = (m) => ({
   drucka_id: m.druckaId,
   product_name: m.druckaName,
@@ -573,6 +593,14 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
   };
 }
 
+/* Sizes a mapping deliberately does NOT send to Qikink because Drucka makes
+   them itself. Today that is the digital invitation — a file delivered on
+   WhatsApp, with nothing to print and no SKU to buy. Without this the item
+   looks like an unmapped product and the admin gets a missing-SKU error for
+   something that was never meant to leave the studio. */
+const isInHouseItem = (item, mapping) =>
+  Boolean(mapping?.inHouseSizes?.includes(item.size));
+
 /* API safety: validate before any send. Returns a list of problems. */
 function validateQikinkOrder(order, map = QIKINK_PRODUCT_MAP) {
   const problems = [];
@@ -587,6 +615,13 @@ function validateQikinkOrder(order, map = QIKINK_PRODUCT_MAP) {
     problems.push("Payment must be completed (or COD approved) before sending to Qikink");
   order.items.forEach((i) => {
     const m = map.find((x) => x.druckaId === i.productId && x.active);
+    /* Some things Drucka makes itself — a digital invitation is a file sent
+       on WhatsApp, not something anyone prints. Those are not a mapping gap,
+       so say so plainly rather than reporting a missing SKU. */
+    if (isInHouseItem(i, m)) {
+      problems.push(`"${i.name}" (${i.size}) is made in-house — do not send it to Qikink`);
+      return;
+    }
     if (!m) problems.push(`No active Qikink mapping for "${i.name}"`);
     if (!i.design || !Object.values(i.design).some((ls) => ls.length))
       problems.push(`No artwork on "${i.name}" — design required before fulfillment`);
@@ -4085,7 +4120,11 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
             ) : (
               <div className="grid gap-3">
                 {orders.map((o) => {
-                  const canSend = ["Paid", "COD Approved"].includes(o.paymentStatus);
+                  /* An order Drucka fulfils itself has nothing to send, so the
+                     button would only ever produce an error — label it instead. */
+                  const inHouse = (o.items ?? []).every((i) =>
+                    isInHouseItem(i, productMap.find((x) => x.druckaId === i.productId)));
+                  const canSend = !inHouse && ["Paid", "COD Approved"].includes(o.paymentStatus);
                   return (
                     <div key={o.id} className="rounded-2xl border border-ink/8 bg-white p-3.5">
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -4129,10 +4168,16 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                           <button onClick={() => onUpdateOrder(o.id, { paymentStatus: "COD Approved" })}
                             className="rounded-full bg-amber-500 px-3 py-1.5 text-[10px] font-bold text-white hover:bg-amber-600">Approve COD</button>
                         )}
-                        <button onClick={() => onSendToQikink(o.id)} disabled={!canSend}
-                          className="rounded-full bg-plum px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-plum-soft disabled:opacity-35">
-                          {o.qikinkStatus === "Draft" ? "Send to Qikink" : "Retry send"}
-                        </button>
+                        {inHouse ? (
+                          <span className="rounded-full bg-ink/8 px-3 py-1.5 text-[10px] font-bold text-ink/60">
+                            In-house — print & deliver yourself
+                          </span>
+                        ) : (
+                          <button onClick={() => onSendToQikink(o.id)} disabled={!canSend}
+                            className="rounded-full bg-plum px-3 py-1.5 text-[10px] font-bold text-white transition hover:bg-plum-soft disabled:opacity-35">
+                            {o.qikinkStatus === "Draft" ? "Send to Qikink" : "Retry send"}
+                          </button>
+                        )}
                         <a href={`https://wa.me/91${(o.customer.phone || "").replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(`Hi ${o.customer.name}! This is Drucka about your order ${o.id}. `)}`}
                           target="_blank" rel="noopener noreferrer"
                           className="flex items-center gap-1 rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-bold text-white hover:bg-emerald-600">
@@ -4198,15 +4243,17 @@ export default function App() {
      v4: kids-tshirt and stickers went active, kids-hoodie and cushion were
      added, and the kids size lists changed to Qikink's own.
 
+     v5: invitation-cards mapped, and inHouseSizes introduced with it.
+
      Bump this whenever QIKINK_PRODUCT_MAP changes shape. Admin edits are saved
      to Supabase, not here, so a re-seed only discards a stale copy. */
-  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v4", QIKINK_PRODUCT_MAP));
+  const [productMap, setProductMap] = useState(() => load("drucka-product-map-v5", QIKINK_PRODUCT_MAP));
 
   useEffect(() => save("drucka-cart", cart), [cart]);
   useEffect(() => save("drucka-favs", favs), [favs]);
   useEffect(() => save("drucka-qikink-settings", qikinkSettings), [qikinkSettings]); // non-sensitive only
   useEffect(() => save("drucka-orders", orders), [orders]);
-  useEffect(() => save("drucka-product-map-v4", productMap), [productMap]);
+  useEffect(() => save("drucka-product-map-v5", productMap), [productMap]);
 
   /* ── order lifecycle (Draft → Paid/COD Approved → Sent to Qikink → …) ── */
   const updateOrder = (id, patch) => {
