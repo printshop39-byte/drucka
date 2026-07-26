@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import {
   COLOR_PALETTE, FONTS, GRAPHICS, GRAPHIC_CATEGORIES, LIGHT_COLORS, MIN_PRINT_DPI,
   GOOD_PRINT_DPI, TEXT_COLORS, colorById, fontStack, graphicDataUrl, inchesFor, inr, layerDpi, placementOf,
+  sizesFor,
 } from "./data";
 import { Icon, ic } from "./icons";
 import { clampToArea } from "./DesignCanvas";
@@ -60,6 +61,17 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
   const toggle = (k) => setOpen((o) => ({ ...o, [k]: !o[k] }));
   const thumb = product.gallery?.[0]?.src;
 
+  /* Only the sizes this colour is actually made in — see sizesByColor. */
+  const sizes = sizesFor(product, state.selectedColor);
+  /* Switching to a colour that is not made in the current size has to move the
+     size too, or the selection silently becomes one that cannot be produced. */
+  const pickColor = (id) => {
+    const allowed = sizesFor(product, id);
+    setSel(allowed.includes(state.selectedSize)
+      ? { selectedColor: id }
+      : { selectedColor: id, selectedSize: allowed[allowed.length - 1] });
+  };
+
   return (
     <PanelShell title="Product Information" onClose={onClose}>
       <div className="mb-3 flex items-center gap-3 rounded-xl border border-ink/10 bg-white p-3">
@@ -96,7 +108,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
             {product.availableColors.map((id) => {
               const c = colorById(id);
               return (
-                <button key={id} title={c.label} onClick={() => setSel({ selectedColor: id })}
+                <button key={id} title={c.label} onClick={() => pickColor(id)}
                   className={`h-9 w-9 rounded-full border-2 transition ${
                     state.selectedColor === id ? "border-tangerine ring-2 ring-tangerine/35" : "border-ink/15 hover:border-ink/35"
                   }`}
@@ -115,7 +127,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
 
         <Accordion title="Available Sizes" open={open.sizes} onToggle={() => toggle("sizes")}>
           <div className="grid grid-cols-5 gap-1.5 pt-1">
-            {product.availableSizes.map((s) => (
+            {sizes.map((s) => (
               <button key={s} onClick={() => setSel({ selectedSize: s })}
                 className={`rounded-lg border-2 py-1.5 text-xs font-bold transition ${
                   state.selectedSize === s ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"

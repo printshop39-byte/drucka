@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   CATEGORIES, LIGHT_COLORS, colorById, defaultProductFor, inr, productById, productsInCategory,
+  sizesFor,
 } from "./data";
 import { Icon, ic } from "./icons";
 import { DELIVERY_RULE_SHORT } from "../seo/policies";
@@ -51,6 +52,13 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
   const [img, setImg] = useState(0);
   const [color, setColor] = useState(p.availableColors[0]);
   const [size, setSize] = useState(p.availableSizes[Math.min(1, p.availableSizes.length - 1)]);
+  /* colours are not made in every size — move the size if the new colour
+     is not stocked in the one currently chosen (see sizesByColor) */
+  const pickColor = (cid) => {
+    const allowed = sizesFor(p, cid);
+    setColor(cid);
+    if (!allowed.includes(size)) setSize(allowed[allowed.length - 1]);
+  };
   const [method, setMethod] = useState(p.printingOptions[0].id);
   const [chartOpen, setChartOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -178,7 +186,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
             </p>
             <div className="flex flex-wrap gap-2">
               {p.availableColors.map((cid) => (
-                <button key={cid} title={colorById(cid)?.label} onClick={() => setColor(cid)}
+                <button key={cid} title={colorById(cid)?.label} onClick={() => pickColor(cid)}
                   className={`h-10 w-10 rounded-full border-2 transition ${color === cid ? "border-tangerine ring-2 ring-tangerine/35" : "border-ink/15 hover:border-ink/35"}`}
                   style={{ backgroundColor: colorById(cid)?.hex }}>
                   {color === cid && <Icon d={ic.check} className={`mx-auto h-4 w-4 ${LIGHT_COLORS.includes(cid) ? "text-ink" : "text-white"}`} />}
@@ -198,7 +206,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
               )}
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {p.availableSizes.map((s) => (
+              {sizesFor(p, color).map((s) => (
                 <button key={s} onClick={() => setSize(s)}
                   className={`min-w-12 rounded-lg border-2 px-3 py-2 text-sm font-bold transition ${size === s ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"}`}>
                   {s}
