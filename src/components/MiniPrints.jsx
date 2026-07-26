@@ -515,6 +515,20 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                     <input value={p.dateText} onChange={(e) => patch(p.id, { dateText: e.target.value })}
                       className="w-28 rounded-lg border border-black/15 bg-black/[0.03] px-2 py-1 text-xs font-semibold text-charcoal outline-none focus:border-gold" />
                   )}
+                  {/* Applied stickers, each with its own ✕. Removing one used to
+                      mean reopening the picker and spotting which emoji was
+                      highlighted — there was no delete anywhere on the card. */}
+                  {p.stickers.map((s) => (
+                    <span key={s.emoji}
+                      className="flex items-center gap-1 rounded-full border-2 border-gold/45 bg-gold/5 py-0.5 pl-2 pr-0.5">
+                      <span className="text-sm leading-none">{s.emoji}</span>
+                      <button onClick={() => toggleSticker(p.id, s.emoji)}
+                        title={`Remove ${s.emoji} sticker`} aria-label={`Remove ${s.emoji} sticker`}
+                        className="grid h-5 w-5 place-items-center rounded-full text-charcoal/45 transition hover:bg-black/10 hover:text-charcoal">
+                        <X size={11} />
+                      </button>
+                    </span>
+                  ))}
                 </div>
                 {stickerId === p.id && (
                   <div className="mt-2 rounded-xl border border-black/10 p-2">
