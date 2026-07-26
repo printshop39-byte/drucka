@@ -6,10 +6,10 @@ import { renderArea } from "./data";
    Thumbnail grid switches placements; active thumb gets an orange border. */
 
 /* small reusable mockup with layers applied — also used on the submit page */
-export const MiniMockup = ({ product, color, placement, layers, className = "", style }) => {
+export const MiniMockup = ({ product, color, size, placement, layers, className = "", style }) => {
   /* same true-to-inches box the design canvas uses — drawing the raw authored
      `area` here would make the preview disagree with what was just designed */
-  const area = renderArea(placement, product, color);
+  const area = renderArea(placement, product, color, size);
   return (
     <div className={`relative overflow-hidden bg-white ${className}`} style={{ aspectRatio: "42 / 50", ...style }}>
       <MockupImage product={product} color={color} photo={placement.photo} />
@@ -25,7 +25,7 @@ export const MiniMockup = ({ product, color, placement, layers, className = "", 
   );
 };
 
-export default function MockupPreview({ product, color, layersByPlacement, placement, onPlacement, zoom }) {
+export default function MockupPreview({ product, color, size, layersByPlacement, placement, onPlacement, zoom }) {
   const active = product.printAreas.find((p) => p.id === placement) ?? product.printAreas[0];
   return (
     <div className="flex h-full min-h-0 flex-col items-center overflow-y-auto px-4 py-3">
@@ -33,7 +33,7 @@ export default function MockupPreview({ product, color, layersByPlacement, place
 
       {/* main preview */}
       <div className="flex min-h-0 w-full flex-1 items-center justify-center">
-        <MiniMockup product={product} color={color} placement={active}
+        <MiniMockup product={product} color={color} size={size} placement={active}
           layers={layersByPlacement[active.id]}
           className="shrink-0 rounded-xl shadow-lg"
           style={{ height: `${zoom ?? 92}%`, minHeight: 280 }} />
@@ -48,7 +48,7 @@ export default function MockupPreview({ product, color, layersByPlacement, place
               className={`w-16 overflow-hidden rounded-xl border-2 bg-white transition sm:w-20 ${
                 placement === p.id ? "border-tangerine ring-2 ring-tangerine/30" : "border-ink/10 hover:border-ink/30"
               }`}>
-              <MiniMockup product={product} color={color} placement={p} layers={layersByPlacement[p.id]} />
+              <MiniMockup product={product} color={color} size={size} placement={p} layers={layersByPlacement[p.id]} />
               <span className={`block truncate px-1 py-0.5 text-center text-[9px] font-bold ${placement === p.id ? "text-tangerine" : "text-ink/55"}`}>
                 {p.label}{n > 0 ? ` · ${n}` : ""}
               </span>

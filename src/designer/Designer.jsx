@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import {
-  calcPrice, colorById, duplicateOf, fileToDataUrl, inr, newImageLayer, newTextLayer,
+  calcPrice, colorById, duplicateOf, fileToDataUrl, inchesFor, inr, newImageLayer, newTextLayer,
   placementOf, uid,
 } from "./data";
 import { Icon, ic } from "./icons";
@@ -122,7 +122,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
     setSelectedLayerId(layer.id);
   };
   const addImage = (src, name, aspect = 1) => {
-    addLayer(newImageLayer(src, name, aspect, placementOf(product, selectedPlacement).inches));
+    addLayer(newImageLayer(src, name, aspect, inchesFor(placementOf(product, selectedPlacement), sel.selectedSize)));
     setMobilePanel(null);
   };
   const addText = (text) => {
@@ -338,11 +338,11 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
 
           <div className="min-h-0 flex-1">
             {preview ? (
-              <MockupPreview product={product} color={sel.selectedColor}
+              <MockupPreview product={product} color={sel.selectedColor} size={sel.selectedSize}
                 layersByPlacement={layersByPlacement} placement={selectedPlacement}
                 onPlacement={setSelectedPlacement} zoom={zoom} />
             ) : (
-              <DesignCanvas product={product} placement={selectedPlacement} color={sel.selectedColor}
+              <DesignCanvas product={product} placement={selectedPlacement} color={sel.selectedColor} size={sel.selectedSize}
                 layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId}
                 onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast} />
             )}
@@ -390,7 +390,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
         {/* right layer-settings panel (desktop) */}
         {!preview && selectedLayer && (
           <aside className="hidden w-[270px] shrink-0 border-l border-ink/10 bg-white xl:block">
-            <LayerSettingsPanel layer={selectedLayer} product={product} placement={selectedPlacement}
+            <LayerSettingsPanel layer={selectedLayer} product={product} placement={selectedPlacement} size={sel.selectedSize}
               onPatch={(id, p) => patchLayer(id, p)} onClose={() => setSelectedLayerId(null)} />
           </aside>
         )}
@@ -417,7 +417,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
             <div className="mx-auto mt-2 h-1 w-10 rounded-full bg-ink/15" />
             <div className="max-h-[calc(72vh-12px)] overflow-y-auto">
               {mobilePanel === "settings"
-                ? <LayerSettingsPanel layer={selectedLayer} product={product} placement={selectedPlacement}
+                ? <LayerSettingsPanel layer={selectedLayer} product={product} placement={selectedPlacement} size={sel.selectedSize}
                     onPatch={(id, p) => patchLayer(id, p)} onClose={() => setMobilePanel(null)} />
                 : panelFor(mobilePanel, true)}
             </div>

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import {
   COLOR_PALETTE, FONTS, GRAPHICS, GRAPHIC_CATEGORIES, LIGHT_COLORS, MIN_PRINT_DPI,
-  GOOD_PRINT_DPI, TEXT_COLORS, colorById, fontStack, graphicDataUrl, inr, layerDpi, placementOf,
+  GOOD_PRINT_DPI, TEXT_COLORS, colorById, fontStack, graphicDataUrl, inchesFor, inr, layerDpi, placementOf,
 } from "./data";
 import { Icon, ic } from "./icons";
 import { clampToArea } from "./DesignCanvas";
@@ -358,14 +358,17 @@ export function GraphicsPanel({ onAddImage, onClose }) {
 /* ── LAYER SETTINGS (right panel) ──
    W/H/X/Y in inches, mapped through the placement's physical print size.
    Aspect-ratio lock keeps W/H proportional from either input. */
-export function LayerSettingsPanel({ layer, product, placement, onPatch, onDelete, onClose }) {
+export function LayerSettingsPanel({ layer, product, placement, size, onPatch, onDelete, onClose }) {
   const p = placementOf(product, placement);
-  const { w: AW, h: AH } = p.inches;
+  /* the print size follows the size the customer picked — a Canvas at 12×18″
+     is a different shape from the same Canvas at 18×24″ */
+  const inches = inchesFor(p, size);
+  const { w: AW, h: AH } = inches;
   if (!layer) return null;
   const isText = layer.type === "text";
   const round1 = (n) => Math.round(n * 10) / 10;
   const disabled = layer.locked;
-  const dpi = layerDpi(layer, p.inches);
+  const dpi = layerDpi(layer, inches);
 
   const set = (patch) => onPatch(layer.id, clampToArea({ ...layer, ...patch }));
   const setW = (wIn) => {

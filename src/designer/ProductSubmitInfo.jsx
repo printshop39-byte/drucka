@@ -51,14 +51,14 @@ export default function ProductSubmitInfo({
         <div className="mx-auto grid max-w-5xl gap-6 p-4 sm:p-6 lg:grid-cols-[340px_1fr]">
           {/* ── left: gallery ── */}
           <div className="lg:sticky lg:top-4 lg:self-start">
-            <MiniMockup product={product} color={color} placement={galleryAreas[activeIdx] ?? galleryAreas[0]}
+            <MiniMockup product={product} color={color} size={size} placement={galleryAreas[activeIdx] ?? galleryAreas[0]}
               layers={layersByPlacement[(galleryAreas[activeIdx] ?? galleryAreas[0]).id]}
               className="rounded-2xl border border-ink/8 shadow-sm" />
             <div className="mt-2.5 flex flex-wrap gap-2">
               {galleryAreas.map((p, i) => (
                 <button key={p.id} onClick={() => setActiveIdx(i)} title={p.label}
                   className={`w-14 overflow-hidden rounded-lg border-2 transition ${i === activeIdx ? "border-tangerine" : "border-ink/10 hover:border-ink/30"}`}>
-                  <MiniMockup product={product} color={color} placement={p} layers={layersByPlacement[p.id]} />
+                  <MiniMockup product={product} color={color} size={size} placement={p} layers={layersByPlacement[p.id]} />
                 </button>
               ))}
             </div>
