@@ -170,11 +170,21 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
   /* ── submit step → cart (same item shape the existing checkout expects) ── */
   const cartItem = (artwork, info) => {
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
-    /* what each placement will actually print at, so Qikink receives the size
-       the customer designed instead of falling back to its placement default */
-    const printSize = Object.fromEntries(price.printed.map((p) => [
-      p.id, printSizeInches(layersByPlacement[p.id], inchesFor(p, sel.selectedSize)),
-    ]).filter(([, v]) => v));
+    /* What each placement will actually print at, so Qikink receives the size
+       the customer designed instead of falling back to its placement default.
+
+       The flattened artwork covers the WHOLE print area — renderPlacementArtwork
+       sizes its canvas from the area's inches and positions the layers inside
+       it — so when that artwork exists, the printed size is the area itself.
+       Sending the layer's size instead had Qikink scale the full-area canvas
+       down to the layer's box: a 12×16″ back print would arrive as 7.4×7.4″,
+       shrunk and squashed. printSizeInches still describes the fallback path,
+       where the server uploads the raw first image layer on its own. */
+    const printSize = Object.fromEntries(price.printed.map((p) => {
+      const inches = inchesFor(p, sel.selectedSize);
+      return [p.id, artwork?.[p.id] ? (inches && { w: inches.w, h: inches.h })
+                                    : printSizeInches(layersByPlacement[p.id], inches)];
+    }).filter(([, v]) => v));
     return {
       key: uid(),
       artwork,
