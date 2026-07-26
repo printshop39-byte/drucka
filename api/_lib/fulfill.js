@@ -34,13 +34,23 @@ export async function fulfillFromDb(druckaOrderId) {
       if (!m) throw new Error(`No active product mapping for ${item.productId}`);
       const designs = [];
       for (const [side, layers] of Object.entries(item.design ?? {})) {
-        const images = (layers ?? []).filter((l) => l.type === "image" && l.src?.startsWith("data:"));
         if (!layers?.length) continue;
         const urls = [];
-        for (const layer of images) {
-          const url = await uploadDataUrl(layer.src, `${order.id}-${item.productId}-${side}`);
-          urls.push(url);
-          artworkUrls.push(url);
+        /* The editor now flattens each print area — every layer, text included
+           — and uploads it when the item goes into the cart. Prefer that.
+           Without it we are back to uploading raw image layers, which drops
+           the text and every image after the first. */
+        const flattened = item.artwork?.[side];
+        if (flattened) {
+          urls.push(flattened);
+          artworkUrls.push(flattened);
+        } else {
+          const images = (layers ?? []).filter((l) => l.type === "image" && l.src?.startsWith("data:"));
+          for (const layer of images) {
+            const url = await uploadDataUrl(layer.src, `${order.id}-${item.productId}-${side}`);
+            urls.push(url);
+            artworkUrls.push(url);
+          }
         }
         designs.push({
           /* the design's OWN print area, not item.placement — that is a joined

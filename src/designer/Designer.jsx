@@ -6,6 +6,7 @@ import {
 import { Icon, ic } from "./icons";
 import DesignCanvas, { clampToArea } from "./DesignCanvas";
 import MockupPreview from "./MockupPreview";
+import { uploadPlacementArtwork } from "./renderArtwork";
 import ProductSubmitInfo from "./ProductSubmitInfo";
 import {
   GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
@@ -167,7 +168,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
   };
 
   /* ── submit step → cart (same item shape the existing checkout expects) ── */
-  const cartItem = (info) => {
+  const cartItem = (artwork, info) => {
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
     /* what each placement will actually print at, so Qikink receives the size
        the customer designed instead of falling back to its placement default */
@@ -176,6 +177,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
     ]).filter(([, v]) => v));
     return {
       key: uid(),
+      artwork,
       productId: product.qikinkId, // existing Qikink product-map key
       type: "custom",
       name: info.title,
@@ -190,8 +192,14 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
       summary: `${price.method.label} print · ${price.printed.map((p) => p.label).join(", ")}`,
     };
   };
-  const handleSubmit = (info) => {
-    onAddToCart(cartItem(info));
+  const handleSubmit = async (info) => {
+    /* flatten each print area — text included — before the item leaves the
+       editor; see uploadPlacementArtwork. Failure is non-fatal by design. */
+    const artwork = await uploadPlacementArtwork({
+      areas: price.printed, layersByPlacement,
+      inchesFor: (p) => inchesFor(p, sel.selectedSize), size: sel.selectedSize, key: uid(),
+    });
+    onAddToCart(cartItem(artwork, info));
     showToast(`${info.title} added to cart ✓`);
     onClose();
     onOpenCart();

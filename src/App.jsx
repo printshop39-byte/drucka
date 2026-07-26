@@ -518,11 +518,11 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
                placement default, so the size the customer chose never arrived */
             width_inches: i.printSize?.[side]?.w ?? "",
             height_inches: i.printSize?.[side]?.h ?? "",
-            // TODO BACKEND: customer artwork lives as data-URLs in this order.
-            // Upload each image layer to your CDN (S3/Cloudinary) server-side
-            // and put the public URLs here before calling Qikink:
-            design_link: "BACKEND_UPLOAD_REQUIRED",
-            mockup_link: "BACKEND_RENDER_OPTIONAL",
+            /* the flattened artwork for this area — every layer, text included.
+               Older cart items have none, and the server still falls back to
+               uploading their raw image layers. */
+            design_link: i.artwork?.[side] ?? "BACKEND_UPLOAD_REQUIRED",
+            mockup_link: i.artwork?.[side] ?? "BACKEND_RENDER_OPTIONAL",
           })),
       };
     }),
