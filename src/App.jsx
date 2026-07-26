@@ -409,8 +409,10 @@ const QIKINK_PRODUCT_MAP = [
      every other apparel row here is built: the export lists the blank only,
      and the adult rows came from a quote that already included printing
      (MRnHs-Wh-S is ₹190 in the export against ₹359 here — ₹169 of DTG). The
-     same ₹169 DTG / ₹155 DTF is carried below. Confirm against a real Qikink
-     invoice for kids when the first one lands. */
+     same ₹169 DTG / ₹155 DTF is carried below.
+     Confirmed with Qikink 2026-07-26: a kids blank is ₹105–120 and the print
+     ₹50–80, i.e. ₹155–170 landed before GST and shipping, which is where
+     these figures sit. */
   { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "yellow", "baby-pink", "royal-blue", "red"], sizes: KIDS_SIZES, baseCostBySize: { "0–12M": 299, "12–23M": 299, "24–35M": 299, "36–47M": 299, "5Y": 329, "7Y": 329, "9Y": 329, "11Y": 329, "13Y": 329 }, baseCost: 329, sellingPrice: 459, printAreas: ["Front", "Back"], active: true },
 
   /* KHd — kids hoodie, same size list as the tee. Made in Black, Grey

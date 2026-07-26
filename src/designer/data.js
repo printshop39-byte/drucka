@@ -104,7 +104,7 @@ export const PRODUCTS = [
        not. Size surcharges stay as they are: they run ahead of Qikink's own
        size steps (+50…+150 against +20…+100), so the bigger sizes earn more,
        not less. */
-    basePrice: 519, taxRate: 5,
+    basePrice: 519, taxRate: 5, hsn: "6109",
     availableColors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"],
     availableSizes: ADULT_SIZES, sizeSurcharge: ADULT_SURCHARGE, sizeChart: SIZE_CHART,
     /* Qikink stocks Yellow, Lavender and Baby Pink only to 4XL — the other
@@ -132,7 +132,7 @@ export const PRODUCTS = [
     productName: "Women Classic Crew T-Shirt",
     /* same 519 as the men's tee — it shares the tshirt mapping, so it shared
        the ₹21 margin too */
-    basePrice: 519, taxRate: 5,
+    basePrice: 519, taxRate: 5, hsn: "6109",
     availableColors: ["white", "black", "lavender", "baby-pink", "maroon", "yellow", "bottle-green"],
     availableSizes: ADULT_SIZES, sizeSurcharge: ADULT_SURCHARGE, sizeChart: SIZE_CHART,
     printingOptions: PRINT_METHODS,
@@ -152,7 +152,7 @@ export const PRODUCTS = [
     productName: "Kids Classic T-Shirt",
     /* 379 + ₹80 DTG = ₹459 against a landed ₹209 (Qikink 160 + ₹49 ship) on
        the year sizes. The infant sizes cost ₹130, so they earn more. */
-    basePrice: 379, taxRate: 5,
+    basePrice: 379, taxRate: 5, hsn: "6109",
     availableColors: ["white", "yellow", "baby-pink", "royal-blue", "red"],
     /* Qikink's own kids sizes — infants in months, children in years, and
        nothing above 13. The catalogue used to say 2Y–14Y, none of which
@@ -178,7 +178,7 @@ export const PRODUCTS = [
     /* Shares the kids-tshirt mapping, so it is the same BRnHs garment — this
        entry is the infant end of it. Qikink's month sizes cost ₹130, ₹30 less
        than the year sizes, which is why it is cheaper than kids-tshirt. */
-    basePrice: 349, taxRate: 5,
+    basePrice: 349, taxRate: 5, hsn: "6109",
     availableColors: ["white", "yellow", "baby-pink", "red"],
     availableSizes: KIDS_SIZES.slice(0, 4), sizeSurcharge: {}, sizeChart: KIDS_SIZE_CHART.slice(0, 4),
     printingOptions: PRINT_METHODS,
@@ -194,7 +194,7 @@ export const PRODUCTS = [
   {
     productId: "hoodie", qikinkId: "hoodie", category: "men",
     productName: "Classic Hoodie",
-    basePrice: 749, taxRate: 5,
+    basePrice: 749, taxRate: 5, hsn: "6109",
     availableColors: ["black", "navy", "maroon", "bottle-green", "white"],
     availableSizes: ["S", "M", "L", "XL", "XXL", "3XL"], sizeSurcharge: { "3XL": 50 }, sizeChart: SIZE_CHART.slice(0, 6),
     printingOptions: PRINT_METHODS,
@@ -212,7 +212,7 @@ export const PRODUCTS = [
     productId: "kids-hoodie", qikinkId: "kids-hoodie", category: "kids",
     productName: "Kids Hoodie",
     /* 619 + ₹80 DTF = ₹699 against a landed ₹389 (Qikink 340 + ₹49 ship) */
-    basePrice: 619, taxRate: 5,
+    basePrice: 619, taxRate: 5, hsn: "6109",
     /* KHd is made in Black, Grey Melange, Red, Yellow and Baby Pink only.
        White and Navy were on sale here and Qikink makes neither, so they are
        withdrawn rather than left to fail at fulfillment. */
@@ -230,7 +230,7 @@ export const PRODUCTS = [
     caps: { printAreaShape: "curved", maxUploadBytes: 10 * 1024 * 1024 }, // 10 MB
     catalog: { order: 2, title: "Photo Mug", price: 299, img: "/designs/catalog-2-800.webp" },
     editor: { shell: true, family: "designer" },
-    basePrice: 299, taxRate: 12,
+    basePrice: 299, taxRate: 12, hsn: "6912",
     availableColors: ["white"],
     availableSizes: ["325 ml"], sizeSurcharge: {}, sizeChart: null,
     printingOptions: FULL_COLOUR,
@@ -247,7 +247,7 @@ export const PRODUCTS = [
     productName: "Framed Print",
     catalog: { order: 3, title: "Framed Print", price: 899, img: "/designs/catalog-3-800.webp" },
     editor: { shell: true, family: "designer" },
-    basePrice: 899, taxRate: 12,
+    basePrice: 899, taxRate: 18, hsn: "3926",
     availableColors: ["black", "white"],
     availableSizes: ["A4", "A3"], sizeSurcharge: { A3: 200 }, sizeChart: null,
     printingOptions: FULL_COLOUR,
@@ -284,7 +284,13 @@ export const PRODUCTS = [
     catalog: { order: 4, title: "Cushion", price: 649, img: "/designs/catalog-4-800.webp" },
     /* Qikink's AOP Cushion Cover comes in 16x16 and 24x24 only. Drucka sold
        16″ and 18″; 18″ does not exist, so it is withdrawn and 16″ stays.
-       Landed ₹189 (Qikink 140 + ₹49 ship) against ₹649. */
+       Landed ₹189 (Qikink 140 + ₹49 ship) against ₹649.
+
+       TAX UNCONFIRMED. Every other product's rate and HSN came from the CA
+       table; the cushion was not on it. A printed cushion cover is a made-up
+       textile article (HSN 6304), which is 5% under ₹1000 and 12% above — so
+       at ₹649 it would be 5%, not the 12% left here. Left as it was rather
+       than guessed at; the ONLY entry without an hsn, so it is easy to find. */
     basePrice: 649, taxRate: 12,
     availableColors: ["white"],
     availableSizes: ['16"'], sizeSurcharge: {}, sizeChart: null,
@@ -305,7 +311,7 @@ export const PRODUCTS = [
        by anyone in the supply chain. Retail is Qikink's item cost doubled,
        delivery charged separately as usual:
          8×8″  250→500   8×12″ 300→600   16×20″ 550→1100   20×30″ 800→1600 */
-    basePrice: 500, taxRate: 12,
+    basePrice: 500, taxRate: 18, hsn: "4911",
     availableColors: ["white"],
     availableSizes: ['8×8"', '8×12"', '16×20"', '20×30"'],
     sizeSurcharge: { '8×12"': 100, '16×20"': 600, '20×30"': 1100 }, sizeChart: null,
@@ -342,7 +348,7 @@ export const PRODUCTS = [
     productName: "Poster Print",
     catalog: { order: 7, title: "Poster Print", price: 199, img: "/images/prints/print-1.webp" },
     editor: { shell: true, family: "designer" },
-    basePrice: 199, taxRate: 12,
+    basePrice: 199, taxRate: 18, hsn: "4911",
     availableColors: ["white"],
     /* A2 withdrawn: Qikink's poster comes in A5, A4, A3 and a range of inch
        sizes, but not A2 — and A2 was the size this product opened on, so the
@@ -379,7 +385,7 @@ export const PRODUCTS = [
     productId: "keychain", qikinkId: "keychain", category: "gifts",
     productName: "Acrylic Keychain",
     catalog: { order: 6, title: "Keychain", price: 149, img: "/designs/catalog-6-800.webp" },
-    basePrice: 149, taxRate: 12,
+    basePrice: 149, taxRate: 18, hsn: "3926",
     availableColors: ["white"],
     availableSizes: ["Standard"], sizeSurcharge: {}, sizeChart: null,
     printingOptions: FULL_COLOUR,
@@ -398,7 +404,7 @@ export const PRODUCTS = [
        two sheet sizes sold here could never be fulfilled. Switched to the
        stem's real sizes. Shipping (₹49) dominates a ₹25–85 item, so the base
        carries it and the surcharges track Qikink's own steps. */
-    basePrice: 149, taxRate: 18,
+    basePrice: 149, taxRate: 18, hsn: "4821",
     availableColors: ["white"],
     availableSizes: ['2×2"', '3×3"', '4×4"', '6×6"', '8×8"'],
     sizeSurcharge: { '3×3"': 20, '4×4"': 40, '6×6"': 80, '8×8"': 140 }, sizeChart: null,
@@ -421,7 +427,7 @@ export const PRODUCTS = [
        SKU for it, so the mapping lists it under inHouseSizes. The printed
        card is Qikink's Greeting Card, which is A5; it was advertised as 5×7″,
        a size Qikink does not make. Tax follows the stem at 18%. */
-    basePrice: 149, taxRate: 18,
+    basePrice: 149, taxRate: 18, hsn: "4909",
     availableColors: ["white"],
     availableSizes: ["Digital", "A5 Print"], sizeSurcharge: { "A5 Print": 100 }, sizeChart: null,
     printingOptions: FULL_COLOUR,
@@ -441,7 +447,7 @@ export const PRODUCTS = [
        it prints, so this listing is that mug presented for school gifting and
        shares its mapping. It advertised 250 ml, which was never what would
        have shipped. */
-    basePrice: 299, taxRate: 12,
+    basePrice: 299, taxRate: 12, hsn: "6912",
     availableColors: ["white"],
     availableSizes: ["325 ml"], sizeSurcharge: {}, sizeChart: null,
     printingOptions: FULL_COLOUR,
