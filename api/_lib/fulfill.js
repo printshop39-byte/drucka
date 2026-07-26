@@ -43,7 +43,12 @@ export async function fulfillFromDb(druckaOrderId) {
           artworkUrls.push(url);
         }
         designs.push({
-          placement: item.placement && item.placement !== "center" ? item.placement : side,
+          /* the design's OWN print area, not item.placement — that is a joined
+             label of every printed area ("Front, Back"), which the placement
+             lookup can never match, so every design was sent as a front print */
+          placement: side,
+          width_inches: item.printSize?.[side]?.w ?? "",
+          height_inches: item.printSize?.[side]?.h ?? "",
           design_link: urls[0] ?? null,
           all_artwork: urls,
         });

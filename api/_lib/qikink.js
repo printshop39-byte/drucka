@@ -3,6 +3,7 @@
    ⚠ Confirm exact endpoint paths/headers in your Qikink dashboard docs. */
 
 import { createHash, randomBytes } from "node:crypto";
+import { normalizeSku, placementSku } from "./qikinkCatalog.js";
 
 /* Privacy-safe artwork fingerprint: never logs the full (possibly signed)
    artwork URL. Reports only whether it's http, a short stable hash for
@@ -75,25 +76,7 @@ const printTypeId = (li) =>
     ? li.print_type_id
     : (PRINT_TYPE_ID[String(li.print_type ?? "").trim().toLowerCase()] ?? 1);
 
-/* placement label → Qikink placement_sku (front print = "fr" in the proven recipe) */
-const PLACEMENT_SKU = { front: "fr", center: "fr", back: "bk", "left chest": "lc", "right chest": "rc" };
-const placementSku = (p) => PLACEMENT_SKU[String(p ?? "").trim().toLowerCase()] ?? "fr";
-
 const alnum = (s) => String(s ?? "").replace(/[^a-zA-Z0-9]/g, "");
-
-/* Qikink SKUs use SHORT colour codes (verified by probing the sandbox
-   create endpoint): e.g. MRnHs-Wh-M, not MRnHs-White-M. The app builds SKUs
-   with the full colour label/id, so normalise the colour segment here — the
-   one choke-point both the admin send and the webhook auto-send flow through.
-   Confirmed codes below; extend as new colours are verified. */
-const QIKINK_COLOR_CODE = {
-  white: "Wh", black: "Bk", navy: "Nb", red: "Rd", yellow: "Yl",
-};
-const normalizeSku = (sku) =>
-  String(sku ?? "")
-    .split("-")
-    .map((seg) => QIKINK_COLOR_CODE[seg.toLowerCase()] ?? seg)
-    .join("-");
 
 /* Coerce any order payload into the EXACT shape Qikink's /api/order/create
    accepts. Qikink 400s on unknown keys, so this is a strict whitelist +

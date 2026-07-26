@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import {
   calcPrice, colorById, duplicateOf, fileToDataUrl, inchesFor, inr, newImageLayer, newTextLayer,
-  placementOf, uid,
+  placementOf, printSizeInches, uid,
 } from "./data";
 import { Icon, ic } from "./icons";
 import DesignCanvas, { clampToArea } from "./DesignCanvas";
@@ -169,6 +169,11 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
   /* ── submit step → cart (same item shape the existing checkout expects) ── */
   const cartItem = (info) => {
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
+    /* what each placement will actually print at, so Qikink receives the size
+       the customer designed instead of falling back to its placement default */
+    const printSize = Object.fromEntries(price.printed.map((p) => [
+      p.id, printSizeInches(layersByPlacement[p.id], inchesFor(p, sel.selectedSize)),
+    ]).filter(([, v]) => v));
     return {
       key: uid(),
       productId: product.qikinkId, // existing Qikink product-map key
@@ -181,6 +186,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
       printMethod: price.method.label,
       placement: price.printed.map((p) => p.label).join(", "),
       design,
+      printSize,
       summary: `${price.method.label} print · ${price.printed.map((p) => p.label).join(", ")}`,
     };
   };
