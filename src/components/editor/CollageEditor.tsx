@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActiveSelection, Canvas, FabricImage, FabricObject, Group, PencilBrush, Point, Textbox, util,
+  ActiveSelection, Canvas, FabricImage, FabricObject, FabricText, Group, PencilBrush, Point, Textbox, util,
 } from 'fabric';
 import {
   LayoutGrid, ImagePlus, Palette, Ruler, Type, Sticker, Download, Pen,
@@ -11,7 +11,7 @@ import {
   AlignOp, BgState, CANVAS_PRESETS, FRAME_PRESETS, HistoryManager, ImageMeta, ShapeId,
   addPhoto, addText, alignObject, applyBackground, applyEffects, applyShape,
   designDims, duplicateObject, downloadDataUrl, eid, exportImage, groupSelection,
-  isLocked, layerOp, mergeSelection, metaOf, placeBorder, removeBorderOf,
+  isLocked, layerOp, mergeSelection, metaOf, placeBorder, removeBorderOf, setTextCurve,
   replaceImageSrc, setLocked, syncBorder, ungroupSelection,
 } from '../../lib/editor/fabricHelpers';
 import { GRAPHICS, graphicDataUrl } from '../../designer/data';
@@ -310,7 +310,9 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
   const selMeta = metaOf(selected);
   const isMulti = selected instanceof ActiveSelection;
   const isGroup = !isMulti && selected instanceof Group;
-  const isText = selected instanceof Textbox;
+  /* FabricText covers both — Textbox extends it, and curving swaps a
+     Textbox for a plain FabricText (Textbox ignores `path`) */
+  const isText = selected instanceof FabricText;
   const locked = selected ? isLocked(selected) : false;
   const blend = (selected?.globalCompositeOperation as string) ?? 'source-over';
   const hasDrawings = !!fc?.getObjects().some((o) => (o as any).dru?.kind === 'draw');
@@ -412,6 +414,15 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
     (selected as Textbox).set(props as any);
     (selected as Textbox).setCoords();
     c.requestRenderAll();
+    refresh();
+    captureSoon();
+  };
+
+  const curveText = (curve: number) => {
+    const c = fcRef.current;
+    if (!c || !isText) return;
+    const next = setTextCurve(c, selected as Textbox, curve);
+    setSelected(next as FabricObject);
     refresh();
     captureSoon();
   };
@@ -620,7 +631,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             + Add text
           </button>
           {isText
-            ? <TextPanel text={selected as Textbox} onPatch={patchText} />
+            ? <TextPanel text={selected as Textbox} onPatch={patchText} onCurve={curveText} />
             : <p className="text-[10px] text-white/40">Select a text layer on the canvas to edit its font, style and spacing.</p>}
         </div>
       );
@@ -791,7 +802,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
 
       {isText && !penMode && (
         <Section title="Text" defaultOpen>
-          <TextPanel text={selected as Textbox} onPatch={patchText} />
+          <TextPanel text={selected as Textbox} onPatch={patchText} onCurve={curveText} />
         </Section>
       )}
       {selected && !penMode && (
@@ -812,7 +823,18 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             }
           }}
           grid={grid} onGrid={setGrid}
-          snap={snap} onSnap={(v) => { setSnap(v); snapRef.current = v; }} />
+          snap={snap} onSnap={(v) => { setSnap(v); snapRef.current = v; }}
+          angle={selected?.angle ?? 0}
+          onAngle={(deg) => {
+            if (!selected || !fc) return;
+            selected.rotate(deg);
+            selected.setCoords();
+            /* a photo's border is a separate object trailing the image */
+            if (metaOf(selected)) placeBorder(fc, selected as FabricImage);
+            fc.requestRenderAll();
+            refresh();
+            captureSoon();
+          }} />
       </Section>
       {!selected && !penMode && (
         <p className="px-1 text-[9px] leading-relaxed text-white/30">

@@ -644,7 +644,7 @@ export const TEXT_COLORS = ["#1b1430", "#ffffff", "#5b21b6", "#f97316", "#c0272d
 const svg = (body, fill) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${fill}">${body}</svg>`;
 
-export const GRAPHIC_CATEGORIES = ["all", "fun", "nature", "symbols"];
+export const GRAPHIC_CATEGORIES = ["all", "scrapbook", "fun", "nature", "symbols"];
 export const GRAPHICS = [
   { id: "heart", label: "Heart", cat: "symbols", svg: svg('<path d="M12 21s-7.5-4.9-10-9.6C.4 8 2 4.5 5.5 4.1 7.7 3.8 9.6 5 12 7.4 14.4 5 16.3 3.8 18.5 4.1 22 4.5 23.6 8 22 11.4 19.5 16.1 12 21 12 21z"/>', "#e0245e") },
   { id: "star", label: "Star", cat: "symbols", svg: svg('<path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.7-6.2 3.7 1.6-7L2 9.2l7.1-.6z"/>', "#f2c230") },
@@ -658,6 +658,22 @@ export const GRAPHICS = [
   { id: "music", label: "Music", cat: "fun", svg: svg('<path d="M9 18.5a3 3 0 11-2-2.8V5l13-2.5v12a3 3 0 11-2-2.8V6.9L9 8.8z"/>', "#5b21b6") },
   { id: "mountain", label: "Mountain", cat: "nature", svg: svg('<path d="M2 20L9 6l4 8 2.5-4L22 20z"/><circle cx="18" cy="6" r="2.4" fill="#f2c230"/>', "#1d4a38") },
   { id: "skull", label: "Skull", cat: "fun", svg: svg('<path d="M12 2a9 9 0 00-9 9c0 3.6 2 6.3 4.5 7.6V21a1 1 0 001 1h7a1 1 0 001-1v-2.4C19 17.3 21 14.6 21 11a9 9 0 00-9-9zm-3.5 11a2 2 0 110-4 2 2 0 010 4zm7 0a2 2 0 110-4 2 2 0 010 4zM12 17l-1.5-2.5h3z"/>', "#1b1430") },
+
+  /* ── scrapbook ──
+     The pieces that make a collage read as something stuck down by hand
+     rather than laid out by a machine: torn washi tape, a pin, a paper
+     clip, a photo corner, a stitched label. Drop one over the join between
+     two photos and the whole board changes character.
+     Semi-transparent fills on the tapes so whatever is underneath shows
+     through, the way real tape does. */
+  { id: "tape-pink", label: "Tape · Pink", cat: "scrapbook", svg: svg('<path d="M1 8.5l22-2.2v5.9L1 14.4z" fill="#f9a8d4" fill-opacity="0.62"/><path d="M1 8.5l1.6 3-1.6 2.9zM23 6.3l-1.7 3 1.7 2.9z" fill="#ec7fb8" fill-opacity="0.5"/>', "none") },
+  { id: "tape-blue", label: "Tape · Blue", cat: "scrapbook", svg: svg('<path d="M1.5 6l21 3.1v5.5L1.5 11.5z" fill="#93c5fd" fill-opacity="0.62"/><path d="M1.5 6l1.7 2.6-1.7 2.9zM22.5 9.1l-1.8 2.5 1.8 3z" fill="#5fa5f0" fill-opacity="0.5"/>', "none") },
+  { id: "tape-kraft", label: "Tape · Kraft", cat: "scrapbook", svg: svg('<path d="M1 9l22 .4v5.2L1 14.2z" fill="#d9bC8f" fill-opacity="0.7"/><path d="M4 9.1v5.3M9 9.2v5.3M14 9.3v5.2M19 9.35v5.2" stroke="#b8945f" stroke-opacity="0.45" stroke-width="0.7"/>', "none") },
+  { id: "pin", label: "Push Pin", cat: "scrapbook", svg: svg('<path d="M12 13.4V22" stroke="#8a8f98" stroke-width="1.2" stroke-linecap="round"/><path d="M8.2 4.6a4.3 4.3 0 017.6 0l1.1 2a2 2 0 01-.7 2.6l-.9.6.7 2.3a1 1 0 01-1.3 1.2l-6.4-2a1 1 0 01-.4-1.7l1.7-1.7-.8-.8a2 2 0 01-.3-2.4z" fill="#e0245e"/><circle cx="10.6" cy="7.2" r="1.1" fill="#fff" fill-opacity="0.55"/>', "none") },
+  { id: "clip", label: "Paper Clip", cat: "scrapbook", svg: svg('<path d="M16.8 7.3v8.9a4.6 4.6 0 11-9.2 0V6.4a3 3 0 116 0v9.2a1.5 1.5 0 11-3 0V7.6" stroke="#9aa3ad" stroke-width="1.7" fill="none" stroke-linecap="round"/>', "none") },
+  { id: "corner", label: "Photo Corner", cat: "scrapbook", svg: svg('<path d="M2 2h9L2 11z" fill="#3b3a38"/><path d="M2 2h9L2 11z" fill="#fff" fill-opacity="0.12"/>', "none") },
+  { id: "label", label: "Stitched Label", cat: "scrapbook", svg: svg('<rect x="2" y="7.5" width="20" height="9" rx="1.4" fill="#faf3e6" stroke="#c9b28a" stroke-width="0.8"/><rect x="3.6" y="9.1" width="16.8" height="5.8" rx="0.8" fill="none" stroke="#c9b28a" stroke-width="0.7" stroke-dasharray="1.6 1.4"/>', "none") },
+  { id: "bow", label: "Ribbon Bow", cat: "scrapbook", svg: svg('<path d="M11.2 12L4.4 8.1a1 1 0 00-1.5.9v6a1 1 0 001.5.9z" fill="#f4c2d0"/><path d="M12.8 12l6.8-3.9a1 1 0 011.5.9v6a1 1 0 01-1.5.9z" fill="#f4c2d0"/><circle cx="12" cy="12" r="1.9" fill="#e29fb4"/>', "none") },
 ];
 
 export const graphicDataUrl = (g) => `data:image/svg+xml;utf8,${encodeURIComponent(g.svg)}`;

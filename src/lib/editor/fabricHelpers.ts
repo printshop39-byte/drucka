@@ -4,7 +4,7 @@
    FabricObject.customProperties) so undo/redo and duplication keep it. */
 
 import {
-  ActiveSelection, Canvas, FabricImage, FabricObject, Gradient, Group, Path,
+  ActiveSelection, Canvas, FabricImage, FabricObject, FabricText, Gradient, Group, Path,
   Point, Polygon, Rect, Circle, Shadow, Textbox, Triangle, filters, util,
 } from 'fabric';
 
@@ -136,6 +136,71 @@ export function addText(canvas: Canvas): Textbox {
   canvas.setActiveObject(t);
   canvas.requestRenderAll();
   return t;
+}
+
+/* ── curved text ──
+   Fabric lays glyphs along a path, but ONLY on FabricText: Textbox
+   recalculates its own line layout and ignores `path` outright (measured —
+   a Textbox's bounding height does not budge when a deep arc is attached,
+   while FabricText's goes from 55 to 136). So curving swaps the object for
+   a FabricText, and straightening swaps it back to a Textbox to get the
+   wrapping and the drag-to-resize box again.
+
+   Everything that matters is carried across: the words, all the typography,
+   the outline, the shadow, position, scale and angle, and the `dru` id so
+   layer order and history keep treating it as the same thing. */
+
+const CARRY = [
+  'fontSize', 'fontFamily', 'fontWeight', 'fontStyle', 'underline', 'textAlign',
+  'fill', 'stroke', 'strokeWidth', 'paintFirst', 'strokeLineJoin', 'strokeLineCap',
+  'charSpacing', 'lineHeight', 'shadow', 'opacity', 'angle', 'scaleX', 'scaleY',
+  'left', 'top', 'originX', 'originY', 'globalCompositeOperation',
+  'cornerColor', 'cornerStrokeColor', 'borderColor', 'cornerSize', 'transparentCorners',
+] as const;
+
+/* the arc a curve value describes, in the text's own space. `M 0 0 Q w/2 k w 0`
+   sits k/2 deep at its middle, so k is twice the sagitta. */
+export const archPathFor = (width: number, curve: number) => {
+  const w = Math.max(40, width);
+  const k = 2 * (curve / 100) * w * 0.35;
+  return new Path(`M 0 0 Q ${w / 2} ${-k} ${w} 0`, { visible: false });
+};
+
+export function setTextCurve(canvas: Canvas, obj: Textbox | FabricText, curve: number) {
+  const src = obj as unknown as Record<string, unknown>;
+  const props: Record<string, unknown> = {};
+  for (const k of CARRY) if (src[k] !== undefined) props[k] = src[k];
+
+  const wantsCurve = curve !== 0;
+  const isCurved = obj instanceof FabricText && !(obj instanceof Textbox);
+  const width = (obj as Textbox).width ?? 200;
+
+  /* already the right kind — just retune or drop the path */
+  if (wantsCurve === isCurved) {
+    obj.set(wantsCurve
+      ? { path: archPathFor(width, curve), pathAlign: 'baseline' }
+      : { path: null });
+    (obj as unknown as { druCurve: number }).druCurve = curve;
+    obj.setCoords();
+    canvas.requestRenderAll();
+    return obj;
+  }
+
+  const text = (obj as Textbox).text ?? '';
+  const index = canvas.getObjects().indexOf(obj as FabricObject);
+  const next = wantsCurve
+    ? new FabricText(text, { ...props, path: archPathFor(width, curve), pathAlign: 'baseline' })
+    : new Textbox(text, { ...props, width });
+
+  (next as unknown as { dru: unknown }).dru = (obj as unknown as { dru: unknown }).dru;
+  (next as unknown as { druCurve: number }).druCurve = curve;
+
+  canvas.remove(obj as FabricObject);
+  canvas.insertAt(index < 0 ? canvas.getObjects().length : index, next as FabricObject);
+  canvas.setActiveObject(next as FabricObject);
+  next.setCoords();
+  canvas.requestRenderAll();
+  return next;
 }
 
 /* ── shape factory — geometry in the image's LOCAL (unscaled) space,
