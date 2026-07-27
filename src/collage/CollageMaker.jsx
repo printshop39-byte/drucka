@@ -3,7 +3,7 @@ import { DELIVERY_RULE_SHORT } from "../seo/policies";
 import {
   BG_SWATCHES, PRINT_SIZES, SOCIAL_SIZES, FRAME_OPTIONS, LAMINATION_OPTIONS,
   LAYOUTS, OCCASIONS, PATTERNS, PHOTO_FILTERS,
-  calcCollagePrice, cellRect, cuid, filterCss, layoutById, patternDataUrl,
+  calcCollagePrice, cellRect, cuid, filterCss, layoutById, patternDataUrl, patternTiles,
 } from "./collageData";
 import { collageDataUrl, downloadDataUrl } from "./exportCollage";
 import { FONTS, GRAPHICS, fileToDataUrl, fontStack, graphicDataUrl, inr, productById, uid } from "../designer/data";
@@ -35,6 +35,22 @@ const Slider = ({ label, value, min, max, step, onChange, fmt = (v) => v }) => (
       onChange={(e) => onChange(+e.target.value)} className="w-full accent-tangerine" />
   </label>
 );
+
+/* Live thumbnail of a background, drawn by the same routine that draws the
+   sheet and the export — so what is on the swatch is what gets printed. */
+const PatternSwatch = ({ id, bg }) => {
+  const src = useMemo(() => patternDataUrl(id, bg, 96, { w: 4, h: 5 }), [id, bg]);
+  const tiles = patternTiles(id);
+  return (
+    <span className="block aspect-[4/5] w-full"
+      style={{
+        backgroundColor: bg,
+        backgroundImage: src ? `url(${src})` : "none",
+        backgroundSize: tiles ? "48px" : "100% 100%",
+        backgroundRepeat: tiles ? "repeat" : "no-repeat",
+      }} />
+  );
+};
 
 /* radio row used by the order panel */
 const OptionRow = ({ active, onClick, label, price }) => (
@@ -99,7 +115,10 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
     return () => ro.disconnect();
   }, []);
   const previewScale = pxW / size.w;
-  const bgPattern = useMemo(() => patternDataUrl(pattern, bg), [pattern, bg]);
+  /* whole-sheet backgrounds are drawn at the print's proportions, so the
+     preview needs the chosen size — see patternDataUrl */
+  const bgPattern = useMemo(() => patternDataUrl(pattern, bg, 240, size), [pattern, bg, size]);
+  const bgTiles = patternTiles(pattern);
   const price = useMemo(() => calcCollagePrice({ size, frame, lamination, qty }), [size, frame, lamination, qty]);
 
   const exportState = { size, layoutId, slots, photos, gap, radius, bg, pattern, texts, stickers };
@@ -400,12 +419,17 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             </div>
           </div>
           <div>
-            <p className="panel-title">Pattern</p>
-            <div className="flex flex-wrap gap-1.5">
+            <p className="panel-title">Background</p>
+            {/* a swatch of the real thing — ten names in a row tells you
+                nothing, and the corner designs are unrecognisable as text */}
+            <div className="grid grid-cols-4 gap-2">
               {PATTERNS.map((p) => (
-                <button key={p.id} onClick={() => setPattern(p.id)}
-                  className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold transition ${pattern === p.id ? "border-tangerine bg-tangerine text-white" : "border-black/15 text-charcoal/60"}`}>
-                  {p.label}
+                <button key={p.id} onClick={() => setPattern(p.id)} title={p.label}
+                  className={`overflow-hidden rounded-lg border-2 transition ${pattern === p.id ? "border-tangerine" : "border-black/10 hover:border-black/30"}`}>
+                  <PatternSwatch id={p.id} bg={bg} />
+                  <span className={`block truncate px-1 pb-1 pt-0.5 text-[9px] font-bold ${pattern === p.id ? "text-tangerine" : "text-charcoal/55"}`}>
+                    {p.label}
+                  </span>
                 </button>
               ))}
             </div>
@@ -669,7 +693,8 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 width: "min(100%, " + (size.w >= size.h ? "860px" : `${(size.w / size.h) * 76}vh`) + ")",
                 backgroundColor: bg,
                 backgroundImage: bgPattern ? `url(${bgPattern})` : "none",
-                backgroundSize: "240px",
+                backgroundSize: bgTiles ? "240px" : "100% 100%",
+                backgroundRepeat: bgTiles ? "repeat" : "no-repeat",
               }}
               onPointerDown={() => setSelected(null)}>
               {/* cells */}

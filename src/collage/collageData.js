@@ -122,19 +122,90 @@ export const filterCss = (id) => PHOTO_FILTERS.find((f) => f.id === id)?.css ?? 
 
 export const BG_SWATCHES = ["#ffffff", "#faf7f2", "#1b1430", "#000000", "#5b21b6", "#fbe3ea", "#fde68a", "#dbeafe", "#dcfce7", "#6e1423"];
 
-/* patterns drawn identically in preview (tiny canvas → CSS bg) and export */
+/* Backgrounds drawn identically in preview (tiny canvas → CSS bg) and export.
+
+   Everything here is DRAWN, not a stock image. That is deliberate: a drawn
+   background is a few hundred bytes instead of a 200 KB JPG, stays sharp at
+   any print size (a 20×30″ canvas is 6000 px), recolours itself against the
+   chosen background colour, and carries no licence attached to someone
+   else's artwork. The first three are the originals; the rest are the
+   ready-made backgrounds.
+
+   `tile` says how it is laid down: the originals repeat across the sheet,
+   while the new ones are composed against the edges and corners, so they are
+   drawn ONCE at the sheet's own proportions. Getting that wrong puts four
+   floral corners in the middle of the page. */
 export const PATTERNS = [
-  { id: "none", label: "None" },
-  { id: "dots", label: "Dots" },
-  { id: "stripes", label: "Stripes" },
-  { id: "confetti", label: "Confetti" },
+  { id: "none", label: "None", tile: true },
+  { id: "dots", label: "Dots", tile: true },
+  { id: "stripes", label: "Stripes", tile: true },
+  { id: "confetti", label: "Confetti", tile: true },
+  { id: "floral", label: "Floral Corners", tile: false },
+  { id: "paper", label: "Handmade Paper", tile: false },
+  { id: "washi", label: "Scrapbook", tile: false },
+  { id: "arch", label: "Editorial", tile: false },
+  { id: "frame", label: "Thin Frame", tile: false },
+  { id: "vignette", label: "Soft Vignette", tile: false },
 ];
+export const patternTiles = (id) => PATTERNS.find((p) => p.id === id)?.tile !== false;
 
 const isLight = (hex) => {
   const n = parseInt(hex.slice(1), 16);
   const L = 0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255);
   return L > 150;
 };
+
+/* deterministic pseudo-random — the same background must come out of the
+   preview and the 6000 px export identically, so Math.random is out */
+const seeded = (seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+/* one botanical spray, drawn from the corner outwards. `dir` flips it so the
+   same routine serves all four corners. */
+function drawSpray(ctx, u, petal, leaf, dir, rnd) {
+  ctx.save();
+  ctx.scale(dir.x, dir.y);
+  for (let stem = 0; stem < 5; stem++) {
+    /* fan the stems INTO the sheet: from the top-left corner that is between
+       straight-down and straight-right, so the angle has to be positive.
+       `dir` mirrors the whole fan for the opposite corner. */
+    const ang = (Math.PI / 2) * (0.15 + stem * 0.19);
+    const len = u * (0.20 + rnd() * 0.16);
+    ctx.save();
+    ctx.rotate(ang);
+    /* stem */
+    ctx.strokeStyle = leaf;
+    ctx.lineWidth = u * 0.004;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(len * 0.4, -len * 0.1, len, 0);
+    ctx.stroke();
+    /* leaves along it */
+    for (let i = 1; i <= 3; i++) {
+      const t = i / 4, lx = len * t, ls = u * 0.022;
+      ctx.fillStyle = leaf;
+      for (const s of [-1, 1]) {
+        ctx.beginPath();
+        ctx.ellipse(lx, s * ls * 0.5, ls, ls * 0.42, s * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    /* a flower at the tip: five petals + centre */
+    const fr = u * (0.017 + rnd() * 0.012);
+    ctx.fillStyle = petal;
+    for (let p = 0; p < 5; p++) {
+      const a = (p / 5) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.ellipse(len + Math.cos(a) * fr, Math.sin(a) * fr, fr * 0.72, fr * 0.5, a, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.fillStyle = leaf;
+    ctx.beginPath();
+    ctx.arc(len, 0, fr * 0.42, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.restore();
+}
 
 /* draw a pattern onto any 2D context — unit = canvas min dimension */
 export function drawPattern(ctx, w, h, patternId, bg) {
@@ -174,17 +245,117 @@ export function drawPattern(ctx, w, h, patternId, bg) {
       ctx.fillRect(-s, -s / 2, s * 2, s);
       ctx.restore();
     }
+  } else if (patternId === "floral") {
+    /* botanical sprays in opposite corners — the shape the pinned reference
+       images use most. Petals pick up the background's warmth so it works on
+       a blush, a navy or a cream. */
+    const rnd = seeded(23);
+    const light = isLight(bg);
+    const petal = light ? "rgba(139,92,168,0.55)" : "rgba(255,255,255,0.72)";
+    const leaf = light ? "rgba(45,92,62,0.45)" : "rgba(226,232,240,0.42)";
+    ctx.save(); ctx.translate(0, 0); drawSpray(ctx, u, petal, leaf, { x: 1, y: 1 }, rnd); ctx.restore();
+    ctx.save(); ctx.translate(w, h); drawSpray(ctx, u, petal, leaf, { x: -1, y: -1 }, rnd); ctx.restore();
+  } else if (patternId === "paper") {
+    /* handmade-paper speckle plus a soft deckled edge */
+    const rnd = seeded(101);
+    const fleck = isLight(bg) ? "rgba(27,20,48,0.055)" : "rgba(255,255,255,0.07)";
+    ctx.fillStyle = fleck;
+    for (let i = 0; i < 1400; i++) {
+      const s = u * (0.0012 + rnd() * 0.0022);
+      ctx.beginPath();
+      ctx.arc(rnd() * w, rnd() * h, s, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.strokeStyle = isLight(bg) ? "rgba(27,20,48,0.10)" : "rgba(255,255,255,0.14)";
+    ctx.lineWidth = u * 0.003;
+    const m = u * 0.035;
+    ctx.beginPath();
+    for (let x = m; x <= w - m; x += u * 0.02) ctx.lineTo(x, m + Math.sin(x / (u * 0.05)) * u * 0.004);
+    for (let y = m; y <= h - m; y += u * 0.02) ctx.lineTo(w - m + Math.sin(y / (u * 0.05)) * u * 0.004, y);
+    for (let x = w - m; x >= m; x -= u * 0.02) ctx.lineTo(x, h - m + Math.sin(x / (u * 0.05)) * u * 0.004);
+    for (let y = h - m; y >= m; y -= u * 0.02) ctx.lineTo(m + Math.sin(y / (u * 0.05)) * u * 0.004, y);
+    ctx.closePath();
+    ctx.stroke();
+  } else if (patternId === "washi") {
+    /* scrapbook: washi-tape strips at the corners and a scatter of hearts */
+    const rnd = seeded(57);
+    const tapes = ["rgba(249,168,212,0.42)", "rgba(147,197,253,0.42)", "rgba(253,230,138,0.5)"];
+    const strip = (x, y, ang, len) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(ang);
+      ctx.fillStyle = tapes[Math.floor(rnd() * tapes.length)];
+      ctx.fillRect(-len / 2, -u * 0.016, len, u * 0.032);
+      ctx.restore();
+    };
+    strip(u * 0.13, u * 0.10, -0.5, u * 0.30);
+    strip(w - u * 0.13, u * 0.13, 0.45, u * 0.26);
+    strip(u * 0.15, h - u * 0.12, 0.4, u * 0.26);
+    strip(w - u * 0.14, h - u * 0.11, -0.42, u * 0.30);
+    ctx.fillStyle = isLight(bg) ? "rgba(190,24,93,0.20)" : "rgba(255,255,255,0.24)";
+    for (let i = 0; i < 26; i++) {
+      const x = rnd() * w, y = rnd() * h, s = u * (0.006 + rnd() * 0.006);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rnd() * 0.6 - 0.3);
+      ctx.beginPath();
+      ctx.moveTo(0, s * 0.6);
+      ctx.bezierCurveTo(-s * 1.4, -s * 0.5, -s * 0.4, -s * 1.2, 0, -s * 0.45);
+      ctx.bezierCurveTo(s * 0.4, -s * 1.2, s * 1.4, -s * 0.5, 0, s * 0.6);
+      ctx.fill();
+      ctx.restore();
+    }
+  } else if (patternId === "arch") {
+    /* modern editorial: an arch and two blocks, the poster look */
+    const tint = isLight(bg) ? "rgba(27,20,48,0.07)" : "rgba(255,255,255,0.09)";
+    ctx.fillStyle = tint;
+    const aw = w * 0.5, ax = (w - aw) / 2, ay = h * 0.10;
+    ctx.beginPath();
+    ctx.moveTo(ax, h * 0.78);
+    ctx.lineTo(ax, ay + aw / 2);
+    ctx.arc(ax + aw / 2, ay + aw / 2, aw / 2, Math.PI, 0);
+    ctx.lineTo(ax + aw, h * 0.78);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillRect(w * 0.06, h * 0.06, w * 0.14, h * 0.14);
+    ctx.fillRect(w * 0.80, h * 0.80, w * 0.14, h * 0.14);
+  } else if (patternId === "frame") {
+    /* a double hairline border — quiet, works under any layout */
+    ctx.strokeStyle = ink;
+    const m1 = u * 0.030, m2 = u * 0.045;
+    ctx.lineWidth = u * 0.005;
+    ctx.strokeRect(m1, m1, w - m1 * 2, h - m1 * 2);
+    ctx.lineWidth = u * 0.002;
+    ctx.strokeRect(m2, m2, w - m2 * 2, h - m2 * 2);
+  } else if (patternId === "vignette") {
+    /* soft corner falloff — lifts photos off a flat background */
+    const g = ctx.createRadialGradient(w / 2, h / 2, u * 0.2, w / 2, h / 2, Math.max(w, h) * 0.72);
+    g.addColorStop(0, "rgba(0,0,0,0)");
+    g.addColorStop(1, isLight(bg) ? "rgba(27,20,48,0.16)" : "rgba(0,0,0,0.34)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
   }
   ctx.restore();
 }
 
-/* CSS background-image for the live preview (rendered via tiny canvas) */
-export function patternDataUrl(patternId, bg, size = 240) {
+/* CSS background-image for the live preview (rendered via a small canvas).
+
+   A tiling pattern is drawn square and repeated by CSS. A whole-sheet design
+   has to be drawn at the SHEET's proportions and then stretched to fill,
+   otherwise the preview shows a square composition letterboxed into a
+   portrait print and stops matching what exports. Pass the print size. */
+export function patternDataUrl(patternId, bg, size = 240, sheet = null) {
   if (patternId === "none") return null;
+  const tiles = patternTiles(patternId);
+  const ratio = tiles || !sheet ? 1 : sheet.h / sheet.w;
   const c = document.createElement("canvas");
-  c.width = size; c.height = size;
+  /* whole-sheet designs get more pixels — they carry detail (petals, speckle)
+     rather than a motif repeated every 240px */
+  const W = tiles ? size : 620;
+  const H = Math.round(W * ratio);
+  c.width = W; c.height = H;
   const ctx = c.getContext("2d");
-  drawPattern(ctx, size, size, patternId, bg);
+  drawPattern(ctx, W, H, patternId, bg);
   return c.toDataURL();
 }
 
