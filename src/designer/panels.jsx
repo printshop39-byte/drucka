@@ -6,6 +6,7 @@ import {
 } from "./data";
 import { Icon, ic } from "./icons";
 import { clampToArea } from "./DesignCanvas";
+import { BRUSH_TEMPLATES, brushById } from "../lib/editor/brushes";
 
 /* ── shared bits ── */
 const PanelShell = ({ title, onClose, children }) => (
@@ -363,6 +364,76 @@ export function GraphicsPanel({ onAddImage, onClose }) {
           </button>
         ))}
       </div>
+    </PanelShell>
+  );
+}
+
+/* ── DRAW (pen / brush) ──
+   Strokes are drawn straight onto the print area and only become a layer when
+   the customer is done, so a drawing behaves like any other piece of art:
+   move it, resize it, delete it, and it prints through the same path. */
+export function DrawPanel({
+  brush, onBrush, color, onColor, size, onSize, strokes, active, onToggle, onUndo, onClear, onFinish, onClose,
+}) {
+  return (
+    <PanelShell title="Draw" onClose={onClose}>
+      <button onClick={onToggle}
+        className={`flex w-full items-center justify-center gap-2 rounded-full border-2 py-2.5 text-xs font-bold transition ${
+          active ? "border-tangerine bg-tangerine text-white" : "border-ink/15 text-ink/70 hover:border-tangerine"}`}>
+        <Icon d={ic.pen} className="h-4 w-4" />
+        {active ? "Pause drawing" : "Start drawing"}
+      </button>
+      <p className="mt-1.5 text-[10px] text-ink/45">
+        Draw inside the blue print area — that is exactly what gets printed.
+      </p>
+
+      <p className="mb-1.5 mt-4 text-[10px] font-bold uppercase tracking-wide text-ink/45">Brush</p>
+      <div className="grid grid-cols-4 gap-1.5">
+        {BRUSH_TEMPLATES.map((t) => (
+          <button key={t.id} title={t.hint} onClick={() => onBrush(t.id)}
+            className={`rounded-lg border-2 px-1 py-1.5 text-[9px] font-bold leading-tight transition ${
+              brush === t.id ? "border-tangerine bg-tangerine/10 text-tangerine" : "border-ink/12 bg-white text-ink/55 hover:border-ink/30"}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+      <p className="mt-1 text-[10px] text-ink/40">{brushById(brush).hint}</p>
+
+      <p className="mb-1.5 mt-4 text-[10px] font-bold uppercase tracking-wide text-ink/45">Colour</p>
+      <div className="flex flex-wrap items-center gap-2">
+        {TEXT_COLORS.map((c) => (
+          <button key={c} onClick={() => onColor(c)} title={c}
+            className={`h-8 w-8 rounded-full border-2 ${color === c ? "border-tangerine ring-2 ring-tangerine/40" : "border-ink/15"}`}
+            style={{ backgroundColor: c }} />
+        ))}
+        <input type="color" value={color} onChange={(e) => onColor(e.target.value)} title="Custom colour"
+          className="h-8 w-8 cursor-pointer rounded-full border border-ink/15 bg-transparent" />
+      </div>
+
+      <Field label={`Brush size · ${size}`}>
+        <input type="range" min={2} max={40} step={1} value={size}
+          onChange={(e) => onSize(+e.target.value)} className="w-full accent-tangerine" />
+      </Field>
+
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        <button onClick={onUndo} disabled={!strokes}
+          className="rounded-full bg-ink/5 py-2 text-[11px] font-bold text-ink transition hover:bg-ink/10 disabled:opacity-35">
+          Undo stroke
+        </button>
+        <button onClick={onClear} disabled={!strokes}
+          className="rounded-full bg-red-500/10 py-2 text-[11px] font-bold text-red-500 transition hover:bg-red-500/20 disabled:opacity-35">
+          Clear
+        </button>
+      </div>
+      <button onClick={onFinish} disabled={!strokes}
+        className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-xs font-bold text-white shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-35">
+        Add drawing to design
+      </button>
+      <p className="mt-2 text-[10px] text-ink/40">
+        {strokes
+          ? `${strokes} stroke${strokes > 1 ? "s" : ""} — add them to turn the drawing into a layer you can move and resize.`
+          : "Nothing drawn yet."}
+      </p>
     </PanelShell>
   );
 }

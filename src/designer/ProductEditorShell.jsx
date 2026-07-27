@@ -8,8 +8,9 @@ import DesignCanvas, { clampToArea } from "./DesignCanvas";
 import MockupPreview from "./MockupPreview";
 import { uploadPlacementArtwork } from "./renderArtwork";
 import {
-  GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
+  DrawPanel, GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
 } from "./panels";
+import { strokesToDataUrl } from "../lib/editor/brushes";
 
 /* ── ProductEditorShell — the NEW unified, MOBILE-FIRST editor ──
    Strangler-fig: opt-in per product via src/utils/editorFlags.js; everything
@@ -25,12 +26,17 @@ import {
 const TOOLS = [
   { id: "text", label: "Text", icon: ic.text },
   { id: "image", label: "Image", icon: ic.upload },
+  { id: "draw", label: "Draw", icon: ic.pen },
   { id: "color", label: "Color", swatch: true },
   { id: "layer", label: "Layer", icon: ic.layers },
   { id: "preview", label: "Preview", icon: ic.eye },
   { id: "cart", label: "Cart", icon: ic.cart },
 ];
-const PANEL_TOOLS = new Set(["text", "image", "color", "layer", "cart"]);
+const PANEL_TOOLS = new Set(["text", "image", "draw", "color", "layer", "cart"]);
+/* a drawing is committed as an ordinary image layer, so it is capped like an
+   upload (fileToDataUrl uses 1400 too) — a 300 DPI PNG of a full print area
+   would be a several-megabyte data URL sitting in the cart's localStorage */
+const DRAW_MAX_PX = 1400;
 
 export default function ProductEditorShell({
   product, initial = {}, onClose, onAddToCart, onOpenCart, showToast, onUseClassic,
@@ -53,7 +59,7 @@ export default function ProductEditorShell({
   /* active print area — single (mug/frame/canvas/poster) or multiple (apparel) */
   const [selectedPlacement, setSelectedPlacement] = useState(product.printAreas[0].id);
   const placement = selectedPlacement;
-  const switchPlacement = (id) => { setSelectedPlacement(id); setSelectedLayerId(null); };
+  const switchPlacement = (id) => { setSelectedPlacement(id); setSelectedLayerId(null); clearDrawing(); };
 
   const [layersByPlacement, setLayersByPlacement] = useState(() => {
     const base = Object.fromEntries(product.printAreas.map((p) => [p.id, []]));
@@ -156,6 +162,40 @@ export default function ProductEditorShell({
     commit({ ...layersByPlacement, [placement]: next });
   };
 
+  /* ── pen / brush ──
+     Strokes live outside the layer list while they are being drawn: they are
+     % coordinates on the print area, not artwork yet. "Add drawing" flattens
+     them into a transparent PNG that fills the area exactly where it was
+     drawn, and from then on it is an image layer like any other — it moves,
+     resizes, deletes, and prints through renderArtwork with no special case. */
+  const [strokes, setStrokes] = useState([]);
+  const [drawOn, setDrawOn] = useState(false);
+  const [brush, setBrush] = useState("pen");
+  const [brushColor, setBrushColor] = useState("#211c17");
+  const [brushSize, setBrushSize] = useState(8);
+  /* switching print area or leaving the tool drops an unfinished drawing —
+     strokes belong to the area they were drawn on */
+  const clearDrawing = () => { setStrokes([]); setDrawOn(false); };
+
+  const finishDrawing = () => {
+    if (!strokes.length) return;
+    const inches = inchesFor(placementOf(product, placement), sel.selectedSize);
+    const ratio = inches.h / inches.w;
+    const W = ratio >= 1 ? Math.round(DRAW_MAX_PX / ratio) : DRAW_MAX_PX;
+    const H = Math.round(W * ratio);
+    const src = strokesToDataUrl(strokes, W, H);
+    if (!src) return;
+    addLayer({
+      id: uid(), type: "image", name: "Drawing", src,
+      x: 50, y: 50, w: 100, h: 100,
+      rot: 0, opacity: 1, flipH: false, flipV: false,
+      visible: true, locked: false, aspectLock: true,
+      px: { w: W, h: H },
+    });
+    clearDrawing();
+    showToast("Drawing added to your design ✓");
+  };
+
   const handleUpload = async (file) => {
     if (!file) return;
     setUploadBusy(true);
@@ -239,6 +279,19 @@ export default function ProductEditorShell({
             <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} onUse={(a) => addImage(a.src, a.name, a.aspect, a.px)} onClose={() => setActiveTool(null)} />
             <GraphicsPanel onAddImage={addImage} onClose={() => setActiveTool(null)} />
           </>
+        );
+      case "draw":
+        return (
+          <DrawPanel
+            brush={brush} onBrush={(id) => { setBrush(id); setDrawOn(true); }}
+            color={brushColor} onColor={setBrushColor}
+            size={brushSize} onSize={setBrushSize}
+            strokes={strokes.length} active={drawOn}
+            onToggle={() => setDrawOn((v) => !v)}
+            onUndo={() => setStrokes((s) => s.slice(0, -1))}
+            onClear={() => setStrokes([])}
+            onFinish={finishDrawing}
+            onClose={() => { setDrawOn(false); setActiveTool(null); }} />
         );
       case "color":
         return <ProductInfoPanel product={product} state={sel} setSel={setSel} qty={qty} setQty={setQty} onClose={() => setActiveTool(null)} />;
@@ -397,7 +450,12 @@ export default function ProductEditorShell({
             ) : (
               <DesignCanvas product={product} placement={placement} color={sel.selectedColor} size={sel.selectedSize}
                 layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId}
-                onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast} />
+                onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast}
+                draw={{
+                  active: drawOn && activeTool === "draw",
+                  strokes, brush, color: brushColor, size: brushSize / 10,
+                  onStroke: (s) => setStrokes((all) => [...all, s]),
+                }} />
             )}
           </div>
 

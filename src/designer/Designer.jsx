@@ -9,8 +9,9 @@ import MockupPreview from "./MockupPreview";
 import { uploadPlacementArtwork } from "./renderArtwork";
 import ProductSubmitInfo from "./ProductSubmitInfo";
 import {
-  GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
+  DrawPanel, GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
 } from "./panels";
+import { strokesToDataUrl } from "../lib/editor/brushes";
 
 /* ── ProductDesigner — THE single Drucka design editor ──
    Fully data-driven: pass any catalog product (men / women / kids /
@@ -26,7 +27,12 @@ const TOOLS = [
   { id: "uploads", label: "Uploads", icon: ic.upload },
   { id: "text", label: "Text", icon: ic.text },
   { id: "graphics", label: "Graphics", icon: ic.sticker },
+  { id: "draw", label: "Draw", icon: ic.pen },
 ];
+/* a drawing becomes an ordinary image layer, so it is capped like an upload —
+   a 300 DPI PNG of a whole print area is several MB of data URL, and the cart
+   persists to localStorage */
+const DRAW_MAX_PX = 1400;
 
 export default function ProductDesigner({ product, initial = {}, onClose, onAddToCart, onOpenCart, showToast }) {
   /* selections */
@@ -150,6 +156,39 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
     commit({ ...layersByPlacement, [selectedPlacement]: next });
   };
 
+  /* ── pen / brush ──
+     Strokes are % coordinates on the print area, not artwork yet, so they
+     live outside the layer list while they are being drawn. "Add drawing"
+     flattens them into a transparent PNG that fills the area exactly where it
+     was drawn; from there it is an image layer like any other and prints
+     through renderArtwork with no special case. */
+  const [strokes, setStrokes] = useState([]);
+  const [drawOn, setDrawOn] = useState(false);
+  const [brush, setBrush] = useState("pen");
+  const [brushColor, setBrushColor] = useState("#211c17");
+  const [brushSize, setBrushSize] = useState(8);
+  const clearDrawing = () => { setStrokes([]); setDrawOn(false); };
+
+  const finishDrawing = () => {
+    if (!strokes.length) return;
+    const inches = inchesFor(placementOf(product, selectedPlacement), sel.selectedSize);
+    const ratio = inches.h / inches.w;
+    const W = ratio >= 1 ? Math.round(DRAW_MAX_PX / ratio) : DRAW_MAX_PX;
+    const H = Math.round(W * ratio);
+    const src = strokesToDataUrl(strokes, W, H);
+    if (!src) return;
+    addLayer({
+      id: uid(), type: "image", name: "Drawing", src,
+      x: 50, y: 50, w: 100, h: 100,
+      rot: 0, opacity: 1, flipH: false, flipV: false,
+      visible: true, locked: false, aspectLock: true,
+      px: { w: W, h: H },
+    });
+    clearDrawing();
+    setMobilePanel(null);
+    showToast("Drawing added to your design ✓");
+  };
+
   const handleUpload = async (file) => {
     if (!file) return;
     setUploadBusy(true);
@@ -247,6 +286,19 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
         return <TextPanel selected={selectedLayer} onAddText={addText} onPatch={(id2, p) => patchLayer(id2, p)} onClose={close} />;
       case "graphics":
         return <GraphicsPanel onAddImage={addImage} onClose={close} />;
+      case "draw":
+        return (
+          <DrawPanel
+            brush={brush} onBrush={(bid) => { setBrush(bid); setDrawOn(true); }}
+            color={brushColor} onColor={setBrushColor}
+            size={brushSize} onSize={setBrushSize}
+            strokes={strokes.length} active={drawOn}
+            onToggle={() => setDrawOn((v) => !v)}
+            onUndo={() => setStrokes((s) => s.slice(0, -1))}
+            onClear={() => setStrokes([])}
+            onFinish={finishDrawing}
+            onClose={() => { setDrawOn(false); close(); }} />
+        );
       default:
         return null;
     }
@@ -344,7 +396,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
               {product.printAreas.map((p) => {
                 const n = (layersByPlacement[p.id] ?? []).filter((l) => l.visible !== false).length;
                 return (
-                  <button key={p.id} onClick={() => { setSelectedPlacement(p.id); setSelectedLayerId(null); }}
+                  <button key={p.id} onClick={() => { setSelectedPlacement(p.id); setSelectedLayerId(null); clearDrawing(); }}
                     className={`relative shrink-0 rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
                       selectedPlacement === p.id ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
                     }`}>
@@ -368,7 +420,15 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
             ) : (
               <DesignCanvas product={product} placement={selectedPlacement} color={sel.selectedColor} size={sel.selectedSize}
                 layers={layers} selectedId={selectedLayerId} onSelect={setSelectedLayerId}
-                onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast} />
+                onPatch={patchLayer} onDelete={deleteLayer} zoom={zoom} preview={false} showToast={showToast}
+                draw={{
+                  /* armed only while the Draw tool is the one in front — on
+                     mobile the sheet closes over the canvas, so the tool it
+                     was opened from is what counts, not the open sheet */
+                  active: drawOn && (tool === "draw" || mobilePanel === "draw"),
+                  strokes, brush, color: brushColor, size: brushSize / 10,
+                  onStroke: (s) => setStrokes((all) => [...all, s]),
+                }} />
             )}
           </div>
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fontStack, inchesFor, placementOf, renderArea } from "./data";
 import { Icon, ic } from "./icons";
+import StrokeCanvas from "../components/editor/StrokeCanvas";
 
 /* ── DesignCanvas — mockup photo + printable area + interactive layers ──
    Layer coords are % of the print area: x/y = center, w/h = size as % of
@@ -113,6 +114,10 @@ export const MockupImage = ({ product, color, photo, className = "" }) => {
 
 export default function DesignCanvas({
   product, placement, color, size, layers, selectedId, onSelect, onPatch, onDelete, zoom, preview, showToast,
+  /* pen / brush — { active, strokes, brush, color, size, onStroke }. Drawing
+     happens inside the print area itself, so what is drawn is exactly what is
+     printed; the strokes become an ordinary image layer when finished. */
+  draw = null,
 }) {
   const areaRef = useRef(null);
   const warnedRef = useRef(false);
@@ -337,6 +342,11 @@ export default function DesignCanvas({
             <div className="pointer-events-none absolute inset-0 rounded-sm border-2 border-dotted border-sky-500/70" style={{ margin: -2 }} />
           )}
           {layers.map(renderLayer)}
+          {draw && !preview && (draw.active || draw.strokes.length > 0) && (
+            <StrokeCanvas strokes={draw.strokes} active={!!draw.active}
+              brush={draw.brush} color={draw.color} size={draw.size}
+              onStroke={draw.onStroke} />
+          )}
           {!preview && !layers.length && (
             <p className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 px-2 text-center text-[10px] font-semibold text-sky-600/60">
               {p.label} print area

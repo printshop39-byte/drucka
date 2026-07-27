@@ -8,6 +8,8 @@ import {
 import { collageDataUrl, downloadDataUrl } from "./exportCollage";
 import { FONTS, GRAPHICS, fileToDataUrl, fontStack, graphicDataUrl, inr, productById, uid } from "../designer/data";
 import { Icon, ic } from "../designer/icons";
+import { BRUSH_TEMPLATES, brushById } from "../lib/editor/brushes";
+import StrokeCanvas from "../components/editor/StrokeCanvas";
 import * as pixel from "../lib/metaPixel";
 
 /* ── Drucka Collage Maker — PicMonkey-style light theme ──
@@ -23,8 +25,13 @@ const TABS = [
   { id: "size", label: "Size", icon: ic.ruler },
   { id: "text", label: "Text", icon: ic.text },
   { id: "stickers", label: "Stickers", icon: ic.sticker },
+  { id: "draw", label: "Draw", icon: ic.pen },
   { id: "order", label: "Order", icon: ic.cart },
 ];
+
+/* the pen's swatches — the collage editor is a light theme, so these are the
+   colours that actually read on a photo */
+const BRUSH_COLORS = ["#211c17", "#ffffff", "#ff6b35", "#e11d48", "#1d4ed8", "#15803d", "#f59e0b", "#7c3aed"];
 
 const Slider = ({ label, value, min, max, step, onChange, fmt = (v) => v }) => (
   <label className="block">
@@ -79,6 +86,13 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
   const [custom, setCustom] = useState({ w: 1800, h: 1800 });
   const [texts, setTexts] = useState([]);
   const [stickers, setStickers] = useState([]);
+  /* pen / brush — strokes are % of the sheet, so they print at full
+     resolution instead of being a scaled-up screenshot of the preview */
+  const [strokes, setStrokes] = useState([]);
+  const [drawOn, setDrawOn] = useState(false);
+  const [brush, setBrush] = useState("pen");
+  const [brushColor, setBrushColor] = useState("#ff6b35");
+  const [brushSize, setBrushSize] = useState(8);
   const [selected, setSelected] = useState(null); // {type:'cell'|'text'|'sticker', key}
   const [tab, setTab] = useState("layout");
   const [mobilePanel, setMobilePanel] = useState(null);
@@ -103,6 +117,10 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initial]);
 
+  /* leaving the Draw tool hands the sheet back to the photos — a pen left
+     armed makes every cell feel dead */
+  useEffect(() => { if (tab !== "draw") setDrawOn(false); }, [tab]);
+
   const layout = layoutById(layoutId);
   const filledCount = layout.cells.filter((_, i) => slots[i]?.photoId).length;
   const canvasRef = useRef(null);
@@ -121,7 +139,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
   const bgTiles = patternTiles(pattern);
   const price = useMemo(() => calcCollagePrice({ size, frame, lamination, qty }), [size, frame, lamination, qty]);
 
-  const exportState = { size, layoutId, slots, photos, gap, radius, bg, pattern, texts, stickers };
+  const exportState = { size, layoutId, slots, photos, gap, radius, bg, pattern, texts, stickers, strokes };
 
   /* ── photos ── */
   const fileRef = useRef(null);
@@ -561,6 +579,64 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
           )}
         </>
       );
+      case "draw": return (
+        <div className="space-y-4">
+          <button onClick={() => setDrawOn((v) => !v)}
+            className={`flex w-full items-center justify-center gap-2 rounded-full border-2 py-2.5 text-xs font-bold transition ${
+              drawOn ? "border-tangerine bg-tangerine text-white" : "border-black/15 text-charcoal/70 hover:border-tangerine"}`}>
+            <Icon d={ic.pen} className="h-4 w-4" />
+            {drawOn ? "Done drawing" : "Start drawing"}
+          </button>
+          <p className="-mt-2 text-[10px] text-charcoal/45">
+            {drawOn
+              ? "Draw anywhere on the collage. Photos stay put while the pen is on."
+              : "Turn the pen on, then draw straight onto the collage."}
+          </p>
+
+          <div>
+            <p className="panel-title">Brush</p>
+            <div className="grid grid-cols-4 gap-1.5">
+              {BRUSH_TEMPLATES.map((t) => (
+                <button key={t.id} title={t.hint} onClick={() => { setBrush(t.id); setDrawOn(true); }}
+                  className={`rounded-lg border-2 px-1 py-1.5 text-[9px] font-bold leading-tight transition ${
+                    brush === t.id ? "border-tangerine bg-tangerine/10 text-tangerine" : "border-black/10 text-charcoal/55 hover:border-black/30"}`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-[10px] text-charcoal/40">{brushById(brush).hint}</p>
+          </div>
+
+          <div>
+            <p className="panel-title">Colour</p>
+            <div className="flex flex-wrap items-center gap-2">
+              {BRUSH_COLORS.map((c) => (
+                <button key={c} onClick={() => setBrushColor(c)} title={c}
+                  className={`h-8 w-8 rounded-full border-2 ${brushColor === c ? "border-tangerine ring-2 ring-tangerine/40" : "border-black/15"}`}
+                  style={{ backgroundColor: c }} />
+              ))}
+              <input type="color" value={brushColor} onChange={(e) => setBrushColor(e.target.value)}
+                className="h-8 w-8 cursor-pointer rounded-full border border-black/15 bg-transparent" title="Custom colour" />
+            </div>
+          </div>
+
+          <Slider label="Brush size" value={brushSize} min={2} max={40} step={1} onChange={setBrushSize} />
+
+          <div className="grid grid-cols-2 gap-2">
+            <button onClick={() => setStrokes((s) => s.slice(0, -1))} disabled={!strokes.length}
+              className="rounded-full bg-charcoal/5 py-2 text-[11px] font-bold text-charcoal transition hover:bg-charcoal/10 disabled:opacity-35">
+              Undo stroke
+            </button>
+            <button onClick={() => { setStrokes([]); showToast("Drawing cleared"); }} disabled={!strokes.length}
+              className="rounded-full bg-red-500/10 py-2 text-[11px] font-bold text-red-500 transition hover:bg-red-500/20 disabled:opacity-35">
+              Clear all
+            </button>
+          </div>
+          <p className="text-[10px] text-charcoal/40">
+            {strokes.length ? `${strokes.length} stroke${strokes.length > 1 ? "s" : ""} · printed at full resolution` : "Nothing drawn yet."}
+          </p>
+        </div>
+      );
       case "order": return (
         <div className="space-y-3">
           <p className="panel-title">Download · {size.w}×{size.h}px</p>
@@ -750,11 +826,18 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                   </div>
                 );
               })}
+              {/* pen / brush strokes — z-10, i.e. over the photos and under the
+                  stickers and captions, the same order the export draws them.
+                  It only takes the pointer while the Draw tool is on. */}
+              <StrokeCanvas strokes={strokes} active={drawOn}
+                brush={brush} color={brushColor} size={brushSize / 10}
+                onStroke={(s) => setStrokes((all) => [...all, s])}
+                style={{ zIndex: 10 }} />
               {/* stickers */}
               {stickers.map((st) => (
                 <img key={st.id} src={st.src} alt="" draggable={false}
                   onPointerDown={(e) => dragOverlay(e, "sticker", st.id)}
-                  className={`absolute cursor-move touch-none select-none ${selected?.key === st.id ? "ring-2 ring-tangerine rounded" : ""}`}
+                  className={`absolute cursor-move touch-none select-none ${drawOn ? "pointer-events-none" : ""} ${selected?.key === st.id ? "ring-2 ring-tangerine rounded" : ""}`}
                   style={{
                     left: `${st.x}%`, top: `${st.y}%`,
                     width: `${st.size}%`,
@@ -766,7 +849,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
               {texts.map((t) => (
                 <div key={t.id}
                   onPointerDown={(e) => dragOverlay(e, "text", t.id)}
-                  className={`absolute cursor-move touch-none select-none whitespace-pre text-center ${selected?.key === t.id ? "rounded ring-2 ring-tangerine" : ""}`}
+                  className={`absolute cursor-move touch-none select-none whitespace-pre text-center ${drawOn ? "pointer-events-none" : ""} ${selected?.key === t.id ? "rounded ring-2 ring-tangerine" : ""}`}
                   style={{
                     left: `${t.x}%`, top: `${t.y}%`,
                     transform: "translate(-50%,-50%)",

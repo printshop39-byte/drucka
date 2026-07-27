@@ -1,5 +1,6 @@
 import { cellRect, drawPattern, filterCss, layoutById } from "./collageData";
 import { fontStack } from "../designer/data";
+import { drawStrokes } from "../lib/editor/brushes";
 
 /* ── Full-resolution HTML5-canvas renderer ──
    Mirrors the live preview exactly: same fractional cell geometry, same
@@ -27,7 +28,7 @@ const roundedPath = (ctx, x, y, w, h, r) => {
 };
 
 export async function renderCollage(state) {
-  const { size, layoutId, slots, photos, gap, radius, bg, pattern, texts, stickers } = state;
+  const { size, layoutId, slots, photos, gap, radius, bg, pattern, texts, stickers, strokes } = state;
   const W = size.w, H = size.h;
   const canvas = document.createElement("canvas");
   canvas.width = W;
@@ -76,6 +77,11 @@ export async function renderCollage(state) {
     ctx.drawImage(img, cx - dw / 2, cy - dh / 2, dw, dh);
     ctx.restore();
   }
+
+  /* pen / brush strokes — above the photos, under the stickers and captions,
+     exactly the stacking order the preview uses. Stored in % of the sheet, so
+     this draws them at full print resolution rather than scaling a bitmap. */
+  drawStrokes(ctx, strokes, W, H);
 
   /* stickers (SVG data URLs draw cleanly, no canvas tainting) */
   for (const st of stickers) {
