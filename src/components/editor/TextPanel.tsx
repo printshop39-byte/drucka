@@ -17,6 +17,8 @@ const TEXT_SWATCHES = ['#211c17', '#ffffff', '#c19a3d', '#6e1423', '#1e3a8a', '#
 /* white leads: an outline is nearly always white, which is what lifts a
    caption off a busy photo and gives it the sticker look */
 const OUTLINE_SWATCHES = ['#ffffff', '#211c17', '#c19a3d', '#6e1423', '#1e3a8a'];
+/* label colours lead with the paper-ish tones a scrapbook caption sits on */
+const LABEL_SWATCHES = ['#ffffff', '#faf3e6', '#fde68a', '#f9a8d4', '#93c5fd', '#211c17'];
 
 export default function TextPanel({ text, onPatch, onCurve }: Props) {
   const bold = `${text.fontWeight}` === '700' || text.fontWeight === 'bold';
@@ -87,6 +89,27 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
           <ColorShades compact base={OUTLINE_SWATCHES}
             value={typeof text.stroke === 'string' ? text.stroke : '#ffffff'}
             onChange={(c) => onPatch({ stroke: c, paintFirst: 'stroke' })} />
+        )}
+      </div>
+
+      {/* Label background — Fabric fills tight behind the words, per line,
+          which is the marker-pen / sticker-label look. `textBackgroundColor`
+          rather than `backgroundColor`: the latter fills the whole Textbox,
+          so a short caption in a wide box gets a band of colour running far
+          past the words. Empty string clears it. */}
+      <div className="space-y-1.5 rounded-xl border border-white/10 p-2">
+        <div className="flex items-center justify-between">
+          <span className="text-[9px] font-bold uppercase tracking-wide text-white/35">Label behind text</span>
+          <button onClick={() => onPatch({ textBackgroundColor: text.textBackgroundColor ? '' : '#ffffff' })}
+            className={`rounded-full border-2 px-2.5 py-0.5 text-[9px] font-bold transition ${
+              text.textBackgroundColor ? 'border-gold bg-gold/15 text-gold' : 'border-white/15 text-white/55'}`}>
+            {text.textBackgroundColor ? 'On' : 'Off'}
+          </button>
+        </div>
+        {text.textBackgroundColor && (
+          <ColorShades compact base={LABEL_SWATCHES}
+            value={typeof text.textBackgroundColor === 'string' ? text.textBackgroundColor : '#ffffff'}
+            onChange={(c) => onPatch({ textBackgroundColor: c })} />
         )}
       </div>
 

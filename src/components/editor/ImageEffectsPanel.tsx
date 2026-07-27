@@ -1,4 +1,5 @@
 import { BorderStyle, ImageMeta } from '../../lib/editor/fabricHelpers';
+import ColorShades from './ColorShades';
 
 /* ── effects + styling controls for the selected photo ── */
 
@@ -13,6 +14,7 @@ const BORDER_STYLES: { id: BorderStyle; label: string }[] = [
   { id: 'dashed', label: 'Dashed' },
   { id: 'dotted', label: 'Dotted' },
   { id: 'sketch', label: 'Freehand' },
+  { id: 'polaroid', label: 'Polaroid' },
 ];
 
 const Slider = ({ label, value, min, max, onChange, fmt = (v: number) => `${v}` }: {
@@ -72,6 +74,15 @@ export default function ImageEffectsPanel({ meta, onEffect, onStyle }: Props) {
             </span>
           </label>
           <Slider label="Shadow" value={meta.shadow} min={0} max={40} onChange={(v) => onStyle({ shadow: v })} />
+          {/* Recolour. The BlendColor filter was already wired up and simply
+              had no control — which is how a sticker gets to match the page
+              instead of arriving in whatever colour it was drawn in. */}
+          <Slider label="Recolour" value={meta.effects.tintStrength} min={0} max={100} fmt={(v) => `${v}%`}
+            onChange={(v) => onEffect({ tintStrength: v })} />
+          {meta.effects.tintStrength > 0 && (
+            <ColorShades compact base={['#c19a3d', '#e0245e', '#1e3a8a', '#15803d', '#211c17', '#ffffff']}
+              value={meta.effects.tint} onChange={(c) => onEffect({ tint: c })} />
+          )}
           <Slider label="Corner radius" value={meta.radius} min={0} max={100} fmt={(v) => `${v}%`}
             onChange={(v) => onStyle({ radius: v })} />
           {meta.shape !== 'none' && meta.shape !== 'rounded' && meta.radius > 0 && (

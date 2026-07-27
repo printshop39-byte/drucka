@@ -12,7 +12,7 @@ import {
 FabricObject.customProperties = ['dru'];
 
 export type ShapeId = 'none' | 'circle' | 'rounded' | 'square' | 'heart' | 'star' | 'triangle' | 'hexagon';
-export type BorderStyle = 'solid' | 'dashed' | 'dotted' | 'sketch';
+export type BorderStyle = 'solid' | 'dashed' | 'dotted' | 'sketch' | 'polaroid';
 
 export interface ImageMeta {
   kind: 'image';
@@ -44,6 +44,7 @@ export const FRAME_PRESETS: { id: string; label: string; width: number; color: s
   { id: 'white', label: 'White', width: 30, color: '#ffffff', style: 'solid' },
   { id: 'wooden', label: 'Wooden', width: 30, color: '#8a5a2b', style: 'solid' },
   { id: 'sketch', label: 'Hand-drawn', width: 10, color: '#211c17', style: 'sketch' },
+  { id: 'polaroid', label: 'Polaroid', width: 26, color: '#ffffff', style: 'polaroid' },
 ];
 
 export const metaOf = (o: FabricObject | null | undefined): ImageMeta | null =>
@@ -334,6 +335,29 @@ export function syncBorder(canvas: Canvas, img: FabricImage) {
     return;
   }
   const { width, color, style } = meta.border;
+
+  /* A polaroid is not an outline — it is a card the photo sits ON, with a
+     deep lip at the bottom to write on. So it is a FILLED rect, larger than
+     the photo, offset downwards, and stacked BEHIND rather than on top.
+     The offset is carried on the object because placeBorder recomputes
+     left/top from the photo's centre on every move. */
+  if (style === 'polaroid') {
+    const m = width, bottom = width * 3.4;
+    const card = new Rect({
+      originX: 'center', originY: 'center', left: 0, top: 0,
+      width: img.width! + m * 2, height: img.height! + m + bottom,
+      fill: color, stroke: 'rgba(0,0,0,0.10)', strokeWidth: 1, strokeUniform: true,
+      selectable: false, evented: false, excludeFromExport: false,
+    });
+    (card as unknown as { __offsetY: number; __behind: boolean }).__offsetY = (bottom - m) / 2;
+    (card as unknown as { __behind: boolean }).__behind = true;
+    (card as unknown as { dru: BorderMeta }).dru = { kind: 'border', for: meta.id };
+    if (border) canvas.remove(border);
+    canvas.add(card);
+    placeBorder(canvas, img, card);
+    return;
+  }
+
   const geometry =
     (style === 'sketch' ? sketchShape(meta.shape, img.width!, img.height!, meta.id) : null)
     ?? makeShape(meta.shape, img.width!, img.height!, meta.radius)
@@ -373,9 +397,12 @@ export function placeBorder(canvas: Canvas, img: FabricImage, border?: FabricObj
   // heart paths carry their own base scale — multiply, don't overwrite
   const baseSX = (border as any).__baseSX ?? ((border as any).__baseSX = border.scaleX ?? 1);
   const baseSY = (border as any).__baseSY ?? ((border as any).__baseSY = border.scaleY ?? 1);
+  /* polaroid cards sit lower than their photo — see syncBorder */
+  const oy = ((border as unknown as { __offsetY?: number }).__offsetY ?? 0) * (img.scaleY ?? 1);
+  const drop = new Point(0, oy).rotate(util.degreesToRadians(img.angle ?? 0));
   border.set({
-    left: center.x + off.x,
-    top: center.y + off.y,
+    left: center.x + off.x + drop.x,
+    top: center.y + off.y + drop.y,
     originX: 'center', originY: 'center',
     scaleX: baseSX * (img.scaleX ?? 1),
     scaleY: baseSY * (img.scaleY ?? 1),
@@ -383,7 +410,8 @@ export function placeBorder(canvas: Canvas, img: FabricImage, border?: FabricObj
   });
   border.setCoords();
   const idx = canvas.getObjects().indexOf(img as unknown as FabricObject);
-  canvas.moveObjectTo(border, idx + 1); // frame sits on top of its photo
+  /* an outline frame goes over its photo; a polaroid card goes under it */
+  canvas.moveObjectTo(border, (border as unknown as { __behind?: boolean }).__behind ? idx : idx + 1);
   canvas.requestRenderAll();
 }
 
