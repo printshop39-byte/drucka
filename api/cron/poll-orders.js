@@ -9,6 +9,33 @@
    unset the route stays open (fine for staging) — set it in production. */
 import { sb } from "../_lib/supabase.js";
 import { syncOrderStatus, IN_FLIGHT } from "../_lib/orderStatus.js";
+import { fulfillFromDb } from "../_lib/fulfill.js";
+
+const enc = encodeURIComponent;
+
+/* PASS 1 — drain the fulfilment queue: any enqueued order whose retry time has
+   arrived. fulfillFromDb() self-guards with an optimistic lock + qikink_order_id
+   check, so two overlapping cron runs cannot double-send. Errors are per-order:
+   one order's failure must not abort the sweep. */
+async function drainFulfilmentQueue() {
+  const nowIso = new Date().toISOString();
+  const rows = await sb(
+    `orders?select=id&qikink_status=in.(${enc('"Ready","Failed"')})` +
+      `&payment_status=in.(${enc('"Paid","COD Approved"')})` +
+      `&next_retry_at=lte.${enc(nowIso)}&limit=100`
+  ).catch(() => []);
+
+  const results = [];
+  for (const r of rows ?? []) {
+    try {
+      const out = await fulfillFromDb(r.id);
+      results.push({ id: r.id, ...out });
+    } catch (err) {
+      results.push({ id: r.id, error: err.message });
+    }
+  }
+  return results;
+}
 
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
@@ -16,6 +43,10 @@ export default async function handler(req, res) {
     return res.status(401).json({ ok: false, error: "Unauthorized" });
 
   try {
+    // PASS 1: send/retry enqueued orders.
+    const fulfilled = await drainFulfilmentQueue();
+
+    // PASS 2: existing shipment-status poll (UNCHANGED).
     const inList = IN_FLIGHT.map((s) => `"${s}"`).join(",");
     const rows = await sb(
       `orders?qikink_order_id=not.is.null&qikink_status=in.(${encodeURIComponent(inList)})&select=id,qikink_order_id&limit=500`
@@ -35,7 +66,7 @@ export default async function handler(req, res) {
       }
     }
 
-    res.json({ ok: true, polled: results.length, delivered, results });
+    res.json({ ok: true, fulfilled: fulfilled.length, polled: results.length, delivered, results });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
   }

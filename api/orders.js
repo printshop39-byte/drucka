@@ -6,6 +6,7 @@
 import { sb, orderToRow, rowToOrder } from "./_lib/supabase.js";
 import { sendCapiEvent } from "./_lib/capi.js";
 import { withCors } from "./_lib/cors.js";
+import { logEvent, EVENTS } from "./_lib/events.js";
 
 const isAdmin = (req) =>
   !!process.env.ADMIN_SECRET && req.headers["x-admin-secret"] === process.env.ADMIN_SECRET;
@@ -20,11 +21,18 @@ async function handler(req, res) {
         return res.status(400).json({ ok: false, error: "Invalid pincode" });
       if (!/^\d{10}$/.test((o.customer.phone ?? "").replace(/\D/g, "").slice(-10)))
         return res.status(400).json({ ok: false, error: "Invalid phone" });
+      // COD orders enter the fulfilment queue as "Queued" (awaiting admin
+      // approval). Prepaid stays "Draft" until the payment webhook flips it to
+      // "Ready". This is the only order-lifecycle change here — the request/
+      // response contract is unchanged.
+      const row = orderToRow(o);
+      if (o.paymentMode === "cod") row.qikink_status = "Queued";
       await sb("orders?on_conflict=id", {
         method: "POST",
-        body: orderToRow(o),
+        body: row,
         headers: { Prefer: "resolution=merge-duplicates,return=representation" },
       });
+      await logEvent(o.id, EVENTS.ORDER_CREATED, { paymentMode: o.paymentMode });
       /* Meta CAPI — COD orders have no payment webhook, so send a reliable
          server-side InitiateCheckout at placement (Purchase follows only on
          delivery). event_id matches the browser InitiateCheckout so Meta

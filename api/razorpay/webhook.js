@@ -8,9 +8,9 @@
    optimistic "Paid" is just UX. */
 import { verifyWebhookSignature } from "../_lib/razorpay.js";
 import { sb, rowToOrder } from "../_lib/supabase.js";
-import { fulfillFromDb } from "../_lib/fulfill.js";
 import { sendCapiEvent } from "../_lib/capi.js";
 import { withCors } from "../_lib/cors.js";
+import { logEvent, EVENTS } from "../_lib/events.js";
 
 // Disable body parsing — the signature is computed over the raw bytes.
 export const config = { api: { bodyParser: false } };
@@ -41,14 +41,22 @@ async function handler(req, res) {
       (await sb(`orders?razorpay_order_id=eq.${encodeURIComponent(payment.order_id ?? "")}&select=id`))?.[0]?.id;
     if (!druckaOrderId) return res.status(404).json({ ok: false, error: "Drucka order not found" });
 
-    const [updated] = await sb(`orders?id=eq.${encodeURIComponent(druckaOrderId)}`, {
-      method: "PATCH",
-      body: {
-        payment_status: "Paid",
-        razorpay_payment_id: payment.id ?? null,
-        paid_at: new Date().toISOString(),
-      },
-    }) ?? [];
+    // Authoritative payment confirmation + enqueue for fulfilment, in ONE atomic
+    // PATCH. Gated on qikink_status="Draft" so a duplicate/late webhook delivery
+    // can never reset an already-enqueued/sent order back to "Ready" (which would
+    // risk a re-send). First delivery: Draft → Paid + Ready. Re-delivery: 0 rows,
+    // so payment recording, CAPI, and enqueue all no-op — idempotent.
+    const [updated] =
+      (await sb(`orders?id=eq.${encodeURIComponent(druckaOrderId)}&qikink_status=eq.Draft`, {
+        method: "PATCH",
+        body: {
+          payment_status: "Paid",
+          razorpay_payment_id: payment.id ?? null,
+          paid_at: new Date().toISOString(),
+          qikink_status: "Ready",
+          next_retry_at: new Date().toISOString(),
+        },
+      })) ?? [];
 
     /* Meta Conversions API — authoritative server-side Purchase. Uses the
        SAME event_id as the browser pixel (purchase_<orderId>) so Meta
@@ -68,19 +76,11 @@ async function handler(req, res) {
       console.warn(`CAPI Purchase error for ${druckaOrderId}:`, err.message);
     }
 
-    // Paid → straight to Qikink (the full automated flow)
-    if (process.env.AUTO_SEND_ON_PAID === "true") {
-      try {
-        const { qikinkOrderId } = await fulfillFromDb(druckaOrderId);
-        return res.json({ ok: true, paid: true, qikinkOrderId });
-      } catch (err) {
-        // payment IS recorded; fulfillment failure is saved to last_error
-        // and visible in the admin panel for a manual "Retry send".
-        console.error(`Auto-fulfil failed for ${druckaOrderId}:`, err.message);
-        return res.json({ ok: true, paid: true, fulfillError: err.message });
-      }
-    }
-    res.json({ ok: true, paid: true });
+    // Paid → enqueued as "Ready". The cron drain (and Phase-5 background kick)
+    // send it to Qikink via the idempotent fulfillFromDb(). The webhook never
+    // calls Qikink directly, so a slow Qikink can't hold up the payment ack.
+    if (updated) await logEvent(druckaOrderId, EVENTS.FULFILLMENT_QUEUED, { via: "payment" });
+    res.json({ ok: true, paid: true, queued: !!updated });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
   }
