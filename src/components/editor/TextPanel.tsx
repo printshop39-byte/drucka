@@ -1,13 +1,16 @@
-import { Textbox } from 'fabric';
+import { FabricText, Shadow, Textbox } from 'fabric';
 import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { TEXT_FONTS } from '../../lib/editor/fabricHelpers';
 import ColorShades from './ColorShades';
 
-/* ── typography controls for the selected Textbox ── */
+/* ── typography controls for the selected text ── */
 
 interface Props {
-  text: Textbox;
+  text: Textbox | FabricText;
   onPatch: (props: Partial<Record<string, unknown>>) => void;
+  /* curving swaps a Textbox for a FabricText and back — Textbox ignores
+     `path` — which needs the canvas, so the editor owns that operation */
+  onCurve: (curve: number) => void;
 }
 
 const TEXT_SWATCHES = ['#211c17', '#ffffff', '#c19a3d', '#6e1423', '#1e3a8a', '#5b21b6'];
@@ -15,7 +18,7 @@ const TEXT_SWATCHES = ['#211c17', '#ffffff', '#c19a3d', '#6e1423', '#1e3a8a', '#
    caption off a busy photo and gives it the sticker look */
 const OUTLINE_SWATCHES = ['#ffffff', '#211c17', '#c19a3d', '#6e1423', '#1e3a8a'];
 
-export default function TextPanel({ text, onPatch }: Props) {
+export default function TextPanel({ text, onPatch, onCurve }: Props) {
   const bold = `${text.fontWeight}` === '700' || text.fontWeight === 'bold';
   const italic = text.fontStyle === 'italic';
   return (
@@ -86,6 +89,36 @@ export default function TextPanel({ text, onPatch }: Props) {
             onChange={(c) => onPatch({ stroke: c, paintFirst: 'stroke' })} />
         )}
       </div>
+
+      {/* Curve. 0 removes the path entirely rather than leaving a flat one —
+          a straight path still changes how Fabric measures and aligns the
+          line, so the text would not sit back exactly where it started. */}
+      <label className="block">
+        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+          Curve <span className="text-white/70">{(text as unknown as { druCurve?: number }).druCurve ?? 0}</span>
+        </span>
+        <input type="range" min={-100} max={100}
+          value={(text as unknown as { druCurve?: number }).druCurve ?? 0}
+          onChange={(e) => onCurve(+e.target.value)}
+          className="w-full accent-gold" />
+      </label>
+
+      <label className="block">
+        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+          Shadow <span className="text-white/70">{(text as unknown as { druShadow?: number }).druShadow ?? 0}</span>
+        </span>
+        <input type="range" min={0} max={30}
+          value={(text as unknown as { druShadow?: number }).druShadow ?? 0}
+          onChange={(e) => {
+            const v = +e.target.value;
+            onPatch({
+              druShadow: v,
+              shadow: v === 0 ? null
+                : new Shadow({ color: 'rgba(0,0,0,0.45)', blur: v, offsetX: v * 0.28, offsetY: v * 0.36 }),
+            });
+          }}
+          className="w-full accent-gold" />
+      </label>
 
       <label className="block">
         <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
