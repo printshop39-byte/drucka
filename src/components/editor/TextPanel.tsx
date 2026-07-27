@@ -1,6 +1,7 @@
 import { Textbox } from 'fabric';
 import { AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { TEXT_FONTS } from '../../lib/editor/fabricHelpers';
+import ColorShades from './ColorShades';
 
 /* ── typography controls for the selected Textbox ── */
 
@@ -10,6 +11,9 @@ interface Props {
 }
 
 const TEXT_SWATCHES = ['#211c17', '#ffffff', '#c19a3d', '#6e1423', '#1e3a8a', '#5b21b6'];
+/* white leads: an outline is nearly always white, which is what lifts a
+   caption off a busy photo and gives it the sticker look */
+const OUTLINE_SWATCHES = ['#ffffff', '#211c17', '#c19a3d', '#6e1423', '#1e3a8a'];
 
 export default function TextPanel({ text, onPatch }: Props) {
   const bold = `${text.fontWeight}` === '700' || text.fontWeight === 'bold';
@@ -54,16 +58,33 @@ export default function TextPanel({ text, onPatch }: Props) {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5">
-        <span className="mr-1 text-[9px] font-bold uppercase tracking-wide text-white/35">Color</span>
-        {TEXT_SWATCHES.map((c) => (
-          <button key={c} title={c} onClick={() => onPatch({ fill: c })}
-            className={`h-6 w-6 rounded-full border-2 ${text.fill === c ? 'border-gold ring-2 ring-gold/40' : 'border-white/20'}`}
-            style={{ backgroundColor: c }} />
-        ))}
-        <input type="color" value={typeof text.fill === 'string' ? text.fill : '#211c17'}
-          onChange={(e) => onPatch({ fill: e.target.value })}
-          className="h-6 w-6 cursor-pointer rounded-full border border-white/20 bg-transparent" />
+      <ColorShades label="Colour" compact base={TEXT_SWATCHES}
+        value={typeof text.fill === 'string' ? text.fill : '#211c17'}
+        onChange={(c) => onPatch({ fill: c })} />
+
+      {/* Outline. paintFirst: 'stroke' draws the outline BEHIND the letters —
+          without it Fabric centres the stroke on the glyph edge and eats into
+          the letterform, so a thick outline turns the word to mush. */}
+      <div className="space-y-1.5 rounded-xl border border-white/10 p-2">
+        <label className="block">
+          <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+            Outline <span className="text-white/70">{Math.round(text.strokeWidth ?? 0)}px</span>
+          </span>
+          <input type="range" min={0} max={24} value={Math.round(text.strokeWidth ?? 0)}
+            onChange={(e) => onPatch({
+              strokeWidth: +e.target.value,
+              stroke: (typeof text.stroke === 'string' && text.stroke) || '#ffffff',
+              paintFirst: 'stroke',
+              strokeLineJoin: 'round',
+              strokeLineCap: 'round',
+            })}
+            className="w-full accent-gold" />
+        </label>
+        {(text.strokeWidth ?? 0) > 0 && (
+          <ColorShades compact base={OUTLINE_SWATCHES}
+            value={typeof text.stroke === 'string' ? text.stroke : '#ffffff'}
+            onChange={(c) => onPatch({ stroke: c, paintFirst: 'stroke' })} />
+        )}
       </div>
 
       <label className="block">

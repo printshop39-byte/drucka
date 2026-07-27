@@ -1,4 +1,5 @@
 import { Eraser } from 'lucide-react';
+import ColorShades from './ColorShades';
 
 /* ── pen/brush controls (shown while drawing mode is active) ── */
 
@@ -14,16 +15,7 @@ interface Props {
 export default function DrawingPanel({ color, onColor, size, onSize, onClear, hasDrawings }: Props) {
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        {BRUSH_COLORS.map((c) => (
-          <button key={c} title={c} onClick={() => onColor(c)}
-            className={`h-7 w-7 rounded-full border-2 transition ${color === c ? 'border-gold ring-2 ring-gold/40' : 'border-white/20'}`}
-            style={{ backgroundColor: c }} />
-        ))}
-        <input type="color" value={color} title="Custom brush colour"
-          onChange={(e) => onColor(e.target.value)}
-          className="h-7 w-7 cursor-pointer rounded-full border border-white/20 bg-transparent" />
-      </div>
+      <ColorShades value={color} onChange={onColor} base={BRUSH_COLORS} />
 
       <label className="block">
         <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
