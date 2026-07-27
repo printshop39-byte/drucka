@@ -243,12 +243,28 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
   const importedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
     if (!active) return;
-    fitCanvas(); // the host was 0×0 while hidden, so its size is stale
-    const fc = fcRef.current;
     const fresh = (initialPhotos ?? []).filter((p) => !importedRef.current.has(p.id));
-    if (!fc || !fresh.length) return;
+    if (!fresh.length) return;
     let cancelled = false;
     (async () => {
+      /* Wait for the host to have a real size before placing anything.
+         addPhoto positions each photo against designDims(canvas), so on an
+         unfitted canvas they land outside the artboard and the customer sees
+         a blank board. The host measures 0×0 for a frame or two after mount
+         and for as long as it is hidden behind the Grid editor. React's
+         StrictMode double-invoke happens to paper over this in development —
+         the second run lands after layout — which is exactly why it only
+         showed up on the production build. */
+      for (let i = 0; i < 90; i++) {
+        const host = hostRef.current;
+        if (host && host.clientWidth > 24 && host.clientHeight > 24) break;
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+        if (cancelled) return;
+      }
+      if (cancelled || !fcRef.current) return;
+      fitCanvas();
+
+      const fc = fcRef.current;
       let n = 0;
       for (const p of fresh) {
         if (cancelled || !fcRef.current) return;
@@ -256,7 +272,11 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
           await addPhoto(fc, p.src, fc.getObjects().filter((o) => metaOf(o)).length);
           importedRef.current.add(p.id);
           n += 1;
-        } catch { /* one bad photo should not stop the rest */ }
+        } catch (err) {
+          // never silent — a swallowed failure here is indistinguishable from
+          // "the handover does not work"
+          console.warn('collage: could not bring a photo across', err);
+        }
       }
       if (cancelled || !fcRef.current || !n) return;
       setEmpty(false);
