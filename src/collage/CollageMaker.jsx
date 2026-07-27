@@ -629,7 +629,9 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
         {onPro && (
           <div className="mr-1 flex rounded-full bg-black/5 p-0.5 text-[10px] font-bold" role="tablist" aria-label="Editor mode">
             <span className="rounded-full bg-tangerine px-3 py-1.5 text-white">Grid Editor</span>
-            <button onClick={onPro} title="Freeform mode: shape crops, blend, text, pen, effects"
+            {/* hand the uploaded photos over — Pro used to open blank, which
+                read as the work being thrown away */}
+            <button onClick={() => onPro(photos)} title="Freeform mode: shape crops, blend, text, pen, effects"
               className="rounded-full px-3 py-1.5 text-charcoal/55 transition hover:text-charcoal">
               Pro Editor
             </button>

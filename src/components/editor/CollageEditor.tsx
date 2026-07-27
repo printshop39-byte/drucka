@@ -36,6 +36,11 @@ interface Props {
   onClose: () => void;
   onBackToGrid: () => void;
   showToast: (msg: string) => void;
+  /* Photos the customer already uploaded in the Grid Editor. Switching used
+     to open a blank artboard with no warning, so the work looked lost and
+     every photo had to be uploaded again. They are the same data URLs the
+     grid holds, so they can go straight onto the canvas. */
+  initialPhotos?: { id: string; name?: string; src: string }[];
 }
 
 type TabId = 'layouts' | 'photos' | 'style' | 'size' | 'text' | 'stickers' | 'effects' | 'export';
@@ -50,7 +55,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: numbe
   { id: 'export', label: 'Export', icon: Download },
 ];
 
-export default function CollageEditor({ onBackToGrid, showToast }: Props) {
+export default function CollageEditor({ onBackToGrid, showToast, initialPhotos }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const elRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -211,7 +216,31 @@ export default function CollageEditor({ onBackToGrid, showToast }: Props) {
     const ro = new ResizeObserver(fitCanvas);
     ro.observe(hostRef.current!);
 
+    /* Carry the Grid Editor's photos onto the artboard. This component is
+       unmounted whenever the view leaves Pro, so the canvas is always empty
+       here and there is nothing to duplicate. `cancelled` guards the case
+       where the customer switches straight back out again mid-load. */
+    let cancelled = false;
+    if (initialPhotos?.length) {
+      (async () => {
+        let n = 0;
+        for (const p of initialPhotos) {
+          if (cancelled || !fcRef.current) return;
+          try {
+            await addPhoto(fc, p.src, n);
+            n += 1;
+          } catch { /* one bad photo should not stop the rest */ }
+        }
+        if (cancelled || !fcRef.current || !n) return;
+        setEmpty(false);
+        fc.requestRenderAll();
+        captureSoon();
+        showToast(`${n} photo${n > 1 ? 's' : ''} brought over from the Grid Editor ✓`);
+      })();
+    }
+
     return () => {
+      cancelled = true;
       ro.disconnect();
       fc.dispose();
       fcRef.current = null;

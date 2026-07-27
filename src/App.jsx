@@ -4219,6 +4219,9 @@ export default function App() {
   const [collageOpen, setCollageOpen] = useState(false);
   const [collageView, setCollageView] = useState("welcome"); // welcome | grid | pro
   const [collageInitial, setCollageInitial] = useState(null); // template chosen on welcome
+  /* photos handed from the Grid editor to Pro on a switch — Pro is unmounted
+     when the view leaves it, so it needs them again on every entry */
+  const [collagePhotos, setCollagePhotos] = useState([]);
   const [miniOpen, setMiniOpen] = useState(false); // standalone Mini Prints flow
   const [landing, setLanding] = useState(null); // SEO product landing page slug (null = homepage)
   const [policy, setPolicy] = useState(null);   // /shipping-policy · /returns-policy · /privacy-policy
@@ -4794,7 +4797,7 @@ export default function App() {
             onAddToCart={addToCart}
             onOpenCart={() => setCartOpen(true)}
             showToast={showToast}
-            onPro={() => setCollageView("pro")}
+            onPro={(photos) => { setCollagePhotos(photos ?? []); setCollageView("pro"); }}
           />
         </div>
       )}
@@ -4808,6 +4811,7 @@ export default function App() {
             onClose={() => setCollageOpen(false)}
             onBackToGrid={() => setCollageView("grid")}
             showToast={showToast}
+            initialPhotos={collagePhotos}
           />
         </Suspense>
       )}
