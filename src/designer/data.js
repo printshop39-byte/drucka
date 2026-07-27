@@ -286,12 +286,12 @@ export const PRODUCTS = [
        16″ and 18″; 18″ does not exist, so it is withdrawn and 16″ stays.
        Landed ₹189 (Qikink 140 + ₹49 ship) against ₹649.
 
-       TAX UNCONFIRMED. Every other product's rate and HSN came from the CA
-       table; the cushion was not on it. A printed cushion cover is a made-up
-       textile article (HSN 6304), which is 5% under ₹1000 and 12% above — so
-       at ₹649 it would be 5%, not the 12% left here. Left as it was rather
-       than guessed at; the ONLY entry without an hsn, so it is easy to find. */
-    basePrice: 649, taxRate: 12,
+       HSN 6304 — a printed cushion cover is a made-up textile article, so it
+       follows the garment slabs: 5% under ₹1000 a piece, 12% at or above.
+       The cushion sells at a flat ₹649 with no size surcharge and one size,
+       so 5% is the rate today. If it is ever priced at ₹1000 or more, this
+       has to become 12%. */
+    basePrice: 649, taxRate: 5, hsn: "6304",
     availableColors: ["white"],
     availableSizes: ['16"'], sizeSurcharge: {}, sizeChart: null,
     printingOptions: FULL_COLOUR,
