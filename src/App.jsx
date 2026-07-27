@@ -4219,9 +4219,19 @@ export default function App() {
   const [collageOpen, setCollageOpen] = useState(false);
   const [collageView, setCollageView] = useState("welcome"); // welcome | grid | pro
   const [collageInitial, setCollageInitial] = useState(null); // template chosen on welcome
-  /* photos handed from the Grid editor to Pro on a switch — Pro is unmounted
-     when the view leaves it, so it needs them again on every entry */
+  /* photos handed from the Grid editor to Pro on a switch */
   const [collagePhotos, setCollagePhotos] = useState([]);
+  /* Pro is lazy — do not download or mount it until the customer asks for it
+     once. After that it stays mounted (hidden behind Grid) so crops, effects,
+     pen strokes and text survive a round trip. */
+  const [proMounted, setProMounted] = useState(false);
+  /* Closing the Collage Maker really does end the session — unmount Pro and
+     drop the handed-over photos, or reopening would show the last artboard. */
+  const closeCollage = () => {
+    setCollageOpen(false);
+    setProMounted(false);
+    setCollagePhotos([]);
+  };
   const [miniOpen, setMiniOpen] = useState(false); // standalone Mini Prints flow
   const [landing, setLanding] = useState(null); // SEO product landing page slug (null = homepage)
   const [policy, setPolicy] = useState(null);   // /shipping-policy · /returns-policy · /privacy-policy
@@ -4779,41 +4789,46 @@ export default function App() {
       )}
 
       {/* Collage Maker — welcome screen routes to the Grid or Pro editor.
-          The Grid editor stays MOUNTED while the Pro editor is open
-          (display:none) so layouts/photos/options survive switching. */}
+          BOTH editors stay MOUNTED once opened (the inactive one is
+          display:none) so layouts, photos, crops, effects and pen strokes
+          survive switching in either direction. Pro is lazy, so it is not
+          mounted until the customer asks for it once. */}
       {collageOpen && collageView === "welcome" && (
         <CollageWelcome
-          onClose={() => setCollageOpen(false)}
+          onClose={closeCollage}
           onStartGrid={(init) => { setCollageInitial(init ?? null); setCollageView("grid"); }}
-          onStartPro={() => setCollageView("pro")}
+          onStartPro={() => { setProMounted(true); setCollageView("pro"); }}
         />
       )}
       {collageOpen && (collageView === "grid" || collageView === "pro") && (
         <div className={collageView === "pro" ? "hidden" : undefined}>
           <CollageMaker
-            onClose={() => setCollageOpen(false)}
+            onClose={closeCollage}
             onBack={() => setCollageView("welcome")}
             initial={collageInitial}
             onAddToCart={addToCart}
             onOpenCart={() => setCartOpen(true)}
             showToast={showToast}
-            onPro={(photos) => { setCollagePhotos(photos ?? []); setCollageView("pro"); }}
+            onPro={(photos) => { setCollagePhotos(photos ?? []); setProMounted(true); setCollageView("pro"); }}
           />
         </div>
       )}
-      {collageOpen && collageView === "pro" && (
-        <Suspense fallback={
-          <div className="fixed inset-0 z-[95] grid place-items-center bg-[#141021] text-sm font-semibold text-white/60">
-            Loading Pro Editor…
-          </div>
-        }>
-          <CollageEditor
-            onClose={() => setCollageOpen(false)}
-            onBackToGrid={() => setCollageView("grid")}
-            showToast={showToast}
-            initialPhotos={collagePhotos}
-          />
-        </Suspense>
+      {collageOpen && proMounted && (collageView === "grid" || collageView === "pro") && (
+        <div className={collageView === "pro" ? undefined : "hidden"}>
+          <Suspense fallback={
+            <div className="fixed inset-0 z-[95] grid place-items-center bg-[#141021] text-sm font-semibold text-white/60">
+              Loading Pro Editor…
+            </div>
+          }>
+            <CollageEditor
+              onClose={closeCollage}
+              onBackToGrid={() => setCollageView("grid")}
+              showToast={showToast}
+              initialPhotos={collagePhotos}
+              active={collageView === "pro"}
+            />
+          </Suspense>
+        </div>
       )}
 
       {miniOpen && (

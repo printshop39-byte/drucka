@@ -41,6 +41,11 @@ interface Props {
      every photo had to be uploaded again. They are the same data URLs the
      grid holds, so they can go straight onto the canvas. */
   initialPhotos?: { id: string; name?: string; src: string }[];
+  /* False while the Grid editor is in front. This component stays mounted so
+     the artboard survives the round trip, so it has to know when it is
+     actually on screen — to refit the canvas, and to pick up any photos
+     added on the grid side while it was hidden. */
+  active?: boolean;
 }
 
 type TabId = 'layouts' | 'photos' | 'style' | 'size' | 'text' | 'stickers' | 'effects' | 'export';
@@ -55,7 +60,7 @@ const TABS: { id: TabId; label: string; icon: React.ComponentType<{ size?: numbe
   { id: 'export', label: 'Export', icon: Download },
 ];
 
-export default function CollageEditor({ onBackToGrid, showToast, initialPhotos }: Props) {
+export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, active = true }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const elRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -99,6 +104,11 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos }
     if (!fc || !host) return;
     const { w, h } = presetRef.current;
     const pad = 24;
+    /* The editor is kept mounted but display:none while the Grid editor is
+       in front, so the host measures 0×0 and the ResizeObserver still fires.
+       Scaling to that would set a negative canvas size and lose the artboard;
+       skip instead and refit when it becomes visible again. */
+    if (host.clientWidth <= pad || host.clientHeight <= pad) return;
     const s = Math.min((host.clientWidth - pad) / w, (host.clientHeight - pad) / h, 1.2);
     fc.setDimensions({ width: Math.round(w * s), height: Math.round(h * s) });
     fc.setZoom(s);
@@ -216,37 +226,47 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos }
     const ro = new ResizeObserver(fitCanvas);
     ro.observe(hostRef.current!);
 
-    /* Carry the Grid Editor's photos onto the artboard. This component is
-       unmounted whenever the view leaves Pro, so the canvas is always empty
-       here and there is nothing to duplicate. `cancelled` guards the case
-       where the customer switches straight back out again mid-load. */
-    let cancelled = false;
-    if (initialPhotos?.length) {
-      (async () => {
-        let n = 0;
-        for (const p of initialPhotos) {
-          if (cancelled || !fcRef.current) return;
-          try {
-            await addPhoto(fc, p.src, n);
-            n += 1;
-          } catch { /* one bad photo should not stop the rest */ }
-        }
-        if (cancelled || !fcRef.current || !n) return;
-        setEmpty(false);
-        fc.requestRenderAll();
-        captureSoon();
-        showToast(`${n} photo${n > 1 ? 's' : ''} brought over from the Grid Editor ✓`);
-      })();
-    }
-
     return () => {
-      cancelled = true;
       ro.disconnect();
       fc.dispose();
       fcRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* ── Grid → Pro photo handover ──
+     Runs whenever this editor becomes visible, not just on mount, because it
+     now stays mounted behind the Grid editor. importedRef records what has
+     already been placed so a second switch does not stack duplicates — and so
+     that a photo deleted here stays deleted rather than reappearing. Photos
+     added on the grid side while this was hidden do come across. */
+  const importedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!active) return;
+    fitCanvas(); // the host was 0×0 while hidden, so its size is stale
+    const fc = fcRef.current;
+    const fresh = (initialPhotos ?? []).filter((p) => !importedRef.current.has(p.id));
+    if (!fc || !fresh.length) return;
+    let cancelled = false;
+    (async () => {
+      let n = 0;
+      for (const p of fresh) {
+        if (cancelled || !fcRef.current) return;
+        try {
+          await addPhoto(fc, p.src, fc.getObjects().filter((o) => metaOf(o)).length);
+          importedRef.current.add(p.id);
+          n += 1;
+        } catch { /* one bad photo should not stop the rest */ }
+      }
+      if (cancelled || !fcRef.current || !n) return;
+      setEmpty(false);
+      fc.requestRenderAll();
+      captureSoon();
+      showToast(`${n} photo${n > 1 ? 's' : ''} brought over from the Grid Editor ✓`);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, initialPhotos]);
 
   /* ── keyboard shortcuts ── */
   useEffect(() => {
