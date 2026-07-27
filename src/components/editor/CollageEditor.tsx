@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActiveSelection, Canvas, FabricImage, FabricObject, FabricText, Group, PencilBrush, Point, Textbox, util,
+  ActiveSelection, Canvas, FabricImage, FabricObject, FabricText, Group, Point, Textbox, util,
 } from 'fabric';
 import {
   LayoutGrid, ImagePlus, Palette, Ruler, Type, Sticker, Download, Pen,
@@ -11,9 +11,10 @@ import {
   AlignOp, BgState, CANVAS_PRESETS, FRAME_PRESETS, HistoryManager, ImageMeta, ShapeId,
   addPhoto, addText, alignObject, applyBackground, applyEffects, applyShape,
   designDims, duplicateObject, downloadDataUrl, eid, exportImage, groupSelection,
-  isLocked, layerOp, mergeSelection, metaOf, placeBorder, removeBorderOf, setTextCurve,
+  isLocked, layerOp, makeBrush, mergeSelection, metaOf, placeBorder, removeBorderOf, setTextCurve,
   replaceImageSrc, setLocked, syncBorder, ungroupSelection,
 } from '../../lib/editor/fabricHelpers';
+import { brushById } from '../../lib/editor/brushes';
 import { GRAPHICS, graphicDataUrl } from '../../designer/data';
 import { prepareUpload } from '../../utils/validateUpload';
 import EditorToolbar from './EditorToolbar';
@@ -80,8 +81,12 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
   const [selected, setSelected] = useState<FabricObject | null>(null);
   const [cropMode, setCropMode] = useState(false);
   const [penMode, setPenMode] = useState(false);
+  const [brushId, setBrushId] = useState('pen');
   const [brushColor, setBrushColor] = useState('#c19a3d');
   const [brushSize, setBrushSize] = useState(8);
+  /* the path:created handler is wired once, on mount, so it reads the live
+     template from a ref rather than a captured piece of state */
+  const brushRef = useRef('pen');
   const [bg, setBg] = useState<BgState>({ type: 'solid', color: '#ffffff' });
   const [grid, setGrid] = useState(false);
   const [snap, setSnap] = useState(true);
@@ -218,6 +223,10 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
         cornerColor: '#c19a3d', cornerStrokeColor: '#fff', borderColor: '#c19a3d',
         cornerSize: 11, transparentCorners: false,
       });
+      /* a real highlighter darkens what it crosses instead of covering it —
+         the blend belongs to the stroke, not to the brush, so it is set here */
+      const blend = brushById(brushRef.current).blend;
+      if (blend) p.set({ globalCompositeOperation: blend });
       setEmpty(false);
       captureSoon();
     });
@@ -377,17 +386,20 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
       if (cropRef.current) exitCrop();
       c.discardActiveObject();
       setSelected(null);
-      if (!c.freeDrawingBrush) c.freeDrawingBrush = new PencilBrush(c);
-      c.freeDrawingBrush.color = brushColor;
-      c.freeDrawingBrush.width = brushSize;
+      c.freeDrawingBrush = makeBrush(c, brushId, brushColor, brushSize);
     }
     c.requestRenderAll();
   };
-  const setBrush = (color: string, size: number) => {
+  /* Every template has its own engine, width scale and opacity, so changing
+     any of the three means building the brush again rather than patching the
+     colour on the old one. */
+  const setBrush = (id: string, color: string, size: number) => {
+    setBrushId(id);
+    brushRef.current = id;
     setBrushColor(color);
     setBrushSize(size);
-    const b = fcRef.current?.freeDrawingBrush;
-    if (b) { b.color = color; b.width = size; }
+    const c = fcRef.current;
+    if (c && c.isDrawingMode) c.freeDrawingBrush = makeBrush(c, id, color, size);
   };
   const clearDrawings = () => {
     const c = fcRef.current;
@@ -768,8 +780,9 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
       </button>
       {penMode && (
         <Section title="Drawing" defaultOpen>
-          <DrawingPanel color={brushColor} onColor={(c) => setBrush(c, brushSize)}
-            size={brushSize} onSize={(s) => setBrush(brushColor, s)}
+          <DrawingPanel brush={brushId} onBrush={(id) => setBrush(id, brushColor, brushSize)}
+            color={brushColor} onColor={(c) => setBrush(brushId, c, brushSize)}
+            size={brushSize} onSize={(s) => setBrush(brushId, brushColor, s)}
             onClear={clearDrawings} hasDrawings={hasDrawings} />
         </Section>
       )}

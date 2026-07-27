@@ -4,9 +4,11 @@
    FabricObject.customProperties) so undo/redo and duplication keep it. */
 
 import {
-  ActiveSelection, Canvas, FabricImage, FabricObject, FabricText, Gradient, Group, Path,
-  Point, Polygon, Rect, Circle, Shadow, Textbox, Triangle, filters, util,
+  ActiveSelection, BaseBrush, Canvas, CircleBrush, FabricImage, FabricObject, FabricText, Gradient,
+  Group, Path, PencilBrush, Point, Polygon, Rect, Circle, Shadow, SprayBrush, Textbox, Triangle,
+  filters, util,
 } from 'fabric';
+import { brushById, withAlpha } from './brushes';
 
 /* serialize our metadata with every snapshot/clone */
 FabricObject.customProperties = ['dru'];
@@ -69,6 +71,46 @@ export const CANVAS_PRESETS = [
   { id: 'landscape', label: 'Landscape', w: 1350, h: 1080 },
   { id: 'a4', label: 'A4 Print', w: 1240, h: 1754 },
 ];
+
+/* ── brush templates → a real Fabric brush ──
+   The templates themselves live in ./brushes, shared with the Grid Editor and
+   the product designer, which draw on a plain 2D canvas. Only this file knows
+   about Fabric, so only this file maps a template onto one of its brushes. */
+export function makeBrush(canvas: Canvas, brushId: string, color: string, size: number): BaseBrush {
+  const t = brushById(brushId);
+  const w = Math.max(1, size * t.widthScale);
+  let brush: BaseBrush;
+
+  if (t.engine === 'spray') {
+    const b = new SprayBrush(canvas);
+    b.width = w;
+    b.density = t.density ?? 12;
+    b.dotWidth = Math.max(0.6, w * (t.dotScale ?? 0.12) * 2);
+    b.dotWidthVariance = b.dotWidth * 0.6;
+    b.randomOpacity = true;
+    /* merges the overlapping dots one stroke lays down — without it a long
+       spray stroke becomes thousands of rects and the export crawls */
+    b.optimizeOverlapping = true;
+    brush = b;
+  } else if (t.engine === 'dots') {
+    const b = new CircleBrush(canvas);
+    b.width = w;
+    brush = b;
+  } else {
+    const b = new PencilBrush(canvas);
+    b.width = w;
+    b.strokeLineCap = t.lineCap;
+    b.strokeLineJoin = 'round';
+    b.strokeDashArray = t.dash ? t.dash.map((d) => d * w) : null;
+    brush = b;
+  }
+
+  /* the template's opacity rides on the colour — a brush has no opacity of
+     its own, and baking it in keeps the stroke translucent after it lands */
+  brush.color = withAlpha(color, t.opacity);
+  brush.shadow = t.glow ? new Shadow({ color, blur: t.glow * w, offsetX: 0, offsetY: 0 }) : null;
+  return brush;
+}
 
 /* ── background ── */
 export const BG_SWATCHES = ['#ffffff', '#faf7f2', '#211c17', '#000000', '#c19a3d', '#5b21b6', '#fbe3ea', '#dbeafe'];
