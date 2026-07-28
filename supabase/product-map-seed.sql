@@ -6,6 +6,10 @@
 -- qikink_product_id and carries stale SKU stems, which is worse than an empty
 -- table - fulfillFromDb would find a mapping and send Qikink a product id that
 -- does not exist. Run schema-update.sql for the DDL, then this for the data.
+--
+-- Re-running RESETS active to the values below (on conflict ... do update).
+-- So if you enable a row in the database, flip it here too, or the next run
+-- of this file will quietly switch it back off.
 
 insert into public.product_map
   (drucka_id, product_name, qikink_product_id, sku_pattern, print_method, colors, sizes, base_cost, shipping_cost, print_areas, active)
@@ -13,8 +17,18 @@ values
   ('tshirt', 'Regular T-Shirt', 'MRNHS-180', 'MRnHs-{color}-{size}', 'DTG', '["white","black","navy","red","royal-blue","bottle-green","maroon","yellow","lavender","baby-pink"]', '["S","M","L","XL","XXL","3XL","4XL","5XL","6XL","7XL"]', 359, 49, '["Front","Back","Left chest"]', true),
   ('oversized', 'Oversized T-Shirt', 'UC22', 'UOsMRnHs-{color}-{size}', 'DTF', '["white","black","navy"]', '["S","M","L","XL","XXL"]', 419, 49, '["Front","Back"]', true),
   ('polo', 'Polo T-Shirt', 'MP25', 'MPHs-{color}-{size}', 'Embroidery', '["white","black","navy"]', '["S","M","L","XL","XXL"]', 449, 49, '["Left chest"]', false),
-  ('kids-tshirt', 'Kids T-Shirt', 'US21', 'BRnHs-{color}-{size}', 'DTG', '["white","yellow","baby-pink","royal-blue","red"]', '["0–12M","12–23M","24–35M","36–47M","5Y","7Y","9Y","11Y","13Y"]', 329, 49, '["Front","Back"]', true),
-  ('kids-hoodie', 'Kids Hoodie', 'KHd', 'KHd-{color}-{size}', 'DTF', '["black","red","yellow","baby-pink"]', '["0–12M","12–23M","24–35M","36–47M","5Y","7Y","9Y","11Y","13Y"]', 495, 49, '["Front","Back"]', true),
+  -- Both kids stems ship INACTIVE. Their size tokens (0_12 … 13Yrs) and the
+  -- per-stem colour codes (BRnHs has no plain Yellow, KHd spells baby pink
+  -- BPk) are verified against the sku_descriptions export but not yet against
+  -- the live Qikink account. They gate together: BRnHs and KHd differ only in
+  -- stem and colour codes, so confirming one confirms the other.
+  --   Enable after confirming:
+  --     update public.product_map set active = true
+  --      where drucka_id in ('kids-tshirt','kids-hoodie');
+  -- Until then keep both hidden from checkout — a sellable product with no
+  -- active mapping becomes a paid order that fails "No active product mapping".
+  ('kids-tshirt', 'Kids T-Shirt', 'US21', 'BRnHs-{color}-{size}', 'DTG', '["white","yellow","baby-pink","royal-blue","red"]', '["0–12M","12–23M","24–35M","36–47M","5Y","7Y","9Y","11Y","13Y"]', 329, 49, '["Front","Back"]', false),
+  ('kids-hoodie', 'Kids Hoodie', 'KHd', 'KHd-{color}-{size}', 'DTF', '["black","red","yellow","baby-pink"]', '["0–12M","12–23M","24–35M","36–47M","5Y","7Y","9Y","11Y","13Y"]', 495, 49, '["Front","Back"]', false),
   ('hoodie', 'Hoodie', 'UH24', 'UHd-{color}-{size}', 'DTF', '["white","black","navy","maroon","bottle-green"]', '["S","M","L","XL","XXL","3XL"]', 649, 69, '["Front","Back"]', true),
   ('mug', 'Photo Mug', 'UWCM', 'UWCM-{color}-11 OZ', 'Sublimation', '["white"]', '["325 ml"]', 179, 49, '["Wrap"]', true),
   ('frame', 'Framed Print', 'UFPos', 'UFPos-{color}-{size}', 'Sublimation', '["black","white"]', '["A4","A3"]', 350, 49, '["Front"]', true),
