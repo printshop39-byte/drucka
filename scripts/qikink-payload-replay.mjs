@@ -38,6 +38,41 @@ const value = (name, fallback = null) => {
 };
 const REDACT = !flag("--raw");
 
+/* ── the product map ──
+   fulfillFromDb() reads it from Supabase, but the admin "Send to Qikink"
+   button does not: it builds its line items in the browser, from the map the
+   app ships in src/App.jsx (kept in localStorage as drucka-product-map-v5).
+   An order sent that way was mapped by THAT map, so replaying it against the
+   database table would be replaying the wrong one — and on a database where
+   product_map was never created, the table is not even there. --map-from-app
+   reads the shipped map instead.
+
+   The entries are one per line in App.jsx, so they are picked out field by
+   field rather than by trying to parse JSX as data. */
+async function mapFromApp(appPath) {
+  const src = await readFile(appPath, "utf8");
+  const field = (line, name) => {
+    const m = line.match(new RegExp(`${name}:\\s*"([^"]*)"`));
+    return m ? m[1] : null;
+  };
+  const out = [];
+  for (const line of src.split("\n")) {
+    if (!/druckaId:\s*"/.test(line)) continue;
+    const drucka_id = field(line, "druckaId");
+    if (!drucka_id) continue;
+    out.push({
+      drucka_id,
+      qikink_product_id: field(line, "qikinkProductId"),
+      sku_pattern: field(line, "skuPattern"),
+      print_method: field(line, "printMethod"),
+      product_name: field(line, "druckaName"),
+      active: !/active:\s*false/.test(line),
+    });
+  }
+  if (!out.length) throw new Error(`No QIKINK_PRODUCT_MAP entries found in ${appPath}`);
+  return out;
+}
+
 /* ── fetch rows ── */
 async function fromSupabase(limit) {
   const url = process.env.SUPABASE_URL;
@@ -55,7 +90,11 @@ async function fromSupabase(limit) {
     `orders?qikink_order_id=not.is.null&select=id,total,payment_mode,payment_status,qikink_order_id,items,customer` +
       `&order=created_at.desc&limit=${encodeURIComponent(limit)}`
   );
-  const map = await get("product_map?select=*&order=drucka_id");
+  /* product_map may not exist at all — on the live database it never was
+     created, which is why the automated path cannot map a SKU and the admin
+     button's browser-side map is the one that mattered. Fall back rather
+     than fail. */
+  const map = await get("product_map?select=*&order=drucka_id").catch(() => []);
   return { orders, map };
 }
 
@@ -168,14 +207,19 @@ function redact(payload) {
 }
 
 /* ── run ── */
-const { orders, map } = flag("--file")
+let { orders, map } = flag("--file")
   ? await (async () => {
       const parsed = JSON.parse(await readFile(value("--file"), "utf8"));
       return Array.isArray(parsed)
-        ? { orders: parsed, map: JSON.parse(await readFile(value("--map", "product_map.json"), "utf8")) }
+        ? { orders: parsed, map: [] }
         : { orders: parsed.orders ?? [], map: parsed.product_map ?? parsed.map ?? [] };
     })()
   : await fromSupabase(Number(value("--last", "3")));
+
+if (flag("--map-from-app") || !map?.length) {
+  map = await mapFromApp(value("--map-from-app", "src/App.jsx"));
+  console.log(`(product map: ${map.length} entries from the app's built-in QIKINK_PRODUCT_MAP)`);
+}
 
 if (!orders.length) {
   console.error("No orders with a qikink_order_id found.");
