@@ -83,7 +83,21 @@ const CLEARED = {
   courier: null,
   last_error: null,
 };
-const SAVED_FIELDS = Object.keys(CLEARED);
+
+/* last_error only exists once supabase/schema-update.sql has been run, and on
+   drucka.in it has not been (product_map is missing too, which is how this came
+   up). Asking PostgREST for a column the table does not have 400s the whole
+   run, so the fields are intersected with what the table actually has —
+   see savedFields(), called once the argument guards have passed. */
+async function savedFields() {
+  const wanted = Object.keys(CLEARED);
+  const [sample] = (await rest("orders?select=*&limit=1")) ?? [];
+  if (!sample) return wanted; // empty table — nothing to clear anyway
+  const have = wanted.filter((f) => f in sample);
+  for (const f of wanted.filter((f) => !have.includes(f)))
+    console.log(`  · column ${f} is absent from public.orders — skipping it (run supabase/schema-update.sql to add it)`);
+  return have;
+}
 
 /* ── --restore ── put a backup file's old values back ── */
 if (RESTORE) {
@@ -149,6 +163,13 @@ if (!SKIP_VERIFY) {
 }
 
 /* ── read the rows ── */
+const SAVED_FIELDS = await savedFields();
+const CLEAR_BODY = Object.fromEntries(SAVED_FIELDS.map((f) => [f, CLEARED[f]]));
+if (!SAVED_FIELDS.includes("qikink_order_id")) {
+  console.error("public.orders has no qikink_order_id column — wrong database?");
+  process.exit(1);
+}
+
 let query = `orders?qikink_order_id=not.is.null&select=id,created_at,payment_status,${SAVED_FIELDS.join(",")}&order=created_at.desc`;
 if (IDS.length) query += `&id=in.(${IDS.map((i) => `"${i}"`).join(",")})`;
 if (BEFORE) query += `&created_at=lt.${encodeURIComponent(BEFORE)}`;
@@ -210,7 +231,7 @@ console.log(`\nBackup written: ${backupPath}`);
 let done = 0;
 for (const row of toClear) {
   try {
-    await rest(`orders?id=eq.${encodeURIComponent(row.id)}`, { method: "PATCH", body: CLEARED });
+    await rest(`orders?id=eq.${encodeURIComponent(row.id)}`, { method: "PATCH", body: CLEAR_BODY });
     done++;
     console.log(`  cleared ${row.id}`);
   } catch (err) {
