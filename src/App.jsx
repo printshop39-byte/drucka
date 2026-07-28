@@ -5,7 +5,7 @@ import { payWithRazorpay } from "./lib/paymentClient";
 import * as pixel from "./lib/metaPixel";
 import { productById as designerProductById } from "./designer/data";
 import { usesNewShell, setForceClassicEditor } from "./utils/editorFlags";
-import { qikinkColorCode, colorIdOf, sizeTokenFor, SKU_SIZE_TOKEN, KIDS_SIZES } from "../api/_lib/qikinkCatalog";
+import { qikinkColorCode, colorIdOf, sizeTokenFor, SKU_SIZE_TOKEN, KIDS_SIZES, isInHouseVariant } from "../api/_lib/qikinkCatalog";
 /* Heavy editors/modals — lazy-loaded so they stay OUT of the homepage bundle
    and only download when the user actually opens one */
 const DesignerProductPage = lazy(() => import("./designer/ProductPage"));
@@ -600,8 +600,12 @@ function buildQikinkOrderPayload(order, settings, map = QIKINK_PRODUCT_MAP) {
    WhatsApp, with nothing to print and no SKU to buy. Without this the item
    looks like an unmapped product and the admin gets a missing-SKU error for
    something that was never meant to leave the studio. */
+/* The mapping's own inHouseSizes still wins, but a map loaded from the
+   product_map TABLE has lost that field — it has no column for it — so fall
+   back to the shared rule, the one the server path reads too. */
 const isInHouseItem = (item, mapping) =>
-  Boolean(mapping?.inHouseSizes?.includes(item.size));
+  Boolean(mapping?.inHouseSizes?.includes(item.size)) ||
+  isInHouseVariant(item.productId, item.size);
 
 /* API safety: validate before any send. Returns a list of problems. */
 function validateQikinkOrder(order, map = QIKINK_PRODUCT_MAP) {

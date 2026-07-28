@@ -71,6 +71,21 @@ export const qikinkColorCode = (v, stem = null) => {
   return resolveQikinkColor(v)?.code ?? null;
 };
 
+/* ── Variants Drucka makes itself ──
+   drucka product id → the sizes Qikink has no SKU for. The digital invitation
+   is a file Drucka designs and sends on WhatsApp; nothing is printed.
+
+   This rule lived only in QIKINK_PRODUCT_MAP's inHouseSizes, in the browser.
+   The product_map TABLE has no column for it, so the database-driven path —
+   fulfillFromDb, i.e. the Razorpay auto-send — never saw the rule at all and
+   would have handed Qikink a digital invite to print as a greeting card. It
+   lives here now, where both paths already read their SKU spelling from. */
+export const IN_HOUSE_SIZES = {
+  "invitation-cards": ["Digital"],
+};
+export const isInHouseVariant = (druckaId, size) =>
+  (IN_HOUSE_SIZES[String(druckaId ?? "")] ?? []).some((s) => key(s) === key(size));
+
 /* Print area → Qikink's placement_sku. Keyed by the print-area IDS the app
    uses as well as the human labels: Drucka says "pocket" where Qikink says
    "chest" for the same spot on the garment. */
