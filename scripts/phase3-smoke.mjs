@@ -21,6 +21,26 @@ if (!ADMIN) {
   process.exit(2);
 }
 
+/* "Never production" was a line in a comment, which is no guard at all: step 5
+   calls the cron drain, and the drain sends EVERY enqueued order on whatever
+   database that deployment talks to — not just the order this script placed.
+   Pointed at production it would hand real customer orders to Qikink, and
+   leave a TEST- row in the live table besides. So the hosts are refused
+   outright, with no override flag: if a run needs production, it is not this
+   script's job.
+
+   Note this checks the HOST, not the database. A Vercel preview URL passes
+   here while still reading SUPABASE_URL from the Production-and-Preview
+   scope — i.e. the live database. Staging means a deployment with its own
+   Supabase project, not merely a different URL. */
+const PRODUCTION_HOSTS = ["drucka.in", "www.drucka.in"];
+const host = (() => { try { return new URL(BASE).host.toLowerCase(); } catch { return ""; } })();
+if (PRODUCTION_HOSTS.includes(host)) {
+  console.error(`✗ ${host} is production. These are acceptance tests: they place orders and run the`);
+  console.error("  cron drain, which sends every enqueued order to Qikink. Point BASE_URL at staging.");
+  process.exit(2);
+}
+
 const call = async (path, opts = {}) => {
   const res = await fetch(`${BASE}${path}`, opts);
   const body = await res.json().catch(() => null);
