@@ -12,6 +12,7 @@
 import { sb, rowToOrder } from "./supabase.js";
 import { uploadDataUrl } from "./cloudinary.js";
 import { qikinkFetch } from "./qikink.js";
+import { isInHouseVariant } from "./qikinkCatalog.js";
 import { logEvent, EVENTS } from "./events.js";
 
 const enc = encodeURIComponent;
@@ -67,7 +68,16 @@ export async function fulfillFromDb(druckaOrderId) {
   try {
     const artworkUrls = [];
     const line_items = [];
+    const inHouse = [];
     for (const item of order.items) {
+      /* Drucka makes some variants itself — checked BEFORE the mapping and
+         artwork rules, because a digital invitation has real artwork and no
+         Qikink SKU: it would otherwise fail "No active product mapping" or,
+         worse, match the printed card's mapping and be printed. */
+      if (isInHouseVariant(item.productId, item.size)) {
+        inHouse.push(item.name ?? item.productId);
+        continue;
+      }
       const m = map.find((x) => x.drucka_id === item.productId && x.active);
       if (!m) throw new Error(`No active product mapping for ${item.productId}`);
       const designs = [];
@@ -115,11 +125,29 @@ export async function fulfillFromDb(druckaOrderId) {
     }
     await logEvent(druckaOrderId, EVENTS.ARTWORK_UPLOADED, { count: artworkUrls.length });
 
+    /* Every line was in-house — there is nothing for Qikink to print. Sending
+       an empty order would be rejected; throwing would mark a perfectly good
+       paid order Failed and leave Razorpay retrying the webhook forever. */
+    if (!line_items.length) {
+      await sb(`orders?id=eq.${enc(order.id)}`, {
+        method: "PATCH",
+        /* Drucka is making it; no Qikink id to poll. Clearing next_retry_at
+           leaves no queue bookkeeping behind on an order that has left the
+           queue for good — the same tidy-up the success path does. */
+        body: { qikink_status: "In Production", next_retry_at: null },
+      });
+      console.log(`[qikink-monitor] order=${order.id} in_house_only=1 items=${inHouse.join("|")}`);
+      return { inHouseOnly: true, inHouse };
+    }
+
     const payload = {
       order_number: order.id,
       brand_name: "Drucka", // white-label — customer sees Drucka only
       gateway: order.paymentMode === "cod" ? "COD" : "Prepaid",
       payment_status: order.paymentStatus,
+      /* The WHOLE order total, even when an in-house line was filtered out
+         above: on COD this is what the courier collects, and the customer
+         does owe it — Drucka delivers the digital half itself. */
       total_order_value: order.total,
       qikink_shipping: "1",
       line_items,
