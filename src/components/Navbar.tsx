@@ -252,7 +252,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               onClick={onUpload}
               className="ml-1 hidden min-h-[44px] items-center gap-2 rounded-xl bg-gold px-5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold lg:flex"
             >
-              Start Customising
+              Start Creating
             </button>
           </div>
         </div>
@@ -310,7 +310,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               onClick={() => { setMobileOpen(false); onUpload?.(); }}
               className="mb-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-gold text-sm font-bold uppercase tracking-wide text-white"
             >
-              Start Customising
+              Start Creating
             </button>
 
             {/* Home had no entry here at all — on a landing or policy route the

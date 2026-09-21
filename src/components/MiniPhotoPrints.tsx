@@ -57,7 +57,7 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
               <h3 className="font-serif font-semibold text-lg text-charcoal">{item.name}</h3>
               <p className="text-sm text-charcoal/55">{item.desc}</p>
               <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-charcoal/60">
-                <span className="text-sm font-bold text-charcoal">From ₹190</span>
+                <span className="text-sm font-bold text-charcoal">₹19 / print</span>
                 <span className="text-charcoal/30">•</span>
                 <span>delivery from ₹49 (variable) · 2–4 days</span>
               </div>
@@ -76,7 +76,7 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
           >
             Create your mini prints →
           </button>
-          <p className="mt-3 text-xs text-charcoal/50">Upload photos, pick a size &amp; order in minutes · from ₹190 · delivery from ₹49 (variable)</p>
+          <p className="mt-3 text-xs text-charcoal/50">₹19 per print · minimum 10 prints per order (₹190) · delivery from ₹49. Want a single print? <span className="font-semibold text-charcoal/70">Photo Prints start at ₹39.</span></p>
         </div>
       </div>
     </section>

@@ -10,7 +10,7 @@ import { MiniMockup } from "./MockupPreview";
    stores it locally. */
 
 export default function ProductSubmitInfo({
-  product, color, size, price, qty, layersByPlacement, onBack, onSubmit, onSaveDraft,
+  product, color, size, price, qty, layersByPlacement, onBack, onSubmit,
 }) {
   const printedAreas = product.printAreas.filter((p) => (layersByPlacement[p.id] ?? []).some((l) => l.visible !== false));
   const galleryAreas = printedAreas.length ? printedAreas : product.printAreas.slice(0, 1);
@@ -165,10 +165,6 @@ export default function ProductSubmitInfo({
           </p>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={() => onSaveDraft(submitPayload())}
-            className="rounded-full border-2 border-ink/15 px-5 py-2.5 text-sm font-bold text-ink/70 transition hover:border-ink/35">
-            Save as Draft
-          </button>
           <button onClick={() => onSubmit(submitPayload())}
             className="rounded-full bg-tangerine px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-tangerine/30 transition hover:brightness-105">
             Submit for Review →

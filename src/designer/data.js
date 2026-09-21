@@ -5,11 +5,11 @@
    Cart items carry `qikinkId` so the existing checkout → Qikink product
    mapping keeps working unchanged. */
 
-import { prepareUpload, MAX_UPLOAD_BYTES } from "../utils/validateUpload";
-import { calculate } from "../utils/pricing";
+import { prepareUpload, MAX_UPLOAD_BYTES } from "../utils/validateUpload.js";
+import { calculate } from "../utils/pricing.js";
 /* The kids size labels live with the Qikink tokens they map to, so the
    catalogue and the SKU builder cannot drift apart. */
-import { KIDS_SIZES } from "../../api/_lib/qikinkCatalog";
+import { KIDS_SIZES } from "../../api/_lib/qikinkCatalog.js";
 
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -233,6 +233,14 @@ export const PRODUCTS = [
     basePrice: 299, taxRate: 12, hsn: "6912",
     availableColors: ["white"],
     availableSizes: ["325 ml"], sizeSurcharge: {}, sizeChart: null,
+    /* A mug has a capacity, not a "size", and it is made in one colour — the
+       editor was offering "Available Colors" and "Available Sizes" lifted
+       straight from the t-shirt. See `copy` in the schema notes below. */
+    copy: {
+      sizeLabel: "Capacity", colorLabel: "Finish",
+      careNote: "Dishwasher & microwave safe · hand-wash keeps the print brightest",
+      uploadTip: "Photos print beautifully — the wrap goes edge to edge around the mug",
+    },
     printingOptions: FULL_COLOUR,
     mockups: { base: "mug", ext: "webp", colors: ["white"] },
     image: "/images/mug.webp",
@@ -572,7 +580,7 @@ export const mockupSrc = (product, colorId, photo) => {
 
 /* ── pricing ── everything prices through the single engine entry point.
    calcPrice keeps its signature; internally it's pricingEngine.calculate. */
-export { placementPrintCost } from "../utils/pricing";
+export { placementPrintCost } from "../utils/pricing.js";
 export const calcPrice = (args) => calculate({ family: "designer", ...args });
 
 /* ── layer factories ──

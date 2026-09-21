@@ -7,7 +7,10 @@ import { loadImage } from "../collage/exportCollage";
    border style, an optional polaroid caption, a date stamp and corner
    stickers. Reuses the Collage Maker's cached `loadImage`. */
 
-export const SIZE_ASPECT = { "2x3": 2 / 3, "3x3": 1, "4x3": 4 / 3 }; // width / height
+/* width / height per print-size id. Derived from the shared catalogue so the
+   mini AND regular photo-print sizes render through this one card renderer. */
+export { PRINT_SIZE_ASPECT as SIZE_ASPECT } from "./printSizes";
+import { PRINT_SIZE_ASPECT } from "./printSizes";
 
 export const BORDERS = [
   { id: "none", label: "None" },
@@ -91,7 +94,12 @@ export async function renderMiniCard(photo, photoW = 1100) {
   await ensureFonts();
 
   const conf = borderConf(border);
-  const aspect = SIZE_ASPECT[sizeId] ?? 1;
+  /* `cardAspect` lets the caller flip a portrait paper size to landscape for a
+     landscape photo (see printSizes.aspectFor) — without it a 4×6 would crop
+     half of every holiday snap away. Deliberately NOT called `aspect`: the
+     upload pipeline already puts the PHOTO's own aspect on the object under
+     that name, and the two mean different things. */
+  const aspect = photo.cardAspect ?? PRINT_SIZE_ASPECT[sizeId] ?? 1;
   const photoH = Math.round(photoW / aspect);
   const pad = Math.round(conf.pad * photoW);
   const cap = (caption || "").trim();

@@ -5,7 +5,7 @@
 export const LANDINGS = {
   'mini-prints': {
     slug: 'mini-prints',
-    title: 'Mini Photo Prints Online — 2×3, 3×3, 4×3 inch from ₹190 | Drucka',
+    title: 'Mini Photo Prints — ₹19 per print, packs from 10 | Drucka',
     description: 'Order premium mini photo prints online — wallet 2×3, Instagram 3×3 & scrapbook 4×3 sizes with captions & borders. Delivered across India. मराठीत WhatsApp सपोर्ट.',
     eyebrow: 'Mini Photo Prints',
     h1: 'Mini Photo Prints, Printed Premium',
@@ -15,14 +15,15 @@ export const LANDINGS = {
     image: '/images/mini/mini-3x3.jpg',
     imageAlt: 'Mini photo prints in 2×3, 3×3 and 4×3 inch sizes by Drucka',
     fromPrice: 190,
-    priceNote: 'delivery from ₹49 (variable) · 2–4 day delivery',
+    priceNote: '₹19 per print · minimum 10 prints per order · delivery from ₹49',
     ctaLabel: 'Create your mini prints',
     action: 'mini',
     waText: "Hi Drucka! I'd like to order Mini Photo Prints. Here are my photos:",
-    highlights: ['2×3, 3×3 & 4×3 inch sizes', 'Polaroid, gold, black & dashed borders', 'Add captions, date stamps & stickers', 'Premium photo paper, true-to-photo colour', 'Delivered across India in 2–4 days'],
+    highlights: ['₹19 per print · packs from 10', '2×3, 3×3 & 4×3 inch sizes — mix freely', 'Polaroid, gold, black & dashed borders', 'Add captions, date stamps & stickers', 'Premium photo paper, true-to-photo colour', 'Delivered across India in 2–4 days'],
     faqs: [
       { q: 'What sizes are available?', a: '2×3 inch (wallet & gift inserts), 3×3 inch (Instagram square) and 4×3 inch (memory & scrapbook prints).' },
-      { q: 'किंमत किती असते? (What is the price?)', a: 'Mini prints start from ₹190, with delivery from ₹49 (varies by quantity). मिनी प्रिंट्स ₹190 पासून, डिलिव्हरी ₹49 पासून.' },
+      { q: 'किंमत किती असते? (What is the price?)', a: '₹19 per print with a minimum of 10 prints per order, so an order starts at ₹190. Delivery from ₹49. मिनी प्रिंट ₹19 प्रति प्रिंट, किमान 10 प्रिंट्स — म्हणजे ऑर्डर ₹190 पासून.' },
+      { q: 'Is there a minimum order?', a: 'Yes — Mini Prints are sold in packs of 10 or more, and you can mix the 2×3, 3×3 and 4×3 sizes within that 10. For a single print, order a regular Photo Print instead (from ₹39).' },
       { q: 'How do I order?', a: 'Upload your photos in the editor, choose a size and border, then confirm on WhatsApp — we print and deliver across India.' },
       { q: 'How long does delivery take?', a: 'Most orders are printed and delivered within 2–4 days across India.' },
     ],
@@ -139,8 +140,8 @@ export const LANDINGS = {
 
   'photo-prints': {
     slug: 'photo-prints',
-    title: 'Photo Prints Online from ₹19 — Premium Photo Printing India | Drucka',
-    description: 'Order photo prints online from ₹19 — premium paper, true-to-photo colour, captions & borders. Upload your photos and we print & deliver across India. मराठीत सपोर्ट.',
+    title: 'Photo Prints Online from ₹39 — 4×6, 5×7, 8×10, A4, A3 | Drucka',
+    description: 'Order photo prints online from ₹39 — 4×6, 5×7, 6×8, 8×10, A4, A3 and 12×18 inch on premium paper, true-to-photo colour. Single prints, no minimum. मराठीत सपोर्ट.',
     eyebrow: 'Photo Prints',
     h1: 'Premium Photo Prints, Delivered',
     tagline: 'तुमचे फोटो, प्रीमियम प्रिंट्समध्ये.',
@@ -149,14 +150,19 @@ export const LANDINGS = {
     image: '/images/prints/print-1.jpg',
     imageWebp: '/images/prints/print-1.webp',
     imageAlt: 'Premium photo prints from phone photos by Drucka',
-    fromPrice: 19,
-    priceNote: 'delivery from ₹49 (variable) · 2–4 day delivery',
+    fromPrice: 39,
+    priceNote: 'single prints, no minimum · delivery from ₹49 · 2–4 day delivery',
     ctaLabel: 'Upload & print your photos',
-    action: 'mini',
+    /* NOT 'mini'. This used to open the mini-print editor, whose largest size
+       is 4×3" — a customer asking for an 8×10 was silently given a different
+       product. 'photoPrints' opens the regular photo-print sizes. */
+    action: 'photoPrints',
     waText: "Hi Drucka! I'd like to order Photo Prints. Here are my photos:",
-    highlights: ['From ₹19 per print', 'Premium paper, true-to-photo colour', 'Optional captions, borders & date stamps', 'Order from your phone in minutes', 'Delivered across India in 2–4 days'],
+    highlights: ['4×6, 5×7, 6×8, 8×10, A4, A3 & 12×18 inch', '₹39 per 4×6 print — order a single print', 'Mix sizes in one order', 'Premium paper, true-to-photo colour', 'Delivered across India in 2–4 days'],
     faqs: [
-      { q: 'How much do photo prints cost?', a: 'Photo prints start from ₹19 each, with delivery from ₹49 (varies by quantity).' },
+      { q: 'How much do photo prints cost?', a: '₹39 for a 4×6 inch print, ₹59 for 5×7, ₹89 for 6×8, ₹129 for 8×10, ₹149 for A4, ₹299 for A3 and ₹399 for 12×18. Delivery from ₹49, free over ₹2,999.' },
+      { q: 'Is there a minimum order?', a: 'No — order a single photo print. Mini Photo Prints (2×3 to 4×3 inch) are a separate product and start at 10 prints per order.' },
+      { q: 'What sizes are available?', a: '4×6, 5×7, 6×8, 8×10 inch plus A4, A3 and 12×18 inch panoramic. Each photo in an order can be a different size, and portrait or landscape is chosen automatically from your photo.' },
       { q: 'फोटो प्रिंट कसे ऑर्डर करायचे? (How to order?)', a: 'Upload your photos, choose sizes and borders, and confirm on WhatsApp. फोटो अपलोड करा, साइज निवडा आणि WhatsApp वर कन्फर्म करा.' },
       { q: 'What paper do you use?', a: 'Prints are made on premium photo paper for sharp detail and accurate, long-lasting colour.' },
       { q: 'How long does delivery take?', a: 'Most orders are printed and delivered within 2–4 days across India.' },

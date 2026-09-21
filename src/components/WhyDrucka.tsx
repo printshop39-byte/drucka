@@ -7,7 +7,7 @@ import { RETURN_SHORT } from '../seo/policies';
    from RETURN_WINDOW_DAYS in src/seo/policies.js so this card and the returns
    policy page can never contradict each other again. */
 const points = [
-  { icon: BadgeCheck, title: 'No minimum order', desc: 'Order a single print or hundreds — entirely your call.' },
+  { icon: BadgeCheck, title: 'Single pieces welcome', desc: 'One photo print, one frame, one t-shirt — or hundreds. Mini Prints are the one exception: they ship in packs from 10.' },
   { icon: RefreshCw, title: 'Easy replacement', desc: RETURN_SHORT },
   { icon: ShieldCheck, title: 'Secure & private', desc: 'Your photos are used only for your order — never shared or sold.' },
   { icon: Truck, title: 'Fast India delivery', desc: 'Carefully packed and delivered across India in 2–4 days.' },

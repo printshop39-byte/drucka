@@ -6,6 +6,7 @@ import {
 import { Icon, ic } from "./icons";
 import DesignCanvas, { clampToArea } from "./DesignCanvas";
 import MockupPreview from "./MockupPreview";
+import useModalA11y from "../hooks/useModalA11y";
 import { uploadPlacementArtwork } from "./renderArtwork";
 import ProductSubmitInfo from "./ProductSubmitInfo";
 import {
@@ -43,6 +44,8 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
   });
   const setSel = (patch) => setSelState((s) => ({ ...s, ...patch }));
   const [qty, setQty] = useState(1);
+  /* Esc closes, Tab stays inside, focus returns to the trigger */
+  const dialogRef = useModalA11y(onClose);
 
   /* designs per placement + undo/redo history.
      A ready-made design (initial.design) seeds the first print area so the
@@ -253,18 +256,12 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
     onClose();
     onOpenCart();
   };
-  const handleSaveDraft = (info) => {
-    try {
-      const drafts = JSON.parse(localStorage.getItem("drucka-saved-products") ?? "[]");
-      localStorage.setItem("drucka-saved-products", JSON.stringify([
-        { id: uid(), savedAt: Date.now(), productId: product.productId, ...sel, qty, layersByPlacement, info },
-        ...drafts,
-      ].slice(0, 10)));
-      showToast("Draft saved ✓");
-    } catch {
-      showToast("⚠ Could not save draft (storage full)");
-    }
-  };
+/* REMOVED 2026-09-21 — "save draft" was write-only.
+   Two code paths wrote to localStorage["drucka-saved-products"] and NOTHING
+   ever read it back: there was no saved-designs list, no restore, no route in.
+   The customer was shown a success toast for work that could never be
+   recovered. Deleting the promise is the honest interim state; a real
+   saved-designs feature is Phase 1 work and must ship WITH its reader. */
 
   const panelFor = (id, mobile = false) => {
     const close = mobile ? () => setMobilePanel(null) : () => setTool(null);
@@ -280,7 +277,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
             placementLabel={placementOf(product, selectedPlacement).label} onClose={close} />
         );
       case "uploads":
-        return <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy}
+        return <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} uploadTip={product.copy?.uploadTip}
           onUse={(a) => addImage(a.src, a.name, a.aspect)} onClose={close} />;
       case "text":
         return <TextPanel selected={selectedLayer} onAddText={addText} onPatch={(id2, p) => patchLayer(id2, p)} onClose={close} />;
@@ -312,13 +309,13 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
       <div className="fixed inset-0 z-[95]" role="dialog" aria-modal="true" aria-label="Product information">
         <ProductSubmitInfo product={product} color={sel.selectedColor} size={sel.selectedSize}
           price={price} qty={qty} layersByPlacement={layersByPlacement}
-          onBack={() => setStep("design")} onSubmit={handleSubmit} onSaveDraft={handleSaveDraft} />
+          onBack={() => setStep("design")} onSubmit={handleSubmit} />
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 z-[95] flex flex-col bg-[#f1f0f5]" role="dialog" aria-modal="true" aria-label="Drucka product designer">
+    <div ref={dialogRef} className="fixed inset-0 z-[95] flex flex-col bg-[#f1f0f5]" role="dialog" aria-modal="true" aria-label="Drucka product designer">
       {/* ─── header ─── */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-1.5 border-b border-ink/10 bg-white px-3 sm:px-4">
         <button onClick={onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-ink/60 hover:bg-ink/5 hover:text-ink">

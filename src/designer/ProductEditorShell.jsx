@@ -6,6 +6,7 @@ import {
 import { Icon, ic } from "./icons";
 import DesignCanvas, { clampToArea } from "./DesignCanvas";
 import MockupPreview from "./MockupPreview";
+import useModalA11y from "../hooks/useModalA11y";
 import { uploadPlacementArtwork } from "./renderArtwork";
 import {
   DrawPanel, GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
@@ -39,7 +40,11 @@ const PANEL_TOOLS = new Set(["text", "image", "draw", "color", "layer", "cart"])
 const DRAW_MAX_PX = 1400;
 
 export default function ProductEditorShell({
-  product, initial = {}, onClose, onAddToCart, onOpenCart, showToast, onUseClassic,
+  product, initial = {}, onClose, onAddToCart, onUpdateCartLine, onOpenCart, showToast, onUseClassic,
+  /* When present the editor is REOPENING an existing cart line: saving
+     replaces that line instead of appending a new one. This is the whole
+     difference between "Edit design" and "add another one like it". */
+  editKey = null,
 }) {
   /* selections — resolved so pricing + cart item match the classic flow exactly */
   const [sel, setSelState] = useState({
@@ -48,8 +53,10 @@ export default function ProductEditorShell({
     selectedPrintMethod: initial.selectedPrintMethod ?? product.printingOptions[0].id,
   });
   const setSel = (patch) => setSelState((s) => ({ ...s, ...patch }));
-  const [qty, setQty] = useState(1);
-  const [title, setTitle] = useState(`Custom ${product.productName}`);
+  const [qty, setQty] = useState(initial.qty ?? 1);
+  /* Esc closes, Tab stays inside, focus returns to the trigger */
+  const dialogRef = useModalA11y(onClose);
+  const [title, setTitle] = useState(initial.title ?? `Custom ${product.productName}`);
 
   /* editor capabilities from product config — no product-id branching here */
   const caps = capsOf(product);
@@ -63,6 +70,20 @@ export default function ProductEditorShell({
 
   const [layersByPlacement, setLayersByPlacement] = useState(() => {
     const base = Object.fromEntries(product.printAreas.map((p) => [p.id, []]));
+
+    /* Reopening a cart line: its `design` is {placementId: [layers]} for every
+       placement that had something on it. Cloned on the way in so editing a
+       DUPLICATED line can never reach back into the line it was copied from —
+       the two share nothing but their history. */
+    if (initial.layersByPlacement) {
+      Object.keys(base).forEach((id) => {
+        const layers = initial.layersByPlacement[id];
+        if (Array.isArray(layers)) base[id] = layers.map((l) => ({ ...l }));
+      });
+      return base;
+    }
+
+    /* Legacy single-image entry point (frame customizer hand-off). */
     if (initial.design?.src) {
       const first = product.printAreas[0];
       base[first.id] = [newImageLayer(initial.design.src, initial.design.name ?? "Design", initial.design.aspect ?? 1, first.inches)];
@@ -247,8 +268,28 @@ export default function ProductEditorShell({
                                     : printSizeInches(layersByPlacement[p.id], inches)];
     }).filter(([, v]) => v));
     setAddingToCart(false);
-    onAddToCart({
+
+    /* Everything a reopen needs that the fulfilment fields cannot supply:
+       `color` and `printMethod` above are display LABELS, and `productId` is
+       the QIKINK id (kids-mug ships as "mug"), so none of them can reopen the
+       right editor in the right state. This carries the editor's own ids.
+       `design` is reused as the layer source rather than copied again here —
+       the cart already persists it and duplicating it would double the
+       localStorage a cart costs. */
+    const edit = {
+      editor: "shell",
+      productId: product.productId,
+      sel: { ...sel },
+      qty,
+      title,
+    };
+
+    const line = {
       key,
+      /* Stable per LINE, not per design: a duplicate gets its own, so the two
+         can diverge and neither can be mistaken for the other downstream. */
+      designId: editKey ? (initial.designId ?? uid()) : uid(),
+      edit,
       productId: product.qikinkId,
       type: "custom",
       name,
@@ -262,8 +303,15 @@ export default function ProductEditorShell({
       printSize,
       artwork,
       summary: `${price.method.label} print · ${price.printed.map((p) => p.label).join(", ")}`,
-    });
-    showToast(`${name} added to cart ✓`);
+    };
+
+    if (editKey) {
+      onUpdateCartLine(editKey, line);
+      showToast(`${name} updated ✓`);
+    } else {
+      onAddToCart(line);
+      showToast(`${name} added to cart ✓`);
+    }
     onClose();
     onOpenCart();
   };
@@ -276,7 +324,7 @@ export default function ProductEditorShell({
       case "image":
         return (
           <>
-            <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} onUse={(a) => addImage(a.src, a.name, a.aspect, a.px)} onClose={() => setActiveTool(null)} />
+            <UploadsPanel assets={uploadedAssets} onUpload={handleUpload} busy={uploadBusy} uploadTip={product.copy?.uploadTip} onUse={(a) => addImage(a.src, a.name, a.aspect, a.px)} onClose={() => setActiveTool(null)} />
             <GraphicsPanel onAddImage={addImage} onClose={() => setActiveTool(null)} />
           </>
         );
@@ -356,7 +404,9 @@ export default function ProductEditorShell({
                 rather than letting a second tap queue another cart line */}
             <button onClick={handleAddToCart} disabled={!hasDesign || addingToCart}
               className={`w-full rounded-full px-6 py-3 text-sm font-bold transition ${hasDesign && !addingToCart ? "bg-tangerine text-white shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
-              {addingToCart ? "Preparing your artwork…" : `Add to cart · ${inr(sellingTotal)}`}
+              {addingToCart
+                ? "Preparing your artwork…"
+                : `${editKey ? "Update cart item" : "Add to cart"} · ${inr(sellingTotal)}`}
             </button>
           </div>
         );
@@ -403,7 +453,7 @@ export default function ProductEditorShell({
   );
 
   return (
-    <div className="fixed inset-0 z-[95] flex flex-col bg-[#f1f0f5]" role="dialog" aria-modal="true" aria-label="Drucka product editor (new)">
+    <div ref={dialogRef} className="fixed inset-0 z-[95] flex flex-col bg-[#f1f0f5]" role="dialog" aria-modal="true" aria-label="Drucka design studio">
       {/* header */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-1.5 border-b border-ink/10 bg-white px-3 sm:px-4">
         <button onClick={onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-ink/60 hover:bg-ink/5 hover:text-ink">
@@ -411,7 +461,9 @@ export default function ProductEditorShell({
         </button>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-ink">{product.productName}</p>
-          <p className="hidden text-[10px] text-ink/45 sm:block">New Editor · Beta</p>
+          <p className="hidden text-[10px] text-ink/45 sm:block">
+            {editKey ? "Editing a cart item" : "Drucka Design Studio"}
+          </p>
         </div>
         <div className="mx-auto flex items-center gap-1">
           <button onClick={undo} disabled={!historyRef.current.past.length} aria-label="Undo"

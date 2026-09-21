@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, MessageCircle } from 'lucide-react';
+import type { PickerTarget } from './ProductPicker';
 
 /* Slide 0 is the LCP image: it is the only one preloaded (see index.html) and
    the only one in the DOM on first paint. The remaining slides mount AFTER the
@@ -14,7 +15,17 @@ const HERO_SLIDES = [
 const ROTATE_MS = 5000;
 
 /* Only claims Drucka can actually stand behind (see TRUST-CLAIMS in the audit). */
-const TRUST_CHIPS = ['No minimum order', 'Preview before printing', 'Delivery across India'];
+const TRUST_CHIPS = ['Single prints available', 'Preview before printing', 'Delivery across India'];
+
+/* The hero's own shortcut row. Each chip is a PRODUCT, so the visitor lands in
+   the right editor instead of whatever the generic CTA happened to open. */
+const QUICK_PICKS: { id: PickerTarget; label: string }[] = [
+  { id: 'photo-prints', label: 'Photo Prints' },
+  { id: 'frame',        label: 'Frames' },
+  { id: 'tshirt',       label: 'T-Shirts' },
+  { id: 'mug',          label: 'Mugs' },
+  { id: 'mini-prints',  label: 'Mini Prints' },
+];
 
 const Tick = () => (
   <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 shrink-0" fill="none" stroke="currentColor"
@@ -23,7 +34,11 @@ const Tick = () => (
   </svg>
 );
 
-export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void; whatsappUrl?: string }) {
+export default function Hero({ onUpload, onPick, whatsappUrl }: {
+  onUpload?: () => void;
+  onPick?: (id: PickerTarget) => void;
+  whatsappUrl?: string;
+}) {
   const [current, setCurrent] = useState(0);
   /* Which slides exist in the DOM. Starts as slide 0 only — the LCP image. */
   const [mountedCount, setMountedCount] = useState(1);
@@ -88,9 +103,9 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
       <div className="relative z-10 mx-auto w-full max-w-[1280px] px-5 py-16 sm:px-6 lg:px-8">
         <div className="max-w-2xl">
           <div className="mb-6 inline-flex items-center gap-2.5 rounded-full bg-white/10 px-4 py-1.5 ring-1 ring-white/20 backdrop-blur-sm">
-            <span className="text-sm font-bold text-gold-light">Starting at ₹19</span>
+            <span className="text-sm font-bold text-gold-light">Photo prints from ₹39</span>
             <span className="text-white/40">·</span>
-            <span className="text-[11px] font-semibold uppercase tracking-wide text-white/80">No minimum order</span>
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-white/80">Mini prints ₹19 · packs of 10</span>
           </div>
 
           <h1 className="mb-5 font-serif text-4xl font-normal leading-[1.1] text-white sm:text-5xl lg:text-6xl">
@@ -105,14 +120,19 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
             तुमचे फोटो, डिझाईन आणि आठवणी — आता प्रीमियम प्रिंट्समध्ये.
           </p>
 
-          {/* Primary CTA first, WhatsApp clearly secondary */}
+          {/* "Start Customising" used to drop everyone into the FRAME
+              customizer whatever they came for. It now asks first, and the
+              chips below skip the question entirely. */}
+          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white/70">
+            What would you like to create?
+          </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
             <button
               type="button"
               onClick={onUpload}
               className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-gold px-8 py-4 text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-charcoal/20 transition hover:bg-gold-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-light"
             >
-              Start Customising
+              Choose a product
               <ArrowRight size={18} />
             </button>
             <a
@@ -125,6 +145,23 @@ export default function Hero({ onUpload, whatsappUrl }: { onUpload?: () => void;
               Chat on WhatsApp
             </a>
           </div>
+
+          {/* Direct routes into each product's own editor */}
+          {onPick && (
+            <ul className="mt-4 flex flex-wrap gap-2">
+              {QUICK_PICKS.map((q) => (
+                <li key={q.id}>
+                  <button
+                    type="button"
+                    onClick={() => onPick(q.id)}
+                    className="inline-flex min-h-[44px] items-center rounded-full border border-white/25 bg-white/10 px-4 text-[13px] font-semibold text-white backdrop-blur-sm transition hover:border-gold-light hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    {q.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* Trust chips */}
           <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2.5">

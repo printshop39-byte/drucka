@@ -6,6 +6,7 @@ import {
   printOrderMessage, slotSize, slotQuality, transformSlot, wa,
 } from './customizerData';
 import ImageCropper from './ImageCropper';
+import useModalA11y from '../hooks/useModalA11y';
 import { renderOrderImage } from '../lib/frameComposite';
 import { qikinkApi } from '../lib/qikinkClient';
 import * as pixel from '../lib/metaPixel';
@@ -129,6 +130,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
   const [slots, setSlots] = useState<PhotoSlot[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [step, setStep] = useState(0);
+  const dialogRef = useModalA11y(onClose);
   const [printType, setPrintType] = useState(initial?.printType ?? PRINT_TYPES[0]);
   const [frame, setFrame] = useState<FrameStyle>(FRAME_STYLES.find((f) => f.id === initial?.frameId) ?? FRAME_STYLES[1]);
   const [border, setBorder] = useState(BORDER_OPTIONS[0]);
@@ -463,10 +465,11 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
   );
 
   return (
-    <div className="fixed inset-0 z-[96] flex items-stretch justify-center sm:items-center sm:p-4" role="dialog" aria-modal="true"
-      aria-label={isFrame ? 'Custom frame customizer' : 'Photo print customizer'}>
+    <div className="fixed inset-0 z-[96] flex items-stretch justify-center sm:items-center sm:p-4">
       <button className="absolute inset-0 bg-charcoal/60 backdrop-blur-sm" aria-label="Close customizer" onClick={onClose} />
-      <div className="relative flex h-full w-full flex-col overflow-hidden bg-warm sm:h-auto sm:max-h-[92vh] sm:max-w-3xl sm:rounded-3xl sm:shadow-2xl">
+      <div ref={dialogRef as React.RefObject<HTMLDivElement>} role="dialog" aria-modal="true"
+        aria-label={isFrame ? 'Custom frame customizer' : 'Photo print customizer'}
+        className="relative flex h-full w-full flex-col overflow-hidden bg-warm sm:h-auto sm:max-h-[92vh] sm:max-w-3xl sm:rounded-3xl sm:shadow-2xl">
         {/* header */}
         <header className="flex shrink-0 items-center gap-2 border-b border-stone bg-white px-4 py-3">
           {step > 0 && (

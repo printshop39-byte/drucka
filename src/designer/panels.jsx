@@ -103,7 +103,10 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
           </div>
         </Accordion>
 
-        <Accordion title={`Available Colors · ${colorById(state.selectedColor)?.label ?? ""}`}
+        {/* A single-colour product (the mug) has nothing to choose here, and
+            "Available Colors · White" reads like a stripped-down t-shirt. */}
+        {product.availableColors.length > 1 && (
+        <Accordion title={`${product.copy?.colorLabel ?? "Available Colors"} · ${colorById(state.selectedColor)?.label ?? ""}`}
           open={open.colors} onToggle={() => toggle("colors")}>
           <div className="flex flex-wrap gap-2 pt-1">
             {product.availableColors.map((id) => {
@@ -125,8 +128,9 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
             <p className="mt-2 text-[11px] text-amber-700">Mockup shown on white — your product prints on {colorById(state.selectedColor)?.label}.</p>
           )}
         </Accordion>
+        )}
 
-        <Accordion title="Available Sizes" open={open.sizes} onToggle={() => toggle("sizes")}>
+        <Accordion title={product.copy?.sizeLabel ?? "Available Sizes"} open={open.sizes} onToggle={() => toggle("sizes")}>
           <div className="grid grid-cols-5 gap-1.5 pt-1">
             {sizes.map((s) => (
               <button key={s} onClick={() => setSel({ selectedSize: s })}
@@ -139,6 +143,9 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
           </div>
           {product.sizeSurcharge?.[state.selectedSize] > 0 && (
             <p className="mt-1.5 text-[11px] text-ink/50">{state.selectedSize} adds {inr(product.sizeSurcharge[state.selectedSize])}</p>
+          )}
+          {product.copy?.careNote && (
+            <p className="mt-2 text-[11px] text-ink/50">{product.copy.careNote}</p>
           )}
         </Accordion>
       </div>
@@ -208,7 +215,7 @@ export function LayersPanel({ layers, selectedId, onSelect, onPatch, onDelete, o
 }
 
 /* ── UPLOADS ── */
-export function UploadsPanel({ assets, onUpload, onUse, busy, onClose }) {
+export function UploadsPanel({ assets, onUpload, onUse, busy, onClose, uploadTip }) {
   const inputRef = useRef(null);
   return (
     <PanelShell title="Uploads" onClose={onClose}>
@@ -225,7 +232,8 @@ export function UploadsPanel({ assets, onUpload, onUse, busy, onClose }) {
 
       <ul className="mt-3 space-y-1 text-[11px] text-ink/55">
         <li>• Use a high-resolution image (300 DPI recommended)</li>
-        <li>• Transparent PNG works best on garments</li>
+        {/* "works best on garments" was being shown inside the MUG editor */}
+        <li>• {uploadTip ?? "Transparent PNG works best on garments"}</li>
         <li>• Keep your design inside the dotted print area</li>
       </ul>
 

@@ -9,6 +9,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANDINGS } from '../src/seo/landings.js';
 import { POLICIES } from '../src/seo/policies.js';
+import { PRINT_VARIANTS } from '../src/components/printSizes.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = resolve(ROOT, 'dist');
@@ -82,6 +83,42 @@ async function run() {
     await mkdir(resolve(DIST, d.slug), { recursive: true });
     await writeFile(resolve(DIST, d.slug, 'index.html'), html, 'utf8');
     console.log(`prerendered /${d.slug}`);
+  }
+
+  /* ── Editor routes (/photo-prints/studio, /mini-prints/studio) ──
+     These are app UI, not content: the editor renders its product's landing
+     page underneath it, so without a prerender a crawler hitting the studio
+     URL is served the HOMEPAGE shell — homepage title, homepage canonical —
+     and the landing's own ranking signals get muddied.
+
+     So: real HTML, `noindex, follow` (the page is a tool, not a document),
+     and a canonical pointing at the landing that IS the indexable version.
+     Deliberately no Product/FAQ JSON-LD — the landing owns that schema and
+     duplicating it on a noindex page helps nothing. They stay out of
+     sitemap.xml for the same reason. */
+  for (const v of Object.values(PRINT_VARIANTS)) {
+    const d = LANDINGS[v.route.replace(/^\//, '')];
+    if (!d) continue;
+    const canonical = `${ABS}${v.route}`;
+    const studioUrl = `${ABS}${v.studioRoute}`;
+    let html = shell;
+
+    html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(d.title)}</title>`);
+    html = replaceTag(html, 'name="description"', `<meta name="description" content="${esc(d.description)}" />`);
+    html = replaceTag(html, 'name="robots"', '<meta name="robots" content="noindex, follow" />');
+    html = replaceTag(html, 'rel="canonical"', `<link rel="canonical" href="${canonical}" />`);
+    html = replaceTag(html, 'property="og:title"', `<meta property="og:title" content="${esc(d.title)}" />`);
+    html = replaceTag(html, 'property="og:description"', `<meta property="og:description" content="${esc(d.description)}" />`);
+    html = replaceTag(html, 'property="og:url"', `<meta property="og:url" content="${studioUrl}" />`);
+    html = replaceTag(html, 'property="og:image"', `<meta property="og:image" content="${esc(ABS + d.image)}" />`);
+    html = replaceTag(html, 'name="twitter:title"', `<meta name="twitter:title" content="${esc(d.title)}" />`);
+    html = replaceTag(html, 'name="twitter:description"', `<meta name="twitter:description" content="${esc(d.description)}" />`);
+    html = replaceTag(html, 'name="twitter:image"', `<meta name="twitter:image" content="${esc(ABS + d.image)}" />`);
+
+    const dir = resolve(DIST, v.studioRoute.replace(/^\//, ''));
+    await mkdir(dir, { recursive: true });
+    await writeFile(resolve(dir, 'index.html'), html, 'utf8');
+    console.log(`prerendered ${v.studioRoute} (noindex → ${v.route})`);
   }
 
   /* Policy pages. Payment-gateway reviewers and crawlers frequently fetch

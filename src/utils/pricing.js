@@ -7,7 +7,7 @@
    primitive per family rather than forcing a single formula. Each editor's
    existing pricing function delegates here; displayed prices are unchanged. */
 
-import { FREE_DELIVERY_MIN } from "../seo/policies";
+import { FREE_DELIVERY_MIN } from "../seo/policies.js";
 
 /* Derived, NOT redefined. This used to be a second hardcoded 2999 sitting
    alongside FREE_DELIVERY_MIN in src/seo/policies.js — change one and the
@@ -50,13 +50,29 @@ export function collagePrice({ base, framePrice, lamPrice, qty = 1, shipFee = 99
   return { base, framePrice, lamPrice, unit, total, shipping, grandTotal: total + shipping };
 }
 
-/* ── Mini prints ──
-   subtotal = per-print price × total copies; shipping flat `shipFee`
-   (default ₹49), free once the subtotal reaches the threshold. */
-export function miniPrice({ unitPrice, totalPrints, shipFee = 49 }) {
-  const subtotal = totalPrints * unitPrice;
+/* ── Flat photo prints (mini + regular) ──
+   Two call shapes, because the editor lets one order mix sizes:
+
+     • { lines: [{ unitPrice, copies }] } — the mixed-size case. Subtotal is
+       the sum of the lines, so a 4×6 and an A3 in the same order each price
+       at their own rate.
+     • { unitPrice, totalPrints }        — the original single-size shape,
+       kept so existing callers keep working.
+
+   Shipping is flat `shipFee` (default ₹49) and free once the subtotal reaches
+   the threshold. `minPrints` is informational: it reports whether the order
+   clears the product's minimum (Mini Prints: 10 per order) so the caller can
+   disable checkout, rather than silently repricing. */
+export function miniPrice({ unitPrice, totalPrints, lines, shipFee = 49, minPrints = 1 }) {
+  const rows = lines ?? [{ unitPrice, copies: totalPrints }];
+  const prints = rows.reduce((n, l) => n + (Number(l.copies) || 0), 0);
+  const subtotal = rows.reduce((s, l) => s + (Number(l.unitPrice) || 0) * (Number(l.copies) || 0), 0);
   const shipping = shippingFor(subtotal, shipFee);
-  return { subtotal, shipping, total: subtotal + shipping };
+  const shortBy = Math.max(0, minPrints - prints);
+  return {
+    subtotal, shipping, total: subtotal + shipping,
+    totalPrints: prints, minPrints, shortBy, meetsMinimum: shortBy === 0,
+  };
 }
 
 /* ── the one public entry point ──

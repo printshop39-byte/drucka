@@ -8,19 +8,22 @@ import { calculate, FREE_SHIP_THRESHOLD } from "../utils/pricing";
 import * as pixel from "../lib/metaPixel";
 import {
   BORDERS, MINI_FONTS, FILTERS, CAPTION_COLORS, STICKER_SETS, STICKER_POS,
-  OCCASION_TEMPLATES, SIZE_ASPECT, miniCardDataUrl, borderConf,
+  OCCASION_TEMPLATES, miniCardDataUrl, borderConf,
 } from "./miniCard";
+import { variantOf, sizeIn, aspectFor, dpiFor, qualityOf } from "./printSizes";
+import useModalA11y from "../hooks/useModalA11y";
+import { paymentLine } from "../lib/features";
 
-/* ── Drucka Mini Photo Prints — standalone quick-order flow ──
+/* ── Drucka flat-print studio — one editor, two products ──
    Size → template → border → upload → per-photo (crop/rotate/adjust,
    filter, caption, date, stickers, duplicate, reorder) → order.
-   One shared miniCard renderer = preview matches the printed card. */
+   One shared miniCard renderer = preview matches the printed card.
 
-const MINI_SIZES = [
-  { id: "2x3", label: '2×3"', name: "Wallet & Gift Inserts", price: 19 },
-  { id: "3x3", label: '3×3"', name: "Instagram Square Prints", price: 25 },
-  { id: "4x3", label: '4×3"', name: "Memory & Scrapbook Prints", price: 29 },
-];
+   `variant` ("mini" | "photo") picks the size catalogue, the minimum order
+   quantity and the copy. Before this, /photo-prints opened the mini-print
+   editor and offered nothing above 4×3" — the audit's first P0. Everything
+   product-specific now comes from src/components/printSizes.js. */
+
 const MAX_PHOTOS = 30;
 const FREE_SHIP = FREE_SHIP_THRESHOLD; // shared threshold — still shown in the footer copy
 const WA_PHONE = "917083811355";
@@ -30,16 +33,26 @@ const todayStamp = () => {
   const p = (n) => String(n).padStart(2, "0");
   return `${p(d.getDate())} · ${p(d.getMonth() + 1)} · ${d.getFullYear()}`;
 };
-const newPhoto = (src, name) => ({
-  id: uid(), src, name,
+/* `sizeId` lives on the PHOTO, not on the editor: one order may mix a 4×6
+   and an A3, and Mini Prints' 10-print minimum counts the whole order rather
+   than each size. `imgAspect` + `px` come straight off the upload pipeline —
+   the first drives auto-orientation, the second the print-quality warning. */
+/* `imgAspect` is WIDTH / HEIGHT, so >= 1 means the photo is landscape. */
+const newPhoto = (src, name, sizeId, imgAspect, px) => ({
+  id: uid(), src, name, sizeId, imgAspect: imgAspect ?? null, px: px ?? null,
+  orient: "auto",
+  /* true while the copy count was chosen by the pack-minimum auto-fill rather
+     than by the customer — drives the "this photo will be printed 10 times"
+     notice, so the duplication is never silent */
+  autoCopies: false,
   rotation: 0, zoom: 1, ox: 0, oy: 0, brightness: 100, contrast: 100,
   filter: "original",
   caption: "", captionFont: "Poppins", captionSize: "M", captionColor: "#1a1208",
   dateStamp: false, dateText: todayStamp(), stickers: [],
   copies: 1,
 });
-const sig = (p, sizeId, border) => JSON.stringify([
-  sizeId, border, p.rotation, p.zoom, p.ox, p.oy, p.brightness, p.contrast, p.filter,
+const sig = (p, border, cardAspect) => JSON.stringify([
+  p.sizeId, cardAspect, border, p.rotation, p.zoom, p.ox, p.oy, p.brightness, p.contrast, p.filter,
   p.caption, p.captionFont, p.captionSize, p.captionColor, p.dateStamp, p.dateText, p.stickers,
 ]);
 
@@ -93,10 +106,10 @@ const CropSlider = ({ label, val, min, max, step, onChange, fmt }) => (
 );
 
 /* ── Crop & adjust modal — drag to pan, zoom, rotate, brightness, contrast ── */
-function CropModal({ photo, sizeId, onApply, onClose }) {
+function CropModal({ photo, aspect, onApply, onClose }) {
   const [d, setD] = useState({ rotation: photo.rotation, zoom: photo.zoom, ox: photo.ox, oy: photo.oy, brightness: photo.brightness, contrast: photo.contrast });
   const frameRef = useRef(null);
-  const aspect = SIZE_ASPECT[sizeId] ?? 1;
+  const dialogRef = useModalA11y(onClose);
   /* natural size of the photo — the cover maths needs it, and reading it off
      the loaded element keeps older saved photos working too */
   const [nat, setNat] = useState(null);
@@ -162,8 +175,9 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
   }, [fit?.maxOx, fit?.maxOy]);
 
   return (
-    <div className="fixed inset-0 z-[98] flex items-center justify-center bg-black/50 p-4" role="dialog" aria-modal="true">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-2xl">
+    <div className="fixed inset-0 z-[98] flex items-center justify-center bg-black/50 p-4">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Crop and adjust photo"
+        className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-bold text-charcoal">Crop &amp; adjust</p>
           <button onClick={onClose} aria-label="Close" className="grid h-8 w-8 place-items-center rounded-full text-charcoal/50 hover:bg-black/5"><X size={16} /></button>
@@ -208,9 +222,15 @@ function CropModal({ photo, sizeId, onApply, onClose }) {
   );
 }
 
-export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast }) {
-  const [sizeId, setSizeId] = useState("3x3");
-  const [border, setBorder] = useState("polaroid"); // global (Feature 2)
+export default function MiniPrints({
+  variant: variantId = "mini", onClose, onAddToCart, onOpenCart, showToast,
+  /* prints of this variant already sitting in the cart. Mini Prints' minimum
+     is per ORDER, so a second batch must count what the first one added. */
+  inCartCount = 0,
+}) {
+  const V = variantOf(variantId);
+  const [sizeId, setSizeId] = useState(V.defaultSizeId);
+  const [border, setBorder] = useState(variantId === "mini" ? "polaroid" : "none"); // global (Feature 2)
   const [activeTemplate, setActiveTemplate] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [previews, setPreviews] = useState({});
@@ -221,10 +241,36 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   const fileRef = useRef(null);
   const sigRef = useRef({});
   const dragIdx = useRef(null);
+  /* Esc + focus trap + scroll lock. Disabled while the crop dialog is open so
+     the two do not fight over focus. */
+  const dialogRef = useModalA11y(onClose, !cropId);
+  /* once the customer changes a quantity, stop auto-filling to the pack size */
+  const touchedCopies = useRef(false);
+  const announcedAutoFill = useRef(false);
+  const photoListRef = useRef(null);
 
-  const size = MINI_SIZES.find((s) => s.id === sizeId);
+  const size = sizeIn(V, sizeId);
+  /* per-photo size/aspect/quality, resolved once and reused by the renderer,
+     the price lines, the crop modal and the quality warnings */
+  const sizeOf = (p) => sizeIn(V, p.sizeId ?? sizeId);
+  const cardAspectOf = (p) => (V.autoOrient
+    ? aspectFor(sizeOf(p), p.orient ?? "auto", p.imgAspect)
+    : sizeOf(p).aspect);
+  const qualityOf_ = (p) => qualityOf(dpiFor(p.px, sizeOf(p), cardAspectOf(p)));
+
   const totalPrints = photos.reduce((n, p) => n + p.copies, 0);
-  const { subtotal, shipping, total } = calculate({ family: "mini", unitPrice: size.price, totalPrints });
+  const { subtotal, shipping, total, shortBy, meetsMinimum } = calculate({
+    family: "mini",
+    lines: photos.map((p) => ({ unitPrice: sizeOf(p).price, copies: p.copies })),
+    minPrints: V.minPrints,
+    /* the cart already holds prints of this product — they count toward the
+       same per-order minimum, so don't make the customer re-reach it */
+    ...(inCartCount ? { minPrints: Math.max(0, V.minPrints - inCartCount) } : {}),
+  });
+  const lowQualityCount = photos.filter((p) => qualityOf_(p)?.level === "low").length;
+  const sizeIds = [...new Set(photos.map((p) => sizeOf(p).id))];
+  /* the pack minimum topped the order up rather than the customer doing it */
+  const autoFilled = photos.some((p) => p.autoCopies) && totalPrints > photos.length;
   const cropPhoto = photos.find((p) => p.id === cropId);
   const previewPhoto = photos.find((p) => p.id === previewId) ?? photos[0] ?? null;
 
@@ -233,18 +279,30 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
     let cancelled = false;
     const run = async () => {
       for (const p of photos) {
-        const s = sig(p, sizeId, border);
+        const cardAspect = cardAspectOf(p);
+        const s = sig(p, border, cardAspect);
         if (sigRef.current[p.id] === s && previews[p.id]) continue;
         sigRef.current[p.id] = s;
         try {
-          const url = await miniCardDataUrl({ ...p, sizeId, border }, 440, "image/jpeg", 0.9);
+          const url = await miniCardDataUrl({ ...p, sizeId: p.sizeId, cardAspect, border }, 440, "image/jpeg", 0.9);
           if (!cancelled) setPreviews((pv) => ({ ...pv, [p.id]: url }));
         } catch { /* ignore */ }
       }
     };
     const t = setTimeout(run, 140);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [photos, sizeId, border]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [photos, border]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Say it out loud the first time, then leave the panel below to keep saying
+     it. A quantity that changes itself and says nothing is the thing to avoid. */
+  useEffect(() => {
+    if (!autoFilled) { announcedAutoFill.current = false; return; }
+    if (announcedAutoFill.current) return;
+    announcedAutoFill.current = true;
+    showToast(photos.length === 1
+      ? `Minimum ${V.minPrints} prints — this photo will be printed ${totalPrints} times`
+      : `Minimum ${V.minPrints} prints — spread across your ${photos.length} photos`);
+  }, [autoFilled]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addFiles = async (files) => {
     const list = [...(files ?? [])].slice(0, MAX_PHOTOS - photos.length);
@@ -253,26 +311,81 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
     const added = [];
     for (const f of list) {
       try {
-        const { src } = await fileToDataUrl(f, 1600); // single service validates + compresses
-        const p = newPhoto(src, f.name);
+        /* `px` was already computed here and thrown away — it is what
+           auto-orientation and the print-quality warning run on.
+           NOTE: the pipeline's own `aspect` is HEIGHT / WIDTH (see the comment
+           in CollageMaker) — the opposite of the width/height ratio the print
+           sizes use, so derive ours from `px` rather than reusing it and
+           silently calling every landscape photo a portrait. */
+        const { src, px } = await fileToDataUrl(f, 1600); // single service validates + compresses
+        const p = newPhoto(src, f.name, sizeId, px?.h ? px.w / px.h : null, px);
         if (activeTemplate) applyTemplateToPhoto(p, activeTemplate); // inherit current template look
         added.push(p);
       } catch (err) { showToast(`⚠ ${f.name}: ${err.message}`); }
     }
-    if (added.length) setPhotos((p) => [...p, ...added]);
+    if (added.length) {
+      setPhotos((prev) => {
+        const next = [...prev, ...added];
+        /* A pack product should open AT its pack size: one photo becomes 10
+           copies, ten photos become one copy each, three photos become 4+3+3.
+           Skipped once the customer has set copies themselves — then the
+           number on screen is theirs, not ours. */
+        const total = next.reduce((n, x) => n + x.copies, 0);
+        if (V.minPrints > 1 && !touchedCopies.current && total < V.minPrints) {
+          const target = Math.max(1, V.minPrints - inCartCount);
+          const base = Math.floor(target / next.length);
+          const extra = target % next.length;
+          return next.map((x, i) => ({
+            ...x, copies: Math.max(1, base + (i < extra ? 1 : 0)), autoCopies: true,
+          }));
+        }
+        return next;
+      });
+    }
     setBusy(false);
   };
 
   const patch = (id, p) => setPhotos((arr) => arr.map((x) => (x.id === id ? { ...x, ...p } : x)));
-  const setCopies = (id, n) => patch(id, { copies: Math.max(1, Math.min(99, n)) });
+  /* Once the customer touches a quantity anywhere, the auto-fill stops and the
+     notice disappears — the numbers on screen are theirs from then on. */
+  const takeCopyControl = () => {
+    touchedCopies.current = true;
+    setPhotos((arr) => (arr.some((x) => x.autoCopies) ? arr.map((x) => ({ ...x, autoCopies: false })) : arr));
+  };
+  const setCopies = (id, n) => {
+    touchedCopies.current = true;
+    setPhotos((arr) => arr.map((x) => (x.id === id
+      ? { ...x, copies: Math.max(1, Math.min(99, n)), autoCopies: false }
+      : x)));
+  };
+  /* Step 1 sets the default for new uploads AND re-sizes everything already
+     uploaded — the common case. Per-photo overrides live on each card. */
+  const pickSize = (id) => {
+    setSizeId(id);
+    setPhotos((arr) => arr.map((x) => ({ ...x, sizeId: id })));
+  };
+  /* Quick packs (Mini Prints only): top the order up to N prints by adding
+     copies to the photos already uploaded, round-robin so the mix stays even. */
+  const setPack = (n) => {
+    if (!photos.length) { showToast("⚠ Upload a photo first"); return; }
+    takeCopyControl();
+    setPhotos((arr) => {
+      const base = Math.floor(n / arr.length);
+      const extra = n % arr.length;
+      return arr.map((x, i) => ({ ...x, copies: Math.max(1, base + (i < extra ? 1 : 0)) }));
+    });
+  };
   const rotate = (id) => setPhotos((arr) => arr.map((x) => (x.id === id ? { ...x, rotation: (x.rotation + 90) % 360 } : x)));
   const remove = (id) => setPhotos((p) => p.filter((x) => x.id !== id));
-  const duplicate = (id, times = 1) => setPhotos((arr) => {
+  const duplicate = (id, times = 1) => {
+    takeCopyControl();
+    setPhotos((arr) => {
     const i = arr.findIndex((x) => x.id === id);
     if (i < 0) return arr;
     const copies = Array.from({ length: times }, () => ({ ...arr[i], id: uid(), stickers: arr[i].stickers.map((s) => ({ ...s })) }));
     return [...arr.slice(0, i + 1), ...copies, ...arr.slice(i + 1)];
-  });
+    });
+  };
   const moveTo = (to) => {
     const from = dragIdx.current;
     dragIdx.current = null;
@@ -303,7 +416,10 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
     setBorder(t.border ?? "none");
     if (t.size) setSizeId(t.size);
     setPhotos((arr) => {
-      let next = arr.map((p) => { const c = { ...p, stickers: [...p.stickers] }; applyTemplateToPhoto(c, t); return c; });
+      let next = arr.map((p) => {
+        const c = { ...p, stickers: [...p.stickers], ...(t.size ? { sizeId: t.size } : {}) };
+        applyTemplateToPhoto(c, t); return c;
+      });
       if (t.duplicateCount && next.length === 1) {
         const base = next[0];
         next = Array.from({ length: t.duplicateCount }, () => ({ ...base, id: uid(), stickers: base.stickers.map((s) => ({ ...s })) }));
@@ -313,39 +429,57 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
     showToast(`${t.name} template applied ✓`);
   };
 
-  const ensure = () => { if (!photos.length) { showToast("⚠ Upload at least one photo"); return false; } return true; };
+  /* One gate for both exits. Empty state first, then the per-order minimum —
+     silently adding 4 mini prints when the product needs 10 is the bug the
+     audit called "empty-state validation". */
+  const ensure = () => {
+    if (!photos.length) { showToast("⚠ Upload at least one photo"); return false; }
+    if (!meetsMinimum) {
+      showToast(`⚠ ${V.minNoticeEn || `Minimum ${V.minPrints} prints per order`}`);
+      return false;
+    }
+    return true;
+  };
   const addToCart = async () => {
     if (!ensure()) return;
     setBusy(true);
     try {
       for (const p of photos) {
-        const src = await miniCardDataUrl({ ...p, sizeId, border }, 1100, "image/jpeg", 0.92);
+        const ps = sizeOf(p);
+        const cardAspect = cardAspectOf(p);
+        const src = await miniCardDataUrl({ ...p, sizeId: p.sizeId, cardAspect, border }, 1100, "image/jpeg", 0.92);
         onAddToCart({
-          key: uid(), productId: "mini-print", type: "custom",
-          name: `Mini Print ${size.label} — ${size.name}`,
-          price: size.price, qty: p.copies, size: size.label, color: "White",
+          key: uid(), productId: V.productId, type: "custom",
+          name: `${V.cartPrefix} ${ps.label} — ${ps.name}`,
+          price: ps.price, qty: p.copies, size: ps.label, color: "White",
           printMethod: "Full Colour", placement: "Front",
-          design: { front: [{ id: uid(), type: "image", name: p.caption?.trim() || "Mini print", src, x: 50, y: 50, w: 100, h: 100, rot: 0, opacity: 1, visible: true }] },
-          summary: `Mini print · ${size.label}${border !== "none" ? ` · ${border}` : ""}${p.filter !== "original" ? ` · ${p.filter}` : ""}${p.caption?.trim() ? ` · "${p.caption.trim()}"` : ""} · ${p.copies} ${p.copies > 1 ? "copies" : "copy"}`,
+          design: { front: [{ id: uid(), type: "image", name: p.caption?.trim() || V.cartPrefix, src, x: 50, y: 50, w: 100, h: 100, rot: 0, opacity: 1, visible: true }] },
+          summary: `${V.cartPrefix} · ${ps.label}${cardAspect >= 1 ? " landscape" : " portrait"}${border !== "none" ? ` · ${border}` : ""}${p.filter !== "original" ? ` · ${p.filter}` : ""}${p.caption?.trim() ? ` · "${p.caption.trim()}"` : ""} · ${p.copies} ${p.copies > 1 ? "copies" : "copy"}`,
         });
       }
-      showToast(`${totalPrints} mini prints added to cart · ${inr(subtotal)} ✓`);
+      showToast(`${totalPrints} ${V.unitNoun} added to cart · ${inr(subtotal)} ✓`);
       onClose(); onOpenCart();
     } catch (err) { showToast(`⚠ ${err.message}`); } finally { setBusy(false); }
   };
   const orderWhatsApp = () => {
     if (!ensure()) return;
-    const lines = photos.map((p, i) => `${i + 1}. ${p.copies}× ${p.caption?.trim() ? `"${p.caption.trim()}"` : "photo"}${p.filter !== "original" ? ` · ${p.filter}` : ""}`);
+    const lines = photos.map((p, i) => `${i + 1}. ${p.copies}× ${sizeOf(p).label} ${p.caption?.trim() ? `"${p.caption.trim()}"` : "photo"}${p.filter !== "original" ? ` · ${p.filter}` : ""}`);
+    /* one line per size actually ordered, so a mixed order reads correctly */
+    const bySize = [...new Set(photos.map((p) => sizeOf(p).id))].map((id) => {
+      const sz = sizeIn(V, id);
+      const n = photos.filter((p) => sizeOf(p).id === id).reduce((a, p) => a + p.copies, 0);
+      return `${sz.label} — ${sz.name}: ${n} × ${inr(sz.price)}`;
+    });
     const msg = [
-      "*DRUCKA Mini Prints Order*", "",
-      `Size: ${size.label} — ${size.name}`,
+      V.waHeading, "",
+      ...bySize,
       `Border: ${border}`,
       `Total prints: ${totalPrints}`, "",
       ...lines, "",
       `Total: ${inr(total)} (${shipping ? inr(shipping) + " shipping" : "free shipping"})`, "",
       "Sending my photos now to place the order!",
     ].join("\n");
-    pixel.contact("Mini Prints WhatsApp Order");
+    pixel.contact(`${V.eyebrow} WhatsApp Order`);
     window.open(`https://wa.me/${WA_PHONE}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
     showToast("Now attach your photos in the WhatsApp chat ✓");
   };
@@ -353,9 +487,12 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
   const Step = ({ n, children }) => (
     <p className="kd-label mb-2 mt-6 uppercase">{n} · {children}</p>
   );
+  /* templates only exist on the mini variant, so the numbering closes up
+     rather than jumping 1 → 3 on /photo-prints */
+  const STEP = V.showTemplates ? { tpl: 2, border: 3, upload: 4 } : { border: 2, upload: 3 };
 
   return (
-    <div className="flex flex-col bg-[#fcfbfa] text-charcoal" role="dialog" aria-modal="true" aria-label="Mini photo prints"
+    <div ref={dialogRef} className="flex flex-col bg-[#fcfbfa] text-charcoal" role="dialog" aria-modal="true" aria-label={V.ariaLabel}
       style={{ position: "fixed", inset: 0, zIndex: 95 }}>
       <style>{`
         .kd-mono { font-family: 'Courier New', monospace; }
@@ -386,13 +523,17 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         }
       `}</style>
       <header className="flex h-14 shrink-0 items-center gap-2 border-b border-black/10 bg-white px-3 sm:px-4">
-        <button onClick={onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal"><ArrowLeft size={18} /></button>
+        {/* 44px: this is the only way out of a full-screen editor on a phone */}
+        <button onClick={onClose} aria-label="Back" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal"><ArrowLeft size={20} /></button>
         <div className="min-w-0">
-          <p className="kd-heading truncate text-base">Mini Photo Prints</p>
+          <p className="kd-heading truncate text-base">{V.eyebrow}</p>
           <p className="kd-mono hidden text-[10px] sm:block" style={{ color: 'rgba(26,18,8,0.4)' }}>Drucka Studio · {size.label}</p>
         </div>
-        <button onClick={addToCart} disabled={busy || !photos.length}
-          className="kd-cart ml-auto rounded-sm px-4 py-2 text-xs font-bold uppercase disabled:opacity-50">{busy ? "…" : "Add to Cart"}</button>
+        {/* same gate as the bottom bar — a disabled control at one end and a
+            live one at the other is how the minimum got bypassed */}
+        <button onClick={addToCart} disabled={busy || !photos.length || !meetsMinimum}
+          title={!meetsMinimum && photos.length ? `Minimum ${V.minPrints} prints per order` : undefined}
+          className="kd-cart ml-auto min-h-[44px] whitespace-nowrap rounded-sm px-4 text-xs font-bold uppercase disabled:opacity-50">{busy ? "…" : "Add to Cart"}</button>
       </header>
 
       <div className="flex-1 overflow-y-auto">
@@ -401,10 +542,10 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
           <div className="mp-preview-pane flex flex-col items-center justify-center gap-4 p-6 sm:p-8" style={{ background: "#F9F8F6" }}>
             {previewPhoto ? (
               previews[previewPhoto.id]
-                ? <img src={previews[previewPhoto.id]} alt="Live preview of your mini print" draggable={false} className="mp-preview-img rounded-[3px] shadow-2xl" />
+                ? <img src={previews[previewPhoto.id]} alt={`Live preview of your ${V.cartPrefix.toLowerCase()}`} draggable={false} className="mp-preview-img rounded-[3px] shadow-2xl" />
                 : <div className="h-60 w-48 animate-pulse rounded bg-black/5" />
             ) : (
-              <PreviewPlaceholder border={border} aspect={SIZE_ASPECT[sizeId] ?? 1} />
+              <PreviewPlaceholder border={border} aspect={size.aspect} />
             )}
             {photos.length > 1 && (
               <div className="flex max-w-full gap-2 overflow-x-auto scrollbar-none px-1 pb-1">
@@ -419,7 +560,9 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
               </div>
             )}
             <p className="kd-mono text-center text-[10px]" style={{ color: "rgba(26,18,8,0.4)", letterSpacing: "1px" }}>
-              {previewPhoto ? `Live preview · ${size.label} · ${border}` : `Upload a photo to preview your ${size.label} print`}
+              {previewPhoto
+                ? `Live preview · ${sizeOf(previewPhoto).label} · ${cardAspectOf(previewPhoto) >= 1 ? "landscape" : "portrait"} · ${border}`
+                : `Upload a photo to preview your ${size.label} print`}
             </p>
           </div>
 
@@ -431,30 +574,73 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         </div>
         {/* size */}
         <p className="kd-label mb-2 uppercase">1 · Choose a size</p>
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {MINI_SIZES.map((s) => (
-            <button key={s.id} onClick={() => setSizeId(s.id)}
+        <div className={`grid gap-2 sm:gap-3 ${V.sizes.length > 4 ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-3"}`}>
+          {V.sizes.map((s) => (
+            <button key={s.id} onClick={() => pickSize(s.id)}
+              aria-pressed={sizeId === s.id}
               className={`kd-size p-3 text-left transition ${sizeId === s.id ? "kd-size-on" : ""}`}>
               <p className="kd-size-title text-lg font-bold">{s.label}</p>
               <p className="kd-sub mt-0.5 text-[10px] font-semibold leading-tight">{s.name}</p>
-              <p className="mt-1.5 text-[11px] font-bold"><span className="text-[8px] tracking-[2px] opacity-70">FROM </span>{inr(s.price)}<span className="kd-sub text-[9px]"> /print</span></p>
+              {/* exact per-print price, no "FROM" — the vague prefix next to a
+                  "From ₹190" headline is what made the pricing unreadable */}
+              <p className="mt-1.5 text-[11px] font-bold">{inr(s.price)}<span className="kd-sub text-[9px]"> /print</span></p>
             </button>
           ))}
         </div>
 
-        {/* templates */}
-        <Step n="2">Quick templates</Step>
-        <div className="-mx-1 flex gap-2 overflow-x-auto scrollbar-none px-1 pb-1">
-          {OCCASION_TEMPLATES.map((t) => (
-            <button key={t.id} onClick={() => applyTemplate(t)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-full border-2 px-3 py-2 text-xs font-bold transition ${activeTemplate?.id === t.id ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 bg-white text-charcoal/70 hover:border-black/25"}`}>
-              <span className="text-base">{t.emoji}</span> {t.name}
-            </button>
-          ))}
+        {/* The one place the product's quantity rule is stated, in both
+            languages, before any photo is uploaded. */}
+        <div className={`mt-3 rounded-xl border p-3 text-[11px] leading-relaxed ${
+          V.minPrints > 1 ? "border-gold/40 bg-gold/[0.06] text-charcoal/75" : "border-emerald-200 bg-emerald-50 text-charcoal/70"
+        }`}>
+          {V.minPrints > 1 ? (
+            <>
+              <p className="font-bold text-charcoal">{inr(size.price)} per print · minimum {V.minPrints} prints · {inr(size.price * V.minPrints)}</p>
+              <p className="mt-0.5">{V.minNoticeEn}</p>
+              <p className="mt-0.5" lang="mr">{V.minNoticeMr}</p>
+            </>
+          ) : (
+            <>
+              <p className="font-bold text-charcoal">{inr(size.price)} per print · order from a single print</p>
+              <p className="mt-0.5">Mix any sizes in one order. Delivery {inr(49)} (free over {inr(FREE_SHIP)}) is added at checkout.</p>
+            </>
+          )}
         </div>
+
+        {/* Quick packs — Mini Prints only, because they are the product with a
+            pack minimum. Tops every uploaded photo up to the pack size. */}
+        {V.quickPacks && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">Quick packs</span>
+            {V.quickPacks.map((n) => (
+              <button key={n} onClick={() => setPack(n)}
+                className={`rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${
+                  totalPrints === n ? "border-gold bg-gold text-white" : "border-black/10 text-charcoal/70 hover:border-black/25"
+                }`}>
+                {n} prints · {inr(n * size.price)}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* templates — occasion packs are a Mini Prints idea; the passport
+            template alone forces 2×3", which regular photo prints do not sell */}
+        {V.showTemplates && (
+          <>
+            <Step n={STEP.tpl}>Quick templates</Step>
+            <div className="-mx-1 flex gap-2 overflow-x-auto scrollbar-none px-1 pb-1">
+              {OCCASION_TEMPLATES.map((t) => (
+                <button key={t.id} onClick={() => applyTemplate(t)}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full border-2 px-3 py-2 text-xs font-bold transition ${activeTemplate?.id === t.id ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 bg-white text-charcoal/70 hover:border-black/25"}`}>
+                  <span className="text-base">{t.emoji}</span> {t.name}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
 
         {/* border (global) */}
-        <Step n="3">Choose border</Step>
+        <Step n={STEP.border}>Choose border</Step>
         <div className="flex flex-wrap gap-2">
           {BORDERS.map((b) => (
             <button key={b.id} onClick={() => setBorder(b.id)}
@@ -466,7 +652,7 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
         </div>
 
         {/* upload */}
-        <Step n="4">Upload &amp; personalise</Step>
+        <Step n={STEP.upload}>Upload &amp; personalise</Step>
         <input ref={fileRef} type="file" multiple hidden accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
         <button onClick={() => fileRef.current?.click()} disabled={busy || photos.length >= MAX_PHOTOS}
@@ -488,8 +674,43 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
           </p>
         </div>
 
+        {/* Auto-fill, stated in full: what we did, why, and the two ways out.
+            The blueprint's rule is that the duplication must never be silent. */}
+        {autoFilled && (
+          <div role="status" className="mt-3 rounded-xl border border-gold/45 bg-gold/[0.07] p-3.5">
+            <p className="text-xs font-bold text-charcoal">
+              Minimum {V.minPrints} prints required.{" "}
+              {photos.length === 1
+                ? `This photo will be printed ${totalPrints} times.`
+                : `Copies were spread across your ${photos.length} photos.`}
+            </p>
+            <p className="mt-1 text-[11px] font-semibold text-charcoal/70">
+              {photos.length === 1
+                ? `1 photo × ${totalPrints} copies = ${totalPrints} prints · ${inr(subtotal)}`
+                : `${photos.length} photos · ${totalPrints} prints total · ${inr(subtotal)}`}
+            </p>
+            <p className="mt-0.5 text-[11px] leading-relaxed text-charcoal/55" lang="mr">
+              किमान {V.minPrints} prints आवश्यक आहेत — म्हणून copies आपोआप {totalPrints} केल्या आहेत. हव्या तशा बदला.
+            </p>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              <button type="button" onClick={() => fileRef.current?.click()}
+                className="min-h-[44px] rounded-full border-2 border-charcoal/15 bg-white px-4 text-[11px] font-bold text-charcoal transition hover:border-charcoal/40">
+                Add more photos
+              </button>
+              <button type="button"
+                onClick={() => {
+                  takeCopyControl();
+                  photoListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
+                className="min-h-[44px] rounded-full border-2 border-charcoal/15 bg-white px-4 text-[11px] font-bold text-charcoal transition hover:border-charcoal/40">
+                Change copies
+              </button>
+            </div>
+          </div>
+        )}
+
         {photos.length > 0 && (
-          <div className="mt-4 grid gap-4">
+          <div ref={photoListRef} className="mt-4 grid gap-4">
             {photos.map((p, i) => (
               <div key={p.id} onDragOver={(e) => e.preventDefault()} onDrop={() => moveTo(i)}
                 className="rounded-2xl border border-black/10 bg-white p-3">
@@ -520,6 +741,44 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
                   <button onClick={() => rotate(p.id)} className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-black/5 py-2 text-[11px] font-bold text-charcoal hover:bg-black/10"><RotateCw size={13} /> Rotate</button>
                   <button onClick={() => setCropId(p.id)} className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-black/5 py-2 text-[11px] font-bold text-charcoal hover:bg-black/10"><Crop size={13} /> Crop &amp; adjust</button>
                 </div>
+
+                {/* per-photo size + orientation — one order can mix sizes, so
+                    this is where a single photo departs from the step-1 pick */}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <label className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">Size</span>
+                    <select value={sizeOf(p).id} onChange={(e) => patch(p.id, { sizeId: e.target.value })}
+                      aria-label={`Print size for photo ${i + 1}`}
+                      className="rounded-lg border border-black/15 bg-white px-2 py-1.5 text-xs font-semibold text-charcoal outline-none focus:border-gold">
+                      {V.sizes.map((sz) => <option key={sz.id} value={sz.id}>{sz.label} · {inr(sz.price)}</option>)}
+                    </select>
+                  </label>
+                  {V.autoOrient && sizeOf(p).aspect !== 1 && (
+                    <div className="flex overflow-hidden rounded-lg border border-black/15" role="group" aria-label={`Orientation for photo ${i + 1}`}>
+                      {[["auto", "Auto"], ["p", "Portrait"], ["l", "Landscape"]].map(([v, lbl]) => (
+                        <button key={v} onClick={() => patch(p.id, { orient: v })}
+                          aria-pressed={(p.orient ?? "auto") === v}
+                          className={`px-2.5 py-1.5 text-[11px] font-bold ${(p.orient ?? "auto") === v ? "bg-gold text-white" : "text-charcoal/60"}`}>{lbl}</button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* print-quality guard — the customer finds out BEFORE paying
+                    that a 640px screenshot will not survive an A3 */}
+                {(() => {
+                  const q = qualityOf_(p);
+                  if (!q || q.level === "good") return null;
+                  return (
+                    <p className={`mt-2 rounded-lg px-2.5 py-1.5 text-[11px] font-semibold ${
+                      q.level === "low" ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-800"
+                    }`}>
+                      {q.level === "low"
+                        ? `⚠ ${q.label} — this photo may print soft at ${sizeOf(p).label}. Try a smaller size or a higher-resolution copy.`
+                        : `${q.label} at ${sizeOf(p).label}.`}
+                    </p>
+                  );
+                })()}
 
                 {/* filter strip */}
                 <div className="mt-3 -mx-1 flex gap-1.5 overflow-x-auto scrollbar-none px-1 pb-1">
@@ -602,7 +861,9 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
 
                 {/* copies */}
                 <div className="mt-3 flex items-center justify-end gap-1.5 border-t border-black/5 pt-3">
-                  <span className="mr-auto text-[10px] font-bold uppercase tracking-wide text-charcoal/40">Copies</span>
+                  <span className="mr-auto text-[10px] font-bold uppercase tracking-wide text-charcoal/40">
+                    Copies{p.autoCopies ? <span className="ml-1 normal-case text-gold-dark">{" · "}set to meet the {V.minPrints}-print minimum</span> : null}
+                  </span>
                   <button onClick={() => setCopies(p.id, p.copies - 1)} className="grid h-7 w-7 place-items-center rounded-full border border-black/15 text-sm font-bold hover:border-charcoal">−</button>
                   <span className="w-6 text-center text-sm font-bold">{p.copies}</span>
                   <button onClick={() => setCopies(p.id, p.copies + 1)} className="grid h-7 w-7 place-items-center rounded-full border border-black/15 text-sm font-bold hover:border-charcoal">+</button>
@@ -611,30 +872,58 @@ export default function MiniPrints({ onClose, onAddToCart, onOpenCart, showToast
             ))}
           </div>
         )}
-        <p className="kd-bottominfo mt-4 leading-relaxed">Printed on premium photo paper &amp; shipped by Drucka in 2–4 days · COD available · Free shipping over {inr(FREE_SHIP)}.</p>
+        <p className="kd-bottominfo mt-4 leading-relaxed">Printed on premium photo paper &amp; shipped by Drucka in 2–4 days · Pay by {paymentLine()} · Free shipping over {inr(FREE_SHIP)}.</p>
         <p className="kd-watermark mt-4 text-right">© Drucka Print Lab · Kolhapur</p>
           </div>{/* /right config */}
         </div>{/* /grid */}
       </div>
 
       {/* bottom bar */}
-      <div className="shrink-0 border-t border-black/10 bg-white px-4 py-3 sm:px-6">
+      {/* The one bar that carries Add to Cart, so it has to clear the iPhone
+          home indicator — every other fixed bottom bar on the site already
+          pads for it and this one did not. */}
+      <div className="shrink-0 border-t border-black/10 bg-white px-4 pt-3 sm:px-6"
+        style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}>
+        {photos.length > 0 && !meetsMinimum && (
+          <p role="status" className="mx-auto mb-2 max-w-3xl rounded-lg bg-gold/10 px-3 py-2 text-[11px] font-semibold leading-relaxed text-charcoal/80">
+            Add {shortBy} more {shortBy === 1 ? "print" : "prints"} to reach the {V.minPrints}-print minimum. <span lang="mr">{V.minNoticeMr}</span>
+          </p>
+        )}
+        {lowQualityCount > 0 && (
+          <p role="status" className="mx-auto mb-2 max-w-3xl rounded-lg bg-red-50 px-3 py-2 text-[11px] font-semibold text-red-700">
+            ⚠ {lowQualityCount} {lowQualityCount === 1 ? "photo is" : "photos are"} low-resolution for the chosen size and may print soft.
+          </p>
+        )}
         <div className="mx-auto flex max-w-3xl items-center gap-3">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">{totalPrints} prints · {size.label}</p>
-            <p className="kd-price font-bold">{inr(total)} <span className="text-[10px] font-normal" style={{ opacity: 0.6 }}>{shipping ? "incl. shipping" : "free shipping"}</span></p>
+          {/* `truncate` + `whitespace-nowrap`: at 375px the price line used to
+              wrap to three lines ("₹0 / free / delivery") and shove the
+              buttons off the bar. */}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[10px] font-bold uppercase tracking-wide text-charcoal/40">
+              {totalPrints} {totalPrints === 1 ? "print" : "prints"}
+              {sizeIds.length === 1 ? ` · ${sizeIn(V, sizeIds[0]).label}` : sizeIds.length > 1 ? ` · ${sizeIds.length} sizes` : ""}
+              {inCartCount > 0 ? ` · ${inCartCount} in cart` : ""}
+            </p>
+            <p className="kd-price whitespace-nowrap font-bold">{inr(total)}</p>
+            <p className="truncate text-[10px] text-charcoal/50">{shipping ? `incl. ${inr(shipping)} delivery` : "free delivery"}</p>
           </div>
-          <div className="ml-auto flex items-center gap-2">
-            <button onClick={orderWhatsApp} disabled={!photos.length}
-              className="flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2.5 text-xs font-bold text-white transition hover:brightness-105 disabled:opacity-50"><MessageCircle size={14} /> WhatsApp</button>
-            <button onClick={addToCart} disabled={busy || !photos.length}
-              className="kd-cart flex items-center gap-1.5 rounded-sm px-5 py-2.5 text-xs font-bold uppercase disabled:opacity-50"><ShoppingBag size={14} /> Add to Cart</button>
+          {/* 44px minimum tap target, and neither label may wrap */}
+          <div className="flex shrink-0 items-center gap-2">
+            <button onClick={orderWhatsApp} disabled={!photos.length || !meetsMinimum}
+              aria-label="Order on WhatsApp"
+              className="flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-[#25D366] px-3.5 text-xs font-bold text-white transition hover:brightness-105 disabled:opacity-50 sm:px-4">
+              <MessageCircle size={16} /><span className="hidden sm:inline">WhatsApp</span>
+            </button>
+            <button onClick={addToCart} disabled={busy || !photos.length || !meetsMinimum}
+              className="kd-cart flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-sm px-4 text-xs font-bold uppercase disabled:opacity-50 sm:px-5">
+              <ShoppingBag size={16} /> Add to Cart
+            </button>
           </div>
         </div>
       </div>
 
       {cropPhoto && (
-        <CropModal photo={cropPhoto} sizeId={sizeId}
+        <CropModal photo={cropPhoto} aspect={cardAspectOf(cropPhoto)}
           onClose={() => setCropId(null)}
           onApply={(d) => { patch(cropPhoto.id, d); setCropId(null); }} />
       )}

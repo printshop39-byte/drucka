@@ -5,6 +5,13 @@ import { payWithRazorpay } from "./lib/paymentClient";
 import * as pixel from "./lib/metaPixel";
 import { productById as designerProductById } from "./designer/data";
 import { usesNewShell, setForceClassicEditor } from "./utils/editorFlags";
+import { FEATURES, paymentLine } from "./lib/features";
+import useModalA11y from "./hooks/useModalA11y";
+import { PRINT_VARIANTS } from "./components/printSizes";
+import { PRODUCTS } from "./catalog/legacy/landingProducts";
+import { EDITOR_PRODUCTS } from "./catalog/legacy/editorProducts";
+import { QIKINK_PRODUCT_MAP } from "./catalog/legacy/qikinkMap";
+import { CATALOG_CARDS } from "./catalog/legacy/catalogCards";
 import { qikinkColorCode, colorIdOf, sizeTokenFor, SKU_SIZE_TOKEN, KIDS_SIZES, isInHouseVariant } from "../api/_lib/qikinkCatalog";
 /* Heavy editors/modals — lazy-loaded so they stay OUT of the homepage bundle
    and only download when the user actually opens one */
@@ -14,6 +21,7 @@ const ProductEditorShell = lazy(() => import("./designer/ProductEditorShell"));
 const CollageMaker = lazy(() => import("./collage/CollageMaker"));
 const CollageWelcome = lazy(() => import("./collage/CollageWelcome"));
 const MiniPrints = lazy(() => import("./components/MiniPrints"));
+const ProductPicker = lazy(() => import("./components/ProductPicker"));
 /* premium frame-shop homepage components (src/components) */
 import AnnouncementBar from "./components/AnnouncementBar";
 import FrameNavbar from "./components/Navbar";
@@ -104,29 +112,13 @@ const CONFIG = {
   printPartner: "Drucka Print Studio · Kolhapur, MH",
 };
 
-/* ── Feature flags — flip these for launch phases ──
-   Razorpay code stays fully wired; it's just hidden while testing. */
-const FEATURES = {
-  ENABLE_RAZORPAY: false,   // true → "Pay via Razorpay" returns as primary payment
-  ENABLE_COD_TESTING: true, // true → "Place COD Test Order" is the main checkout flow
-};
+/* Feature flags now live in src/lib/features.js so the footer badges and this
+   file cannot disagree about which payment methods are actually offered. */
 
 /* Staging banner — build with VITE_STAGING=true on Vercel preview /
    staging deployments so testers can't mistake it for the live site. */
 const IS_STAGING = import.meta.env.VITE_STAGING === "true";
 
-/* Landing-page catalogue (images live in /public/images/) */
-const PRODUCTS = [
-  { id: "tshirt",   name: "Premium T-Shirt",  category: "tshirts",   price: 599, delivery: "2–4 days", img: "/images/tshirt.webp",   tag: "Bestseller", blurb: "Soft cotton, full-colour print" },
-  { id: "mug",      name: "Photo Mug",        category: "mugs",      price: 299, delivery: "2–4 days", img: "/images/mug.webp",      tag: "Popular",    blurb: "Personalised ceramic mug" },
-  { id: "frame",    name: "Framed Print",     category: "frames",    price: 899, delivery: "2–4 days", img: "/images/frame.webp",    tag: "Premium",    blurb: "Gallery-grade photo frame" },
-  { id: "cushion",  name: "Cushion",          category: "cushions",  price: 649, delivery: "2–4 days", img: "/images/cushion.webp",  tag: "Cozy Pick",  blurb: "Soft printed throw cushion" },
-  { id: "canvas",   name: "Canvas",           category: "frames",    price: 500, delivery: "2–4 days", img: "/images/canvas.webp",   tag: "Premium",    blurb: "Stretched premium canvas" },
-  { id: "keychain", name: "Acrylic Keychain", category: "keychains", price: 149, delivery: "2–4 days", img: "/images/keychain.webp", tag: "Under ₹200", blurb: "Pocket-size photo keepsake" },
-  { id: "kids-tshirt", name: "Kids T-Shirt",          category: "kids", price: 449, delivery: "2–4 days", img: "/mockups/kids-tshirt-front-white.png", fallbackImg: "/images/tshirt.webp", tag: "Kids 2–12Y", blurb: "Soft cotton tee for little ones" },
-  { id: "kids-hoodie", name: "Kids Hoodie",           category: "kids", price: 799, delivery: "2–4 days", img: "/images/categories/kids-jacket.webp", fallbackImg: "/images/tshirt.webp", tag: "Kids 2–12Y", blurb: "Cozy printed hoodie for kids" },
-  { id: "kids-mug",    name: "Kids Mug / School Gift", category: "kids", price: 279, delivery: "2–4 days", img: "/images/mug.webp", tag: "School Gift", blurb: "Break-resistant mug for school" },
-];
 
 const CATEGORIES = [
   { id: "all",       label: "All" },
@@ -136,23 +128,6 @@ const CATEGORIES = [
   { id: "cushions",  label: "Cushions" },
   { id: "keychains", label: "Keychains" },
   { id: "kids",      label: "Kids" },
-];
-
-/* ═══ EDITOR CATALOGUE — blank mockups, prices, print areas ═══
-   area = printable area in % of the 420×500 canvas
-   printArea = real-world size shown in the variants panel      */
-const EDITOR_PRODUCTS = [
-  { id: "tshirt",    name: "Regular T-Shirt",   price: 599, cost: 359, sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], apparel: true,  printArea: "30 × 40 cm", area: { left: 29.5, top: 23, width: 41, height: 46 } },
-  { id: "oversized", name: "Oversized T-Shirt", price: 699, cost: 419, sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], apparel: true,  printArea: "35 × 45 cm", area: { left: 28.5, top: 24, width: 43, height: 47 } },
-  { id: "hoodie",    name: "Hoodie",            price: 999, cost: 649, sizes: ["XS", "S", "M", "L", "XL", "XXL", "3XL"], apparel: true,  printArea: "28 × 30 cm", area: { left: 33, top: 27, width: 34, height: 27 } },
-  { id: "mug",       name: "Photo Mug",         price: 299, cost: 179, sizes: ["325 ml"],                   apparel: false, printArea: "20 × 9 cm",  area: { left: 33, top: 35, width: 34, height: 33 } },
-  { id: "frame",     name: "Framed Print",      price: 899, cost: 539, sizes: ["A4", "A3"],                 apparel: false, printArea: "21 × 30 cm", area: { left: 35, top: 24, width: 30, height: 42 } },
-  { id: "cushion",   name: "Cushion",           price: 649, cost: 389, sizes: ['16"', '18"'],               apparel: false, printArea: "40 × 40 cm", area: { left: 31, top: 27, width: 38, height: 38 } },
-  { id: "canvas",    name: "Canvas",            price: 500, cost: 250, sizes: ['8×8"', '8×12"', '16×20"', '20×30"'], apparel: false, printArea: "20 × 20 cm", area: { left: 31.5, top: 21, width: 39, height: 54 } },
-  { id: "keychain",  name: "Acrylic Keychain",  price: 149, cost: 79,  sizes: ["Standard"],                 apparel: false, printArea: "3 × 5 cm",   area: { left: 39.5, top: 35.5, width: 21, height: 28 } },
-  { id: "kids-tshirt", name: "Kids T-Shirt",           price: 449, cost: 269, sizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], apparel: true,  kids: true, printArea: "25 × 32 cm", area: { left: 31, top: 26, width: 38, height: 42 } },
-  { id: "kids-hoodie", name: "Kids Hoodie",            price: 799, cost: 499, sizes: ["2Y", "4Y", "6Y", "8Y", "10Y", "12Y", "14Y"], apparel: true,  kids: true, printArea: "22 × 26 cm", area: { left: 33, top: 28, width: 34, height: 26 } },
-  { id: "kids-mug",    name: "Kids Mug / School Gift", price: 279, cost: 159, sizes: ["250 ml"],                                  apparel: false, kids: true, printArea: "18 × 8 cm",  area: { left: 33, top: 35, width: 34, height: 33 } },
 ];
 
 /* Neck-label print area for apparel */
@@ -380,101 +355,6 @@ const QIKINK_STATUSES = ["Draft", "Sent to Qikink", "In Production", "Shipped", 
    imports. They were separate tables until the auto-send path was found to be
    sending six of the ten colours as unusable SKUs. */
 
-/* Drucka product → Qikink product/SKU mapping.
-   Colours and sizes below are the ones the sku_descriptions export actually
-   carries for that stem, intersected with what Drucka sells — validateQikink-
-   Order rejects anything outside them, so an order can no longer be sent with
-   a SKU Qikink has never heard of.
-   Confirm product IDs + SKU patterns in your Qikink dashboard:
-   https://creator.qikink.com/dashboard → Products */
-const QIKINK_PRODUCT_MAP = [
-  /* MRnHs — export calls it "Classic Crew T-Shirt" and carries 34 colours and
-     XS–7XL. Listed here: every colour Drucka sells (all ten exist on this
-     stem) and every size Drucka sells.
-     sizesByColor: Qikink stops Yellow, Lavender and Baby Pink at 4XL while the
-     other seven run to 7XL. Two independent lists cannot say that, and the
-     nine missing combinations are real — MRnHs-Yl-7XL does not exist. */
-  { druckaId: "tshirt",      druckaName: "Regular T-Shirt",   qikinkProduct: "Classic Crew T-Shirt", qikinkProductId: "MRNHS-180", skuPattern: "MRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "black", "navy", "red", "royal-blue", "bottle-green", "maroon", "yellow", "lavender", "baby-pink"], sizes: ["S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL", "6XL", "7XL"], baseCostBySize: { S: 359, M: 359, L: 359, XL: 359, XXL: 359, "3XL": 379, "4XL": 399, "5XL": 419, "6XL": 439, "7XL": 459 }, sizesByColor: { yellow: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], lavender: ["S", "M", "L", "XL", "XXL", "3XL", "4XL"], "baby-pink": ["S", "M", "L", "XL", "XXL", "3XL", "4XL"] }, baseCost: 359, sellingPrice: 599, printAreas: ["Front", "Back", "Left chest"], active: true },
-  { druckaId: "oversized",   druckaName: "Oversized T-Shirt", qikinkProduct: "Oversized Classic T-Shirt | UC22", qikinkProductId: "UC22",  skuPattern: "UOsMRnHs-{color}-{size}", printMethod: "DTF",     colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 419, sellingPrice: 699, printAreas: ["Front", "Back"],                        active: true },
-  { druckaId: "polo",        druckaName: "Polo T-Shirt",      qikinkProduct: "Polo | MP25",                qikinkProductId: "MP25",      skuPattern: "MPHs-{color}-{size}",  printMethod: "Embroidery",  colors: ["white", "black", "navy"],                  sizes: ["S", "M", "L", "XL", "XXL"],              baseCost: 449, sellingPrice: 799, printAreas: ["Left chest"],                           active: false /* add to Drucka catalogue first */ },
-  /* BRnHs — Boy Classic Crew, 25 colours, infants in months and children in
-     years to 13. The catalogue used to sell 2Y–14Y, not one of which Qikink
-     issues, so every kids order was unfulfillable and this sat inactive.
-     Sizes now come from KIDS_SIZE_TOKEN, which also holds the label ⇆ token
-     mapping ("5Y" → "5Yrs", "0–12M" → "0_12").
-     Colour note: this stem has NO plain Yellow — only New / Golden / Mustard.
-     STEM_COLOR_CODE maps yellow → NYl for it.
-
-     baseCost = the export's garment price PLUS the print charge, which is how
-     every other apparel row here is built: the export lists the blank only,
-     and the adult rows came from a quote that already included printing
-     (MRnHs-Wh-S is ₹190 in the export against ₹359 here — ₹169 of DTG). The
-     same ₹169 DTG / ₹155 DTF is carried below.
-     Confirmed with Qikink 2026-07-26: a kids blank is ₹105–120 and the print
-     ₹50–80, i.e. ₹155–170 landed before GST and shipping, which is where
-     these figures sit. */
-  { druckaId: "kids-tshirt", druckaName: "Kids T-Shirt",      qikinkProduct: "Classic Crew (Boy) | RnHs",  qikinkProductId: "US21",      skuPattern: "BRnHs-{color}-{size}", printMethod: "DTG",         colors: ["white", "yellow", "baby-pink", "royal-blue", "red"], sizes: KIDS_SIZES, baseCostBySize: { "0–12M": 299, "12–23M": 299, "24–35M": 299, "36–47M": 299, "5Y": 329, "7Y": 329, "9Y": 329, "11Y": 329, "13Y": 329 }, baseCost: 329, sellingPrice: 459, printAreas: ["Front", "Back"], active: true },
-
-  /* KHd — kids hoodie, same size list as the tee. Made in Black, Grey
-     Melange, Red, Yellow and Baby Pink ONLY; White and Navy were on sale in
-     the catalogue and have been withdrawn. Baby pink is BPk here and LBp on
-     the tee stem, which is why colour codes are resolved per stem.
-     baseCost = export garment (₹290 / ₹340) + ₹155 DTF, as above. */
-  { druckaId: "kids-hoodie", druckaName: "Kids Hoodie",       qikinkProduct: "Hoodie (Kids)",              qikinkProductId: "KHd",       skuPattern: "KHd-{color}-{size}",   printMethod: "DTF",         colors: ["black", "red", "yellow", "baby-pink"], sizes: KIDS_SIZES, baseCostBySize: { "0–12M": 445, "12–23M": 445, "24–35M": 445, "36–47M": 445, "5Y": 495, "7Y": 495, "9Y": 495, "11Y": 495, "13Y": 495 }, baseCost: 495, sellingPrice: 699, printAreas: ["Front", "Back"], active: true },
-  /* UHd — 15 colours, XS–3XL in the export. Drucka's five all exist on it.
-     Note: this stem has no plain Yellow (only Mustard), so do not add yellow
-     to the hoodie without checking the export again. */
-  { druckaId: "hoodie",      druckaName: "Hoodie",            qikinkProduct: "Hoodie",                     qikinkProductId: "UH24",      skuPattern: "UHd-{color}-{size}",   printMethod: "DTF",         colors: ["white", "black", "navy", "maroon", "bottle-green"], sizes: ["S", "M", "L", "XL", "XXL", "3XL"], baseCostBySize: { S: 649, M: 649, L: 649, XL: 649, XXL: 649, "3XL": 689 }, baseCost: 649, sellingPrice: 999, printAreas: ["Front", "Back"],                        active: true },
-  { druckaId: "mug",         druckaName: "Photo Mug",         qikinkProduct: "White Coffee Mug",           qikinkProductId: "UWCM",      skuPattern: "UWCM-{color}-11 OZ",   printMethod: "Sublimation", colors: ["white"],                                   sizes: ["325 ml"],                                 baseCost: 179, sellingPrice: 299, printAreas: ["Wrap"],                                 active: true },
-
-  /* ── Gift products ──
-     These were unmapped, so a frame or poster order built a line item reading
-     "UNMAPPED-frame". All five stems exist in the sku_descriptions export.
-
-     Qikink's size tokens are not a pattern — "A4 Frame poster", "12x18Fpos",
-     "24x36 pos" and "8X12" all appear, and "A3" means a different token on a
-     framed poster than on a plain one. They live in qikinkCatalog's
-     SKU_SIZE_TOKEN, keyed by SKU stem, so both order paths spell them alike.
-
-     baseCost excludes shipping everywhere — the Admin margin subtracts
-     shippingCost separately and says "after ship". For these three it is
-     Qikink's listed item price ONLY: the print charge is not in the
-     sku_descriptions export, so they are a floor, whereas the apparel figures
-     above came from a quote that already included printing. */
-
-  /* UFPos in Wh/Bk/Yl/Gn/Rb/OG; Drucka's black and white both exist. */
-  { druckaId: "frame",       druckaName: "Framed Print",      qikinkProduct: "Framed Poster",              qikinkProductId: "UFPos",     skuPattern: "UFPos-{color}-{size}", printMethod: "Sublimation", colors: ["black", "white"], sizes: ["A4", "A3"], baseCostBySize: { A4: 250, A3: 350 }, baseCost: 350, sellingPrice: 899, printAreas: ["Front"], active: true },
-
-  /* UPoster is white only. A2 is not made by Qikink at all — see the poster's
-     availableSizes in data.js, where it has been withdrawn. */
-  { druckaId: "poster",      druckaName: "Poster Print",      qikinkProduct: "Poster",                     qikinkProductId: "UPoster",   skuPattern: "UPoster-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ["A3", '12×18"', '24×36"'], baseCostBySize: { A3: 50, '12×18"': 80, '24×36"': 250 }, baseCost: 80, sellingPrice: 199, printAreas: ["Front"], active: true },
-
-  /* Catalogue now carries Qikink's four canvas sizes (see data.js). Note the
-     tokens: 8x8 is lower-case, the other three are 8X12 / 16X20 / 20X30. */
-  { druckaId: "canvas",      druckaName: "Stretched Canvas",  qikinkProduct: "Canvas",                     qikinkProductId: "UCanvas",   skuPattern: "UCanvas-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ['8×8"', '8×12"', '16×20"', '20×30"'], baseCostBySize: { '8×8"': 250, '8×12"': 300, '16×20"': 550, '20×30"': 800 }, baseCost: 300, sellingPrice: 600, printAreas: ["Front"], active: true },
-
-  /* Qikink die-cuts stickers by the inch and makes no A5/A4 sheets. The
-     catalogue sold sheets, which is why this was off; it now sells the five
-     die-cut sizes below and the mapping is live. Tax is 18% here, not the
-     12% the catalogue used to apply. */
-  { druckaId: "stickers",    druckaName: "Custom Stickers",   qikinkProduct: "Stickers",                   qikinkProductId: "UStickers", skuPattern: "UStickers-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ['2×2"', '3×3"', '4×4"', '6×6"', '8×8"'], baseCostBySize: { '2×2"': 25, '3×3"': 30, '4×4"': 40, '6×6"': 55, '8×8"': 85 }, baseCost: 25, sellingPrice: 149, printAreas: ["Front"], active: true },
-
-  /* UAopCuCvr — the only cushion Qikink prints, White only, 16x16 and 24x24.
-     Drucka sold 16″ and 18″; 18″ does not exist and has been withdrawn.
-     All-over print, so print_type_id is 2 rather than DTG's 1. */
-  { druckaId: "cushion",     druckaName: "Photo Cushion",     qikinkProduct: "AOP Cushion Cover",          qikinkProductId: "UAopCuCvr", skuPattern: "UAopCuCvr-{color}-{size}", printMethod: "All over", colors: ["white"], sizes: ['16"'], baseCostBySize: { '16"': 140 }, baseCost: 140, sellingPrice: 649, printAreas: ["Front"], active: true },
-
-  /* UGrtCr — Qikink's Greeting Card, A5, the only card it makes. The printed
-     invitation maps to it; the digital invitation does not map to anything,
-     because it is a file Drucka sends on WhatsApp. inHouseSizes keeps it out
-     of the Qikink path with an honest reason instead of a missing-SKU error.
-     Tax is 18% on this stem, not the 12% the catalogue used to apply. */
-  { druckaId: "invitation-cards", druckaName: "Invitation Cards", qikinkProduct: "Greeting Cards",        qikinkProductId: "UGrtCr",    skuPattern: "UGrtCr-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ["A5 Print"], inHouseSizes: ["Digital"], baseCostBySize: { "A5 Print": 30 }, baseCost: 30, sellingPrice: 249, printAreas: ["Front"], active: true },
-
-  /* "Standard" is the square shape, per Drucka. Qikink also makes Rect and
-     Slim at the same ₹60 if another shape is ever added to the catalogue. */
-  { druckaId: "keychain",    druckaName: "Acrylic Keychain",  qikinkProduct: "Keychain",                   qikinkProductId: "UAcryKyChnUV", skuPattern: "UAcryKyChnUV-{color}-{size}", printMethod: "Sublimation", colors: ["white"], sizes: ["Standard"], baseCost: 60, baseCostBySize: { Standard: 60 }, sellingPrice: 149, printAreas: ["Front"], active: true },
-];
 /* default shipping cost per mapping (editable in Admin → Product Mapping) */
 QIKINK_PRODUCT_MAP.forEach((m) => { if (m.shippingCost == null) m.shippingCost = m.druckaId === "hoodie" ? 69 : 49; });
 
@@ -685,6 +565,8 @@ const icons = {
   mail: "M3 5h18v14H3zM3 6l9 7 9-7",
   check: "M5 13l4 4L19 7",
   trash: "M4 7h16M9 7V4h6v3m-8 0l1 13h8l1-13",
+  pencil: "M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z",
+  copy: "M9 9h10v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
   package: "M12 2L3 7v10l9 5 9-5V7zM3 7l9 5m0 0l9-5m-9 5v10",
   back: "M19 12H5m0 0l7 7m-7-7l7-7",
   undo: "M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3",
@@ -1710,8 +1592,8 @@ function VariantsPanel({
       {/* Indian payment options */}
       <div className="mt-3 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11px] leading-relaxed text-ink/70">
         <p className="font-bold text-emerald-700">Payment options · पेमेंट</p>
-        <p>UPI — GPay / PhonePe / Paytm ({CONFIG.upiId})</p>
-        <p>Cash on Delivery — available on request</p>
+        <p>{paymentLine()}</p>
+        <p>UPI ID: {CONFIG.upiId}</p>
         <p>Every order is confirmed on WhatsApp before printing</p>
       </div>
 
@@ -2002,14 +1884,12 @@ function ProductEditor({ initialProductId, onClose, onAddToCart, onOpenCart, car
 
   /* ── save / cart ── */
   const designedSides = Object.entries(designs).filter(([, ls]) => ls.length).map(([s]) => s);
-  const saveProduct = () => {
-    const saved = load("drucka-saved-products", []);
-    save("drucka-saved-products", [
-      { id: uid(), savedAt: Date.now(), productId, color, size, qty, designs, bgVisible, price: product.price },
-      ...saved,
-    ].slice(0, 10));
-    showToast("Product saved successfully ✓");
-  };
+/* REMOVED 2026-09-21 — "save draft" was write-only.
+   Two code paths wrote to localStorage["drucka-saved-products"] and NOTHING
+   ever read it back: there was no saved-designs list, no restore, no route in.
+   The customer was shown a success toast for work that could never be
+   recovered. Deleting the promise is the honest interim state; a real
+   saved-designs feature is Phase 1 work and must ship WITH its reader. */
   const addToCart = () => {
     onAddToCart({
       key: uid(), productId, type: "custom",
@@ -2063,13 +1943,6 @@ function ProductEditor({ initialProductId, onClose, onAddToCart, onOpenCart, car
         <button onClick={() => setShowVariantsMobile(true)} aria-label="Open variants panel"
           className="grid h-9 w-9 place-items-center rounded-full text-ink/60 transition hover:bg-ink/5 lg:hidden">
           <Icon d={icons.layers} className="h-4.5 w-4.5" />
-        </button>
-        <button onClick={saveProduct}
-          className="hidden items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-xs font-bold text-white transition hover:bg-plum sm:flex">
-          <Icon d={icons.save} className="h-3.5 w-3.5" /> Save product
-        </button>
-        <button onClick={saveProduct} aria-label="Save product" className="grid h-9 w-9 place-items-center rounded-full bg-ink text-white sm:hidden">
-          <Icon d={icons.save} className="h-4 w-4" />
         </button>
         <button onClick={onOpenCart} aria-label={`Open cart, ${cartCount} items`}
           className="relative grid h-9 w-9 place-items-center rounded-full text-ink/60 transition hover:bg-ink/5">
@@ -3033,21 +2906,6 @@ function ProductTabs({ favs, onFav, onCustomize }) {
 /* Six categories, one card shape. The seventh ("Poster Print") was dropped
    from the grid because it borrowed /images/prints/print-1.webp as placeholder
    art — posters stay reachable via search and the /posters landing route. */
-/* "From ₹" on the homepage cards. These are a SECOND copy of prices that
-   really live in designer/data.js, so they drift — canvas advertised ₹999
-   here for a while after its sizes moved to Qikink's and its cheapest became
-   ₹500. Five of the six equal the product's basePrice; the tee is the odd one
-   out at 599 against a real cheapest of 429 (basePrice 349 + DTG 80), which
-   is a pricing decision rather than a bug, so it is left alone. */
-const CATALOG_CARDS = [
-  { productId: "tshirt",   title: "Premium T-Shirt", price: 599, img: "/designs/catalog-1-800.webp", img400: "/designs/catalog-1-400.webp", alt: "Custom printed premium cotton t-shirt by Drucka" },
-  { productId: "mug",      title: "Photo Mug",       price: 299, img: "/designs/catalog-2-800.webp", img400: "/designs/catalog-2-400.webp", alt: "Personalised photo mug printed by Drucka" },
-  { productId: "frame",    title: "Framed Print",    price: 899, img: "/designs/catalog-3-800.webp", img400: "/designs/catalog-3-400.webp", alt: "Custom framed photo print in a premium frame by Drucka" },
-  { productId: "cushion",  title: "Cushion",         price: 649, img: "/designs/catalog-4-800.webp", img400: "/designs/catalog-4-400.webp", alt: "Personalised photo cushion cover printed by Drucka" },
-  { productId: "canvas",   title: "Canvas",          price: 500, img: "/designs/catalog-5-800.webp", img400: "/designs/catalog-5-400.webp", alt: "Gallery-wrapped custom canvas print by Drucka" },
-  { productId: "keychain", title: "Keychain",        price: 149, img: "/designs/catalog-6-800.webp", img400: "/designs/catalog-6-400.webp", alt: "Personalised acrylic photo keychain by Drucka" },
-];
-
 function ShopCatalog({ onCustomize }) {
   return (
     <section id="catalog" className="scroll-mt-24 bg-white py-14 lg:py-20">
@@ -3448,8 +3306,8 @@ function OrderSummary({ cart, total, colorLabel }) {
       </dl>
       <div className="mt-4 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11.5px] leading-relaxed text-charcoal/75">
         <p className="font-bold text-emerald-700">Payment options · पेमेंट</p>
-        <p>UPI — GPay / PhonePe / Paytm ({CONFIG.upiId})</p>
-        <p>Cash on Delivery — available on request</p>
+        <p>{paymentLine()}</p>
+        <p>UPI ID: {CONFIG.upiId}</p>
         <p>Order confirmed on WhatsApp before printing</p>
       </div>
       <p className="mt-3 text-[11px] leading-relaxed text-charcoal/45">
@@ -3459,7 +3317,10 @@ function OrderSummary({ cart, total, colorLabel }) {
   );
 }
 
-function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartDesigning }) {
+function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartDesigning, onEdit, onDuplicate }) {
+  /* the drawer stays mounted and slides in, so the trap has to follow `open`
+     rather than the component's lifetime */
+  const dialogRef = useModalA11y(onClose, open);
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   // designer cart items already store the colour LABEL (e.g. "White"); legacy
   // items store the id. Look up the id, else fall back to the value as-is so
@@ -3467,6 +3328,35 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
   const colorLabel = (id) => PRODUCT_COLORS.find((c) => c.id === id)?.label ?? id;
   const [summary, setSummary] = useState(false);
   useEffect(() => { if (!open) setSummary(false); }, [open]);
+
+  /* Change-request link for lines the editor cannot reopen (mini/photo prints,
+     collage — one editor session makes many lines there). "Message us on
+     WhatsApp" on its own is useless to support: with a full cart of near-
+     identical prints there is no way to tell WHICH design the customer means.
+     The design id is the only thing that identifies a line unambiguously, so
+     it leads. BMP characters only, per the note above. */
+  const changeRequest = (i) => wa(
+    `Hi Drucka! I'd like to change a design already in my cart.
+
+` +
+    `Product: ${i.name}
+` +
+    `Design ID: ${i.designId ?? i.key}
+` +
+    `Quantity: ${i.qty}
+` +
+    (i.size ? `Size: ${i.size}
+` : "") +
+    (i.customSize ? `Custom size: ${customSizeText(i.customSize)}
+` : "") +
+    (colorLabel(i.color) ? `Colour: ${colorLabel(i.color)}
+` : "") +
+    (i.summary ? `Details: ${i.summary}
+` : "") +
+    `
+What I'd like changed:
+(please describe — or attach the corrected photo here)`
+  );
 
   // NOTE: keep this message to BMP characters only (bullets, dashes). 4-byte
   // emoji get mangled to "�" by WhatsApp Desktop's wa.me handoff on Windows.
@@ -3479,15 +3369,17 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
         (colorLabel(i.color) ? `\n   Colour: ${colorLabel(i.color)}` : "") +
         (i.summary ? `\n   ${i.summary} (I'll attach my design files here)` : "")
       ).join("\n") +
-      `\n\nTotal: ${inr(total)}\n${deliveryLine(total)}\nPayment: UPI (${CONFIG.upiId}) / COD. Please confirm my order!`
+      `\n\nTotal: ${inr(total)}\n${deliveryLine(total)}\nPayment: ${paymentLine()} — UPI ID ${CONFIG.upiId}. Please confirm my order!`
   );
 
   return (
     <>
       <div className={`fixed inset-0 z-[100] bg-charcoal/40 backdrop-blur-sm transition-opacity ${open ? "opacity-100" : "pointer-events-none opacity-0"}`}
         onClick={onClose} aria-hidden="true" />
-      <aside className={`fixed right-0 top-0 z-[110] flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
-        role="dialog" aria-modal="true" aria-label="Shopping cart">
+      <aside ref={dialogRef} className={`fixed right-0 top-0 z-[110] flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
+        role="dialog" aria-modal="true" aria-label="Shopping cart"
+        /* hidden from the tab order and from screen readers while closed */
+        {...(open ? {} : { inert: "", "aria-hidden": "true" })}>
         <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
           <h2 className="font-serif text-xl font-bold text-charcoal">
             Your Cart {cart.length > 0 && <span className="font-sans text-sm font-medium text-charcoal/50">({cart.length})</span>}
@@ -3508,7 +3400,7 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
                 <p className="mt-1 text-sm text-charcoal/50">Upload a photo and design something beautiful.</p>
                 <button onClick={onStartDesigning}
                   className="mt-5 inline-flex items-center gap-2 rounded-full bg-charcoal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-charcoal/90">
-                  Start Customising →
+                  Choose a product →
                 </button>
               </div>
             </div>
@@ -3540,6 +3432,30 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
                   <button onClick={() => onRemove(item.key)} className="self-start text-charcoal/30 transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
                     <Icon d={icons.trash} className="h-4.5 w-4.5" />
                   </button>
+
+                  {/* Edit and Duplicate. Edit only appears where the editor can
+                      actually restore the line — offering it on a line that
+                      cannot reopen would be the same class of lie as the
+                      write-only "draft saved". */}
+                  <div className="mt-2 flex basis-full gap-2 border-t border-charcoal/5 pt-2">
+                    {item.edit ? (
+                      <button onClick={() => onEdit?.(item.key)}
+                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-gold-dark">
+                        <Icon d={icons.pencil} className="h-3.5 w-3.5" /> Edit design
+                      </button>
+                    ) : (
+                      <a href={changeRequest(item)} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-emerald-500 hover:text-emerald-700">
+                        <Icon d={icons.whatsapp} filled className="h-3.5 w-3.5" /> Request a change
+                      </a>
+                    )}
+                    {item.type === "custom" && (
+                      <button onClick={() => onDuplicate?.(item.key)}
+                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-gold-dark">
+                        <Icon d={icons.copy} className="h-3.5 w-3.5" /> Duplicate
+                      </button>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -3576,7 +3492,7 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
               </>
             )}
             <p className="mt-2.5 text-center text-[11px] leading-relaxed text-charcoal/45">
-              Pay securely via UPI or COD after we confirm your order. Attach your design photo in the WhatsApp chat.
+              Pay securely via {paymentLine()} after we confirm your order. Attach your design photo in the WhatsApp chat.
             </p>
           </div>
         )}
@@ -3591,6 +3507,7 @@ function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartD
 const TRACK_STEPS = ["Order received", "In Production", "Shipped", "Delivered"];
 
 function TrackOrderModal({ onClose, localOrders }) {
+  const dialogRef = useModalA11y(onClose);
   const [id, setId] = useState("");
   const [phone, setPhone] = useState("");
   const [result, setResult] = useState(null);
@@ -3628,7 +3545,7 @@ function TrackOrderModal({ onClose, localOrders }) {
 
   return (
     <div className="fixed inset-0 z-[120] grid place-items-center bg-charcoal/50 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="animate-sheet w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl" role="dialog" aria-modal="true"
+      <div ref={dialogRef} className="animate-sheet w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl" role="dialog" aria-modal="true"
         aria-label="Track order" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <h2 className="font-serif text-xl font-bold text-charcoal">Track Order · ऑर्डर ट्रॅक करा</h2>
@@ -3703,6 +3620,7 @@ function TrackOrderModal({ onClose, localOrders }) {
    CHECKOUT — customer details → order → payment → Qikink handoff
    ═══════════════════════════════════════════════════════════════ */
 function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRazorpay, onSendToQikink, settings, showToast }) {
+  const dialogRef = useModalA11y(onClose);
   const [order, setOrder] = useState(null); // set after placing
   const [sending, setSending] = useState(false);
   const [form, setForm] = useState({
@@ -3735,7 +3653,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
 
   return (
     <div className="fixed inset-0 z-[120] grid place-items-center bg-charcoal/50 p-4 backdrop-blur-sm" onClick={onClose}>
-      <div className="animate-sheet flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+      <div ref={dialogRef} className="animate-sheet flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         role="dialog" aria-modal="true" aria-label="Checkout" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
           <h2 className="font-serif text-xl font-bold text-charcoal">{order ? "Order placed" : "Checkout · चेकआउट"}</h2>
@@ -4218,7 +4136,9 @@ export default function App() {
   /* THE single design-customization flow: product page → designer → submit.
      (The legacy in-file ProductEditor is no longer rendered anywhere.) */
   const [designerPage, setDesignerPage] = useState(null); // null | { productId }
-  const [editorShell, setEditorShell] = useState(null);   // null | { productId } — new shell (mug)
+  /* null | { productId, initial?, editKey? } — editKey set means the editor is
+     reopening an existing cart line, so saving replaces it instead of adding */
+  const [editorShell, setEditorShell] = useState(null);
   const [designer, setDesigner] = useState(null); // null | { productId, selections }
   const [collageOpen, setCollageOpen] = useState(false);
   const [collageView, setCollageView] = useState("welcome"); // welcome | grid | pro
@@ -4236,7 +4156,15 @@ export default function App() {
     setProMounted(false);
     setCollagePhotos([]);
   };
-  const [miniOpen, setMiniOpen] = useState(false); // standalone Mini Prints flow
+  /* Flat-print editor: null, or the variant it is showing.
+     "mini"  → /mini-prints   (2×3–4×3, minimum 10 per order)
+     "photo" → /photo-prints  (4×6–A3, single prints)
+     These were ONE editor and one route before: /photo-prints opened the
+     mini-print sizes, which is the first P0 in the 2026-09 audit. */
+  const [printEditor, setPrintEditor] = useState(null);
+  /* "What would you like to create?" — every generic CTA opens this instead of
+     dropping the visitor into the frame customizer regardless of intent. */
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [landing, setLanding] = useState(null); // SEO product landing page slug (null = homepage)
   const [policy, setPolicy] = useState(null);   // /shipping-policy · /returns-policy · /privacy-policy
   const [announceOpen, setAnnounceOpen] = useState(true);
@@ -4463,8 +4391,76 @@ export default function App() {
   };
 
   const addToCart = (item) => {
-    setCart((c) => [...c, item]);
-    pixel.addToCart({ id: item.productId, name: item.name, value: item.price * item.qty });
+    /* Every line carries its own designId. Older carts in localStorage predate
+       it, so backfill rather than leaving lines that cannot be told apart. */
+    const line = { ...item, designId: item.designId ?? uid() };
+    setCart((c) => [...c, line]);
+    pixel.addToCart({ id: line.productId, name: line.name, value: line.price * line.qty });
+  };
+
+  /* ── Cart line editing ──────────────────────────────────────────────
+     Three operations the cart was missing. All of them work on `key`, which
+     is unique per line; `designId` travels with the design so a duplicate is
+     recognisably a different thing from its original. */
+
+  /* Save from a reopened editor: REPLACE in place, never append. Position is
+     preserved so the line does not jump to the bottom while being edited. */
+  const updateCartLine = (key, next) => {
+    setCart((c) => c.map((i) => (i.key === key ? { ...next, key } : i)));
+  };
+
+  /* A real copy: new key, new designId, and a deep clone of the design so the
+     two lines share no mutable state. JSON round-trip rather than a spread —
+     `design` is {placement: [layers]}, so a shallow copy would leave both
+     lines pointing at the same layer objects and editing one would silently
+     change the other. */
+  const duplicateCartLine = (key) => {
+    setCart((c) => {
+      const i = c.findIndex((x) => x.key === key);
+      if (i < 0) return c;
+      let copy;
+      try {
+        copy = JSON.parse(JSON.stringify(c[i]));
+      } catch {
+        showToast("⚠ Could not duplicate this design");
+        return c;
+      }
+      copy.key = uid();
+      copy.designId = uid();
+      /* the artwork on Cloudinary was uploaded under the ORIGINAL line's key;
+         the copy re-uploads when it is next edited and saved */
+      const copyName = /\(copy(?: \d+)?\)$/.test(copy.name) ? copy.name : `${copy.name} (copy)`;
+      copy.name = copyName;
+      /* the editor rebuilds `name` from its title field on save, so the
+         suffix has to live there too or editing a copy silently renames it
+         back to the original and the cart shows two identical rows */
+      if (copy.edit) copy.edit.title = copyName;
+      const next = [...c];
+      next.splice(i + 1, 0, copy);
+      return next;
+    });
+    showToast("Design duplicated ✓");
+  };
+
+  /* Reopen the editor that made this line, in the state it was left in. */
+  const editCartLine = (key) => {
+    const item = cart.find((x) => x.key === key);
+    if (!item?.edit) { showToast("⚠ This item cannot be edited yet"); return; }
+    if (item.edit.editor !== "shell") { showToast("⚠ This item cannot be edited yet"); return; }
+    const product = designerProductById(item.edit.productId);
+    if (!product) { showToast("⚠ That product is no longer available"); return; }
+    setCartOpen(false);
+    setEditorShell({
+      productId: item.edit.productId,
+      editKey: key,
+      initial: {
+        ...item.edit.sel,
+        qty: item.edit.qty,
+        title: item.edit.title,
+        designId: item.designId,
+        layersByPlacement: item.design,
+      },
+    });
   };
   const toggleFav = (id) => setFavs((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
   /* every "customize" entry point on the site lands in the ONE designer */
@@ -4487,13 +4483,22 @@ export default function App() {
   useEffect(() => {
     /* per-route <title> + meta description so each clean URL is its own
        indexable "page" for search engines (SPA has one HTML document) */
+    /* path → print-editor variant. "/mini" is the pre-existing short link. */
+    const PRINT_EDITOR_ROUTES = {
+      "/mini-prints/studio": "mini",
+      "/mini": "mini",
+      "/photo-prints/studio": "photo",
+    };
     const ROUTE_META = {
       "/customize": ["Customize Your Print Online — Custom T-Shirts & Gifts | Drucka", "Design custom printed t-shirts, mugs, hoodies & frames online. Upload your photo or art, preview live, and order — delivered across India in 2–4 days."],
       "/catalog":   ["Shop Custom Printing & Photo Frames Online | Drucka", "Browse custom t-shirts, personalized mugs, photo frames, canvas & gifts. Premium print-on-demand from Kolhapur, delivered across India."],
       "/cart":      ["Your Cart | Drucka", "Review your custom printing order before checkout — Drucka custom t-shirts, mugs, frames & gifts."],
       "/track-order": ["Track Your Order | Drucka", "Track your Drucka custom printing order by order ID and phone number."],
       "/login":     ["Track Your Order | Drucka", "Look up your Drucka order — no account needed, just your order ID and phone number."],
-      "/mini-prints": ["Mini Photo Prints Online — 2×3, 3×3, 4×3 inch | Drucka", "Create & order mini photo prints online from ₹19 — wallet, Instagram-square & scrapbook sizes. Add captions, borders & rotate, delivered across India."],
+      "/mini-prints": ["Mini Photo Prints — ₹19 per print, packs from 10 | Drucka", "Create & order mini photo prints — wallet 2×3, Instagram 3×3 & scrapbook 4×3 sizes at ₹19 per print, minimum 10 per order. Captions, borders & date stamps."],
+      "/photo-prints": ["Photo Prints Online — 4×6, 5×7, 8×10, A4, A3 | Drucka", "Order photo prints online from ₹39 — 4×6 up to A3 and 12×18 inch on premium paper. Single prints, mix any sizes in one order, delivered across India."],
+      "/mini-prints/studio": ["Create Your Mini Photo Prints | Drucka", "Upload your photos, choose 2×3, 3×3 or 4×3 inch, add borders and captions — ₹19 per print, minimum 10 per order."],
+      "/photo-prints/studio": ["Create Your Photo Prints | Drucka", "Upload your photos, choose 4×6 to A3, and order single prints from ₹39 — mix any sizes in one order."],
     };
     const setMeta = (p) => {
       const [title, desc] = ROUTE_META[p] ?? [
@@ -4583,6 +4588,44 @@ export default function App() {
       const p = window.location.pathname.replace(/\/+$/, "").toLowerCase();
       console.log("[DRUCKA] route resolved:", JSON.stringify(p));
       const slug = p.replace(/^\//, "");
+
+      /* The print editors live UNDER their landing pages (/photo-prints is the
+         indexable page, /photo-prints/studio is the editor) so the two never
+         fight over one URL. Resolved before the landing/policy branches below,
+         which return early — and resolved on EVERY route change, so pressing
+         Back out of an editor actually closes it instead of leaving it
+         floating over whatever page loaded underneath. */
+      /* Every modal the ROUTER opens, the router also closes. Without this,
+         pressing Back out of /customize or /track-order left a full-screen
+         editor floating over whatever page loaded underneath — and on a phone
+         Back is how people leave a full-screen editor. Modals opened by a
+         button (the cart icon, the collage maker, the frame customizer) do not
+         push history, so they are not the router's to manage. */
+      const routeOpens = {
+        cart: p === "/cart",
+        track: ["/track-order", "/track", "/login", "/account"].includes(p),
+        admin: p === "/admin",
+        designer: p === "/customize" || p === "/customise",
+      };
+      if (!routeOpens.cart) setCartOpen(false);
+      if (!routeOpens.track) setTrackOpen(false);
+      if (!routeOpens.admin) setAdminOpen(false);
+      if (!routeOpens.designer) { setDesignerPage(null); setEditorShell(null); }
+
+      const printVariant = PRINT_EDITOR_ROUTES[p] ?? null;
+      setPrintEditor(printVariant);
+      if (printVariant) {
+        /* Render the product's OWN landing page beneath the editor, so closing
+           it reveals /photo-prints rather than dumping the visitor on the
+           homepage — and a direct load of the studio URL still has real,
+           indexable content behind the overlay. */
+        const V = PRINT_VARIANTS[printVariant];
+        setPolicy(null);
+        setLanding(V.route.replace(/^\//, ""));
+        setMeta(p);
+        window.scrollTo(0, 0);
+        return;
+      }
       /* Static policy pages — shipping / returns / privacy. Checked before
          the landings so a slug collision can never swallow a policy route. */
       if (POLICIES[slug]) {
@@ -4630,9 +4673,7 @@ export default function App() {
         case "/admin":
           setAdminOpen(true);
           break;
-        case "/mini":
-          setMiniOpen(true);
-          break;
+
         default:
           break;
       }
@@ -4644,15 +4685,35 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => { console.log("[DRUCKA] miniOpen:", miniOpen); }, [miniOpen]);
+  useEffect(() => { console.log("[DRUCKA] print editor:", printEditor); }, [printEditor]);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
-  /* Mini Prints opens as a real route (/mini-prints) — deep-linkable & shareable.
-     The SPA router above opens it on direct load / back-forward. */
-  const openMini = () => {
-    try { window.history.pushState({}, "", "/mini-prints"); document.title = "Mini Photo Prints Online — 2×3, 3×3, 4×3 inch | Drucka"; } catch { /* noop */ }
-    setMiniOpen(true);
+  /* The print editors open as real routes (/mini-prints, /photo-prints) —
+     deep-linkable & shareable. The SPA router above opens them on direct load
+     and on back/forward. */
+  const openPrints = (variantId = "mini") => {
+    const V = PRINT_VARIANTS[variantId] ?? PRINT_VARIANTS.mini;
+    try { window.history.pushState({}, "", V.studioRoute); document.title = V.docTitle; } catch { /* noop */ }
+    setPrintEditor(V.id);
+  };
+  const openMini = () => openPrints("mini");
+
+  /* One router for the product picker. Each tile names a product and lands in
+     THAT product's editor — the whole point of the sheet. */
+  const pickProduct = (id) => {
+    setPickerOpen(false);
+    switch (id) {
+      case "photo-prints": openPrints("photo"); break;
+      case "mini-prints":  openPrints("mini"); break;
+      case "frame":        setCustomizer({ mode: "frame", initial: null }); break;
+      case "collage":      setCollageInitial(null); setCollageView("welcome"); setCollageOpen(true); break;
+      case "bulk":
+        pixel.contact("Product picker → bulk");
+        window.open(wa("Hi Drucka! I'd like a bulk / corporate printing quote."), "_blank", "noopener");
+        break;
+      default:             openEditor(id); break; // tshirt · mug · canvas
+    }
   };
   /* Client-side navigation for the policy pages. pushState then replay the
      existing popstate listener, so there is exactly ONE routing code path. */
@@ -4661,11 +4722,14 @@ export default function App() {
     window.dispatchEvent(new PopStateEvent("popstate"));
   };
 
-  const closeMini = () => {
-    setMiniOpen(false);
-    if (window.location.pathname.replace(/\/+$/, "").toLowerCase() === "/mini-prints") {
-      try { window.history.pushState({}, "", "/"); } catch { /* noop */ }
-    }
+  const closePrints = () => {
+    setPrintEditor(null);
+    /* Step back to the editor's own landing page if that is where we came
+       from, so closing leaves a real indexable page rather than the homepage
+       — and never clobbers a URL the editor did not push. */
+    const here = window.location.pathname.replace(/\/+$/, "").toLowerCase();
+    const parent = Object.values(PRINT_VARIANTS).find((v) => v.studioRoute === here)?.route;
+    if (parent) { try { window.history.pushState({}, "", parent); } catch { /* noop */ } }
   };
 
   return (
@@ -4677,7 +4741,7 @@ export default function App() {
         onCartOpen={() => setCartOpen(true)}
         onCollage={() => { setCollageInitial(null); setCollageView("welcome"); setCollageOpen(true); }}
         onMini={openMini}
-        onUpload={() => setCustomizer({ mode: "frame", initial: null })}
+        onUpload={() => setPickerOpen(true)}
         onPickFrame={(id) => setFramePick({ id, n: Date.now() })}
         searchProducts={PRODUCTS.map((p) => ({ id: p.id, name: p.name, category: p.category, tag: p.tag, img: p.img }))}
         onSearchSelect={openEditor}
@@ -4708,7 +4772,8 @@ export default function App() {
               else if (a === "mug") openEditor("mug");
               else if (a === "canvas") openEditor("canvas");
               else if (a === "poster") openEditor("poster");
-              else setMiniOpen(true); // mini / photo-prints
+              else if (a === "photoPrints") openPrints("photo");
+              else openPrints("mini");
             }}
           />
         ) : (
@@ -4723,7 +4788,8 @@ export default function App() {
             uncommenting the line below.
             {<ScrollShowcase onCta={() => setCustomizer({ mode: "frame", initial: null })} />} */}
         <FrameHero
-          onUpload={() => setCustomizer({ mode: "frame", initial: null })}
+          onUpload={() => setPickerOpen(true)}
+          onPick={pickProduct}
           whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
         />
         <ShopCatalog onCustomize={openEditor} />
@@ -4776,7 +4842,7 @@ export default function App() {
       <BackToTop />
       <MobileActionBar
         cartCount={cartCount}
-        onUpload={() => setCustomizer({ mode: "frame", initial: null })}
+        onUpload={() => setPickerOpen(true)}
         onCart={() => setCartOpen(true)}
         whatsappUrl={wa("Hi Drucka! I'd like to place a custom order. I'll share my photo here.")}
         onNavigate={goTo}
@@ -4835,15 +4901,26 @@ export default function App() {
         </div>
       )}
 
-      {miniOpen && (
-        <ModalErrorBoundary label="Mini Prints editor error" onClose={closeMini}>
+      {printEditor && (
+        <ModalErrorBoundary label="Print editor error" onClose={closePrints}>
           <MiniPrints
-            onClose={closeMini}
+            key={printEditor}
+            variant={printEditor}
+            onClose={closePrints}
             onAddToCart={addToCart}
             onOpenCart={() => setCartOpen(true)}
             showToast={showToast}
+            /* Mini Prints' 10-print minimum is per ORDER, so prints already in
+               the cart count toward it instead of being asked for twice. */
+            inCartCount={cart
+              .filter((i) => i.productId === (PRINT_VARIANTS[printEditor] ?? PRINT_VARIANTS.mini).productId)
+              .reduce((n, i) => n + i.qty, 0)}
           />
         </ModalErrorBoundary>
+      )}
+
+      {pickerOpen && (
+        <ProductPicker onPick={pickProduct} onClose={() => setPickerOpen(false)} />
       )}
 
       {designerPage && (
@@ -4876,10 +4953,15 @@ export default function App() {
       )}
       {editorShell && (
         <ProductEditorShell
-          key={editorShell.productId}
+          /* keyed on the cart line too: reopening a DIFFERENT line of the same
+             product must remount, or React keeps the first line's state */
+          key={`${editorShell.productId}:${editorShell.editKey ?? "new"}`}
           product={designerProductById(editorShell.productId)}
+          initial={editorShell.initial ?? {}}
+          editKey={editorShell.editKey ?? null}
           onClose={() => setEditorShell(null)}
           onAddToCart={addToCart}
+          onUpdateCartLine={updateCartLine}
           onOpenCart={() => { setEditorShell(null); setCartOpen(true); }}
           showToast={showToast}
           onUseClassic={() => {
@@ -4898,6 +4980,8 @@ export default function App() {
         onClose={() => setCartOpen(false)}
         cart={cart}
         onRemove={(key) => setCart((c) => c.filter((i) => i.key !== key))}
+        onEdit={editCartLine}
+        onDuplicate={duplicateCartLine}
         onQty={(key, d) => setCart((c) => c.map((i) => (i.key === key ? { ...i, qty: Math.max(1, i.qty + d) } : i)))}
         onCheckout={() => {
           checkoutIdRef.current = `checkout_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
@@ -4909,7 +4993,7 @@ export default function App() {
           });
           setCheckoutOpen(true);
         }}
-        onStartDesigning={() => { setCartOpen(false); setCustomizer({ mode: "frame", initial: null }); }}
+        onStartDesigning={() => { setCartOpen(false); setPickerOpen(true); }}
       />
 
       {checkoutOpen && (

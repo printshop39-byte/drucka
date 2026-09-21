@@ -1,5 +1,7 @@
 import { Mail, Phone, Camera, MessageCircle } from 'lucide-react';
 
+import { paymentMethods } from '../lib/features';
+
 const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(m)}`;
 
 interface FooterProps {
@@ -161,11 +163,13 @@ export default function Footer({ onTrack }: FooterProps) {
             <p className="text-xs text-white/30">
               © 2026 Drucka · drucka.in · All rights reserved.
             </p>
+            {/* Derived from the launch flags, not typed out: this row used to
+                advertise Cards and Net Banking while Razorpay was switched off
+                and every other payment mention on the site said UPI / COD. */}
             <div className="flex items-center gap-6">
-              <span className="text-xs text-white/30">UPI</span>
-              <span className="text-xs text-white/30">COD</span>
-              <span className="text-xs text-white/30">Cards</span>
-              <span className="text-xs text-white/30">Net Banking</span>
+              {paymentMethods().map((m) => (
+                <span key={m} className="text-xs text-white/30">{m}</span>
+              ))}
             </div>
           </div>
         </div>

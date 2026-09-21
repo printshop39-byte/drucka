@@ -83,7 +83,17 @@ export const qikinkColorCode = (v, stem = null) => {
 export const IN_HOUSE_SIZES = {
   "invitation-cards": ["Digital"],
 };
+
+/* Whole products Drucka prints itself, at EVERY size — flat photo prints come
+   off the Kolhapur lab's own printer, so there is no Qikink SKU to look up at
+   any size and listing sizes individually would just be a list that goes stale
+   the next time a size is added. Without this the admin's pre-send check
+   reported "UNMAPPED-photo-print / missing SKU" for an order that was never
+   meant to leave the studio. */
+export const IN_HOUSE_PRODUCTS = new Set(["mini-print", "photo-print"]);
+
 export const isInHouseVariant = (druckaId, size) =>
+  IN_HOUSE_PRODUCTS.has(String(druckaId ?? "")) ||
   (IN_HOUSE_SIZES[String(druckaId ?? "")] ?? []).some((s) => key(s) === key(size));
 
 /* Print area → Qikink's placement_sku. Keyed by the print-area IDS the app
