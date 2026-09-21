@@ -1,5 +1,8 @@
 /* /api/orders — Supabase-backed order store.
-   POST  : create/upsert order (public — customer checkout)
+   POST  : create a NEW order (public — customer checkout). Insert only: an id
+           that already exists is refused with 409 and nothing is written, and the
+           server decides the initial status — the client's status fields are
+           ignored (see newOrderRow). Changing an order later goes through PATCH.
    PATCH : update order. Everything needs x-admin-secret EXCEPT one narrow
            customer action: "I've paid" (a payment CLAIM). A customer can move
            their own order from "Payment Pending" to "Payment Claimed", proving
@@ -7,7 +10,7 @@
            "Paid": that comes from the admin (after checking the payment) or the
            Razorpay webhook.
    GET   : list orders (admin only). */
-import { sb, orderToRow, rowToOrder } from "./_lib/supabase.js";
+import { sb, newOrderRow, rowToOrder } from "./_lib/supabase.js";
 import { sendCapiEvent } from "./_lib/capi.js";
 import { withCors } from "./_lib/cors.js";
 import { isAdmin } from "./_lib/adminAuth.js";
@@ -26,11 +29,21 @@ async function handler(req, res) {
         return res.status(400).json({ ok: false, error: "Invalid pincode" });
       if (!/^\d{10}$/.test((o.customer.phone ?? "").replace(/\D/g, "").slice(-10)))
         return res.status(400).json({ ok: false, error: "Invalid phone" });
-      await sb("orders?on_conflict=id", {
-        method: "POST",
-        body: orderToRow(o),
-        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
-      });
+      if (!/^[A-Za-z0-9_-]{4,40}$/.test(String(o.id)))
+        return res.status(400).json({ ok: false, error: "Invalid order id" });
+      if (!["cod", "prepaid"].includes(o.paymentMode))
+        return res.status(400).json({ ok: false, error: "Invalid payment mode" });
+      /* INSERT ONLY. No merge-duplicates: the id is the table's primary key, so a
+         second POST for an existing id fails at the database and cannot touch the
+         stored row. That closes the old hole where anyone who knew (or guessed) an
+         order id could resend it with paymentStatus "Paid" and overwrite it. */
+      try {
+        await sb("orders", { method: "POST", body: newOrderRow(o) });
+      } catch (e) {
+        if (/\(409\)|23505/.test(e.message))
+          return res.status(409).json({ ok: false, error: "An order with this id already exists" });
+        throw e;
+      }
       /* Meta CAPI — COD orders have no payment webhook, so send a reliable
          server-side InitiateCheckout at placement (Purchase follows only on
          delivery). event_id matches the browser InitiateCheckout so Meta

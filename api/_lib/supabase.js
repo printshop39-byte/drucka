@@ -34,6 +34,23 @@ export const orderToRow = (o) => ({
   notes: o.customer?.notes ?? null,
 });
 
+/* The row for a brand-new order. Customer-controlled fields come from the
+   request; everything about payment and fulfilment is set HERE, whatever the
+   client sent. A new order is never Paid, never approved and never already sent
+   to Qikink: it starts unverified, and only the admin, the Razorpay webhook or
+   the customer's own claim (PATCH) move it on.
+   Prepaid starts "Payment Pending"; COD starts "COD Pending Approval", which is
+   the same "not yet verified" state the admin's Approve COD button acts on. */
+export function newOrderRow(o) {
+  return {
+    ...orderToRow(o),
+    payment_status: o.paymentMode === "cod" ? "COD Pending Approval" : "Payment Pending",
+    qikink_status: "Draft",
+    qikink_order_id: null,
+    tracking_number: null,
+  };
+}
+
 export const rowToOrder = (r) => ({
   id: r.id,
   createdAt: r.created_at,
