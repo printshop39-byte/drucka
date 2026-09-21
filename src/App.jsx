@@ -379,7 +379,11 @@ const mapRowToEntry = (r) => {
     sizes: r.sizes ?? [],
     baseCost: r.base_cost ?? 0,
     shippingCost: r.shipping_cost ?? 0,
-    sellingPrice: EDITOR_PRODUCTS.find((p) => p.id === r.drucka_id)?.price ?? 0,
+    /* Was EDITOR_PRODUCTS.find(...)?.price ?? 0 — see referenceSellingPrice()
+       below for why that was wrong. The table has no selling-price column, so
+       the built-in map (where every other Qikink field is maintained) is the
+       only honest source; null, not 0, when it has never heard of the id. */
+    sellingPrice: builtIn?.sellingPrice ?? null,
     printAreas: r.print_areas ?? [],
     active: !!r.active,
     ...(builtIn?.sizesByColor && { sizesByColor: builtIn.sizesByColor }),
@@ -387,6 +391,28 @@ const mapRowToEntry = (r) => {
     ...(builtIn?.inHouseSizes && { inHouseSizes: builtIn.inHouseSizes }),
   };
 };
+/* The price the admin Margin cell measures against — display only.
+
+   BUG FIXED 2026-09-21. After "Load map from server" the cell showed a NEGATIVE
+   margin for every mapping the legacy EDITOR_PRODUCTS list did not contain
+   (polo -498, poster -129, stickers -74, invitation-cards -79, and any
+   admin-created row), and silently different figures for kids-tshirt,
+   kids-hoodie and canvas. The mapper took sellingPrice from that list and
+   defaulted to 0.
+
+   Read from the built-in map by id rather than from the entry itself, because
+   the whole map is persisted to localStorage: a browser that had already loaded
+   from the server is holding the bad value, and fixing only the mapper would
+   leave it there. Safe because sellingPrice is never an admin input (it is not
+   editable anywhere) and never reaches the database (mapEntryToRow omits it).
+
+   This is a REFERENCE price, not the price a customer is charged — that comes
+   from designer/data.js. Where the two disagree (hoodie, kids-hoodie,
+   kids-tshirt, kids-mug) the owner has not yet ruled which is intended, so this
+   deliberately does not pick; it only stops inventing a 0. */
+const referenceSellingPrice = (m) =>
+  QIKINK_PRODUCT_MAP.find((b) => b.druckaId === m.druckaId)?.sellingPrice ?? null;
+
 const mapEntryToRow = (m) => ({
   drucka_id: m.druckaId,
   product_name: m.druckaName,
@@ -4013,7 +4039,12 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                       <div><dt className="font-semibold text-ink/40">Colours</dt><dd>{m.colors.join(", ")}</dd></div>
                       <div><dt className="font-semibold text-ink/40">Sizes</dt><dd>{m.sizes.join(", ")}</dd></div>
                       <div><dt className="font-semibold text-ink/40">Print areas</dt><dd>{m.printAreas.join(", ")}</dd></div>
-                      <div><dt className="font-semibold text-ink/40">Margin</dt><dd className="font-bold text-emerald-600">{inr(m.sellingPrice - m.baseCost - (m.shippingCost ?? 0))} <span className="font-normal text-ink/40">(after ship)</span></dd></div>
+                      <div><dt className="font-semibold text-ink/40">Margin</dt><dd className="font-bold text-emerald-600">{(() => {
+                          const sp = referenceSellingPrice(m);
+                          return sp == null
+                            ? <span className="font-normal text-ink/40" title="This mapping has no reference selling price, so no margin can be shown">— no reference price</span>
+                            : <>{inr(sp - m.baseCost - (m.shippingCost ?? 0))} <span className="font-normal text-ink/40">(after ship)</span></>;
+                        })()}</dd></div>
                       {m.baseCostBySize && (
                         /* Qikink charges more for the bigger sizes, so a single
                            base cost understates them — 7XL costs ₹100 more than
