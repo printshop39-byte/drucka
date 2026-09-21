@@ -43,7 +43,7 @@ export const qikinkApi = {
   createOrder: (payload) =>
     apiFetch("/api/qikink/create-order", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...adminHeaders() },
       body: JSON.stringify(payload),
     }).then(jsonOrThrow),
 

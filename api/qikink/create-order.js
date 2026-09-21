@@ -1,13 +1,22 @@
 /* POST /api/qikink/create-order — body: payload from buildQikinkOrderPayload()
    with design_link fields already replaced by Cloudinary URLs (frontend calls
    /api/upload-artwork first). Re-validates, creates the Qikink order, and
-   saves the Qikink order ID back to Supabase. */
+   saves the Qikink order ID back to Supabase.
+
+   ADMIN ONLY (x-admin-secret). This route creates a real, billable Qikink
+   order, and the browser payload is otherwise trusted: it names the SKU, the
+   address and even gateway "COD", which skips the paid check below. Left open,
+   anyone who found the URL could place orders against Drucka's Qikink account.
+   The only legitimate caller is staff pressing "Send to Qikink" in the admin. */
 import { qikinkFetch } from "../_lib/qikink.js";
 import { sb } from "../_lib/supabase.js";
 import { withCors } from "../_lib/cors.js";
+import { isAdmin } from "../_lib/adminAuth.js";
 
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ ok: false, error: "POST only" });
+  /* before anything else — no body parsing, no database read, no Qikink call */
+  if (!isAdmin(req)) return res.status(401).json({ ok: false, error: "Admin secret required" });
   try {
     const payload = req.body;
     if (!payload?.order_number || !payload?.line_items?.length)
