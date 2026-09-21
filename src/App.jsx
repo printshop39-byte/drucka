@@ -3648,7 +3648,7 @@ function TrackOrderModal({ onClose, localOrders }) {
 /* ═══════════════════════════════════════════════════════════════
    CHECKOUT — customer details → order → payment → Qikink handoff
    ═══════════════════════════════════════════════════════════════ */
-function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRazorpay, onSendToQikink, settings, showToast }) {
+function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRazorpay, settings, showToast }) {
   const dialogRef = useModalA11y(onClose);
   const [order, setOrder] = useState(null); // set after placing
   const [sending, setSending] = useState(false);
@@ -3672,7 +3672,6 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
     setOrder(onPlaceOrder(form));
   };
 
-  const canSend = order && ["Paid", "COD Approved"].includes(order.paymentStatus);
   /* text-base (16px), not text-sm: iOS Safari auto-zooms the page on focus
      for any input under 16px and never zooms back out — on the checkout form
      that is the worst possible place for it. min-h-[44px] meets the tap-target
@@ -3685,7 +3684,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
       <div ref={dialogRef} className="animate-sheet flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         role="dialog" aria-modal="true" aria-label="Checkout" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
-          <h2 className="font-serif text-xl font-bold text-charcoal">{order ? "Order placed" : "Checkout · चेकआउट"}</h2>
+          <h2 className="font-serif text-xl font-bold text-charcoal">{order ? "Order request received" : "Checkout · चेकआउट"}</h2>
           <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
@@ -3714,7 +3713,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                 <div><label className={lblCls}>Payment mode</label>
                   <div className="flex gap-2">
                     {(FEATURES.ENABLE_COD_TESTING
-                      ? [["cod", "COD / Test Order"], ["prepaid", "UPI"]]
+                      ? [["cod", "COD request"], ["prepaid", "UPI"]]
                       : [["prepaid", "UPI"], ["cod", "COD request"]]
                     ).map(([v, l]) => (
                       <button key={v} onClick={() => setForm((s) => ({ ...s, paymentMode: v }))} aria-pressed={form.paymentMode === v}
@@ -3792,31 +3791,10 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
               )}
               {order.paymentStatus === "COD Pending Approval" && (
                 <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
-                  <strong>COD test order received!</strong> Our team approves it (Admin → Orders → Approve COD),
-                  and only then is it sent to Qikink for printing. You'll get a WhatsApp confirmation shortly.
+                  <strong>Order request received.</strong> We will confirm availability, price and delivery details on WhatsApp.
                 </p>
               )}
 
-              {/* Qikink handoff */}
-              <button
-                onClick={async () => {
-                  if (sending) return;
-                  setSending(true);
-                  setOrder((await onSendToQikink(order.id)) ?? order);
-                  setSending(false);
-                }}
-                disabled={!canSend || sending || !["Draft", "Failed"].includes(order.qikinkStatus)}
-                className="mt-4 w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5 disabled:opacity-40 disabled:hover:translate-y-0">
-                {sending ? "Uploading artwork & sending…"
-                  : order.qikinkStatus === "Draft" ? "Send to Qikink fulfillment →"
-                  : order.qikinkStatus === "Failed" ? "Retry send to Qikink →"
-                  : `✓ ${order.qikinkStatus}`}
-              </button>
-              {order.qikinkStatus === "Failed" && (
-                <p className="mt-2 rounded-xl bg-rose-50 px-3 py-2 text-center text-[11px] font-semibold text-rose-600">
-                  ⚠ Sending failed: {order.lastError ?? "unknown error"} — fix the cause and retry.
-                </p>
-              )}
               <a href={wa(`Hi Drucka! I just placed order ${order.id} (${inr(order.total)}, ${order.paymentMode.toUpperCase()}). Please confirm!`)}
                 target="_blank" rel="noopener noreferrer"
                 className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-emerald-600 transition hover:bg-emerald-50">
@@ -3830,7 +3808,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
           <div className="border-t border-charcoal/8 px-5 py-4">
             <button onClick={submit}
               className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
-              {form.paymentMode === "cod" ? `Place COD Test Order — ${inr(total)}` : `Place order — ${inr(total)}`}
+              {form.paymentMode === "cod" ? `Submit Order Request — ${inr(total)}` : `Place order — ${inr(total)}`}
             </button>
             <p className="mt-2 text-center text-[10.5px] text-charcoal/45">Free 2–4 day delivery · UPI · COD on approval · Printed & shipped under the Drucka brand</p>
           </div>
@@ -5050,7 +5028,6 @@ export default function App() {
           onPlaceOrder={placeOrder}
           onMarkPaid={markPaid}
           onPayRazorpay={payRazorpay}
-          onSendToQikink={sendToQikink}
           settings={qikinkSettings}
           showToast={showToast}
         />
