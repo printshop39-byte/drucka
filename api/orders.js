@@ -1,5 +1,7 @@
 /* /api/orders — Supabase-backed order store.
-   POST  : create a NEW order (public — customer checkout). Insert only: an id
+   POST  : create a NEW order (public — customer checkout). The server prices
+           it itself (_lib/orderPricing.js); the total and line prices the
+           browser sends are ignored. Insert only: an id
            that already exists is refused with 409 and nothing is written, and the
            server decides the initial status — the client's status fields are
            ignored (see newOrderRow). Changing an order later goes through PATCH.
@@ -14,6 +16,7 @@ import { sb, newOrderRow, rowToOrder } from "./_lib/supabase.js";
 import { sendCapiEvent } from "./_lib/capi.js";
 import { withCors } from "./_lib/cors.js";
 import { isAdmin } from "./_lib/adminAuth.js";
+import { priceOrder } from "./_lib/orderPricing.js";
 
 
 /* what a customer's "I've paid" records: a claim awaiting the team's check, not a payment */
@@ -25,6 +28,11 @@ async function handler(req, res) {
       const o = req.body;
       if (!o?.id || !o?.customer?.name || !Array.isArray(o.items) || !o.items.length)
         return res.status(400).json({ ok: false, error: "Invalid order" });
+      /* price it BEFORE anything is written. An item the server does not know, an
+         impossible quantity or size, or a Mini Prints order under its minimum
+         refuses the whole order. */
+      const priced = priceOrder(o.items);
+      if (!priced.ok) return res.status(400).json({ ok: false, error: priced.error });
       if (!/^\d{6}$/.test(o.customer.pincode ?? ""))
         return res.status(400).json({ ok: false, error: "Invalid pincode" });
       if (!/^\d{10}$/.test((o.customer.phone ?? "").replace(/\D/g, "").slice(-10)))
@@ -37,8 +45,10 @@ async function handler(req, res) {
          second POST for an existing id fails at the database and cannot touch the
          stored row. That closes the old hole where anyone who knew (or guessed) an
          order id could resend it with paymentStatus "Paid" and overwrite it. */
+      /* what is stored is the server's order: canonical line prices and total */
+      const order = { ...o, items: priced.items, total: priced.total };
       try {
-        await sb("orders", { method: "POST", body: newOrderRow(o) });
+        await sb("orders", { method: "POST", body: newOrderRow(order) });
       } catch (e) {
         if (/\(409\)|23505/.test(e.message))
           return res.status(409).json({ ok: false, error: "An order with this id already exists" });
@@ -53,10 +63,11 @@ async function handler(req, res) {
          the order. */
       if (o.paymentMode === "cod") {
         const eventId = o.customer?._tracking?.checkoutId ?? `checkout_${o.id}`;
-        const r = await sendCapiEvent({ eventName: "InitiateCheckout", eventId, order: o });
+        const r = await sendCapiEvent({ eventName: "InitiateCheckout", eventId, order });
         if (!r.ok) console.warn(`CAPI InitiateCheckout failed for ${o.id}:`, r.error);
       }
-      return res.json({ ok: true, id: o.id });
+      /* the client shows what it sent; tell it what was actually charged so the two cannot differ */
+      return res.json({ ok: true, id: o.id, total: priced.total, lines: priced.lines });
     }
 
     if (req.method === "PATCH") {

@@ -14,12 +14,17 @@ const PATCH_KEYS = {
   lastError: "last_error",
 };
 
+/* → { state: "api", res }      saved; `res` carries the total the SERVER charged
+     { state: "rejected", error } the server refused the order (400 unknown product /
+                                  bad quantity / Mini Prints under 10, 409 id taken)
+     { state: "local" }           backend unreachable — order stays in localStorage */
 export async function syncOrderCreate(order) {
   try {
-    await qikinkApi.saveOrder(order);
-    return "api";
-  } catch {
-    return "local"; // backend not deployed yet — order stays in localStorage
+    const res = await qikinkApi.saveOrder(order);
+    return { state: "api", res };
+  } catch (err) {
+    if (err?.status === 400 || err?.status === 409) return { state: "rejected", error: err.message };
+    return { state: "local" }; // backend not deployed yet — order stays in localStorage
   }
 }
 

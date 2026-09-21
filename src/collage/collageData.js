@@ -2,7 +2,7 @@
    Cells are fractional rects {x,y,w,h} in 0–1 canvas space, so the same
    numbers drive the live preview (CSS %) and the full-res canvas export. */
 
-import { calculate } from "../utils/pricing";
+import { calculate } from "../utils/pricing.js";
 
 export const cuid = () => Math.random().toString(36).slice(2, 9);
 
@@ -98,7 +98,7 @@ export const LAMINATION_OPTIONS = [
   { id: "matte", label: "Matte", price: 49 },
 ];
 
-export { FREE_SHIP_THRESHOLD } from "../utils/pricing";
+export { FREE_SHIP_THRESHOLD } from "../utils/pricing.js";
 
 /* live price calculation (PRD §11) — resolves collage add-ons, then hands
    the arithmetic to the shared pricing engine (src/utils/pricing.js). */

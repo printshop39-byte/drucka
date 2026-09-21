@@ -452,6 +452,8 @@ export default function MiniPrints({
           key: uid(), productId: V.productId, type: "custom",
           name: `${V.cartPrefix} ${ps.label} — ${ps.name}`,
           price: ps.price, qty: p.copies, size: ps.label, color: "White",
+          /* what the SERVER prices from; `price` above is display only */
+          pricing: { kind: "print", variant: V.id, sizeId: ps.id },
           printMethod: "Full Colour", placement: "Front",
           design: { front: [{ id: uid(), type: "image", name: p.caption?.trim() || V.cartPrefix, src, x: 50, y: 50, w: 100, h: 100, rot: 0, opacity: 1, visible: true }] },
           summary: `${V.cartPrefix} · ${ps.label}${cardAspect >= 1 ? " landscape" : " portrait"}${border !== "none" ? ` · ${border}` : ""}${p.filter !== "original" ? ` · ${p.filter}` : ""}${p.caption?.trim() ? ` · "${p.caption.trim()}"` : ""} · ${p.copies} ${p.copies > 1 ? "copies" : "copy"}`,

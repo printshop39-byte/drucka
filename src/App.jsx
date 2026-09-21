@@ -4259,7 +4259,22 @@ export default function App() {
     setOrders([order, ...orders]);
     setCart([]); // cart is now an order
     setCartOpen(false);
-    syncOrderCreate(order); // best-effort → Supabase (local copy stays the instant UI)
+    /* Best-effort → Supabase (the local copy stays the instant UI). The SERVER
+       prices the order itself, so if it charged something different from what this
+       browser computed (a price changed since the cart was filled), take its number;
+       and if it refused the order outright, say so instead of showing a success the
+       server never recorded. */
+    syncOrderCreate(order).then((r) => {
+      if (r.state === "rejected") {
+        showToast(`⚠ We could not record this order online (${r.error}). Please message us on WhatsApp.`);
+      } else if (r.state === "api" && Array.isArray(r.res?.lines) && r.res.total !== order.total) {
+        const price = Object.fromEntries(r.res.lines.map((l) => [l.key, l.price]));
+        setOrders((os) => os.map((o) => (o.id === order.id
+          ? { ...o, total: r.res.total, items: o.items.map((i) => ({ ...i, price: price[i.key] ?? i.price })) }
+          : o)));
+        showToast("Prices were updated to our current rates");
+      }
+    });
     /* COD counts as a Purchase only when DELIVERED (server-side, from the
        Qikink status poll) — at placement it's just checkout intent, already
        tracked by InitiateCheckout. Prepaid fires Purchase now (browser) +

@@ -12,7 +12,8 @@ export const apiFetch = (path, opts) => fetch(`${API_BASE}${path}`, opts);
 
 const jsonOrThrow = async (res) => {
   const data = await res.json().catch(() => null);
-  if (!res.ok || data?.ok === false) throw new Error(data?.error ?? `${res.status} ${res.statusText}`);
+  if (!res.ok || data?.ok === false)
+    throw Object.assign(new Error(data?.error ?? `${res.status} ${res.statusText}`), { status: res.status });
   return data;
 };
 
