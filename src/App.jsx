@@ -4969,7 +4969,7 @@ export default function App() {
 
       {designerPage && (
         <DesignerProductPage
-          key={designerPage.productId}
+          key={`page:${designerPage.productId}`}
           initialProductId={designerPage.productId}
           onClose={() => setDesignerPage(null)}
           onStartDesigning={({ productId, selections }) => setDesigner({ productId, selections })}
