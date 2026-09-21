@@ -13,6 +13,9 @@ import { sb } from "../_lib/supabase.js";
 import { withCors } from "../_lib/cors.js";
 import { isAdmin } from "../_lib/adminAuth.js";
 
+/* payment statuses that mean the money (or the COD approval) has been checked by Drucka or Razorpay */
+const VERIFIED = ["Paid", "COD Approved"];
+
 async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ ok: false, error: "POST only" });
   /* before anything else — no body parsing, no database read, no Qikink call */
@@ -26,9 +29,16 @@ async function handler(req, res) {
     // A repeated "Retry send" (or a network retry) must not spawn a second
     // Qikink order. If this order already carries a Qikink id, return it.
     try {
-      const rows = await sb(`orders?id=eq.${encodeURIComponent(payload.order_number)}&select=qikink_order_id`);
+      const rows = await sb(`orders?id=eq.${encodeURIComponent(payload.order_number)}&select=qikink_order_id,payment_status`);
       const existing = rows?.[0]?.qikink_order_id;
       if (existing) return res.json({ ok: true, qikinkOrderId: existing, alreadySent: true });
+      /* The stored status is the truth, not the browser's payload. Only a verified
+         payment ("Paid": admin or Razorpay webhook) or an approved COD may reach
+         Qikink. A customer's "Payment Claimed" and a COD still awaiting approval
+         may not, whatever the payload says. */
+      const stored = rows?.[0]?.payment_status;
+      if (stored && !VERIFIED.includes(stored))
+        return res.status(402).json({ ok: false, error: `Payment not verified (order is "${stored}")` });
     } catch (e) {
       console.error("Idempotency check failed (continuing):", e.message);
     }

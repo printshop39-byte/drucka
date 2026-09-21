@@ -35,6 +35,17 @@ export async function syncOrderPatch(id, patch) {
   }
 }
 
+/* Customer "I've paid". Sent as a claim, never as "Paid". Safe to fail like the
+   rest: the local order still shows "awaiting verification". */
+export async function syncPaymentClaim(id, phone) {
+  try {
+    await qikinkApi.claimPayment(id, phone);
+    return "api";
+  } catch {
+    return "local";
+  }
+}
+
 /* Full fulfillment: upload every image layer to Cloudinary, fill the
    design_link fields, then create the Qikink order via the backend.
    Throws if the backend is unreachable — caller falls back to demo mode. */

@@ -67,6 +67,15 @@ export const qikinkApi = {
       body: JSON.stringify({ id, patch }),
     }).then(jsonOrThrow),
 
+  /* customer "I've paid": records a CLAIM the team verifies. No admin key, the
+     phone number on the order is the proof of ownership. Cannot set "Paid". */
+  claimPayment: (id, phone) =>
+    apiFetch("/api/orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, phone, patch: { payment_status: "Payment Claimed" } }),
+    }).then(jsonOrThrow),
+
   listOrders: () =>
     apiFetch("/api/orders", { headers: adminHeaders() }).then(jsonOrThrow),
 

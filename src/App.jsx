@@ -1,6 +1,6 @@
 import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { qikinkApi, setAdminKey, getAdminKey } from "./lib/qikinkClient";
-import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore";
+import { syncOrderCreate, syncOrderPatch, syncPaymentClaim, fulfillOrder } from "./lib/orderStore";
 import { payWithRazorpay } from "./lib/paymentClient";
 import * as pixel from "./lib/metaPixel";
 import { isEnquiry, isEnquiryCartLine } from "./lib/orderMode";
@@ -340,7 +340,11 @@ const DEFAULT_QIKINK_SETTINGS = {
   packingSlipBrand: "Drucka", // white-label: customer sees Drucka, not Qikink
 };
 
-const ORDER_STATUSES = ["Draft", "Payment Pending", "COD Pending Approval", "Paid", "COD Approved", "Sent to Qikink", "In Production", "Shipped", "Delivered", "Failed"];
+const ORDER_STATUSES = ["Draft", "Payment Pending", "Payment Claimed", "COD Pending Approval", "Paid", "COD Approved", "Sent to Qikink", "In Production", "Shipped", "Delivered", "Failed"];
+/* what the customer reads for a status. "Payment Claimed" is their own "I've paid",
+   not a confirmed payment, so it is shown as what it is. */
+const paymentLabel = (status) => (status === "Payment Claimed" ? "Awaiting verification" : status);
+
 const QIKINK_STATUSES = ["Draft", "Sent to Qikink", "In Production", "Shipped", "Delivered", "Failed"];
 
 /* ── Drucka colour → the code Qikink puts in its SKUs ──
@@ -3606,7 +3610,7 @@ function TrackOrderModal({ onClose, localOrders }) {
                 <p className="text-sm font-bold text-gold">{inr(result.total)}</p>
               </div>
               <p className="mt-1 text-xs text-charcoal/55">
-                {result.items.map((i) => `${i.name} ×${i.qty}`).join(", ")} · {result.paymentStatus}
+                {result.items.map((i) => `${i.name} ×${i.qty}`).join(", ")} · {paymentLabel(result.paymentStatus)}
               </p>
               {/* status timeline */}
               {result.status === "Failed" ? (
@@ -3750,7 +3754,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                 <span className="text-xs font-semibold text-charcoal/60">Payment status</span>
                 <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${
                   ["Paid", "COD Approved"].includes(order.paymentStatus) ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                }`}>{order.paymentStatus}</span>
+                }`}>{paymentLabel(order.paymentStatus)}</span>
               </div>
 
               {["Paid", "COD Approved"].includes(order.paymentStatus) && (
@@ -3788,6 +3792,11 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     </button>
                   </div>
                 </div>
+              )}
+              {order.paymentStatus === "Payment Claimed" && (
+                <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
+                  <strong>Awaiting verification.</strong> We will check your payment and confirm on WhatsApp before we start printing.
+                </p>
               )}
               {order.paymentStatus === "COD Pending Approval" && (
                 <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs leading-relaxed text-amber-800">
@@ -4081,7 +4090,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                       <div className="mt-2.5 flex flex-wrap items-center gap-2">
                         <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
                           ["Paid", "COD Approved"].includes(o.paymentStatus) ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                        }`}>{o.paymentStatus}</span>
+                        }`}>{o.paymentStatus === "Payment Claimed" ? "Payment Claimed · verify" : o.paymentStatus}</span>
                         <select value={o.qikinkStatus} onChange={(e) => onUpdateOrder(o.id, { qikinkStatus: e.target.value })}
                           aria-label="Qikink status"
                           className={`rounded-lg border px-2 py-1 text-[10px] font-bold outline-none focus:border-plum ${
@@ -4096,7 +4105,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                             className="rounded-full border border-ink/15 px-2.5 py-1 text-[10px] font-bold text-ink/60 hover:border-plum hover:text-plum">⟳ Status</button>
                         )}
                         <span className="flex-1" />
-                        {o.paymentStatus === "Payment Pending" && (
+                        {["Payment Pending", "Payment Claimed"].includes(o.paymentStatus) && (
                           <button onClick={() => onUpdateOrder(o.id, { paymentStatus: "Paid" })}
                             className="rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-bold text-white hover:bg-emerald-600">Mark Paid</button>
                         )}
@@ -4266,10 +4275,19 @@ export default function App() {
     }
     return order;
   };
+  /* "I've paid" is a CLAIM. It never sets "Paid": only the admin (after checking
+     the payment) or the Razorpay webhook does, and only a verified status lets an
+     order go to Qikink. So this changes the local order to "Payment Claimed" and
+     sends the claim, with the order's phone as proof, without going through
+     updateOrder (which would try to push a plain status patch). */
   const markPaid = (id) => {
-    const o = updateOrder(id, { paymentStatus: "Paid" }); // self-serve claim; team verifies
-    showToast("Payment marked — we verify before printing ✓");
-    return o;
+    const order = orders.find((o) => o.id === id);
+    if (!order) return null;
+    const next = { ...order, paymentStatus: "Payment Claimed" };
+    setOrders(orders.map((o) => (o.id === id ? next : o)));
+    syncPaymentClaim(id, order.customer?.phone);
+    showToast("Thanks — we'll verify your payment and confirm on WhatsApp ✓");
+    return next;
   };
   /* PRODUCTION handoff: artwork → Cloudinary, order → Qikink, both via
      our backend (/api/upload-artwork, /api/qikink/create-order — the
@@ -4311,7 +4329,11 @@ export default function App() {
     try {
       await payWithRazorpay(order);
       showToast("Payment received ✓ — confirming with the bank");
-      return updateOrder(order.id, { paymentStatus: "Paid" });
+      /* the Razorpay webhook sets "Paid" on the server; the browser's callback
+         is not proof, so locally this stays a claim until verified */
+      const next = { ...order, paymentStatus: "Payment Claimed" };
+      setOrders((os) => os.map((o) => (o.id === order.id ? next : o)));
+      return next;
     } catch (err) {
       showToast(`⚠ ${err.message} — UPI manual option below works too`);
       return null;
