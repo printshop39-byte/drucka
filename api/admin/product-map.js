@@ -3,9 +3,8 @@
    PUT : replace all mappings — ADMIN ONLY (x-admin-secret). */
 import { sb } from "../_lib/supabase.js";
 import { withCors } from "../_lib/cors.js";
+import { isAdmin } from "../_lib/adminAuth.js";
 
-const isAdmin = (req) =>
-  !!process.env.ADMIN_SECRET && req.headers["x-admin-secret"] === process.env.ADMIN_SECRET;
 
 const FIELDS = ["drucka_id", "product_name", "qikink_product_id", "sku_pattern", "print_method", "colors", "sizes", "base_cost", "shipping_cost", "print_areas", "active"];
 

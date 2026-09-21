@@ -6,9 +6,8 @@
 import { sb, orderToRow, rowToOrder } from "./_lib/supabase.js";
 import { sendCapiEvent } from "./_lib/capi.js";
 import { withCors } from "./_lib/cors.js";
+import { isAdmin } from "./_lib/adminAuth.js";
 
-const isAdmin = (req) =>
-  !!process.env.ADMIN_SECRET && req.headers["x-admin-secret"] === process.env.ADMIN_SECRET;
 
 async function handler(req, res) {
   try {
