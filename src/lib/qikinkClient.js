@@ -29,7 +29,7 @@ const adminHeaders = () => (getAdminKey() ? { "x-admin-secret": getAdminKey() } 
 export const qikinkApi = {
   /* admin "Test connection" — backend checks creds with Qikink */
   testConnection: () =>
-    apiFetch("/api/qikink/token", { method: "POST" }).then(jsonOrThrow),
+    apiFetch("/api/qikink/token", { method: "POST", headers: adminHeaders() }).then(jsonOrThrow),
 
   /* upload one artwork data-URL → { url } (Cloudinary, server-signed) */
   uploadArtwork: (dataUrl, orderId, layerId) =>
