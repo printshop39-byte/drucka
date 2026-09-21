@@ -1,5 +1,6 @@
 import { ArrowRight, X } from 'lucide-react';
 import useModalA11y from '../hooks/useModalA11y';
+import { isEnquiry } from '../lib/orderMode';
 
 /* ── "What would you like to create?" ──
    Until now every generic entry point on the site — the hero's "Start
@@ -21,6 +22,9 @@ interface Item {
   sub: string;
   price: string;
   img: string;
+  /** designer product id, for tiles that open a Qikink-made product: those
+   *  are ordered by enquiry, so the tile shows no price (lib/orderMode.js) */
+  designerId?: string;
 }
 
 /* Order is deliberate: cheapest, highest-intent entry points first. */
@@ -28,9 +32,9 @@ const ITEMS: Item[] = [
   { id: 'photo-prints', title: 'Photo Prints',  sub: '4×6 to A3 · single prints', price: 'from ₹39',   img: '/images/prints/print-1.webp' },
   { id: 'mini-prints',  title: 'Mini Prints',   sub: 'Wallet & scrapbook packs',  price: '₹19 · min 10', img: '/images/mini/mini-3x3.jpg' },
   { id: 'frame',        title: 'Photo Frames',  sub: 'Gold, black, wood',         price: 'from ₹899',  img: '/images/frames/premium-golden-live.webp' },
-  { id: 'tshirt',       title: 'T-Shirts',      sub: 'Front & back, full colour', price: 'from ₹599',  img: '/images/tshirt.webp' },
-  { id: 'mug',          title: 'Photo Mugs',    sub: 'Edge-to-edge wrap print',   price: 'from ₹299',  img: '/images/mug.webp' },
-  { id: 'canvas',       title: 'Canvas Prints', sub: 'Ready to hang', price: 'from ₹500', img: '/mockups/canvas-front-white.webp' },
+  { id: 'tshirt',       title: 'T-Shirts',      sub: 'Front & back, full colour', price: 'from ₹599',  img: '/images/tshirt.webp', designerId: 'tshirt' },
+  { id: 'mug',          title: 'Photo Mugs',    sub: 'Edge-to-edge wrap print',   price: 'from ₹299',  img: '/images/mug.webp', designerId: 'mug' },
+  { id: 'canvas',       title: 'Canvas Prints', sub: 'Ready to hang', price: 'from ₹500', img: '/mockups/canvas-front-white.webp', designerId: 'canvas' },
   { id: 'collage',      title: 'Photo Collage', sub: 'Many photos, one print',    price: 'from ₹99',   img: '/images/prints/print-2.webp' },
   { id: 'bulk',         title: 'Bulk & Corporate', sub: 'Events, teams, gifting', price: 'Get a quote', img: '/images/categories/men-tshirt.webp' },
 ];
@@ -97,7 +101,7 @@ export default function ProductPicker({
               <span className="flex min-h-[84px] flex-1 flex-col px-3 py-2.5">
                 <span className="text-sm font-bold text-charcoal">{it.title}</span>
                 <span className="mt-0.5 text-[11px] leading-snug text-charcoal/50">{it.sub}</span>
-                <span className="mt-auto pt-1.5 text-[11px] font-bold text-gold-dark">{it.price}</span>
+                <span className="mt-auto pt-1.5 text-[11px] font-bold text-gold-dark">{it.designerId && isEnquiry(it.designerId) ? 'Price on enquiry' : it.price}</span>
               </span>
             </button>
           ))}

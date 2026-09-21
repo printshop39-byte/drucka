@@ -303,6 +303,9 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
         key: uid(),
         productId: base.qikinkId,
         type: "custom",
+        /* priced and made in-house even though productId is the Qikink frame id;
+           tells lib/orderMode.js this is not an enquiry-only line */
+        inHouse: true,
         name: `Photo Collage — ${size.dim || size.label}`,
         price: price.unit,
         qty,

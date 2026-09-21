@@ -3,6 +3,7 @@ import { qikinkApi, setAdminKey, getAdminKey } from "./lib/qikinkClient";
 import { syncOrderCreate, syncOrderPatch, fulfillOrder } from "./lib/orderStore";
 import { payWithRazorpay } from "./lib/paymentClient";
 import * as pixel from "./lib/metaPixel";
+import { isEnquiry, isEnquiryCartLine } from "./lib/orderMode";
 import { productById as designerProductById } from "./designer/data";
 import { usesNewShell, setForceClassicEditor } from "./utils/editorFlags";
 import { FEATURES, paymentLine } from "./lib/features";
@@ -2260,7 +2261,7 @@ const QUICK_REPLIES = [
   { id: "customize", label: "Customize T-shirt", reply: "Great! Upload your design, choose size and color, then click Order on WhatsApp. Our team will confirm print quality before printing." },
   { id: "bulk", label: "Bulk order", form: true, reply: "For bulk orders above 10 pieces, we offer special pricing. Share quantity, product type and design on WhatsApp." },
   { id: "track", label: "Track order", reply: "Please share your order name or WhatsApp number. Our team will check and update you." },
-  { id: "price", label: "Price list", reply: "T-shirt from ₹599, Mug from ₹299, Frame from ₹899, Cushion from ₹649, Canvas from ₹500, Keychain from ₹149." },
+  { id: "price", label: "Price list", reply: "Photo prints from ₹39, mini prints ₹19 each (minimum 10). T-shirts, mugs, cushions, canvas and other custom gifts are priced per order, so design one on the site and tap Enquire on WhatsApp, or message us and we will reply with the price." },
   { id: "human", label: "Talk to human", human: true },
 ];
 
@@ -2876,8 +2877,10 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
         <p className="mt-0.5 text-sm text-charcoal/55">{product.blurb}</p>
         <div className="mt-3 flex items-center justify-between">
           <div>
-            <p className="text-[11px] font-medium text-charcoal/45">Starting at</p>
-            <p className="text-lg font-extrabold text-gold">{inr(product.price)}</p>
+            {isEnquiry(product.id)
+              ? <p className="text-sm font-extrabold text-gold">Price on enquiry</p>
+              : <><p className="text-[11px] font-medium text-charcoal/45">Starting at</p>
+                <p className="text-lg font-extrabold text-gold">{inr(product.price)}</p></>}
           </div>
           <p className="flex items-center gap-1.5 text-xs font-medium text-charcoal/55">
             <Icon d={icons.truck} className="h-4 w-4 text-gold-dark" /> {product.delivery}
@@ -2959,7 +2962,7 @@ function ShopCatalog({ onCustomize }) {
               <div className="flex items-center justify-between gap-2 px-4 py-4 sm:px-5">
                 <div className="min-w-0">
                   <p className="truncate font-serif text-base font-bold text-charcoal sm:text-lg">{c.title}</p>
-                  <p className="text-sm text-charcoal/50">From {inr(c.price)}</p>
+                  <p className="text-sm text-charcoal/50">{isEnquiry(c.productId) ? "Price on enquiry" : `From ${inr(c.price)}`}</p>
                 </div>
                 <span aria-hidden="true" className="hidden shrink-0 items-center rounded-full bg-charcoal px-4 py-2 text-xs font-bold text-white transition group-hover:bg-gold sm:flex">
                   Customise →
@@ -4160,7 +4163,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
    APP
    ═══════════════════════════════════════════════════════════════ */
 export default function App() {
-  const [cart, setCart] = useState(() => load("drucka-cart", []));
+  const [cart, setCart] = useState(() => load("drucka-cart", []).filter((l) => !isEnquiryCartLine(l)));
   const [favs, setFavs] = useState(() => load("drucka-favs", []));
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
@@ -4421,10 +4424,20 @@ export default function App() {
     showToast.t = window.setTimeout(() => setToast(null), 2600);
   };
 
+  /* Enquire on WhatsApp: the message is built by the editor, this only opens
+     it and records the lead. noopener so the chat tab cannot reach back. */
+  const enquireProduct = ({ text, productName }) => {
+    pixel.lead({ name: `Enquiry — ${productName}`, category: "enquiry" });
+    window.open(wa(text), "_blank", "noopener");
+  };
+
   const addToCart = (item) => {
     /* Every line carries its own designId. Older carts in localStorage predate
        it, so backfill rather than leaving lines that cannot be told apart. */
     const line = { ...item, designId: item.designId ?? uid() };
+    /* enquiry-only products never reach the cart (lib/orderMode.js); the
+       editors do not offer the button, this is the backstop */
+    if (isEnquiryCartLine(line)) return;
     setCart((c) => [...c, line]);
     pixel.addToCart({ id: line.productId, name: line.name, value: line.price * line.qty });
   };
@@ -4979,6 +4992,7 @@ export default function App() {
           onClose={() => setDesigner(null)}
           onAddToCart={addToCart}
           onOpenCart={() => { setDesignerPage(null); setCartOpen(true); }}
+          onEnquire={enquireProduct}
           showToast={showToast}
         />
       )}
@@ -4994,6 +5008,7 @@ export default function App() {
           onAddToCart={addToCart}
           onUpdateCartLine={updateCartLine}
           onOpenCart={() => { setEditorShell(null); setCartOpen(true); }}
+          onEnquire={enquireProduct}
           showToast={showToast}
           onUseClassic={() => {
             setForceClassicEditor(true);       // sticky per-browser rollback

@@ -5,12 +5,14 @@ import {
 } from "./data";
 import { Icon, ic } from "./icons";
 import { DELIVERY_RULE_SHORT } from "../seo/policies";
+import { isEnquiry } from "../lib/orderMode";
 
 /* ── Product detail page — one reusable page for every catalog product.
    Category tabs (Men / Women / Kids / Children / Gifts) switch products;
    the Start Designing CTA opens the single ProductDesigner. ── */
 
 function SizeChartModal({ product, onClose }) {
+  const enquiry = isEnquiry(product.productId);
   return (
     <div className="fixed inset-0 z-[98] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Size chart">
       <button className="absolute inset-0 bg-ink/50" onClick={onClose} aria-label="Close size chart" />
@@ -22,7 +24,7 @@ function SizeChartModal({ product, onClose }) {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-[11px] font-bold uppercase tracking-wide text-ink/45">
-              <th className="pb-2">Size</th><th className="pb-2">Chest</th><th className="pb-2">Length</th><th className="pb-2 text-right">Extra</th>
+              <th className="pb-2">Size</th><th className="pb-2">Chest</th><th className="pb-2">Length</th>{!enquiry && <th className="pb-2 text-right">Extra</th>}
             </tr>
           </thead>
           <tbody>
@@ -31,7 +33,7 @@ function SizeChartModal({ product, onClose }) {
                 <td className="py-1.5 font-bold text-ink">{r.size}</td>
                 <td className="py-1.5 text-ink/70">{r.chest}″</td>
                 <td className="py-1.5 text-ink/70">{r.length}″</td>
-                <td className="py-1.5 text-right text-xs font-semibold text-ink/55">{product.sizeSurcharge?.[r.size] ? `+${inr(product.sizeSurcharge[r.size])}` : "—"}</td>
+                {!enquiry && <td className="py-1.5 text-right text-xs font-semibold text-ink/55">{product.sizeSurcharge?.[r.size] ? `+${inr(product.sizeSurcharge[r.size])}` : "—"}</td>}
               </tr>
             ))}
           </tbody>
@@ -162,7 +164,9 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
               in the codebase that could have produced them. Restore only when
               real review data exists to back it. */}
           <p className="mt-3 text-2xl font-extrabold text-ink">
-            {inr(p.basePrice)} <span className="text-sm font-semibold text-ink/45">base price · printing extra</span>
+            {isEnquiry(p.productId)
+              ? "Price on enquiry"
+              : <>{inr(p.basePrice)} <span className="text-sm font-semibold text-ink/45">base price · printing extra</span></>}
           </p>
 
           {/* printing option */}
@@ -173,7 +177,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
                 <button key={m.id} onClick={() => setMethod(m.id)}
                   className={`rounded-xl border-2 px-3 py-2.5 text-left transition ${method === m.id ? "border-tangerine bg-tangerine/5" : "border-ink/10 bg-white hover:border-ink/25"}`}>
                   <span className="block text-sm font-extrabold text-ink">{m.label}</span>
-                  <span className="block text-[11px] text-ink/50">{m.price > 0 ? `+${inr(m.price)} · ` : ""}{m.note}</span>
+                  <span className="block text-[11px] text-ink/50">{m.price > 0 && !isEnquiry(p.productId) ? `+${inr(m.price)} · ` : ""}{m.note}</span>
                 </button>
               ))}
             </div>
@@ -213,7 +217,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
                 </button>
               ))}
             </div>
-            {p.sizeSurcharge?.[size] > 0 && <p className="mt-1.5 text-xs text-ink/50">{size} adds {inr(p.sizeSurcharge[size])}</p>}
+            {!isEnquiry(p.productId) && p.sizeSurcharge?.[size] > 0 && <p className="mt-1.5 text-xs text-ink/50">{size} adds {inr(p.sizeSurcharge[size])}</p>}
           </div>
 
           {/* highlights */}

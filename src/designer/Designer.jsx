@@ -13,6 +13,8 @@ import {
   DrawPanel, GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
 } from "./panels";
 import { strokesToDataUrl } from "../lib/editor/brushes";
+import { isEnquiry } from "../lib/orderMode";
+import { enquiryText, newEnquiryRef } from "../lib/enquiry";
 
 /* ── ProductDesigner — THE single Drucka design editor ──
    Fully data-driven: pass any catalog product (men / women / kids /
@@ -35,7 +37,7 @@ const TOOLS = [
    persists to localStorage */
 const DRAW_MAX_PX = 1400;
 
-export default function ProductDesigner({ product, initial = {}, onClose, onAddToCart, onOpenCart, showToast }) {
+export default function ProductDesigner({ product, initial = {}, onClose, onAddToCart, onOpenCart, showToast, onEnquire }) {
   /* selections */
   const [sel, setSelState] = useState({
     selectedColor: initial.selectedColor ?? product.availableColors[0],
@@ -209,6 +211,25 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
     }
   };
 
+  /* ── enquiry-only products: no cart, the customer asks for a price ── */
+  const enquiry = isEnquiry(product.productId);
+  const enquiryRef = useRef(null);
+  const handleEnquire = (info) => {
+    enquiryRef.current = enquiryRef.current || newEnquiryRef();
+    onEnquire?.({
+      productName: product.productName,
+      text: enquiryText({
+        productName: info?.title || product.productName,
+        size: sel.selectedSize,
+        colour: colorById(sel.selectedColor)?.label ?? sel.selectedColor,
+        print: price.method.label,
+        placements: price.printed.map((p) => p.label).join(", "),
+        qty, layersByPlacement, printAreas: product.printAreas,
+        ref: enquiryRef.current,
+      }),
+    });
+  };
+
   /* ── submit step → cart (same item shape the existing checkout expects) ── */
   const cartItem = (artwork, info) => {
     const design = Object.fromEntries(price.printed.map((p) => [p.id, layersByPlacement[p.id]]));
@@ -309,7 +330,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
       <div className="fixed inset-0 z-[95]" role="dialog" aria-modal="true" aria-label="Product information">
         <ProductSubmitInfo product={product} color={sel.selectedColor} size={sel.selectedSize}
           price={price} qty={qty} layersByPlacement={layersByPlacement}
-          onBack={() => setStep("design")} onSubmit={handleSubmit} />
+          onBack={() => setStep("design")} onSubmit={handleSubmit} onEnquire={handleEnquire} />
       </div>
     );
   }
@@ -448,7 +469,9 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
               </div>
             )}
             <div className="ml-auto flex items-center gap-3">
-              {hasDesign ? (
+              {enquiry ? (
+                <p className="text-xs font-semibold text-ink/55">Price on enquiry</p>
+              ) : hasDesign ? (
                 <div className="text-right leading-tight">
                   <p className="text-base font-extrabold text-ink sm:text-lg">{inr(price.total)}</p>
                   <p className="text-[10px] text-ink/45">

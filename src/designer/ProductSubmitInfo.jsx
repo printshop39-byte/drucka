@@ -2,6 +2,7 @@ import { useState } from "react";
 import { LIGHT_COLORS, colorById, inr } from "./data";
 import { Icon, ic } from "./icons";
 import { MiniMockup } from "./MockupPreview";
+import { isEnquiry } from "../lib/orderMode";
 
 /* ── Product Info / Submit page ──
    Shown after Continue. Lets the customer name the product, set a profit
@@ -10,8 +11,9 @@ import { MiniMockup } from "./MockupPreview";
    stores it locally. */
 
 export default function ProductSubmitInfo({
-  product, color, size, price, qty, layersByPlacement, onBack, onSubmit,
+  product, color, size, price, qty, layersByPlacement, onBack, onSubmit, onEnquire,
 }) {
+  const enquiry = isEnquiry(product.productId);
   const printedAreas = product.printAreas.filter((p) => (layersByPlacement[p.id] ?? []).some((l) => l.visible !== false));
   const galleryAreas = printedAreas.length ? printedAreas : product.printAreas.slice(0, 1);
   const [activeIdx, setActiveIdx] = useState(0);
@@ -94,7 +96,7 @@ export default function ProductSubmitInfo({
                 <p className="text-sm font-semibold text-ink/70">{size} × {qty}</p>
               </div>
 
-              <div className="rounded-2xl border border-ink/10 bg-white p-4">
+              {!enquiry && <div className="rounded-2xl border border-ink/10 bg-white p-4">
                 <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Pricing Details</p>
                 <dl className="space-y-1.5 text-sm">
                   <div className="flex justify-between"><dt className="text-ink/55">Price Range</dt><dd className="font-bold text-ink">{inr(price.unit)}</dd></div>
@@ -116,7 +118,7 @@ export default function ProductSubmitInfo({
                   </div>
                 </dl>
                 <p className="mt-2 text-[10px] text-ink/40">Price includes {price.method.label} print on {price.printed.length || 1} placement{price.printed.length > 1 ? "s" : ""}. Margin is optional — keep 0 for the standard price.</p>
-              </div>
+              </div>}
             </div>
 
             <div className="rounded-2xl border border-ink/10 bg-white p-4">
@@ -158,17 +160,28 @@ export default function ProductSubmitInfo({
 
       {/* fixed bottom bar */}
       <div className="z-10 flex shrink-0 items-center gap-3 border-t border-ink/10 bg-white px-4 py-3">
+        {enquiry ? (
+          <p className="text-sm font-bold text-ink/70">Price on enquiry</p>
+        ) : (
         <div className="leading-tight">
           <p className="text-[10px] font-bold uppercase tracking-wide text-ink/45">Selling Price</p>
           <p className="text-lg font-extrabold text-ink">{inr(selling * qty)}
             {qty > 1 && <span className="ml-1 text-xs font-semibold text-ink/45">({qty} × {inr(selling)})</span>}
           </p>
         </div>
+        )}
         <div className="ml-auto flex items-center gap-2">
+          {enquiry ? (
+            <button onClick={() => onEnquire?.({ title: submitPayload().title })}
+              className="rounded-full bg-[#25D366] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
+              Enquire on WhatsApp
+            </button>
+          ) : (
           <button onClick={() => onSubmit(submitPayload())}
             className="rounded-full bg-tangerine px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-tangerine/30 transition hover:brightness-105">
             Submit for Review →
           </button>
+          )}
         </div>
       </div>
     </div>

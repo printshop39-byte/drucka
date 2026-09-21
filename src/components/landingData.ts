@@ -22,7 +22,8 @@ export interface Landing {
   /** WebP shown to visitors; absent where WebP saved <15% over the JPG */
   imageWebp?: string;
   imageAlt: string;
-  fromPrice: number;
+  /** null = price on enquiry: no price is shown and no Offer is published */
+  fromPrice: number | null;
   priceNote?: string;
   ctaLabel: string;
   action: LandingAction;

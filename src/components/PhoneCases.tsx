@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import Lightbox, { LightboxItem } from './Lightbox';
 
-/* NOTE: prices are placeholders for the scrapbook restyle — confirm/replace. */
+/* Phone cases are made by Qikink, so they are ordered by ENQUIRY: no price is
+   shown until Qikink's cost is confirmed (see lib/orderMode.js). */
 const phoneCases = [
-  { name: 'Photo Collage Case', image: '/images/phonecases/case-1.webp', card: '/images/phonecases/case-1-640.webp', desc: 'Your favourite photos in one custom collage case', price: '₹449' },
-  { name: 'Polaroid Memory Case', image: '/images/phonecases/case-2.webp', card: '/images/phonecases/case-2-640.webp', desc: 'Cherished moments styled like keepsake polaroids', price: '₹499' },
-  { name: 'Custom Design Cases', image: '/images/phonecases/case-3.webp', card: '/images/phonecases/case-3-640.webp', desc: 'Add names, dates & your own photos — fully personalised', price: '₹549' },
+  { name: 'Photo Collage Case', image: '/images/phonecases/case-1.webp', card: '/images/phonecases/case-1-640.webp', desc: 'Your favourite photos in one custom collage case' },
+  { name: 'Polaroid Memory Case', image: '/images/phonecases/case-2.webp', card: '/images/phonecases/case-2-640.webp', desc: 'Cherished moments styled like keepsake polaroids' },
+  { name: 'Custom Design Cases', image: '/images/phonecases/case-3.webp', card: '/images/phonecases/case-3-640.webp', desc: 'Add names, dates & your own photos — fully personalised' },
 ];
 
 const wa = (m: string) => `https://wa.me/917083811355?text=${encodeURIComponent(m)}`;
@@ -16,8 +17,7 @@ export default function PhoneCases() {
     image: phoneCases[active].image,
     title: phoneCases[active].name,
     subtitle: phoneCases[active].desc,
-    price: phoneCases[active].price,
-    waMessage: `Hi Drucka! I'm interested in a Custom Photo Phone Case (${phoneCases[active].name}, ${phoneCases[active].price}).`,
+    waMessage: `Hi Drucka! I'm interested in a Custom Photo Phone Case (${phoneCases[active].name}). Please share the price and delivery time.`,
   } : null;
 
   return (
@@ -80,7 +80,7 @@ export default function PhoneCases() {
               </div>
               <div className="flex items-end justify-between gap-2 px-1">
                 <h3 className="sb-name">{item.name}</h3>
-                <span className="sb-price shrink-0">{item.price}</span>
+                <span className="sb-price shrink-0">Price on enquiry</span>
               </div>
               <p className="mt-1 px-1 text-sm text-charcoal/55">{item.desc}</p>
             </button>
@@ -89,12 +89,12 @@ export default function PhoneCases() {
 
         <div className="mt-14 text-center">
           <a
-            href={wa("Hi Drucka! I'd like to gift a Custom Photo Phone Case. Please help me design one.")}
+            href={wa("Hi Drucka! I'd like a price for a Custom Photo Phone Case. Please help me design one.")}
             target="_blank"
             rel="noopener noreferrer"
             className="sb-cta inline-flex items-center gap-2 px-8 py-3.5 text-sm font-semibold"
           >
-            Gift one now →
+            Enquire on WhatsApp →
           </a>
         </div>
       </div>

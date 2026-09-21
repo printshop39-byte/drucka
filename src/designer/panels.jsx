@@ -1,3 +1,4 @@
+import { isEnquiry } from "../lib/orderMode";
 import { useRef, useState } from "react";
 import {
   COLOR_PALETTE, FONTS, GRAPHICS, GRAPHIC_CATEGORIES, LIGHT_COLORS, MIN_PRINT_DPI,
@@ -79,7 +80,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
         {thumb && <img src={thumb} alt="" className="h-14 w-12 rounded-lg object-cover" />}
         <div>
           <p className="text-sm font-bold leading-tight text-ink">{product.productName}</p>
-          <p className="text-xs text-ink/50">Base {inr(product.basePrice)}</p>
+          {!isEnquiry(product.productId) && <p className="text-xs text-ink/50">Base {inr(product.basePrice)}</p>}
         </div>
       </div>
 
@@ -97,7 +98,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
                   </span>
                   <span className="block text-[11px] text-ink/50">{m.note}</span>
                 </span>
-                {m.price > 0 && <span className="text-xs font-bold text-tangerine">+{inr(m.price)}</span>}
+                {m.price > 0 && !isEnquiry(product.productId) && <span className="text-xs font-bold text-tangerine">+{inr(m.price)}</span>}
               </button>
             ))}
           </div>
@@ -141,7 +142,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
               </button>
             ))}
           </div>
-          {product.sizeSurcharge?.[state.selectedSize] > 0 && (
+          {!isEnquiry(product.productId) && product.sizeSurcharge?.[state.selectedSize] > 0 && (
             <p className="mt-1.5 text-[11px] text-ink/50">{state.selectedSize} adds {inr(product.sizeSurcharge[state.selectedSize])}</p>
           )}
           {product.copy?.careNote && (

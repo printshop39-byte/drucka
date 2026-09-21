@@ -59,7 +59,7 @@ export const LANDINGS = {
 
   'custom-tshirts': {
     slug: 'custom-tshirts',
-    title: 'Custom Printed T-Shirts Online from ₹599 — Your Design | Drucka',
+    title: 'Custom Printed T-Shirts Online — Your Design | Drucka',
     description: 'Design custom printed t-shirts online — upload your photo, art or logo, preview front & back live, and order. Premium cotton, full-colour print, delivered across India.',
     eyebrow: 'Custom T-Shirts',
     h1: 'Custom Printed T-Shirts, Your Design',
@@ -69,7 +69,7 @@ export const LANDINGS = {
     image: '/images/tshirt.jpg',
     imageWebp: '/images/tshirt.webp',
     imageAlt: 'Custom printed t-shirt with a personal design by Drucka',
-    fromPrice: 599,
+    fromPrice: null,
     priceNote: 'no minimum order · 2–4 day delivery',
     ctaLabel: 'Design your t-shirt',
     action: 'tshirt',
@@ -77,7 +77,7 @@ export const LANDINGS = {
     highlights: ['Soft premium cotton, full-colour print', 'Add photos, text, graphics or your logo', 'Design front & back with a live preview', 'No minimum order — one piece is fine', 'Delivered across India in 2–4 days'],
     faqs: [
       { q: 'Is there a minimum order?', a: 'No — you can order a single custom t-shirt, or hundreds for events and teams.' },
-      { q: 'टी-शर्टची किंमत किती? (What is the t-shirt price?)', a: 'Custom printed t-shirts start from ₹599. कस्टम टी-शर्ट ₹599 पासून.' },
+      { q: 'टी-शर्टची किंमत किती? (What is the t-shirt price?)', a: 'The price of a custom t-shirt depends on the size, colour, print and quantity, so we quote each one. Message us on WhatsApp with your idea and we will reply with the price and delivery time. किंमत साइज, रंग, प्रिंट आणि प्रमाणावर अवलंबून असते — WhatsApp वर संदेश पाठवा, आम्ही किंमत आणि डिलिव्हरीची वेळ कळवू.' },
       { q: 'Can I print my own photo or logo?', a: 'Yes — upload any photo, artwork or logo (JPG/PNG), position it in the print area and preview before ordering.' },
       { q: 'Do you print front and back?', a: 'Yes, you can design and print both the front and back of the t-shirt.' },
     ],
@@ -86,7 +86,7 @@ export const LANDINGS = {
 
   'custom-mugs': {
     slug: 'custom-mugs',
-    title: 'Custom Photo Mugs Online from ₹299 — Personalised | Drucka',
+    title: 'Custom Photo Mugs Online — Personalised | Drucka',
     description: 'Personalised photo mugs online — print your photo, name or message on a premium ceramic mug. Great gifts. Delivered across India in 2–4 days. मराठीत सपोर्ट.',
     eyebrow: 'Custom Photo Mugs',
     h1: 'Custom Photo Mugs, Personalised for You',
@@ -96,7 +96,7 @@ export const LANDINGS = {
     image: '/images/mug.jpg',
     imageWebp: '/images/mug.webp',
     imageAlt: 'Custom personalised photo mug by Drucka',
-    fromPrice: 299,
+    fromPrice: null,
     priceNote: 'perfect for gifting · 2–4 day delivery',
     ctaLabel: 'Design your mug',
     action: 'mug',
@@ -104,7 +104,7 @@ export const LANDINGS = {
     highlights: ['Premium 325 ml ceramic mug', 'Print photos, names & messages', 'Dishwasher-friendly sublimation print', 'Perfect personalised gift', 'Delivered across India in 2–4 days'],
     faqs: [
       { q: 'What can I print on the mug?', a: 'Any photo, name, date or message — wrap-around print on a premium white ceramic mug.' },
-      { q: 'मगची किंमत किती? (What is the mug price?)', a: 'Custom photo mugs start from ₹299. कस्टम फोटो मग ₹299 पासून.' },
+      { q: 'मगची किंमत किती? (What is the mug price?)', a: 'The price of a custom mug depends on the size, colour, print and quantity, so we quote each one. Message us on WhatsApp with your idea and we will reply with the price and delivery time. किंमत साइज, रंग, प्रिंट आणि प्रमाणावर अवलंबून असते — WhatsApp वर संदेश पाठवा, आम्ही किंमत आणि डिलिव्हरीची वेळ कळवू.' },
       { q: 'Is the print long-lasting?', a: 'Mugs use sublimation printing for a smooth, durable, dishwasher-friendly finish.' },
       { q: 'Are mugs good for bulk gifting?', a: 'Yes — mugs are popular for corporate and event gifting with volume pricing on bulk orders.' },
     ],
@@ -123,7 +123,7 @@ export const LANDINGS = {
     image: '/images/mug.jpg',
     imageWebp: '/images/mug.webp',
     imageAlt: 'Custom branded corporate gifts by Drucka',
-    fromPrice: 149,
+    fromPrice: null,
     priceNote: 'volume pricing on 25+ pieces',
     ctaLabel: 'Get a bulk quote on WhatsApp',
     action: 'whatsapp',
@@ -131,7 +131,7 @@ export const LANDINGS = {
     highlights: ['Weddings, return gifts & events', 'Office & employee gifting', 'Volume pricing on 25+ pieces', 'Branded & personalised at scale', 'Delivered across India'],
     faqs: [
       { q: 'What is the minimum for bulk pricing?', a: 'Volume pricing typically starts at 25+ pieces — share your quantity on WhatsApp for a quote.' },
-      { q: 'बल्क ऑर्डरची किंमत किती? (What is bulk pricing?)', a: 'Bulk gifts start from ₹149 per piece with volume discounts. बल्क गिफ्ट ₹149 पासून, प्रमाणानुसार सूट.' },
+      { q: 'बल्क ऑर्डरची किंमत किती? (What is bulk pricing?)', a: 'The price of a custom bulk order depends on the size, colour, print and quantity, so we quote each one. Message us on WhatsApp with your idea and we will reply with the price and delivery time. किंमत साइज, रंग, प्रिंट आणि प्रमाणावर अवलंबून असते — WhatsApp वर संदेश पाठवा, आम्ही किंमत आणि डिलिव्हरीची वेळ कळवू.' },
       { q: 'Can gifts be branded with our logo?', a: 'Yes — we add your logo, names or messages across mugs, t-shirts, frames and keychains.' },
       { q: 'How fast can bulk orders be delivered?', a: 'Timelines depend on quantity — share your event date on WhatsApp and we plan delivery accordingly.' },
     ],
@@ -182,7 +182,7 @@ export const LANDINGS = {
     // TODO(Sagar): replace with /mockups/canvas-prints-blank.png once added from Qikink
     image: '/mockups/canvas-front-white.png',
     imageAlt: 'Custom stretched canvas print on a wooden frame by Drucka',
-    fromPrice: 500,
+    fromPrice: null,
     priceNote: 'ready to hang · 2–4 day delivery',
     ctaLabel: 'Design your canvas',
     action: 'canvas',
@@ -190,7 +190,7 @@ export const LANDINGS = {
     highlights: ['8×8" to 20×30" sizes', 'Premium canvas, museum-style finish', 'Stretched on a solid wooden frame', 'Fade-resistant, full-colour print', 'Delivered ready to hang in 2–4 days'],
     faqs: [
       { q: 'What canvas sizes are available?', a: '8×8, 8×12, 16×20 and 20×30 inch stretched canvas, mounted on a wooden frame and delivered ready to hang.' },
-      { q: 'कॅनव्हासची किंमत किती? (What does a canvas cost?)', a: 'Custom canvas prints start from ₹500. कस्टम कॅनव्हास प्रिंट ₹500 पासून.' },
+      { q: 'कॅनव्हासची किंमत किती? (What does a canvas cost?)', a: 'The price of a custom canvas depends on the size, colour, print and quantity, so we quote each one. Message us on WhatsApp with your idea and we will reply with the price and delivery time. किंमत साइज, रंग, प्रिंट आणि प्रमाणावर अवलंबून असते — WhatsApp वर संदेश पाठवा, आम्ही किंमत आणि डिलिव्हरीची वेळ कळवू.' },
       { q: 'What photo quality do I need?', a: 'A sharp phone photo works well for most sizes — the editor previews your photo on the canvas before you order.' },
       { q: 'Is the print long-lasting?', a: 'Yes — fade-resistant inks on premium canvas keep colours vibrant for years.' },
     ],
@@ -210,7 +210,7 @@ export const LANDINGS = {
     // TODO(Sagar): replace with /mockups/stickers-blank.png once added from Qikink
     image: '/mockups/keychain-front-white.png',
     imageAlt: 'Custom printed stickers and labels by Drucka',
-    fromPrice: 99,
+    fromPrice: null,
     priceNote: 'any quantity · bulk pricing available',
     ctaLabel: 'Order stickers on WhatsApp',
     action: 'whatsapp',
@@ -218,7 +218,7 @@ export const LANDINGS = {
     highlights: ['Logo, label & die-cut stickers', 'Waterproof & matte/glossy finishes', 'Wedding, business & personal designs', 'No minimum — any quantity', 'Delivered across India'],
     faqs: [
       { q: 'What kinds of stickers can I order?', a: 'Business logo stickers, product labels, packaging seals, wedding & event stickers and personal designs — die-cut or sheet format.' },
-      { q: 'स्टिकरची किंमत किती? (What do stickers cost?)', a: 'Custom stickers start from ₹99 per sheet, with bulk pricing on larger quantities. कस्टम स्टिकर्स ₹99 पासून, मोठ्या ऑर्डरवर सूट.' },
+      { q: 'स्टिकरची किंमत किती? (What do stickers cost?)', a: 'The price of a custom sticker depends on the size, colour, print and quantity, so we quote each one. Message us on WhatsApp with your idea and we will reply with the price and delivery time. किंमत साइज, रंग, प्रिंट आणि प्रमाणावर अवलंबून असते — WhatsApp वर संदेश पाठवा, आम्ही किंमत आणि डिलिव्हरीची वेळ कळवू.' },
       { q: 'Is there a minimum order quantity?', a: 'No — order a single sheet or thousands for business packaging; pricing improves with quantity.' },
       { q: 'Are the stickers waterproof?', a: 'Yes — waterproof vinyl options are available in matte and glossy finishes, ideal for bottles and packaging.' },
     ],
@@ -238,7 +238,7 @@ export const LANDINGS = {
     // TODO(Sagar): replace with /mockups/invitation-cards-blank.png once added from Qikink
     image: '/mockups/frame-front-white.png',
     imageAlt: 'Personalised wedding and birthday invitation cards by Drucka',
-    fromPrice: 149,
+    fromPrice: null,
     priceNote: 'digital + print options · Marathi, Hindi & English',
     ctaLabel: 'Get your invitation designed',
     action: 'whatsapp',
@@ -246,7 +246,7 @@ export const LANDINGS = {
     highlights: ['Wedding, birthday & event invites', 'Marathi, Hindi & English designs', 'Digital invites for WhatsApp sharing', 'Premium printed cards with envelopes', 'Designed & delivered across India'],
     faqs: [
       { q: 'Do you make digital and printed invitations?', a: 'Yes — shareable digital invites (image/PDF for WhatsApp) and premium printed cards, or both together.' },
-      { q: 'पत्रिकेची किंमत किती? (What do invitation cards cost?)', a: 'Digital invitation designs start from ₹149; printed cards are priced by quantity and paper. डिजिटल पत्रिका ₹149 पासून.' },
+      { q: 'पत्रिकेची किंमत किती? (What do invitation cards cost?)', a: 'The price of a custom invitation card depends on the size, colour, print and quantity, so we quote each one. Message us on WhatsApp with your idea and we will reply with the price and delivery time. किंमत साइज, रंग, प्रिंट आणि प्रमाणावर अवलंबून असते — WhatsApp वर संदेश पाठवा, आम्ही किंमत आणि डिलिव्हरीची वेळ कळवू.' },
       { q: 'Which languages do you design in?', a: 'Marathi, Hindi and English — including bilingual layouts with correct typography for each script.' },
       { q: 'How fast can I get my invitation?', a: 'Digital invites are usually ready within 1–2 days; printed cards ship across India in 2–4 days after design approval.' },
     ],
@@ -267,7 +267,7 @@ export const LANDINGS = {
     image: '/images/prints/print-1.jpg',
     imageWebp: '/images/prints/print-1.webp',
     imageAlt: 'Custom large-format matte poster print by Drucka',
-    fromPrice: 199,
+    fromPrice: null,
     priceNote: 'A3 to 24×36" · 2–4 day delivery',
     ctaLabel: 'Design your poster',
     action: 'poster',
@@ -275,7 +275,7 @@ export const LANDINGS = {
     highlights: ['A3, 12×18" & 24×36" sizes', 'Premium matte, fade-resistant paper', 'Photos, artwork, quotes or logos', 'Large-format, ready to frame', 'Delivered across India in 2–4 days'],
     faqs: [
       { q: 'What poster sizes are available?', a: 'A3, 12×18 inch and large 24×36 inch — matte paper, priced by size.' },
-      { q: 'पोस्टरची किंमत किती? (What does a poster cost?)', a: 'Custom poster prints start from ₹199. कस्टम पोस्टर प्रिंट ₹199 पासून.' },
+      { q: 'पोस्टरची किंमत किती? (What does a poster cost?)', a: 'The price of a custom poster depends on the size, colour, print and quantity, so we quote each one. Message us on WhatsApp with your idea and we will reply with the price and delivery time. किंमत साइज, रंग, प्रिंट आणि प्रमाणावर अवलंबून असते — WhatsApp वर संदेश पाठवा, आम्ही किंमत आणि डिलिव्हरीची वेळ कळवू.' },
       { q: 'What can I put on a poster?', a: 'Any photo, artwork, quote, movie/gaming design or business branding — position it in the editor and preview before ordering.' },
       { q: 'Is the poster ready to frame?', a: 'Yes — standard sizes fit off-the-shelf frames, printed on fade-resistant matte paper for a clean finish.' },
     ],

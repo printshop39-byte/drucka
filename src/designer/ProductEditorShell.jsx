@@ -12,6 +12,8 @@ import {
   DrawPanel, GraphicsPanel, LayerSettingsPanel, LayersPanel, ProductInfoPanel, TextPanel, UploadsPanel,
 } from "./panels";
 import { strokesToDataUrl } from "../lib/editor/brushes";
+import { isEnquiry } from "../lib/orderMode";
+import { enquiryText, newEnquiryRef } from "../lib/enquiry";
 
 /* ── ProductEditorShell — the NEW unified, MOBILE-FIRST editor ──
    Strangler-fig: opt-in per product via src/utils/editorFlags.js; everything
@@ -40,7 +42,7 @@ const PANEL_TOOLS = new Set(["text", "image", "draw", "color", "layer", "cart"])
 const DRAW_MAX_PX = 1400;
 
 export default function ProductEditorShell({
-  product, initial = {}, onClose, onAddToCart, onUpdateCartLine, onOpenCart, showToast, onUseClassic,
+  product, initial = {}, onClose, onAddToCart, onUpdateCartLine, onOpenCart, showToast, onUseClassic, onEnquire,
   /* When present the editor is REOPENING an existing cart line: saving
      replaces that line instead of appending a new one. This is the whole
      difference between "Edit design" and "add another one like it". */
@@ -234,6 +236,25 @@ export default function ProductEditorShell({
     }
   };
 
+  /* ── enquiry — products ordered by asking for a price (lib/orderMode.js) ── */
+  const enquiry = isEnquiry(product.productId);
+  const enquiryRef = useRef(null);
+  const handleEnquire = () => {
+    enquiryRef.current = enquiryRef.current || newEnquiryRef();
+    onEnquire?.({
+      productName: product.productName,
+      text: enquiryText({
+        productName: (title.trim() || product.productName),
+        size: sel.selectedSize,
+        colour: colorById(sel.selectedColor)?.label ?? sel.selectedColor,
+        print: price.method.label,
+        placements: price.printed.map((p) => p.label).join(", "),
+        qty, layersByPlacement, printAreas: product.printAreas,
+        ref: enquiryRef.current,
+      }),
+    });
+  };
+
   /* ── add to cart — identical item shape to the classic editor ── */
   const [addingToCart, setAddingToCart] = useState(false);
   const handleAddToCart = async () => {
@@ -367,7 +388,7 @@ export default function ProductEditorShell({
               <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80}
                 className="w-full rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
             </label>
-            <label className="flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white p-4">
+            {!enquiry && <label className="flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white p-4">
               <span className="min-w-0">
                 <span className="block text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Profit margin (₹ / unit)</span>
                 <span className="block text-[10px] text-ink/40">For resellers — keep 0 for the standard price</span>
@@ -378,28 +399,36 @@ export default function ProductEditorShell({
                   onChange={(e) => setMargin(Math.max(0, +e.target.value || 0))}
                   className="w-20 rounded-lg border border-ink/15 bg-white px-2 py-1.5 text-right text-sm font-bold text-ink outline-none focus:border-tangerine" />
               </span>
-            </label>
+            </label>}
             <div className="rounded-2xl border border-ink/10 bg-white p-4 text-sm">
               <div className="flex justify-between py-1"><span className="text-ink/55">Product</span><span className="font-bold text-ink">{product.productName}</span></div>
               <div className="flex justify-between py-1"><span className="text-ink/55">Colour · Size</span><span className="font-bold text-ink">{colorById(sel.selectedColor)?.label ?? sel.selectedColor} · {sel.selectedSize}</span></div>
               <div className="flex justify-between py-1"><span className="text-ink/55">Print</span><span className="font-bold text-ink">{price.method.label}</span></div>
-              <div className="flex justify-between py-1"><span className="text-ink/55">Base price</span><span className="font-bold text-ink">{inr(price.unit)}</span></div>
-              {margin > 0 && (
+              {!enquiry && <div className="flex justify-between py-1"><span className="text-ink/55">Base price</span><span className="font-bold text-ink">{inr(price.unit)}</span></div>}
+              {!enquiry && margin > 0 && (
                 <div className="flex justify-between py-1"><span className="text-ink/55">Margin</span><span className="font-bold text-ink">+ {inr(margin)}</span></div>
               )}
               <div className="flex justify-between py-1"><span className="text-ink/55">Quantity</span><span className="font-bold text-ink">{qty}</span></div>
               {/* the classic editor has shown this on its submit step all
                   along; the shell never did, so the five products that moved
                   to it quietly stopped displaying a GST rate at all */}
-              <div className="flex justify-between py-1">
+              {!enquiry && <div className="flex justify-between py-1">
                 <span className="text-ink/55">Tax Rate (GST)</span>
                 <span className="font-bold text-ink">
                   {product.taxRate}%
                   {product.hsn && <span className="ml-1 text-[11px] font-medium text-ink/40">HSN {product.hsn}</span>}
                 </span>
-              </div>
-              <div className="mt-2 flex justify-between border-t border-ink/10 pt-2"><span className="text-ink/55">Total</span><span className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</span></div>
+              </div>}
+              {enquiry
+                ? <p className="mt-2 border-t border-ink/10 pt-2 text-xs text-ink/55">We'll reply on WhatsApp with the price and delivery time. Send your photo or artwork in the chat.</p>
+                : <div className="mt-2 flex justify-between border-t border-ink/10 pt-2"><span className="text-ink/55">Total</span><span className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</span></div>}
             </div>
+            {enquiry ? (
+              <button onClick={handleEnquire}
+                className="sticky bottom-0 w-full rounded-full bg-[#25D366] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
+                Enquire on WhatsApp
+              </button>
+            ) : (<>
             {/* flattening and uploading the artwork takes a moment — say so
                 rather than letting a second tap queue another cart line */}
             <button onClick={handleAddToCart} disabled={!hasDesign || addingToCart}
@@ -408,6 +437,7 @@ export default function ProductEditorShell({
                 ? "Preparing your artwork…"
                 : `${editKey ? "Update cart item" : "Add to cart"} · ${inr(sellingTotal)}`}
             </button>
+            </>)}
           </div>
         );
       default:
@@ -495,7 +525,7 @@ export default function ProductEditorShell({
             {/* price chip — always visible, taps to cart (mobile-friendly) */}
             <button onClick={() => setActiveTool("cart")}
               className="absolute right-2 top-2 z-10 rounded-full bg-ink/85 px-3 py-1.5 text-xs font-bold text-white shadow-lg backdrop-blur">
-              {hasDesign ? inr(sellingTotal) : "Add a design"}
+              {enquiry ? "Enquire" : hasDesign ? inr(sellingTotal) : "Add a design"}
             </button>
             {preview ? (
               <MockupPreview product={product} color={sel.selectedColor} size={sel.selectedSize} layersByPlacement={layersByPlacement} placement={placement} onPlacement={switchPlacement} zoom={zoom} />
@@ -521,7 +551,9 @@ export default function ProductEditorShell({
               </div>
             )}
             <div className="ml-auto flex items-center gap-3">
-              {hasDesign ? (
+              {enquiry ? (
+                <p className="text-xs font-semibold text-ink/55">Price on enquiry</p>
+              ) : hasDesign ? (
                 <div className="text-right leading-tight">
                   <p className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</p>
                   <p className="text-[10px] text-ink/45">{qty > 1 ? `${qty} × ${inr(selling)} · ` : ""}{price.method.label}</p>

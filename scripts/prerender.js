@@ -32,14 +32,16 @@ function headFor(d) {
         image: img,
         description: d.description,
         brand: { '@type': 'Brand', name: 'Drucka' },
-        offers: {
-          '@type': 'Offer',
-          url,
-          priceCurrency: 'INR',
-          price: d.fromPrice,
-          availability: 'https://schema.org/InStock',
-          seller: { '@type': 'Organization', name: 'Drucka' },
-        },
+        ...(d.fromPrice != null && {
+          offers: {
+            '@type': 'Offer',
+            url,
+            priceCurrency: 'INR',
+            price: d.fromPrice,
+            availability: 'https://schema.org/InStock',
+            seller: { '@type': 'Organization', name: 'Drucka' },
+          },
+        }),
       },
       {
         '@type': 'FAQPage',

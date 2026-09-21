@@ -32,14 +32,16 @@ export default function ProductLanding({
           image: ABS + data.image,
           description: data.description,
           brand: { '@type': 'Brand', name: 'Drucka' },
-          offers: {
-            '@type': 'Offer',
-            url: `${ABS}/${data.slug}`,
-            priceCurrency: 'INR',
-            price: data.fromPrice,
-            availability: 'https://schema.org/InStock',
-            seller: { '@type': 'Organization', name: 'Drucka' },
-          },
+          ...(data.fromPrice != null && {
+            offers: {
+              '@type': 'Offer',
+              url: `${ABS}/${data.slug}`,
+              priceCurrency: 'INR',
+              price: data.fromPrice,
+              availability: 'https://schema.org/InStock',
+              seller: { '@type': 'Organization', name: 'Drucka' },
+            },
+          }),
         },
         {
           '@type': 'FAQPage',
@@ -70,7 +72,7 @@ export default function ProductLanding({
             <h1 className="font-serif text-3xl font-bold leading-tight text-charcoal sm:text-4xl lg:text-5xl">{data.h1}</h1>
             {data.tagline && <p className="mt-2 text-lg font-medium text-charcoal/70 sm:text-xl">{data.tagline}</p>}
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5" style={card}>
-              <span className="text-lg font-bold text-charcoal">From ₹{data.fromPrice.toLocaleString('en-IN')}</span>
+              <span className="text-lg font-bold text-charcoal">{data.fromPrice != null ? `From ₹${data.fromPrice.toLocaleString('en-IN')}` : 'Price on enquiry'}</span>
               {data.priceNote && <span className="text-xs text-charcoal/55">· {data.priceNote}</span>}
             </div>
             <p className="mt-5 max-w-md leading-relaxed text-charcoal/65">{data.introEn}</p>
