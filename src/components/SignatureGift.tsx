@@ -41,7 +41,7 @@ export default function SignatureGift() {
             <div className="flex flex-col sm:flex-row gap-3">
               <a href={wa('Hi Drucka! I want to order The Signature Gift (₹2,499) with gift box & ribbon. I will share my photo.')}
                 target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-8 py-4 bg-gold hover:bg-gold-dark text-white font-semibold tracking-wide text-sm uppercase transition-all rounded-sm">
+                className="flex items-center justify-center gap-2 px-8 py-4 bg-gold hover:bg-gold-dark text-[#1a1208] font-semibold tracking-wide text-sm uppercase transition-all rounded-sm">
                 <ShoppingBag size={18} />
                 Order Now
               </a>

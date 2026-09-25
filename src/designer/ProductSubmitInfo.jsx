@@ -173,7 +173,7 @@ export default function ProductSubmitInfo({
         <div className="ml-auto flex items-center gap-2">
           {enquiry ? (
             <button onClick={() => onEnquire?.({ title: submitPayload().title })}
-              className="rounded-full bg-[#25D366] px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
+              className="rounded-full bg-[#25D366] px-6 py-2.5 text-sm font-bold text-[#1a1208] shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
               Enquire on WhatsApp
             </button>
           ) : (

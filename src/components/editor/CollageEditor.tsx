@@ -639,7 +639,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
       case 'text': return (
         <div className="space-y-3">
           <button onClick={() => { handleAddText(); done(); }}
-            className="w-full rounded-full bg-gold py-2.5 text-sm font-bold text-white transition hover:brightness-110">
+            className="w-full rounded-full bg-gold py-2.5 text-sm font-bold text-[#1a1208] transition hover:brightness-110">
             + Add text
           </button>
           {isText
@@ -742,7 +742,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
       case 'export': return (
         <div className="space-y-2">
           <button onClick={() => doExport('png')} disabled={exporting}
-            className="w-full rounded-full bg-gold py-2.5 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-50">
+            className="w-full rounded-full bg-gold py-2.5 text-xs font-bold text-[#1a1208] transition hover:brightness-110 disabled:opacity-50">
             Download PNG · standard
           </button>
           <button onClick={() => doExport('png-hd')} disabled={exporting}
@@ -765,7 +765,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
   const SelBtn = ({ title, onClick, disabled, active, danger, children }: any) => (
     <button title={title} aria-label={title} onClick={onClick} disabled={disabled}
       className={`grid h-8 w-8 place-items-center rounded-lg transition ${
-        active ? 'bg-gold text-white' : danger ? 'text-red-300 hover:bg-red-500/15' : 'text-white/70 hover:bg-white/10'
+        active ? 'bg-gold text-[#1a1208]' : danger ? 'text-red-300 hover:bg-red-500/15' : 'text-white/70 hover:bg-white/10'
       } disabled:opacity-25 disabled:pointer-events-none`}>
       {children}
     </button>
@@ -775,7 +775,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
       {/* pen toggle always reachable */}
       <button onClick={togglePen}
         className={`flex w-full items-center justify-center gap-2 rounded-full border-2 py-2 text-[11px] font-bold transition ${
-          penMode ? 'border-gold bg-gold text-white' : 'border-white/12 text-white/65 hover:border-gold/60'}`}>
+          penMode ? 'border-gold bg-gold text-[#1a1208]' : 'border-white/12 text-white/65 hover:border-gold/60'}`}>
         <Pen size={13} /> {penMode ? 'Finish drawing' : 'Pen / brush tool'}
       </button>
       {penMode && (
@@ -919,7 +919,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
                   <p className="mt-1 text-[10px] text-white/45">Freeform artboard — everything is draggable, croppable &amp; blendable</p>
                   <div className="mt-4 grid gap-2">
                     <button onClick={() => fileRef.current?.click()}
-                      className="flex items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-xs font-bold text-white transition hover:brightness-110">
+                      className="flex items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-xs font-bold text-[#1a1208] transition hover:brightness-110">
                       <ImagePlus size={14} /> Add Photos
                     </button>
                     <div className="grid grid-cols-2 gap-2">
@@ -940,7 +940,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             {cropMode && (
               <div className="absolute inset-x-0 top-2 z-10 flex justify-center">
                 <button onClick={exitCrop}
-                  className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-white shadow-xl">
+                  className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-[#1a1208] shadow-xl">
                   Crop mode — drag the photo inside its shape · tap to finish ✓
                 </button>
               </div>
@@ -948,7 +948,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             {penMode && (
               <div className="absolute inset-x-0 top-2 z-10 flex justify-center">
                 <button onClick={togglePen}
-                  className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-white shadow-xl">
+                  className="rounded-full bg-gold px-4 py-2 text-[11px] font-bold text-[#1a1208] shadow-xl">
                   Drawing mode · {brushSize}px — tap to finish ✓
                 </button>
               </div>
@@ -958,7 +958,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
           {/* mobile: contextual tools entry */}
           {(selected || penMode) && (
             <button onClick={() => setMobilePanel('tools')}
-              className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold text-white shadow-xl lg:hidden">
+              className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold text-[#1a1208] shadow-xl lg:hidden">
               <Settings2 size={14} /> {penMode ? 'Brush settings' : 'Layer tools'}
             </button>
           )}

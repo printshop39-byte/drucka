@@ -243,14 +243,14 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
             >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
-                <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
+                <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-[#1a1208]">
                   {cartCount}
                 </span>
               )}
             </button>
             <button
               onClick={onUpload}
-              className="ml-1 hidden min-h-[44px] items-center gap-2 rounded-xl bg-gold px-5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold lg:flex"
+              className="ml-1 hidden min-h-[44px] items-center gap-2 rounded-xl bg-gold px-5 text-xs font-bold uppercase tracking-wide text-[#1a1208] transition hover:bg-gold-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold lg:flex"
             >
               Start Creating
             </button>
@@ -308,7 +308,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
           <div className="px-5 py-4">
             <button
               onClick={() => { setMobileOpen(false); onUpload?.(); }}
-              className="mb-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-gold text-sm font-bold uppercase tracking-wide text-white"
+              className="mb-4 flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-gold text-sm font-bold uppercase tracking-wide text-[#1a1208]"
             >
               Start Creating
             </button>

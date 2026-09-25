@@ -425,7 +425,7 @@ export default function ProductEditorShell({
             </div>
             {enquiry ? (
               <button onClick={handleEnquire}
-                className="sticky bottom-0 w-full rounded-full bg-[#25D366] px-6 py-3 text-sm font-bold text-white shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
+                className="sticky bottom-0 w-full rounded-full bg-[#25D366] px-6 py-3 text-sm font-bold text-[#1a1208] shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
                 Enquire on WhatsApp
               </button>
             ) : (<>

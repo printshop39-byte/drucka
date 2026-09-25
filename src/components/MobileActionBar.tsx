@@ -45,7 +45,7 @@ export default function MobileActionBar({ cartCount, onUpload, onCart, whatsappU
 
         {/* primary — raised gold upload */}
         <button onClick={onUpload} className="flex flex-1 flex-col items-center justify-end gap-1 py-1.5" aria-label="Upload your design">
-          <span className="-mt-5 grid h-12 w-12 place-items-center rounded-full bg-gold text-white shadow-lg ring-4 ring-white transition active:scale-95">
+          <span className="-mt-5 grid h-12 w-12 place-items-center rounded-full bg-gold text-[#1a1208] shadow-lg ring-4 ring-white transition active:scale-95">
             <Upload size={20} />
           </span>
           <span className="text-[10px] font-bold text-charcoal">Upload</span>
@@ -55,7 +55,7 @@ export default function MobileActionBar({ cartCount, onUpload, onCart, whatsappU
           <span className="relative">
             <ShoppingBag size={20} />
             {cartCount > 0 && (
-              <span className="absolute -right-2 -top-1.5 grid h-4 w-4 place-items-center rounded-full bg-gold text-[9px] font-bold text-white">
+              <span className="absolute -right-2 -top-1.5 grid h-4 w-4 place-items-center rounded-full bg-gold text-[9px] font-bold text-[#1a1208]">
                 {cartCount}
               </span>
             )}

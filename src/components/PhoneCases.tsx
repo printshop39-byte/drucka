@@ -34,8 +34,8 @@ export default function PhoneCases() {
         .sb-card:hover { transform: rotate(0deg) translateY(-6px); box-shadow: 4px 8px 20px rgba(0,0,0,0.1); }
         .sb-name { font-family: 'Dancing Script', cursive; font-size: 20px; line-height: 1.2; color: #1a1208; }
         .sb-price { color: #C9744C; font-size: 14px; font-weight: 500; }
-        .sb-cta { background: #C9744C; color: #fff; border-radius: 3px; font-family: Georgia, serif; font-style: italic; letter-spacing: 0.5px; transition: background 0.3s ease; }
-        .sb-cta:hover { background: #a85c38; }
+        .sb-cta { background: #C9744C; color: #1a1208; border-radius: 3px; font-family: Georgia, serif; font-style: italic; letter-spacing: 0.5px; transition: background 0.3s ease; }
+        .sb-cta:hover { background: #d4835c; }
         @media (max-width: 640px) {
           /* keep tilt + tape on mobile (subtle), but ease hover */
         }

@@ -36,7 +36,7 @@ export default function BulkCorporate() {
                 href={WA}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-gold-dark"
+                className="mt-7 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-[#1a1208] transition hover:bg-gold-dark"
               >
                 <MessageCircle size={18} /> Get a bulk quote
               </a>

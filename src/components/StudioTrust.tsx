@@ -70,7 +70,7 @@ export default function StudioTrust() {
                   <p className="text-xs text-charcoal/55">Business WhatsApp · usually replies in minutes</p>
                 </div>
                 <a href={WA} target="_blank" rel="noopener noreferrer"
-                  className="ml-auto shrink-0 rounded-full px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-white transition hover:brightness-110"
+                  className="ml-auto shrink-0 rounded-full px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#1a1208] transition hover:brightness-110"
                   style={{ background: '#1ba34e' }}>
                   Chat to Order
                 </a>

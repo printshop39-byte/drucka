@@ -42,11 +42,11 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
           <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-white/35">Style</span>
           <div className="flex gap-1">
             <button title="Bold" onClick={() => onPatch({ fontWeight: bold ? 400 : 700 })}
-              className={`h-8 w-8 rounded-lg border-2 text-xs font-black ${bold ? 'border-gold bg-gold text-white' : 'border-white/15 text-white/60'}`}>B</button>
+              className={`h-8 w-8 rounded-lg border-2 text-xs font-black ${bold ? 'border-gold bg-gold text-[#1a1208]' : 'border-white/15 text-white/60'}`}>B</button>
             <button title="Italic" onClick={() => onPatch({ fontStyle: italic ? 'normal' : 'italic' })}
-              className={`h-8 w-8 rounded-lg border-2 text-xs italic ${italic ? 'border-gold bg-gold text-white' : 'border-white/15 text-white/60'}`}>I</button>
+              className={`h-8 w-8 rounded-lg border-2 text-xs italic ${italic ? 'border-gold bg-gold text-[#1a1208]' : 'border-white/15 text-white/60'}`}>I</button>
             <button title="Underline" onClick={() => onPatch({ underline: !text.underline })}
-              className={`h-8 w-8 rounded-lg border-2 text-xs font-bold underline ${text.underline ? 'border-gold bg-gold text-white' : 'border-white/15 text-white/60'}`}>U</button>
+              className={`h-8 w-8 rounded-lg border-2 text-xs font-bold underline ${text.underline ? 'border-gold bg-gold text-[#1a1208]' : 'border-white/15 text-white/60'}`}>U</button>
           </div>
         </div>
       </div>
@@ -56,7 +56,7 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
         <div className="flex gap-1">
           {([['left', AlignLeft], ['center', AlignCenter], ['right', AlignRight]] as const).map(([a, Ic]) => (
             <button key={a} title={`Align ${a}`} onClick={() => onPatch({ textAlign: a })}
-              className={`grid h-8 w-8 place-items-center rounded-lg border-2 ${text.textAlign === a ? 'border-gold bg-gold text-white' : 'border-white/15 text-white/60'}`}>
+              className={`grid h-8 w-8 place-items-center rounded-lg border-2 ${text.textAlign === a ? 'border-gold bg-gold text-[#1a1208]' : 'border-white/15 text-white/60'}`}>
               <Ic size={13} />
             </button>
           ))}

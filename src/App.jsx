@@ -2610,7 +2610,7 @@ function CategoryShowcase({ onCustomize }) {
                 href={wa(`Hi Drucka! I'd like to order: ${c.label} (${c.sub}). Please share details, sizes & price.`)}
                 target="_blank" rel="noopener noreferrer"
                 aria-label={`Order ${c.label} on WhatsApp`}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#25D366] py-2 text-xs font-bold text-white transition hover:bg-[#1da851] sm:text-sm">
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#25D366] py-2 text-xs font-bold text-[#1a1208] transition hover:bg-[#1da851] sm:text-sm">
                 <Icon d={icons.whatsapp} filled className="h-4 w-4" /> WhatsApp
               </a>
             </div>
@@ -2742,7 +2742,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               {PRINT_TYPES.map((t) => (
                 <button key={t} onClick={() => setPrintType(printType === t ? null : t)}
                   className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-xs font-semibold transition ${
-                    printType === t ? "border-gold bg-gold text-white shadow" : "border-charcoal/12 bg-white text-charcoal/70 hover:border-gold hover:text-gold-dark"
+                    printType === t ? "border-gold bg-gold text-[#1a1208] shadow" : "border-charcoal/12 bg-white text-charcoal/70 hover:border-gold hover:text-gold-dark"
                   }`}>
                   {t}
                 </button>
@@ -2766,7 +2766,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </p>
 
             <button onClick={openPrint}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-3.5 font-bold text-white shadow-lg shadow-charcoal/15 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-charcoal/25">
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gold py-3.5 font-bold text-[#1a1208] shadow-lg shadow-charcoal/15 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-charcoal/25">
               <Icon d={icons.upload} className="h-4.5 w-4.5" /> Upload Photo for Print
             </button>
           </div>
@@ -2891,7 +2891,7 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
           </p>
         </div>
         <button onClick={() => onCustomize(product.id)}
-          className="btn-shine group/cta mt-4 w-full rounded-full bg-charcoal py-2.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-gold hover:shadow-lg hover:shadow-charcoal/25">
+          className="btn-shine group/cta mt-4 w-full rounded-full bg-charcoal py-2.5 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-gold hover:text-[#1a1208] hover:shadow-lg hover:shadow-charcoal/25">
           Customize{" "}
           <span className="inline-block transition-transform duration-300 group-hover/cta:translate-x-1">→</span>
         </button>
@@ -2968,7 +2968,7 @@ function ShopCatalog({ onCustomize }) {
                   <p className="truncate font-serif text-base font-bold text-charcoal sm:text-lg">{c.title}</p>
                   <p className="text-sm text-charcoal/50">{isEnquiry(c.productId) ? "Price on enquiry" : `From ${inr(c.price)}`}</p>
                 </div>
-                <span aria-hidden="true" className="hidden shrink-0 items-center rounded-full bg-charcoal px-4 py-2 text-xs font-bold text-white transition group-hover:bg-gold sm:flex">
+                <span aria-hidden="true" className="hidden shrink-0 items-center rounded-full bg-charcoal px-4 py-2 text-xs font-bold text-white transition group-hover:bg-gold group-hover:text-[#1a1208] sm:flex">
                   Customise →
                 </span>
               </div>
@@ -3722,7 +3722,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     ).map(([v, l]) => (
                       <button key={v} onClick={() => setForm((s) => ({ ...s, paymentMode: v }))} aria-pressed={form.paymentMode === v}
                         className={`flex-1 rounded-xl border px-2 py-2.5 text-xs font-bold transition ${
-                          form.paymentMode === v ? "border-gold bg-gold text-white" : "border-charcoal/15 text-charcoal/60"
+                          form.paymentMode === v ? "border-gold bg-gold text-[#1a1208]" : "border-charcoal/15 text-charcoal/60"
                         }`}>{l}</button>
                     ))}
                   </div></div>
@@ -3779,7 +3779,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                       setSending(false);
                     }}
                     disabled={sending}
-                    className="w-full rounded-full bg-charcoal px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-gold disabled:opacity-50">
+                    className="w-full rounded-full bg-charcoal px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-gold hover:text-[#1a1208] disabled:opacity-50">
                     {sending ? "Opening secure payment…" : `Pay ${inr(order.total)} — UPI / Card / Netbanking`}
                   </button>
                   )}

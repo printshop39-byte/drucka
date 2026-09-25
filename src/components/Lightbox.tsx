@@ -60,7 +60,7 @@ export default function Lightbox({ item, onClose }: { item: LightboxItem | null;
         <a
           href={wa(item.waMessage)}
           target="_blank" rel="noopener noreferrer"
-          className="mt-2 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 text-sm font-semibold uppercase tracking-wide text-white hover:bg-gold-dark transition"
+          className="mt-2 inline-flex items-center gap-2 rounded-full bg-gold px-7 py-3 text-sm font-semibold uppercase tracking-wide text-[#1a1208] hover:bg-gold-dark transition"
         >
           <MessageCircle size={18} /> Order on WhatsApp
         </a>

@@ -52,7 +52,7 @@ export default function ImageEffectsPanel({ meta, onEffect, onStyle }: Props) {
             {BORDER_STYLES.map((s) => (
               <button key={s.id} onClick={() => onStyle({ borderStyle: s.id })}
                 className={`rounded-full border-2 px-2.5 py-1 text-[9.5px] font-bold transition ${
-                  meta.border.style === s.id ? 'border-gold bg-gold text-white' : 'border-white/15 text-white/55'}`}>
+                  meta.border.style === s.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-white/15 text-white/55'}`}>
                 {s.label}
               </button>
             ))}

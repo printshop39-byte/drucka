@@ -23,7 +23,7 @@ export default function QualityBanner() {
         </p>
         <a
           href="#photo-frames"
-          className="inline-flex items-center gap-2 px-10 py-4 bg-gold hover:bg-gold-dark text-white font-semibold tracking-wide text-sm uppercase transition-all rounded-sm"
+          className="inline-flex items-center gap-2 px-10 py-4 bg-gold hover:bg-gold-dark text-[#1a1208] font-semibold tracking-wide text-sm uppercase transition-all rounded-sm"
         >
           Start Framing
         </a>

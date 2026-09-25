@@ -49,7 +49,7 @@ export default function HowItWorks() {
 
         <div className="mt-8 lg:mt-10 text-center">
           <a href={WA} target="_blank" rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-white transition hover:brightness-110"
+            className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-[#1a1208] transition hover:brightness-110"
             style={{ background: '#1ba34e' }}>
             <MessageCircle size={18} /> Chat to Order
           </a>

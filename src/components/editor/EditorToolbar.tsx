@@ -31,7 +31,7 @@ export default function EditorToolbar(p: Props) {
           className="rounded-full px-3 py-1.5 text-white/55 transition hover:text-white">
           Grid Editor
         </button>
-        <span className="rounded-full bg-gold px-3 py-1.5 text-white">Pro Editor</span>
+        <span className="rounded-full bg-gold px-3 py-1.5 text-[#1a1208]">Pro Editor</span>
       </div>
 
       <button onClick={p.onUndo} disabled={!p.canUndo} title="Undo (Ctrl+Z)" aria-label="Undo"

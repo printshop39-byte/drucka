@@ -29,7 +29,7 @@ export default function BlendPanel({ blend, onBlend, isMulti, isGroup, onMerge, 
       {isMulti && (
         <>
           <button onClick={onMerge}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2 text-[11px] font-bold text-white transition hover:brightness-110">
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-gold py-2 text-[11px] font-bold text-[#1a1208] transition hover:brightness-110">
             <Combine size={13} /> Merge selected into one image
           </button>
           <button onClick={onGroup}

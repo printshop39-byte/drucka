@@ -248,7 +248,7 @@ export default function ImageCropper({ slot, onCrop, onTransform, frame, border 
         {CROP_MODES.map((m) => (
           <button key={m.id} onClick={() => setMode(m.id)} title={m.hint}
             className={`rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${
-              c.mode === m.id ? 'border-gold bg-gold text-white' : 'border-stone bg-white text-charcoal/65 hover:border-gold/60'}`}>
+              c.mode === m.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/65 hover:border-gold/60'}`}>
             {m.label}
           </button>
         ))}

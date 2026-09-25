@@ -704,7 +704,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             🛒 Add to Cart · {inr(price.total)}
           </button>
           <button onClick={orderWhatsApp} disabled={busy}
-            className="w-full rounded-full bg-[#25D366] py-3 text-sm font-bold text-white transition hover:brightness-105 disabled:opacity-50">
+            className="w-full rounded-full bg-[#25D366] py-3 text-sm font-bold text-[#1a1208] transition hover:brightness-105 disabled:opacity-50">
             💬 Order on WhatsApp
           </button>
           <p className="text-[10px] leading-relaxed text-charcoal/40">Printed &amp; shipped by Drucka in 2–4 days · COD available · {DELIVERY_RULE_SHORT}.</p>

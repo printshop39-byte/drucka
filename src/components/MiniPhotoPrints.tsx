@@ -45,7 +45,7 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
                 <span className="absolute top-3 left-3 rounded-full bg-charcoal/85 px-3 py-1 text-xs font-bold text-white">
                   {item.size}
                 </span>
-                <span className="absolute top-3 right-3 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+                <span className="absolute top-3 right-3 rounded-full bg-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#1a1208]">
                   Customizable
                 </span>
                 <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/30 transition-colors duration-300 flex items-center justify-center">

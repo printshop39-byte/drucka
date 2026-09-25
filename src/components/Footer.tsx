@@ -146,7 +146,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 href={wa("Hi Drucka! I'd like to get offers & new design updates on WhatsApp.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-gold px-5 text-sm font-medium text-white transition-colors hover:bg-gold-dark"
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-gold px-5 text-sm font-medium text-[#1a1208] transition-colors hover:bg-gold-dark"
               >
                 <MessageCircle size={15} aria-hidden="true" />
                 Get updates on WhatsApp

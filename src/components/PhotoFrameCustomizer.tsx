@@ -275,7 +275,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             {slots.map((p, i) => (
               <button key={p.id} onClick={() => setActiveId(p.id)}
                 className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold transition ${
-                  p.id === active.id ? 'border-gold bg-gold text-white' : 'border-stone text-charcoal/60'}`}>
+                  p.id === active.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone text-charcoal/60'}`}>
                 Photo {i + 1}
               </button>
             ))}
@@ -286,14 +286,14 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
           {PRINT_SIZES.map((s) => (
             <button key={s.id} onClick={() => patchSlot(active.id, { sizeId: s.id })}
               className={`relative rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
-                active.sizeId === s.id ? 'border-gold bg-gold text-white' : 'border-stone bg-white text-charcoal/70 hover:border-gold/50'}`}>
+                active.sizeId === s.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/70 hover:border-gold/50'}`}>
               {s.label}
               {s.tag && <span className={`absolute -top-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 text-[8px] font-black uppercase ${active.sizeId === s.id ? 'bg-charcoal text-white' : 'bg-gold/15 text-gold-dark'}`}>{s.tag}</span>}
             </button>
           ))}
           <button onClick={() => { const cur = slotSize(active); patchSlot(active.id, { sizeId: 'custom', cw: active.cw ?? cur.w, ch: active.ch ?? cur.h }); }}
             className={`relative rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
-              active.sizeId === 'custom' ? 'border-gold bg-gold text-white' : 'border-dashed border-gold/50 bg-white text-gold-dark hover:border-gold'}`}>
+              active.sizeId === 'custom' ? 'border-gold bg-gold text-[#1a1208]' : 'border-dashed border-gold/50 bg-white text-gold-dark hover:border-gold'}`}>
             Custom
           </button>
         </div>
@@ -348,7 +348,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             {PRINT_TYPES.map((t) => (
               <button key={t} onClick={() => setPrintType(t)}
                 className={`rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
-                  printType === t ? 'border-gold bg-gold text-white' : 'border-stone bg-white text-charcoal/65'}`}>
+                  printType === t ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/65'}`}>
                 {t}
               </button>
             ))}
@@ -375,7 +375,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               {BORDER_OPTIONS.map((b) => (
                 <button key={b} onClick={() => setBorder(b)}
                   className={`rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
-                    border === b ? 'border-gold bg-gold text-white' : 'border-stone bg-white text-charcoal/65'}`}>
+                    border === b ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/65'}`}>
                   {b}
                 </button>
               ))}
@@ -488,7 +488,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               <li key={s} className="flex items-center gap-1">
                 <button onClick={() => (i < step || slots.length) && setStep(i)}
                   className={`grid h-6 w-6 place-items-center rounded-full text-[10px] font-bold transition ${
-                    i === step ? 'bg-gold text-white' : i < step ? 'bg-charcoal text-white' : 'bg-stone text-charcoal/50'}`}>
+                    i === step ? 'bg-gold text-[#1a1208]' : i < step ? 'bg-charcoal text-white' : 'bg-stone text-charcoal/50'}`}>
                   {i < step ? <Check size={11} /> : i + 1}
                 </button>
                 {i < STEPS.length - 1 && <span className="h-px w-4 bg-stone" />}

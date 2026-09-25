@@ -87,7 +87,7 @@ export default function StoreLocations() {
                 href={wa("Hi Drucka! I'd like to place an order for delivery.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-gold hover:bg-gold-dark text-white text-sm font-medium tracking-wide uppercase rounded-sm transition-colors"
+                className="inline-flex items-center gap-2 mt-6 px-6 py-3 bg-gold hover:bg-gold-dark text-[#1a1208] text-sm font-medium tracking-wide uppercase rounded-sm transition-colors"
               >
                 <MessageCircle size={14} />
                 Order on WhatsApp

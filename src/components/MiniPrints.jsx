@@ -216,7 +216,7 @@ function CropModal({ photo, aspect, onApply, onClose }) {
           <CropSlider label="Brightness" val={d.brightness} min={50} max={150} step={1} onChange={(v) => setD((s) => ({ ...s, brightness: v }))} fmt={(v) => `${v}%`} />
           <CropSlider label="Contrast" val={d.contrast} min={50} max={150} step={1} onChange={(v) => setD((s) => ({ ...s, contrast: v }))} fmt={(v) => `${v}%`} />
         </div>
-        <button onClick={() => onApply(d)} className="mt-4 w-full rounded-full bg-gold py-2.5 text-sm font-bold text-white transition hover:brightness-110">Apply</button>
+        <button onClick={() => onApply(d)} className="mt-4 w-full rounded-full bg-gold py-2.5 text-sm font-bold text-[#1a1208] transition hover:brightness-110">Apply</button>
       </div>
     </div>
   );
@@ -617,7 +617,7 @@ export default function MiniPrints({
             {V.quickPacks.map((n) => (
               <button key={n} onClick={() => setPack(n)}
                 className={`rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${
-                  totalPrints === n ? "border-gold bg-gold text-white" : "border-black/10 text-charcoal/70 hover:border-black/25"
+                  totalPrints === n ? "border-gold bg-gold text-[#1a1208]" : "border-black/10 text-charcoal/70 hover:border-black/25"
                 }`}>
                 {n} prints · {inr(n * size.price)}
               </button>
@@ -760,7 +760,7 @@ export default function MiniPrints({
                       {[["auto", "Auto"], ["p", "Portrait"], ["l", "Landscape"]].map(([v, lbl]) => (
                         <button key={v} onClick={() => patch(p.id, { orient: v })}
                           aria-pressed={(p.orient ?? "auto") === v}
-                          className={`px-2.5 py-1.5 text-[11px] font-bold ${(p.orient ?? "auto") === v ? "bg-gold text-white" : "text-charcoal/60"}`}>{lbl}</button>
+                          className={`px-2.5 py-1.5 text-[11px] font-bold ${(p.orient ?? "auto") === v ? "bg-gold text-[#1a1208]" : "text-charcoal/60"}`}>{lbl}</button>
                       ))}
                     </div>
                   )}
@@ -786,7 +786,7 @@ export default function MiniPrints({
                 <div className="mt-3 -mx-1 flex gap-1.5 overflow-x-auto scrollbar-none px-1 pb-1">
                   {FILTERS.map((f) => (
                     <button key={f.id} onClick={() => patch(p.id, { filter: f.id })}
-                      className={`shrink-0 rounded-full border-2 px-2.5 py-1 text-[10px] font-bold transition ${p.filter === f.id ? "border-gold bg-gold text-white" : "border-black/10 text-charcoal/60"}`}>{f.label}</button>
+                      className={`shrink-0 rounded-full border-2 px-2.5 py-1 text-[10px] font-bold transition ${p.filter === f.id ? "border-gold bg-gold text-[#1a1208]" : "border-black/10 text-charcoal/60"}`}>{f.label}</button>
                   ))}
                 </div>
 
@@ -802,7 +802,7 @@ export default function MiniPrints({
                   <div className="flex overflow-hidden rounded-lg border border-black/15">
                     {["S", "M", "L"].map((s) => (
                       <button key={s} onClick={() => patch(p.id, { captionSize: s })}
-                        className={`px-2.5 py-1.5 text-xs font-bold ${p.captionSize === s ? "bg-gold text-white" : "text-charcoal/60"}`}>{s}</button>
+                        className={`px-2.5 py-1.5 text-xs font-bold ${p.captionSize === s ? "bg-gold text-[#1a1208]" : "text-charcoal/60"}`}>{s}</button>
                     ))}
                   </div>
                   <div className="flex items-center gap-1">
@@ -913,7 +913,7 @@ export default function MiniPrints({
           <div className="flex shrink-0 items-center gap-2">
             <button onClick={orderWhatsApp} disabled={!photos.length || !meetsMinimum}
               aria-label="Order on WhatsApp"
-              className="flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-[#25D366] px-3.5 text-xs font-bold text-white transition hover:brightness-105 disabled:opacity-50 sm:px-4">
+              className="flex min-h-[44px] items-center gap-1.5 whitespace-nowrap rounded-full bg-[#25D366] px-3.5 text-xs font-bold text-[#1a1208] transition hover:brightness-105 disabled:opacity-50 sm:px-4">
               <MessageCircle size={16} /><span className="hidden sm:inline">WhatsApp</span>
             </button>
             <button onClick={addToCart} disabled={busy || !photos.length || !meetsMinimum}

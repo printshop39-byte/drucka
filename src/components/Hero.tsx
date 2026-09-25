@@ -130,7 +130,7 @@ export default function Hero({ onUpload, onPick, whatsappUrl }: {
             <button
               type="button"
               onClick={onUpload}
-              className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-gold px-8 py-4 text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-charcoal/20 transition hover:bg-gold-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-light"
+              className="inline-flex min-h-[52px] items-center justify-center gap-2 rounded-xl bg-gold px-8 py-4 text-sm font-bold uppercase tracking-wide text-[#1a1208] shadow-lg shadow-charcoal/20 transition hover:bg-gold-dark focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-light"
             >
               Choose a product
               <ArrowRight size={18} />

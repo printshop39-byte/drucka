@@ -59,7 +59,7 @@ export default function PolicyPage({ data, siblings, onNavigate }: {
               href={wa('Hi Drucka! I have a question about my order.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gold px-6 text-sm font-bold uppercase tracking-wide text-white transition hover:bg-gold-dark"
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl bg-gold px-6 text-sm font-bold uppercase tracking-wide text-[#1a1208] transition hover:bg-gold-dark"
             >
               <MessageCircle size={16} aria-hidden="true" />
               Chat on WhatsApp
