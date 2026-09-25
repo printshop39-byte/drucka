@@ -3054,7 +3054,7 @@ function StudioCTA({ onOpenEditor }) {
 }
 
 const STEPS = [
-  { title: "Choose a product", body: "Pick from T-shirts, hoodies, mugs, frames, cushions, canvas prints and keychains. Every product shows the price and delivery time upfront." },
+  { title: "Choose a product", body: "Pick from T-shirts, hoodies, mugs, frames, cushions, canvas prints and keychains. Where available, price and delivery time are shown upfront. For enquiry products, we confirm both on WhatsApp." },
   { title: "Upload your design", body: "Add your photo, artwork or logo right in the Design Studio. JPG, PNG and SVG work great — our team checks every file for print quality before printing." },
   { title: "Customize & preview", body: "Drag your design inside the print area, add text, pick colours and sizes, design front and back, and see a realistic live preview instantly." },
   { title: "We print & deliver", body: "We print with premium inks, pack it safely and ship across India. Most orders reach you in 2–4 days, with WhatsApp updates along the way." },
