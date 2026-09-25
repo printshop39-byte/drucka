@@ -80,7 +80,7 @@ async function run() {
     html = replaceTag(html, 'name="twitter:description"', `<meta name="twitter:description" content="${esc(d.description)}" />`);
     html = replaceTag(html, 'name="twitter:image"', `<meta name="twitter:image" content="${esc(img)}" />`);
 
-    html = html.replace('</head>', `    <script type="application/ld+json">${jsonld}</script>\n  </head>`);
+    html = html.replace('</head>', `    <script type="application/ld+json" data-landing="${d.slug}" data-prerendered>${jsonld}</script>\n  </head>`);
 
     await mkdir(resolve(DIST, d.slug), { recursive: true });
     await writeFile(resolve(DIST, d.slug, 'index.html'), html, 'utf8');

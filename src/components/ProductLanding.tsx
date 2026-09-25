@@ -20,6 +20,18 @@ export default function ProductLanding({
     document.querySelector('meta[name="description"]')?.setAttribute('content', data.description);
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', `${ABS}/${data.slug}`);
 
+    /* scripts/prerender.js already wrote this page's JSON-LD into the HTML
+       (marked data-prerendered). Adding it again put Product and FAQPage in the
+       page twice once the app loaded, so only add it when it is not there, as
+       in dev or on a client-side navigation. A prerendered script left over from
+       a DIFFERENT landing (the visitor arrived on one and navigated to another)
+       is that page's schema, not this one's, so it goes. */
+    document.head.querySelectorAll('script[data-prerendered][data-landing]').forEach((el) => {
+      if (el.getAttribute('data-landing') !== data.slug) el.remove();
+    });
+    const alreadyThere = document.head.querySelector(
+      `script[type="application/ld+json"][data-landing="${data.slug}"]`,
+    );
     const ld = document.createElement('script');
     ld.type = 'application/ld+json';
     ld.setAttribute('data-landing', data.slug);
@@ -53,9 +65,9 @@ export default function ProductLanding({
         },
       ],
     });
-    document.head.appendChild(ld);
+    if (!alreadyThere) document.head.appendChild(ld);
     return () => {
-      ld.remove();
+      if (!alreadyThere) ld.remove();
       document.querySelector('link[rel="canonical"]')?.setAttribute('href', `${ABS}/`);
     };
   }, [data]);
