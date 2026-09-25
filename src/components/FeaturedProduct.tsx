@@ -19,7 +19,7 @@ export default function FeaturedProduct() {
     <section id="tabletop" className="py-20 lg:py-28 bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-4">
-          <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs">The Most Personalised Gift</span>
+          <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs">The Most Personalised Gift</span>
         </div>
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Image carousel */}
@@ -96,7 +96,7 @@ export default function FeaturedProduct() {
               </div>
             </div>
             <div className="bg-gold/10 border border-gold/20 rounded-lg p-4 mb-8 flex items-center gap-3">
-              <Gift size={20} className="text-gold flex-shrink-0" />
+              <Gift size={20} className="text-[#8a6a1f] flex-shrink-0" />
               <span className="text-sm text-charcoal/80 font-medium">FREE Premium HD Print included with every order</span>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">

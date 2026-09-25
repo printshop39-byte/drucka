@@ -80,7 +80,7 @@ export default function ProductLanding({
       <section style={{ backgroundColor: '#FBFAF8' }}>
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-10 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-16">
           <div>
-            <span className="mb-3 block text-xs font-medium uppercase tracking-[0.2em] text-gold">{data.eyebrow}</span>
+            <span className="mb-3 block text-xs font-medium uppercase tracking-[0.2em] text-[#8a6a1f]">{data.eyebrow}</span>
             <h1 className="font-serif text-3xl font-bold leading-tight text-charcoal sm:text-4xl lg:text-5xl">{data.h1}</h1>
             {data.tagline && <p className="mt-2 text-lg font-medium text-charcoal/70 sm:text-xl">{data.tagline}</p>}
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5" style={card}>
@@ -136,7 +136,7 @@ export default function ProductLanding({
             <details key={f.q} className="group rounded-2xl bg-white p-5" style={card}>
               <summary className="flex cursor-pointer list-none items-center justify-between font-semibold text-charcoal">
                 {f.q}
-                <span className="ml-3 text-lg text-gold transition-transform group-open:rotate-45">+</span>
+                <span className="ml-3 text-lg text-[#8a6a1f] transition-transform group-open:rotate-45">+</span>
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-charcoal/65">{f.a}</p>
             </details>

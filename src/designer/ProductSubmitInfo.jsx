@@ -178,7 +178,7 @@ export default function ProductSubmitInfo({
             </button>
           ) : (
           <button onClick={() => onSubmit(submitPayload())}
-            className="rounded-full bg-tangerine px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-tangerine/30 transition hover:brightness-105">
+            className="rounded-full bg-tangerine px-6 py-2.5 text-sm font-bold text-[#1a1208] shadow-lg shadow-tangerine/30 transition hover:brightness-105">
             Submit for Review →
           </button>
           )}

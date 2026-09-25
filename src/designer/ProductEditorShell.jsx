@@ -432,7 +432,7 @@ export default function ProductEditorShell({
             {/* flattening and uploading the artwork takes a moment — say so
                 rather than letting a second tap queue another cart line */}
             <button onClick={handleAddToCart} disabled={!hasDesign || addingToCart}
-              className={`w-full rounded-full px-6 py-3 text-sm font-bold transition ${hasDesign && !addingToCart ? "bg-tangerine text-white shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
+              className={`w-full rounded-full px-6 py-3 text-sm font-bold transition ${hasDesign && !addingToCart ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
               {addingToCart
                 ? "Preparing your artwork…"
                 : `${editKey ? "Update cart item" : "Add to cart"} · ${inr(sellingTotal)}`}
@@ -470,11 +470,11 @@ export default function ProductEditorShell({
         return (
           <button key={p.id} onClick={() => switchPlacement(p.id)}
             className={`relative shrink-0 rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
-              selectedPlacement === p.id ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
+              selectedPlacement === p.id ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
             }`}>
             {p.label}
             {n > 0 && (
-              <span className={`absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full text-[9px] font-black ${selectedPlacement === p.id ? "bg-ink text-white" : "bg-tangerine text-white"}`}>{n}</span>
+              <span className={`absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full text-[9px] font-black ${selectedPlacement === p.id ? "bg-ink text-white" : "bg-tangerine text-[#1a1208]"}`}>{n}</span>
             )}
           </button>
         );
@@ -562,7 +562,7 @@ export default function ProductEditorShell({
                 <p className="text-xs font-semibold text-ink/45">Add a design to see price</p>
               )}
               <button onClick={() => (hasDesign ? setActiveTool("cart") : showToast("Add a design first — Image or Text"))}
-                className={`rounded-full px-6 py-2.5 text-sm font-bold transition ${hasDesign ? "bg-tangerine text-white shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
+                className={`rounded-full px-6 py-2.5 text-sm font-bold transition ${hasDesign ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
                 {activeTool === "cart" ? "Review ✓" : "Continue →"}
               </button>
             </div>

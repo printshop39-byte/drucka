@@ -1303,7 +1303,7 @@ function HelpPanel({ onClose }) {
         ))}
       </ol>
       <a href={wa("Hi Drucka! I need help using the design editor.")} target="_blank" rel="noopener noreferrer"
-        className="mt-4 flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-semibold text-white">
+        className="mt-4 flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-semibold text-[#1a1208]">
         <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Ask us on WhatsApp
       </a>
     </PanelShell>
@@ -1422,7 +1422,7 @@ function SizeChartModal({ onClose, oversized, kids }) {
               : "Regular fit, 100% bio-washed cotton. Between sizes? Go one up. दोन साइज़मध्ये असाल तर मोठा घ्या."}
         </p>
         <a href={wa("Hi Drucka! I need help choosing my T-shirt size.")} target="_blank" rel="noopener noreferrer"
-          className="mt-3 flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-emerald-600">
+          className="mt-3 flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-semibold text-[#1a1208] transition hover:bg-emerald-600">
           <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Still confused? Ask on WhatsApp
         </a>
       </div>
@@ -1539,7 +1539,7 @@ function VariantsPanel({
         {product.apparel && (
           <button onClick={() => setShowCustomSize(true)} aria-pressed={!!customSize}
             className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition ${
-              customSize ? "border-tangerine bg-tangerine text-white" : "border-dashed border-ink/25 bg-white text-ink/60 hover:border-tangerine/60"
+              customSize ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-dashed border-ink/25 bg-white text-ink/60 hover:border-tangerine/60"
             }`}>
             {customSize ? "Custom ✓" : "+ Custom size"}
           </button>
@@ -1979,7 +1979,7 @@ function ProductEditor({ initialProductId, onClose, onAddToCart, onOpenCart, car
           className="relative grid h-9 w-9 place-items-center rounded-full text-ink/60 transition hover:bg-ink/5">
           <Icon d={icons.cart} className="h-4.5 w-4.5" />
           {cartCount > 0 && (
-            <span className="absolute -right-0.5 -top-0.5 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-tangerine px-1 text-[10px] font-bold text-white">{cartCount}</span>
+            <span className="absolute -right-0.5 -top-0.5 grid h-4.5 min-w-4.5 place-items-center rounded-full bg-tangerine px-1 text-[10px] font-bold text-[#1a1208]">{cartCount}</span>
           )}
         </button>
       </header>
@@ -2329,7 +2329,7 @@ function WhatsAppChatbot() {
         onClick={() => setOpen(!open)}
         aria-label={open ? "Close chat" : "Chat with Drucka"}
         aria-expanded={open}
-        className="wa-fab fixed right-5 z-[80] grid h-14 w-14 place-items-center rounded-full bg-emerald-500 text-white shadow-[0_12px_32px_rgba(16,185,129,0.45)] transition hover:scale-110"
+        className="wa-fab fixed right-5 z-[80] grid h-14 w-14 place-items-center rounded-full bg-emerald-500 text-[#1a1208] shadow-[0_12px_32px_rgba(16,185,129,0.45)] transition hover:scale-110"
       >
         <Icon d={open ? icons.x : icons.whatsapp} filled={!open} className="h-7 w-7" />
         {!open && <span className="absolute right-0 top-0 h-3.5 w-3.5 rounded-full border-2 border-white bg-tangerine" />}
@@ -2384,7 +2384,7 @@ function WhatsAppChatbot() {
                   className="mt-0.5 w-full rounded-lg border border-ink/10 px-2 py-1.5 text-xs outline-none focus:border-plum" />
                 <div className="mt-2.5 flex gap-2">
                   <button onClick={sendBulkEnquiry}
-                    className="flex-1 rounded-full bg-emerald-500 px-3 py-2 text-[11px] font-bold text-white transition hover:bg-emerald-600">
+                    className="flex-1 rounded-full bg-emerald-500 px-3 py-2 text-[11px] font-bold text-[#1a1208] transition hover:bg-emerald-600">
                     Send enquiry on WhatsApp
                   </button>
                   <button onClick={() => setBulkForm(false)} aria-label="Dismiss bulk enquiry form"
@@ -2402,7 +2402,7 @@ function WhatsAppChatbot() {
               <button key={qr.id} onClick={() => pick(qr)}
                 className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
                   qr.human
-                    ? "border-emerald-500 bg-emerald-500 text-white hover:bg-emerald-600"
+                    ? "border-emerald-500 bg-emerald-500 text-[#1a1208] hover:bg-emerald-600"
                     : "border-plum/30 text-plum hover:bg-plum/5"
                 }`}>
                 {qr.label}
@@ -2448,14 +2448,14 @@ function Header({ cartCount, onCartOpen, onCollage }) {
         </ul>
         <div className="flex items-center gap-2">
           <a href={wa("Hi Drucka! I'd like to place a custom printing order.")} target="_blank" rel="noopener noreferrer"
-            className="hidden items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600 sm:flex">
+            className="hidden items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-[#1a1208] shadow-md transition hover:bg-emerald-600 sm:flex">
             <Icon d={icons.whatsapp} filled className="h-4 w-4" /> WhatsApp Order
           </a>
           <button onClick={onCartOpen} className="relative grid h-10 w-10 place-items-center rounded-full bg-white/80 text-ink shadow-md transition hover:bg-white"
             aria-label={`Open cart, ${cartCount} items`}>
             <Icon d={icons.cart} />
             {cartCount > 0 && (
-              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-tangerine px-1 text-[11px] font-bold text-white">{cartCount}</span>
+              <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-tangerine px-1 text-[11px] font-bold text-[#1a1208]">{cartCount}</span>
             )}
           </button>
           <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-full bg-white/80 text-ink shadow-md lg:hidden"
@@ -2864,7 +2864,7 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
               e.currentTarget.src = product.fallbackImg;
           }}
           className="aspect-[4/3] w-full object-cover transition duration-500 group-hover:scale-105" />
-        <span className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-bold tracking-wide text-gold shadow-sm backdrop-blur">{product.tag}</span>
+        <span className="absolute left-3 top-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-bold tracking-wide text-[#8a6a1f] shadow-sm backdrop-blur">{product.tag}</span>
         <button onClick={() => onFav(product.id)} aria-pressed={fav}
           aria-label={fav ? `Remove ${product.name} from favourites` : `Add ${product.name} to favourites`}
           className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full shadow-md backdrop-blur transition ${
@@ -2882,9 +2882,9 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
         <div className="mt-3 flex items-center justify-between">
           <div>
             {isEnquiry(product.id)
-              ? <p className="text-sm font-extrabold text-gold">Price on enquiry</p>
+              ? <p className="text-sm font-extrabold text-[#8a6a1f]">Price on enquiry</p>
               : <><p className="text-[11px] font-medium text-charcoal/45">Starting at</p>
-                <p className="text-lg font-extrabold text-gold">{inr(product.price)}</p></>}
+                <p className="text-lg font-extrabold text-[#8a6a1f]">{inr(product.price)}</p></>}
           </div>
           <p className="flex items-center gap-1.5 text-xs font-medium text-charcoal/55">
             <Icon d={icons.truck} className="h-4 w-4 text-gold-dark" /> {product.delivery}
@@ -2917,7 +2917,7 @@ function ProductTabs({ favs, onFav, onCustomize }) {
               className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
                 tab === c.id
                   ? "bg-gradient-to-r from-gold to-gold-dark text-white shadow-lg shadow-charcoal/25"
-                  : "bg-white text-charcoal/60 shadow-sm ring-1 ring-charcoal/10 hover:text-gold hover:ring-gold/30"
+                  : "bg-white text-charcoal/60 shadow-sm ring-1 ring-charcoal/10 hover:text-[#8a6a1f] hover:ring-gold/30"
               }`}>
               {c.label}
             </button>
@@ -3323,7 +3323,7 @@ function OrderSummary({ cart, total, colorLabel }) {
               <p className="truncate text-xs text-charcoal/50">{[i.size, colorLabel(i.color), i.summary].filter(Boolean).join(" · ")}</p>
               {i.customSize && <p className="text-[11px] text-charcoal/50">{customSizeText(i.customSize)}</p>}
             </div>
-            <p className="shrink-0 font-bold text-gold">{inr(i.price * i.qty)}</p>
+            <p className="shrink-0 font-bold text-[#8a6a1f]">{inr(i.price * i.qty)}</p>
           </li>
         ))}
       </ul>
@@ -3426,7 +3426,7 @@ What I'd like changed:
           {cart.length === 0 ? (
             <div className="grid h-full place-items-center text-center">
               <div>
-                <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold/8 text-gold">
+                <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gold/8 text-[#8a6a1f]">
                   <Icon d={icons.cart} className="h-7 w-7" />
                 </span>
                 <p className="mt-4 font-semibold text-charcoal">Your cart is empty</p>
@@ -3459,7 +3459,7 @@ What I'd like changed:
                         <span className="min-w-7 text-center text-sm font-bold">{item.qty}</span>
                         <button onClick={() => onQty(item.key, 1)} className="px-2.5 py-1 font-bold text-charcoal/60" aria-label="Increase quantity">+</button>
                       </div>
-                      <p className="font-bold text-gold">{inr(item.price * item.qty)}</p>
+                      <p className="font-bold text-[#8a6a1f]">{inr(item.price * item.qty)}</p>
                     </div>
                   </div>
                   <button onClick={() => onRemove(item.key)} className="self-start text-charcoal/30 transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
@@ -3519,7 +3519,7 @@ What I'd like changed:
                   <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Or order directly on WhatsApp
                 </a>
                 <button onClick={() => setSummary(false)}
-                  className="mt-2 w-full text-center text-xs font-semibold text-charcoal/50 transition hover:text-gold">
+                  className="mt-2 w-full text-center text-xs font-semibold text-charcoal/50 transition hover:text-[#8a6a1f]">
                   ← Back to cart
                 </button>
               </>
@@ -3607,7 +3607,7 @@ function TrackOrderModal({ onClose, localOrders }) {
             <div className="rounded-2xl border border-charcoal/8 bg-charcoal/3 p-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-bold text-charcoal">{result.id}</p>
-                <p className="text-sm font-bold text-gold">{inr(result.total)}</p>
+                <p className="text-sm font-bold text-[#8a6a1f]">{inr(result.total)}</p>
               </div>
               <p className="mt-1 text-xs text-charcoal/55">
                 {result.items.map((i) => `${i.name} ×${i.qty}`).join(", ")} · {paymentLabel(result.paymentStatus)}
@@ -3622,7 +3622,7 @@ function TrackOrderModal({ onClose, localOrders }) {
                   {TRACK_STEPS.map((s, i) => (
                     <li key={s} className="flex items-center gap-2 text-xs">
                       <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold ${
-                        i <= stepIdx ? "bg-emerald-500 text-white" : "bg-charcoal/10 text-charcoal/40"
+                        i <= stepIdx ? "bg-emerald-500 text-[#1a1208]" : "bg-charcoal/10 text-charcoal/40"
                       }`}>{i <= stepIdx ? "✓" : i + 1}</span>
                       <span className={i <= stepIdx ? "font-bold text-charcoal" : "text-charcoal/45"}>{s}</span>
                       {i === stepIdx && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">current</span>}
@@ -3787,7 +3787,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     <p className="font-bold text-emerald-700">Or pay via UPI manually · पेमेंट करा</p>
                     <p className="mt-1">Send {inr(order.total)} to <strong>{CONFIG.upiId}</strong> (GPay / PhonePe / Paytm), then tap below. Our team verifies before printing.</p>
                     <button onClick={() => setOrder(onMarkPaid(order.id))}
-                      className="mt-2 w-full rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-600">
+                      className="mt-2 w-full rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-bold text-[#1a1208] transition hover:bg-emerald-600">
                       ✓ I've paid via UPI
                     </button>
                   </div>
@@ -4107,7 +4107,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                         <span className="flex-1" />
                         {["Payment Pending", "Payment Claimed"].includes(o.paymentStatus) && (
                           <button onClick={() => onUpdateOrder(o.id, { paymentStatus: "Paid" })}
-                            className="rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-bold text-white hover:bg-emerald-600">Mark Paid</button>
+                            className="rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-bold text-[#1a1208] hover:bg-emerald-600">Mark Paid</button>
                         )}
                         {o.paymentStatus === "COD Pending Approval" && (
                           <button onClick={() => onUpdateOrder(o.id, { paymentStatus: "COD Approved" })}
@@ -4125,7 +4125,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                         )}
                         <a href={`https://wa.me/91${(o.customer.phone || "").replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(`Hi ${o.customer.name}! This is Drucka about your order ${o.id}. `)}`}
                           target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1 rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-bold text-white hover:bg-emerald-600">
+                          className="flex items-center gap-1 rounded-full bg-emerald-500 px-3 py-1.5 text-[10px] font-bold text-[#1a1208] hover:bg-emerald-600">
                           <Icon d={icons.whatsapp} filled className="h-3 w-3" /> WhatsApp
                         </a>
                       </div>

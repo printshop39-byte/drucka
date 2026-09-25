@@ -464,7 +464,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 <button key={f.id} disabled={!selectedSlot?.photoId}
                   onClick={() => patchSlot(selected.key, { filter: f.id })}
                   className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold transition disabled:opacity-30 ${
-                    selectedSlot?.filter === f.id ? "border-tangerine bg-tangerine text-white" : "border-black/15 text-charcoal/60"}`}>
+                    selectedSlot?.filter === f.id ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-black/15 text-charcoal/60"}`}>
                   {f.label}
                 </button>
               ))}
@@ -515,7 +515,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
               const h = Math.max(400, Math.min(4000, custom.h || 1800));
               setSize({ id: "custom", label: `Custom ${w}×${h}`, dim: `${w}×${h}`, w, h });
             }}
-              className="shrink-0 rounded-full bg-tangerine px-3 py-1.5 text-xs font-bold text-white">Set</button>
+              className="shrink-0 rounded-full bg-tangerine px-3 py-1.5 text-xs font-bold text-[#1a1208]">Set</button>
           </div>
         </>
       );
@@ -526,7 +526,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             setTexts((ts) => [...ts, t]);
             setSelected({ type: "text", key: t.id });
           }}
-            className="w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-white transition hover:brightness-110">
+            className="w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-[#1a1208] transition hover:brightness-110">
             + Add text
           </button>
           {selectedText ? (
@@ -543,7 +543,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 onChange={(v) => setTexts((ts) => ts.map((t) => (t.id === selectedText.id ? { ...t, size: v } : t)))} />
               <div className="flex items-center gap-2">
                 <button onClick={() => setTexts((ts) => ts.map((t) => (t.id === selectedText.id ? { ...t, bold: !t.bold } : t)))}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm font-black ${selectedText.bold ? "border-tangerine bg-tangerine text-white" : "border-black/15 text-charcoal/60"}`}>B</button>
+                  className={`h-9 w-9 rounded-lg border-2 text-sm font-black ${selectedText.bold ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-black/15 text-charcoal/60"}`}>B</button>
                 <input type="color" value={selectedText.color}
                   onChange={(e) => setTexts((ts) => ts.map((t) => (t.id === selectedText.id ? { ...t, color: e.target.value } : t)))}
                   className="h-9 w-9 cursor-pointer rounded-lg border border-black/15 bg-transparent" />
@@ -588,7 +588,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
         <div className="space-y-4">
           <button onClick={() => setDrawOn((v) => !v)}
             className={`flex w-full items-center justify-center gap-2 rounded-full border-2 py-2.5 text-xs font-bold transition ${
-              drawOn ? "border-tangerine bg-tangerine text-white" : "border-black/15 text-charcoal/70 hover:border-tangerine"}`}>
+              drawOn ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-black/15 text-charcoal/70 hover:border-tangerine"}`}>
             <Icon d={ic.pen} className="h-4 w-4" />
             {drawOn ? "Done drawing" : "Start drawing"}
           </button>
@@ -700,7 +700,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
           </div>
 
           <button onClick={addToCart} disabled={busy}
-            className="w-full rounded-full bg-tangerine py-3 text-sm font-bold text-white shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-50">
+            className="w-full rounded-full bg-tangerine py-3 text-sm font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-50">
             🛒 Add to Cart · {inr(price.total)}
           </button>
           <button onClick={orderWhatsApp} disabled={busy}
@@ -733,7 +733,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
         </div>
         {onPro && (
           <div className="mr-1 flex rounded-full bg-black/5 p-0.5 text-[10px] font-bold" role="tablist" aria-label="Editor mode">
-            <span className="rounded-full bg-tangerine px-3 py-1.5 text-white">Grid Editor</span>
+            <span className="rounded-full bg-tangerine px-3 py-1.5 text-[#1a1208]">Grid Editor</span>
             {/* hand the uploaded photos over — Pro used to open blank, which
                 read as the work being thrown away */}
             <button onClick={() => onPro(photos)} title="Freeform mode: shape crops, blend, text, pen, effects"
@@ -743,7 +743,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
           </div>
         )}
         <button onClick={() => exportFile("jpg")} disabled={busy}
-          className="rounded-full bg-tangerine px-4 py-2 text-xs font-bold text-white transition hover:brightness-110 disabled:opacity-50">
+          className="rounded-full bg-tangerine px-4 py-2 text-xs font-bold text-[#1a1208] transition hover:brightness-110 disabled:opacity-50">
           {busy ? "…" : "Download"}
         </button>
       </header>
@@ -895,7 +895,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
               <button onClick={shareCollage} disabled={busy}
                 className="rounded-full bg-black/5 px-4 py-2 text-xs font-bold text-charcoal transition hover:bg-black/10 disabled:opacity-50">Share</button>
               <button onClick={() => { setTab("order"); setMobilePanel("order"); }}
-                className="rounded-full bg-tangerine px-5 py-2 text-xs font-bold text-white shadow-lg shadow-tangerine/25 transition hover:brightness-110">
+                className="rounded-full bg-tangerine px-5 py-2 text-xs font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110">
                 Order print →
               </button>
             </div>

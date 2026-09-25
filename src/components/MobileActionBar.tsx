@@ -63,8 +63,11 @@ export default function MobileActionBar({ cartCount, onUpload, onCart, whatsappU
           Cart
         </button>
 
-        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={itemCls} style={{ color: '#1ba34e' }}>
-          <MessageCircle size={20} />
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={itemCls}>
+          {/* the brand green stays on the icon (a graphic needs 3:1, it has 3.28);
+              the label is ordinary text and needs 4.5:1, which #1ba34e on white
+              does not reach, so it takes the bar's normal text colour */}
+          <MessageCircle size={20} style={{ color: '#1ba34e' }} />
           WhatsApp
         </a>
       </div>

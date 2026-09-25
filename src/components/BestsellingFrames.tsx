@@ -72,7 +72,7 @@ export default function BestsellingFrames() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-12">
           <div>
-            <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">
+            <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs block mb-3">
               Free Premium HD Print
             </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">

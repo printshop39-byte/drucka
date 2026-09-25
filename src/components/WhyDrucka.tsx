@@ -25,7 +25,7 @@ export default function WhyDrucka() {
     <section className="py-8 lg:py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 lg:mb-14">
-          <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">Why Drucka</span>
+          <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs block mb-3">Why Drucka</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
             Gallery-quality prints. Zero guesswork.
           </h2>

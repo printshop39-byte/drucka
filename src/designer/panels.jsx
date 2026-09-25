@@ -136,7 +136,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
             {sizes.map((s) => (
               <button key={s} onClick={() => setSel({ selectedSize: s })}
                 className={`rounded-lg border-2 py-1.5 text-xs font-bold transition ${
-                  state.selectedSize === s ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"
+                  state.selectedSize === s ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"
                 }`}>
                 {s}
               </button>
@@ -275,7 +275,7 @@ export function TextPanel({ selected, onAddText, onPatch, onClose }) {
           </Field>
           <button onClick={() => { if (draft.trim()) { onAddText(draft.trim()); setDraft(""); } }}
             disabled={!draft.trim()}
-            className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-white transition hover:brightness-105 disabled:opacity-40">
+            className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-[#1a1208] transition hover:brightness-105 disabled:opacity-40">
             Add text to design
           </button>
           <p className="mt-3 text-[11px] text-ink/45">Tip: select a text layer on the canvas to edit its font, style and spacing.</p>
@@ -304,11 +304,11 @@ export function TextPanel({ selected, onAddText, onPatch, onClose }) {
             <Field label="Style">
               <div className="flex gap-1.5">
                 <button title="Bold" onClick={() => onPatch(editing.id, { bold: !editing.bold })}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm font-black transition ${editing.bold ? "border-tangerine bg-tangerine text-white" : "border-ink/12 text-ink/60"}`}>B</button>
+                  className={`h-9 w-9 rounded-lg border-2 text-sm font-black transition ${editing.bold ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>B</button>
                 <button title="Italic" onClick={() => onPatch(editing.id, { italic: !editing.italic })}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm italic transition ${editing.italic ? "border-tangerine bg-tangerine text-white" : "border-ink/12 text-ink/60"}`}>I</button>
+                  className={`h-9 w-9 rounded-lg border-2 text-sm italic transition ${editing.italic ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>I</button>
                 <button title="Underline" onClick={() => onPatch(editing.id, { underline: !editing.underline })}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm font-bold underline transition ${editing.underline ? "border-tangerine bg-tangerine text-white" : "border-ink/12 text-ink/60"}`}>U</button>
+                  className={`h-9 w-9 rounded-lg border-2 text-sm font-bold underline transition ${editing.underline ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>U</button>
               </div>
             </Field>
           </div>
@@ -358,7 +358,7 @@ export function GraphicsPanel({ onAddImage, onClose }) {
         {GRAPHIC_CATEGORIES.map((c) => (
           <button key={c} onClick={() => setCat(c)}
             className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold capitalize transition ${
-              cat === c ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/55"
+              cat === c ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/55"
             }`}>
             {c}
           </button>
@@ -388,7 +388,7 @@ export function DrawPanel({
     <PanelShell title="Draw" onClose={onClose}>
       <button onClick={onToggle}
         className={`flex w-full items-center justify-center gap-2 rounded-full border-2 py-2.5 text-xs font-bold transition ${
-          active ? "border-tangerine bg-tangerine text-white" : "border-ink/15 text-ink/70 hover:border-tangerine"}`}>
+          active ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/15 text-ink/70 hover:border-tangerine"}`}>
         <Icon d={ic.pen} className="h-4 w-4" />
         {active ? "Pause drawing" : "Start drawing"}
       </button>
@@ -435,7 +435,7 @@ export function DrawPanel({
         </button>
       </div>
       <button onClick={onFinish} disabled={!strokes}
-        className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-xs font-bold text-white shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-35">
+        className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-xs font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-35">
         Add drawing to design
       </button>
       <p className="mt-2 text-[10px] text-ink/40">

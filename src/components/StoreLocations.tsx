@@ -7,7 +7,7 @@ export default function StoreLocations() {
     <section className="py-20 lg:py-28 bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">
+          <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs block mb-3">
             100% Online
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
@@ -33,13 +33,13 @@ export default function StoreLocations() {
               <h3 className="font-serif font-bold text-xl text-charcoal mb-4">Made in Our Studio</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 text-charcoal/70">
-                  <Sparkles size={18} className="flex-shrink-0 mt-0.5 text-gold" />
+                  <Sparkles size={18} className="flex-shrink-0 mt-0.5 text-[#8a6a1f]" />
                   <span className="text-sm leading-relaxed">
                     Every order is printed &amp; hand-finished at our Kolhapur studio, then shipped straight to you.
                   </span>
                 </div>
                 <div className="flex items-start gap-3 text-charcoal/70">
-                  <ShieldCheck size={18} className="flex-shrink-0 mt-0.5 text-gold" />
+                  <ShieldCheck size={18} className="flex-shrink-0 mt-0.5 text-[#8a6a1f]" />
                   <span className="text-sm leading-relaxed">
                     Quality-checked before dispatch · COD &amp; UPI accepted
                   </span>
@@ -71,13 +71,13 @@ export default function StoreLocations() {
               <h3 className="font-serif font-bold text-xl text-charcoal mb-4">Delivered Anywhere in India</h3>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 text-charcoal/70">
-                  <Truck size={18} className="flex-shrink-0 mt-0.5 text-gold" />
+                  <Truck size={18} className="flex-shrink-0 mt-0.5 text-[#8a6a1f]" />
                   <span className="text-sm leading-relaxed">
                     Pan-India delivery in 2–4 days — prints, frames, apparel &amp; gifts, carefully packed.
                   </span>
                 </div>
                 <div className="flex items-start gap-3 text-charcoal/70">
-                  <Sparkles size={18} className="flex-shrink-0 mt-0.5 text-gold" />
+                  <Sparkles size={18} className="flex-shrink-0 mt-0.5 text-[#8a6a1f]" />
                   <span className="text-sm leading-relaxed">
                     Order online 24×7 — design, preview &amp; checkout from your phone.
                   </span>

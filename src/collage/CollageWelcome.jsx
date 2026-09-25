@@ -58,7 +58,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
         {/* hero: copy + animated demo */}
         <div className="grid items-center gap-8 lg:grid-cols-2">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-gold">Make it in minutes</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8a6a1f]">Make it in minutes</span>
             <h1 className="mt-2 font-serif text-3xl font-bold leading-tight text-charcoal sm:text-4xl">
               Turn your photos into a print-ready collage
             </h1>
@@ -67,7 +67,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button onClick={() => onStartGrid()}
-                className="inline-flex items-center gap-2 rounded-full bg-tangerine px-6 py-3 text-sm font-bold text-white shadow-lg shadow-tangerine/25 transition hover:brightness-110">
+                className="inline-flex items-center gap-2 rounded-full bg-tangerine px-6 py-3 text-sm font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110">
                 Start a collage <ArrowRight size={16} />
               </button>
               <button onClick={() => onStartGrid()}
@@ -128,9 +128,9 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
             <button onClick={() => onStartPro()}
               className="group rounded-2xl border-2 border-black/10 bg-white p-5 text-left transition hover:border-gold hover:shadow-lg">
               <div className="flex items-center gap-2.5">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/10 text-gold"><Wand2 size={20} /></span>
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/10 text-[#8a6a1f]"><Wand2 size={20} /></span>
                 <div>
-                  <p className="flex items-center gap-1 text-sm font-bold text-charcoal">Pro Editor <Crown size={12} className="text-gold" /></p>
+                  <p className="flex items-center gap-1 text-sm font-bold text-charcoal">Pro Editor <Crown size={12} className="text-[#8a6a1f]" /></p>
                   <p className="text-[11px] text-charcoal/50">Freeform, full control</p>
                 </div>
               </div>

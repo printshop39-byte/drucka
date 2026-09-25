@@ -33,7 +33,7 @@ export default function StudioTrust() {
     <section className="py-8 lg:py-16 bg-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10 lg:mb-14">
-          <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">A real studio you can talk to</span>
+          <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs block mb-3">A real studio you can talk to</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">Printed by people, not a faceless app</h2>
           <p className="mx-auto mt-4 max-w-xl text-charcoal/55">A real Kolhapur print studio you can message before you order.</p>
         </div>

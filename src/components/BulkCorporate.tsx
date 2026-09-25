@@ -25,7 +25,7 @@ export default function BulkCorporate() {
               <span className="mb-5 grid h-12 w-12 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.12)', color: '#a8863a' }}>
                 <Building2 size={22} />
               </span>
-              <span className="text-gold font-medium tracking-[0.2em] uppercase text-xs block mb-3">Bulk &amp; Corporate</span>
+              <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs block mb-3">Bulk &amp; Corporate</span>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-charcoal">
                 Order in Bulk, Save More
               </h2>

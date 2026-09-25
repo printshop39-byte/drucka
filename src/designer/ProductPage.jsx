@@ -116,7 +116,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
           {CATEGORIES.map((c) => (
             <button key={c.id} onClick={() => switchCategory(c.id)}
               className={`shrink-0 rounded-full border-2 px-4 py-1.5 text-xs font-bold transition ${
-                category === c.id ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
+                category === c.id ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
               }`}>
               {c.label}
             </button>
@@ -212,7 +212,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
             <div className="flex flex-wrap gap-1.5">
               {sizesFor(p, color).map((s) => (
                 <button key={s} onClick={() => setSize(s)}
-                  className={`min-w-12 rounded-lg border-2 px-3 py-2 text-sm font-bold transition ${size === s ? "border-tangerine bg-tangerine text-white" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"}`}>
+                  className={`min-w-12 rounded-lg border-2 px-3 py-2 text-sm font-bold transition ${size === s ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"}`}>
                   {s}
                 </button>
               ))}
@@ -236,7 +236,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
           {/* CTA */}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button onClick={start}
-              className="rounded-full bg-tangerine px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-tangerine/30 transition hover:brightness-105">
+              className="rounded-full bg-tangerine px-8 py-3.5 text-base font-bold text-[#1a1208] shadow-lg shadow-tangerine/30 transition hover:brightness-105">
               Start Designing →
             </button>
             <p className="text-xs text-ink/50">Free design preview · 2–4 day delivery · printed in India</p>
