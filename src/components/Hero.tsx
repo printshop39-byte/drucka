@@ -85,8 +85,12 @@ export default function Hero({ onUpload, onPick, whatsappUrl }: {
             src={slide.src}
             alt={i === 0 ? slide.alt : ''}
             aria-hidden={i === 0 ? undefined : true}
-            /* slide 0 is the preloaded LCP image; the rest only ever mount post-load */
-            loading="eager"
+            /* slide 0 is the preloaded LCP image and stays eager. The others are
+               invisible until the slider reaches them and only mount after slide 0
+               has loaded; marking them lazy says so to the browser and to audits
+               instead of listing four eager images. They sit inside the viewport,
+               so the browser still fetches them straight away, at low priority. */
+            loading={i === 0 ? 'eager' : 'lazy'}
             /* lowercase: React 18 does not recognise the camelCase
                `fetchPriority` prop and drops it before it reaches the DOM */
             {...{ fetchpriority: i === 0 ? 'high' : 'low' }}
