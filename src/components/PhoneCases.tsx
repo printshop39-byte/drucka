@@ -24,7 +24,7 @@ export default function PhoneCases() {
     <section id="phone-cases" className="sb-section relative scroll-mt-24 py-20 lg:py-28">
       <style>{`
         .sb-section { background-color: #FEF9F0; background-image: radial-gradient(circle, rgba(201,116,76,0.12) 1px, transparent 1px); background-size: 20px 20px; }
-        .sb-label { font-family: 'Courier New', monospace; letter-spacing: 3px; color: #C9744C; font-size: 11px; }
+        .sb-label { font-family: 'Courier New', monospace; letter-spacing: 3px; color: #9a3412; font-size: 11px; }
         .sb-heading { font-family: 'Playfair Display', Georgia, serif; font-style: italic; color: #1a1208; }
         .sb-doodle { font-family: 'Dancing Script', cursive; font-size: 15px; color: rgba(201,116,76,0.45); transform: rotate(-3deg); }
         .sb-card { position: relative; background: #fff; border: none; border-radius: 3px; box-shadow: 2px 3px 0 rgba(201,116,76,0.2), 4px 6px 0 rgba(201,116,76,0.08); transition: all 0.3s ease; transform: rotate(-0.8deg); }
@@ -33,7 +33,7 @@ export default function PhoneCases() {
         .sb-card::before { content: ''; position: absolute; top: -8px; left: 50%; transform: translateX(-50%) rotate(-2deg); width: 40px; height: 14px; background: rgba(255,230,100,0.55); border-radius: 2px; z-index: 2; }
         .sb-card:hover { transform: rotate(0deg) translateY(-6px); box-shadow: 4px 8px 20px rgba(0,0,0,0.1); }
         .sb-name { font-family: 'Dancing Script', cursive; font-size: 20px; line-height: 1.2; color: #1a1208; }
-        .sb-price { color: #C9744C; font-size: 14px; font-weight: 500; }
+        .sb-price { color: #9a3412; font-size: 14px; font-weight: 500; }
         .sb-cta { background: #C9744C; color: #1a1208; border-radius: 3px; font-family: Georgia, serif; font-style: italic; letter-spacing: 0.5px; transition: background 0.3s ease; }
         .sb-cta:hover { background: #d4835c; }
         @media (max-width: 640px) {

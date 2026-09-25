@@ -98,7 +98,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
                   </span>
                   <span className="block text-[11px] text-ink/50">{m.note}</span>
                 </span>
-                {m.price > 0 && !isEnquiry(product.productId) && <span className="text-xs font-bold text-tangerine">+{inr(m.price)}</span>}
+                {m.price > 0 && !isEnquiry(product.productId) && <span className="text-xs font-bold text-[#c2410c]">+{inr(m.price)}</span>}
               </button>
             ))}
           </div>
@@ -196,7 +196,7 @@ export function LayersPanel({ layers, selectedId, onSelect, onPatch, onDelete, o
                   <button title="Duplicate" onClick={() => onDuplicate(l.id)}
                     className="grid h-7 w-7 place-items-center rounded-lg text-ink/50 hover:bg-ink/5"><Icon d={ic.copy} className="h-3.5 w-3.5" /></button>
                   <button title={l.locked ? "Unlock" : "Lock"} onClick={() => onPatch(l.id, { locked: !l.locked })}
-                    className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-ink/5 ${l.locked ? "text-tangerine" : "text-ink/50"}`}>
+                    className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-ink/5 ${l.locked ? "text-[#c2410c]" : "text-ink/50"}`}>
                     <Icon d={l.locked ? ic.lock : ic.unlock} className="h-3.5 w-3.5" />
                   </button>
                   <button title={l.visible === false ? "Show" : "Hide"} onClick={() => onPatch(l.id, { visible: l.visible === false })}
@@ -223,12 +223,12 @@ export function UploadsPanel({ assets, onUpload, onUse, busy, onClose, uploadTip
       <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/svg+xml" hidden
         onChange={(e) => { onUpload(e.target.files?.[0]); e.target.value = ""; }} />
       <button onClick={() => inputRef.current?.click()} disabled={busy}
-        className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-tangerine/45 bg-tangerine/5 px-4 py-7 text-tangerine transition hover:bg-tangerine/10 disabled:opacity-50"
+        className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-tangerine/45 bg-tangerine/5 px-4 py-7 text-[#c2410c] transition hover:bg-tangerine/10 disabled:opacity-50"
         onDragOver={(e) => e.preventDefault()}
         onDrop={(e) => { e.preventDefault(); onUpload(e.dataTransfer.files?.[0]); }}>
         <Icon d={ic.upload} className="h-7 w-7" />
         <span className="text-sm font-bold">{busy ? "Processing…" : "Upload PNG / JPG / JPEG / SVG"}</span>
-        <span className="text-[11px] text-tangerine/70">or drag & drop here</span>
+        <span className="text-[11px] text-[#c2410c]">or drag & drop here</span>
       </button>
 
       <ul className="mt-3 space-y-1 text-[11px] text-ink/55">
@@ -248,7 +248,7 @@ export function UploadsPanel({ assets, onUpload, onUse, busy, onClose, uploadTip
                   className="flex w-full items-center gap-2.5 rounded-xl border border-ink/10 bg-white p-2 text-left transition hover:border-tangerine">
                   <img src={item.src} alt="" className="h-10 w-10 shrink-0 rounded-lg bg-ink/4 object-contain" />
                   <span className="min-w-0 flex-1 truncate text-xs font-semibold text-ink">{item.name}</span>
-                  <Icon d={ic.plus} className="h-4 w-4 shrink-0 text-tangerine" />
+                  <Icon d={ic.plus} className="h-4 w-4 shrink-0 text-[#c2410c]" />
                 </button>
               </li>
             ))}
@@ -401,7 +401,7 @@ export function DrawPanel({
         {BRUSH_TEMPLATES.map((t) => (
           <button key={t.id} title={t.hint} onClick={() => onBrush(t.id)}
             className={`rounded-lg border-2 px-1 py-1.5 text-[9px] font-bold leading-tight transition ${
-              brush === t.id ? "border-tangerine bg-tangerine/10 text-tangerine" : "border-ink/12 bg-white text-ink/55 hover:border-ink/30"}`}>
+              brush === t.id ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 bg-white text-ink/55 hover:border-ink/30"}`}>
             {t.label}
           </button>
         ))}
@@ -493,7 +493,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-6">
         <p className="flex items-center justify-between rounded-lg bg-ink/4 px-3 py-2 text-xs font-bold text-ink">
           <span className="truncate">{layer.name}</span>
-          {disabled && <span className="ml-2 shrink-0 text-[10px] text-tangerine">🔒 locked</span>}
+          {disabled && <span className="ml-2 shrink-0 text-[10px] text-[#c2410c]">🔒 locked</span>}
         </p>
 
         <fieldset disabled={disabled} className="space-y-3 disabled:pointer-events-none disabled:opacity-50">
@@ -509,7 +509,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
                 <button title={layer.aspectLock ? "Aspect ratio locked" : "Aspect ratio free"}
                   onClick={() => onPatch(layer.id, { aspectLock: !layer.aspectLock })}
                   className={`mb-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2 transition ${
-                    layer.aspectLock ? "border-tangerine bg-tangerine/10 text-tangerine" : "border-ink/12 text-ink/45"
+                    layer.aspectLock ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 text-ink/45"
                   }`}>
                   <Icon d={layer.aspectLock ? ic.link : ic.unlink} className="h-4 w-4" />
                 </button>
@@ -550,13 +550,13 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
             <div className="grid grid-cols-6 gap-1">
               {[["left", ic.alignL], ["center", ic.alignC], ["right", ic.alignR]].map(([k, d]) => (
                 <button key={k} title={`Align ${k}`} onClick={() => set({ x: alignX[k] })}
-                  className="grid h-9 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-tangerine">
+                  className="grid h-9 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-[#c2410c]">
                   <Icon d={d} className="h-4 w-4" />
                 </button>
               ))}
               {[["top", ic.alignT], ["middle", ic.alignM], ["bottom", ic.alignB]].map(([k, d]) => (
                 <button key={k} title={`Align ${k}`} onClick={() => set({ y: alignY[k] })}
-                  className="grid h-9 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-tangerine">
+                  className="grid h-9 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-[#c2410c]">
                   <Icon d={d} className="h-4 w-4" />
                 </button>
               ))}
@@ -566,11 +566,11 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
           <Field label="Flip">
             <div className="flex gap-1.5">
               <button onClick={() => set({ flipH: !layer.flipH })}
-                className={`flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipH ? "border-tangerine bg-tangerine/5 text-tangerine" : "border-ink/12 text-ink/60"}`}>
+                className={`flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipH ? "border-tangerine bg-tangerine/5 text-[#c2410c]" : "border-ink/12 text-ink/60"}`}>
                 <Icon d={ic.flipH} className="h-4 w-4" /> Horizontal
               </button>
               <button onClick={() => set({ flipV: !layer.flipV })}
-                className={`flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipV ? "border-tangerine bg-tangerine/5 text-tangerine" : "border-ink/12 text-ink/60"}`}>
+                className={`flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipV ? "border-tangerine bg-tangerine/5 text-[#c2410c]" : "border-ink/12 text-ink/60"}`}>
                 <Icon d={ic.flipV} className="h-4 w-4" /> Vertical
               </button>
             </div>

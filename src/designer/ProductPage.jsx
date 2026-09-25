@@ -204,7 +204,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Size</p>
               {p.sizeChart && (
-                <button onClick={() => setChartOpen(true)} className="flex items-center gap-1 text-xs font-bold text-tangerine hover:underline">
+                <button onClick={() => setChartOpen(true)} className="flex items-center gap-1 text-xs font-bold text-[#c2410c] hover:underline">
                   <Icon d={ic.ruler} className="h-3.5 w-3.5" /> View Size Chart
                 </button>
               )}
@@ -228,7 +228,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
           </div>
 
           {/* details */}
-          <button onClick={() => setDetailsOpen(!detailsOpen)} className="mt-4 flex items-center gap-1 text-xs font-bold text-tangerine hover:underline">
+          <button onClick={() => setDetailsOpen(!detailsOpen)} className="mt-4 flex items-center gap-1 text-xs font-bold text-[#c2410c] hover:underline">
             View Details <Icon d={ic.chev} className={`h-3.5 w-3.5 transition ${detailsOpen ? "rotate-90" : ""}`} />
           </button>
           {detailsOpen && <p className="mt-2 max-w-prose text-sm leading-relaxed text-ink/65">{p.description}</p>}

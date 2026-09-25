@@ -2581,7 +2581,7 @@ function CategoryShowcase({ onCustomize }) {
   return (
     <section id="categories" className="mx-auto max-w-7xl scroll-mt-16 px-4 py-16 sm:px-6 lg:px-8">
       <div className="reveal mb-8 text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-tangerine">Shop by category</p>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#c2410c]">Shop by category</p>
         <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Pick your canvas</h2>
         <p className="mx-auto mt-2 max-w-xl text-ink/55">Every piece is printed on demand with your design — choose a style to start customizing.</p>
       </div>
@@ -2762,7 +2762,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </div>
 
             <p className="mt-4 flex items-center gap-1.5 text-xs text-charcoal/50">
-              <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> High quality color print with sharp finishing.
+              <Icon d={icons.check} className="h-4 w-4 text-[#047857]" /> High quality color print with sharp finishing.
             </p>
 
             <button onClick={openPrint}
@@ -2836,7 +2836,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </div>
 
             <p className="mt-4 flex items-center gap-1.5 text-xs text-charcoal/50">
-              <Icon d={icons.check} className="h-4 w-4 text-emerald-500" /> Select frame design and we will adjust your photo perfectly.
+              <Icon d={icons.check} className="h-4 w-4 text-[#047857]" /> Select frame design and we will adjust your photo perfectly.
             </p>
 
             <button onClick={openFrame}
@@ -2991,7 +2991,7 @@ function StudioCTA({ onOpenEditor }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="reveal grid items-center gap-10 lg:grid-cols-2">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">Design Studio</p>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c2410c]">Design Studio</p>
             <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">A real product editor.<br />Right in your browser.</h2>
             <p className="mt-4 max-w-lg leading-relaxed text-ink/65">
               Blank mockups, a dashed print area, draggable layers, fonts, colours, front &amp; back
@@ -3001,7 +3001,7 @@ function StudioCTA({ onOpenEditor }) {
             <ul className="mt-5 grid max-w-md grid-cols-2 gap-2.5 text-sm text-ink/70">
               {["Drag & drop your design", "8 blank products", "5 product colours", "Front, back & neck label", "Undo / redo", "Save & reorder anytime"].map((f) => (
                 <li key={f} className="flex items-center gap-2">
-                  <Icon d={icons.check} className="h-4 w-4 shrink-0 text-emerald-500" /> {f}
+                  <Icon d={icons.check} className="h-4 w-4 shrink-0 text-[#047857]" /> {f}
                 </li>
               ))}
             </ul>
@@ -3066,7 +3066,7 @@ function HowItWorks() {
     <section id="how" className="scroll-mt-20 py-20">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">How It Works</p>
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c2410c]">How It Works</p>
           <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">From photo to gift in 4 steps</h2>
         </div>
         <div className="reveal mt-10 grid gap-4">
@@ -3158,7 +3158,7 @@ function GiftIdeaTool({ onCustomize }) {
     <section id="gift-ideas" className="soft-gradient scroll-mt-20 py-20">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-tangerine">Gift Genie</p>
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#c2410c]">Gift Genie</p>
           <h2 className="mt-2 font-display text-4xl font-bold text-ink sm:text-5xl">Not sure what to gift?</h2>
           <p className="mx-auto mt-3 max-w-xl text-ink/60">Tell us the occasion, person and budget — we&rsquo;ll suggest the perfect personalised gift.</p>
         </div>

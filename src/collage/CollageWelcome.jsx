@@ -113,7 +113,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
             <button onClick={() => onStartGrid()}
               className="group rounded-2xl border-2 border-black/10 bg-white p-5 text-left transition hover:border-tangerine hover:shadow-lg">
               <div className="flex items-center gap-2.5">
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-tangerine/10 text-tangerine"><LayoutGrid size={20} /></span>
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-tangerine/10 text-[#c2410c]"><LayoutGrid size={20} /></span>
                 <div>
                   <p className="text-sm font-bold text-charcoal">Grid Editor <span className="ml-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#047857]">Easy</span></p>
                   <p className="text-[11px] text-charcoal/50">Best for quick collages</p>
@@ -122,7 +122,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
               <p className="mt-3 text-xs leading-relaxed text-charcoal/60">
                 Fixed grid layouts, drag photos into cells, pan/zoom, spacing, frames, text &amp; one-tap print order.
               </p>
-              <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-tangerine">Open Grid Editor <ArrowRight size={13} /></span>
+              <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#c2410c]">Open Grid Editor <ArrowRight size={13} /></span>
             </button>
 
             <button onClick={() => onStartPro()}

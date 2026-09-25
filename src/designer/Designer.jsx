@@ -375,7 +375,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
             {["design", "preview"].map((m) => (
               <button key={m} role="tab" aria-selected={mode === m}
                 onClick={() => { setMode(m); setSelectedLayerId(null); }}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition sm:px-4 ${mode === m ? "bg-white text-tangerine shadow" : "text-ink/55"}`}>
+                className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition sm:px-4 ${mode === m ? "bg-white text-[#c2410c] shadow" : "text-ink/55"}`}>
                 {m}
               </button>
             ))}
@@ -395,7 +395,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
               {TOOLS.map((t) => (
                 <button key={t.id} onClick={() => setTool(tool === t.id ? null : t.id)}
                   className={`flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${
-                    tool === t.id ? "bg-tangerine/10 text-tangerine" : "text-ink/50 hover:bg-ink/4 hover:text-ink"
+                    tool === t.id ? "bg-tangerine/10 text-[#c2410c]" : "text-ink/50 hover:bg-ink/4 hover:text-ink"
                   }`}>
                   <Icon d={t.icon} className="h-5 w-5" />
                   {t.label}

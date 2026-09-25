@@ -68,7 +68,7 @@ const OptionRow = ({ active, onClick, label, price }) => (
       {active && <span className="h-2 w-2 rounded-full bg-tangerine" />}
     </span>
     <span className="flex-1">{label}</span>
-    {price > 0 && <span className="text-xs font-bold text-tangerine">+{inr(price)}</span>}
+    {price > 0 && <span className="text-xs font-bold text-[#c2410c]">+{inr(price)}</span>}
     {price === 0 && <span className="text-xs font-bold text-charcoal/35">Free</span>}
   </button>
 );
@@ -396,12 +396,12 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
           <input ref={fileRef} type="file" multiple hidden accept="image/jpeg,image/png,image/heic,image/heif,.heic,.heif"
             onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
           <button onClick={() => fileRef.current?.click()} disabled={busy || photos.length >= MAX_PHOTOS}
-            className="flex w-full flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-tangerine/50 bg-tangerine/5 px-4 py-6 text-tangerine transition hover:bg-tangerine/10 disabled:opacity-40"
+            className="flex w-full flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-tangerine/50 bg-tangerine/5 px-4 py-6 text-[#c2410c] transition hover:bg-tangerine/10 disabled:opacity-40"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}>
             <Icon d={ic.upload} className="h-6 w-6" />
             <span className="text-sm font-bold">{busy ? "Processing…" : "Upload photos"}</span>
-            <span className="text-[10px] text-tangerine/70">JPG · PNG · HEIC — {photos.length}/{MAX_PHOTOS}</span>
+            <span className="text-[10px] text-[#c2410c]">JPG · PNG · HEIC — {photos.length}/{MAX_PHOTOS}</span>
           </button>
           <button onClick={autoFill} disabled={photos.length < 2}
             className="mt-2 w-full rounded-full bg-charcoal/5 py-2 text-xs font-bold text-charcoal transition hover:bg-charcoal/10 disabled:opacity-35">
@@ -450,7 +450,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 <button key={p.id} onClick={() => setPattern(p.id)} title={p.label}
                   className={`overflow-hidden rounded-lg border-2 transition ${pattern === p.id ? "border-tangerine" : "border-black/10 hover:border-black/30"}`}>
                   <PatternSwatch id={p.id} bg={bg} />
-                  <span className={`block truncate px-1 pb-1 pt-0.5 text-[9px] font-bold ${pattern === p.id ? "text-tangerine" : "text-charcoal/55"}`}>
+                  <span className={`block truncate px-1 pb-1 pt-0.5 text-[9px] font-bold ${pattern === p.id ? "text-[#c2410c]" : "text-charcoal/55"}`}>
                     {p.label}
                   </span>
                 </button>
@@ -486,7 +486,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 className={`flex w-full items-center justify-between rounded-xl border-2 px-3 py-2 text-left text-sm font-semibold transition ${
                   size.id === s.id ? "border-tangerine bg-tangerine/5 text-charcoal" : "border-black/10 text-charcoal/70 hover:border-black/25"}`}>
                 {s.label}
-                <span className="text-[10px] font-bold text-tangerine">{inr(s.price)}</span>
+                <span className="text-[10px] font-bold text-[#c2410c]">{inr(s.price)}</span>
               </button>
             ))}
           </div>
@@ -604,7 +604,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
               {BRUSH_TEMPLATES.map((t) => (
                 <button key={t.id} title={t.hint} onClick={() => { setBrush(t.id); setDrawOn(true); }}
                   className={`rounded-lg border-2 px-1 py-1.5 text-[9px] font-bold leading-tight transition ${
-                    brush === t.id ? "border-tangerine bg-tangerine/10 text-tangerine" : "border-black/10 text-charcoal/55 hover:border-black/30"}`}>
+                    brush === t.id ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-black/10 text-charcoal/55 hover:border-black/30"}`}>
                   {t.label}
                 </button>
               ))}
@@ -755,7 +755,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             {TABS.map((t) => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[9px] font-bold transition ${
-                  tab === t.id ? "bg-tangerine/10 text-tangerine" : "text-charcoal/45 hover:bg-black/5 hover:text-charcoal"}`}>
+                  tab === t.id ? "bg-tangerine/10 text-[#c2410c]" : "text-charcoal/45 hover:bg-black/5 hover:text-charcoal"}`}>
                 <Icon d={t.icon} className="h-5 w-5" />
                 {t.label}
               </button>

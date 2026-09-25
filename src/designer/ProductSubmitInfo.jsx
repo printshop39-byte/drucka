@@ -128,7 +128,7 @@ export default function ProductSubmitInfo({
               </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {tags.map((t) => (
-                  <span key={t} className="flex items-center gap-1 rounded-full bg-tangerine/10 px-2.5 py-1 text-xs font-bold text-tangerine">
+                  <span key={t} className="flex items-center gap-1 rounded-full bg-tangerine/10 px-2.5 py-1 text-xs font-bold text-[#c2410c]">
                     {t}
                     <button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`Remove ${t}`}>
                       <Icon d={ic.close} className="h-3 w-3" />
@@ -147,7 +147,7 @@ export default function ProductSubmitInfo({
                 <div className="mt-2 flex flex-wrap gap-1">
                   {product.productHighlights.filter((h) => !tags.includes(h)).map((h) => (
                     <button key={h} onClick={() => tags.length < 10 && setTags([...tags, h])}
-                      className="rounded-full border border-ink/12 px-2 py-0.5 text-[10px] font-semibold text-ink/50 hover:border-tangerine hover:text-tangerine">
+                      className="rounded-full border border-ink/12 px-2 py-0.5 text-[10px] font-semibold text-ink/50 hover:border-tangerine hover:text-[#c2410c]">
                       + {h}
                     </button>
                   ))}

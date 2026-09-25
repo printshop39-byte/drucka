@@ -455,8 +455,8 @@ export default function ProductEditorShell({
     return (
       <button key={t.id} onClick={() => pickTool(t.id)} aria-label={t.label} aria-pressed={on}
         className={vertical
-          ? `flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${on ? "bg-tangerine/10 text-tangerine" : "text-ink/50 hover:bg-ink/4 hover:text-ink"}`
-          : `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${on ? "text-tangerine" : "text-ink/55"}`}>
+          ? `flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${on ? "bg-tangerine/10 text-[#c2410c]" : "text-ink/50 hover:bg-ink/4 hover:text-ink"}`
+          : `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${on ? "text-[#c2410c]" : "text-ink/55"}`}>
         {t.swatch ? swatch(20) : <Icon d={t.icon} className="h-5 w-5" />}
         {t.label}
       </button>
@@ -503,7 +503,7 @@ export default function ProductEditorShell({
         </div>
         {/* one-click escape hatch → classic editor, zero downtime */}
         <button onClick={onUseClassic}
-          className="rounded-full border border-ink/15 px-2.5 py-1.5 text-[11px] font-bold text-ink/60 transition hover:border-tangerine hover:text-tangerine">
+          className="rounded-full border border-ink/15 px-2.5 py-1.5 text-[11px] font-bold text-ink/60 transition hover:border-tangerine hover:text-[#c2410c]">
           Classic ↩
         </button>
       </header>
