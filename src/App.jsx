@@ -2844,7 +2844,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               <Icon d={icons.image} className="h-4.5 w-4.5" /> Customize Frame
             </button>
             <button onClick={() => onCustomize("frame")}
-              className="mt-2 w-full text-center text-xs font-semibold underline-offset-2 hover:underline" style={{ color: '#1a1208' }}>
+              className="mt-2 flex min-h-[44px] w-full items-center justify-center text-center text-xs font-semibold underline-offset-2 hover:underline" style={{ color: '#1a1208' }}>
               or design &amp; preview your frame online →
             </button>
           </div>
@@ -3417,7 +3417,7 @@ What I'd like changed:
           <h2 className="font-serif text-xl font-bold text-charcoal">
             Your Cart {cart.length > 0 && <span className="font-sans text-sm font-medium text-charcoal/50">({cart.length})</span>}
           </h2>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 transition hover:bg-charcoal/10" aria-label="Close cart">
+          <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full bg-charcoal/5 transition hover:bg-charcoal/10" aria-label="Close cart">
             <Icon d={icons.x} className="h-4.5 w-4.5" />
           </button>
         </div>
@@ -3432,7 +3432,7 @@ What I'd like changed:
                 <p className="mt-4 font-semibold text-charcoal">Your cart is empty</p>
                 <p className="mt-1 text-sm text-charcoal/50">Upload a photo and design something beautiful.</p>
                 <button onClick={onStartDesigning}
-                  className="mt-5 inline-flex items-center gap-2 rounded-full bg-charcoal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-charcoal/90">
+                  className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-charcoal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-charcoal/90">
                   Choose a product →
                 </button>
               </div>

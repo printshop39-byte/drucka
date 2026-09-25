@@ -24,7 +24,8 @@ export default function AnnouncementBar({ visible, onClose }: AnnouncementBarPro
         <button
           onClick={onClose}
           aria-label="Dismiss announcement"
-          className="absolute right-0 grid h-9 w-9 place-items-center text-white/50 transition-colors hover:text-white"
+          /* 44px hit area, centred on the 36px bar (it overhangs 4px each way; the bar itself must stay 36px for the Navbar offset) */
+          className="absolute right-0 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center text-white/50 transition-colors hover:text-white"
         >
           <X size={14} />
         </button>

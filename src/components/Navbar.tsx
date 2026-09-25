@@ -134,7 +134,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
           </button>
 
           {/* Logo */}
-          <a href="/#top" className="flex items-center" onClick={(e) => { navigate(e, '/#top'); closeAll(); }}>
+          <a href="/#top" className="flex min-h-[44px] items-center" onClick={(e) => { navigate(e, '/#top'); closeAll(); }}>
             <div className="flex h-8 w-8 items-center justify-center border-2 border-charcoal">
               <div className="h-5 w-5 border border-gold"></div>
             </div>
