@@ -254,10 +254,10 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             </div>
           ) : (
             <button key={i} onClick={() => fileRef.current?.click()} disabled={busy}
-              className="flex aspect-[4/5] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gold/50 bg-gold/5 text-gold-dark transition hover:bg-gold/10 disabled:opacity-50">
+              className="flex aspect-[4/5] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-gold/50 bg-gold/5 text-[#7a5c12] transition hover:bg-gold/10 disabled:opacity-50">
               <Upload size={20} />
               <span className="text-[11px] font-bold">{busy ? 'Loading…' : `Photo ${i + 1}`}</span>
-              <span className="text-[9px] text-gold-dark/60">Tap to upload</span>
+              <span className="text-[9px] text-[#7a5c12]">Tap to upload</span>
             </button>
           );
         })}
@@ -288,12 +288,12 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               className={`relative rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
                 active.sizeId === s.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/70 hover:border-gold/50'}`}>
               {s.label}
-              {s.tag && <span className={`absolute -top-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 text-[8px] font-black uppercase ${active.sizeId === s.id ? 'bg-charcoal text-white' : 'bg-gold/15 text-gold-dark'}`}>{s.tag}</span>}
+              {s.tag && <span className={`absolute -top-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 text-[8px] font-black uppercase ${active.sizeId === s.id ? 'bg-charcoal text-white' : 'bg-gold/15 text-[#7a5c12]'}`}>{s.tag}</span>}
             </button>
           ))}
           <button onClick={() => { const cur = slotSize(active); patchSlot(active.id, { sizeId: 'custom', cw: active.cw ?? cur.w, ch: active.ch ?? cur.h }); }}
             className={`relative rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
-              active.sizeId === 'custom' ? 'border-gold bg-gold text-[#1a1208]' : 'border-dashed border-gold/50 bg-white text-gold-dark hover:border-gold'}`}>
+              active.sizeId === 'custom' ? 'border-gold bg-gold text-[#1a1208]' : 'border-dashed border-gold/50 bg-white text-[#7a5c12] hover:border-gold'}`}>
             Custom
           </button>
         </div>
@@ -323,7 +323,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
       <div className="space-y-4">
         {isFrame && active.crop.mode === 'free' && (
           <div className="rounded-2xl border border-stone bg-white/70 p-3">
-            <p className="mb-1 text-center text-[11px] font-extrabold uppercase tracking-wider text-gold-dark">
+            <p className="mb-1 text-center text-[11px] font-extrabold uppercase tracking-wider text-[#7a5c12]">
               Live preview · in your frame
             </p>
             <FramePreview slot={active} frame={frame} border={border} />
@@ -480,7 +480,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             <h2 className="truncate font-serif text-lg font-bold text-charcoal">
               {isFrame ? 'Custom Frame' : 'Photo Print'} Customizer
             </h2>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-gold-dark">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#7a5c12]">Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
           </div>
           {/* stepper */}
           <ol className="mx-auto hidden items-center gap-1 sm:flex">

@@ -61,7 +61,7 @@ export default function MiniPhotoPrints({ onOrder }: { onOrder?: () => void }) {
                 <span className="text-charcoal/30">•</span>
                 <span>delivery from ₹49 (variable) · 2–4 days</span>
               </div>
-              <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-gold-dark transition-all group-hover:gap-2.5">
+              <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[#7a5c12] transition-all group-hover:gap-2.5">
                 <Upload size={15} /> Design Now →
               </span>
             </button>

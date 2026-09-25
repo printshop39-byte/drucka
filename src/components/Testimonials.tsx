@@ -93,7 +93,7 @@ export default function Testimonials() {
               href={active.sourceUrl!}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gold-dark underline-offset-4 hover:underline"
+              className="mt-3 inline-flex min-h-[44px] items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[#7a5c12] underline-offset-4 hover:underline"
             >
               Verified review
               <ExternalLink size={12} aria-hidden="true" />

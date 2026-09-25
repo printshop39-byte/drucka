@@ -525,7 +525,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
                 {/* effective resolution at the current print size — the check
                     every print shop runs before it accepts artwork */}
                 {dpi !== null && (
-                  <span className={`ml-1.5 font-bold ${dpi < MIN_PRINT_DPI ? "text-red-500" : dpi < GOOD_PRINT_DPI ? "text-amber-600" : "text-emerald-600"}`}>
+                  <span className={`ml-1.5 font-bold ${dpi < MIN_PRINT_DPI ? "text-red-500" : dpi < GOOD_PRINT_DPI ? "text-amber-600" : "text-[#047857]"}`}>
                     · {dpi} DPI{dpi < MIN_PRINT_DPI ? " — too low, print will look soft" : dpi < GOOD_PRINT_DPI ? " — usable, 300 is ideal" : " ✓"}
                   </span>
                 )}

@@ -76,7 +76,7 @@ export default function PolicyPage({ data, siblings, onNavigate }: {
 
         {/* Sibling policies */}
         <div className="mt-10 border-t border-stone/60 pt-6">
-          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Other policies</p>
+          <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#7a5c12]">Other policies</p>
           <div className="flex flex-wrap gap-x-6">
             {siblings.filter((s) => s.slug !== data.slug).map((s) => (
               <a

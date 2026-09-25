@@ -1514,7 +1514,7 @@ function VariantsPanel({
         <dt className="text-ink/45">Selling price</dt><dd className="text-right font-bold text-plum">{inr(product.price)}</dd>
         <dt className="text-ink/45">Print area</dt><dd className="text-right font-semibold text-ink/75">{product.printArea}</dd>
         <dt className="text-ink/45">Print quality</dt><dd className="text-right font-semibold text-ink/75">300 DPI</dd>
-        <dt className="text-ink/45">Delivery · डिलिव्हरी</dt><dd className="text-right font-semibold text-emerald-600">2–4 days</dd>
+        <dt className="text-ink/45">Delivery · डिलिव्हरी</dt><dd className="text-right font-semibold text-[#047857]">2–4 days</dd>
       </dl>
 
       {/* size */}
@@ -2720,7 +2720,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
         <div className="grid items-start gap-6 lg:grid-cols-2 lg:gap-8">
           {/* ═══ Photo Prints ═══ */}
           <div className="reveal group relative overflow-hidden rounded-[1.75rem] border border-charcoal/8 bg-white p-6 shadow-[0_10px_40px_rgba(27,20,48,0.07)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_rgba(27,20,48,0.12)] sm:p-8">
-            <span className="absolute right-5 top-5 z-10 rounded-full bg-gold-dark px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-md">
+            <span className="absolute right-5 top-5 z-10 rounded-full bg-gold-dark px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#1a1208] shadow-md">
               Fast Printing
             </span>
 
@@ -2742,7 +2742,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               {PRINT_TYPES.map((t) => (
                 <button key={t} onClick={() => setPrintType(printType === t ? null : t)}
                   className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-xs font-semibold transition ${
-                    printType === t ? "border-gold bg-gold text-[#1a1208] shadow" : "border-charcoal/12 bg-white text-charcoal/70 hover:border-gold hover:text-gold-dark"
+                    printType === t ? "border-gold bg-gold text-[#1a1208] shadow" : "border-charcoal/12 bg-white text-charcoal/70 hover:border-gold hover:text-[#7a5c12]"
                   }`}>
                   {t}
                 </button>
@@ -2887,7 +2887,7 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
                 <p className="text-lg font-extrabold text-[#8a6a1f]">{inr(product.price)}</p></>}
           </div>
           <p className="flex items-center gap-1.5 text-xs font-medium text-charcoal/55">
-            <Icon d={icons.truck} className="h-4 w-4 text-gold-dark" /> {product.delivery}
+            <Icon d={icons.truck} className="h-4 w-4 text-[#7a5c12]" /> {product.delivery}
           </p>
         </div>
         <button onClick={() => onCustomize(product.id)}
@@ -2907,7 +2907,7 @@ function ProductTabs({ favs, onFav, onCustomize }) {
     <section id="products" className="scroll-mt-20 py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.2em] text-gold-dark">Our Products</p>
+          <p className="text-sm font-bold uppercase tracking-[0.2em] text-[#7a5c12]">Our Products</p>
           <h2 className="mt-2 font-serif text-4xl font-bold text-charcoal sm:text-5xl">Pick it. We&rsquo;ll print it.</h2>
           <p className="mx-auto mt-3 max-w-xl text-charcoal/60">Every product is printed on demand with your photo, art or message.</p>
         </div>
@@ -2944,7 +2944,7 @@ function ShopCatalog({ onCustomize }) {
     <section id="catalog" className="scroll-mt-24 bg-white py-14 lg:py-20">
       <div className="mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-dark">Shop by category</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7a5c12]">Shop by category</p>
           <h2 className="mt-3 font-serif text-3xl font-bold text-charcoal sm:text-4xl lg:text-5xl">Print it. Gift it. Keep it.</h2>
           <p className="mx-auto mt-4 max-w-xl text-charcoal/55">Pick a product, add your photo or design, and we&rsquo;ll print &amp; deliver it across India.</p>
         </div>
@@ -3211,7 +3211,7 @@ function FAQ() {
     <section id="faq" className="scroll-mt-24 bg-cream py-14 lg:py-20">
       <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
         <div className="reveal text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-gold-dark">FAQ</p>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7a5c12]">FAQ</p>
           <h2 className="mt-3 font-serif text-3xl font-bold text-charcoal sm:text-4xl lg:text-5xl">Help &amp; Support</h2>
         </div>
         <div className="reveal mt-10 grid gap-3">
@@ -3224,7 +3224,7 @@ function FAQ() {
                 <button onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}
                   className="flex min-h-[56px] w-full items-center justify-between gap-4 px-5 py-4 text-left font-semibold text-charcoal sm:px-6">
                   {f.q}
-                  <Icon d={icons.chevron} className={`h-5 w-5 shrink-0 text-gold-dark transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+                  <Icon d={icons.chevron} className={`h-5 w-5 shrink-0 text-[#7a5c12] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
                 </button>
                 <div className={`grid transition-all duration-300 ${isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                   <div className="overflow-hidden">
@@ -3334,7 +3334,7 @@ function OrderSummary({ cart, total, colorLabel }) {
             announcement bar and the shipping policy on the same screen.
             Green only when it really is free; neutral otherwise. */}
         <div className="flex justify-between gap-3"><dt className="shrink-0 text-charcoal/55">Delivery · डिलिव्हरी</dt>
-          <dd className={`text-right font-semibold ${total >= FREE_DELIVERY_MIN ? "text-emerald-600" : "text-charcoal/70"}`}>{deliveryLabel(total)}</dd></div>
+          <dd className={`text-right font-semibold ${total >= FREE_DELIVERY_MIN ? "text-[#047857]" : "text-charcoal/70"}`}>{deliveryLabel(total)}</dd></div>
         <div className="flex justify-between border-t border-charcoal/10 pt-1.5"><dt className="font-bold text-charcoal">Total</dt><dd className="font-serif text-lg font-bold text-charcoal">{inr(total)}</dd></div>
       </dl>
       <div className="mt-4 grid gap-1 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[11.5px] leading-relaxed text-charcoal/75">
@@ -3473,7 +3473,7 @@ What I'd like changed:
                   <div className="mt-2 flex basis-full gap-2 border-t border-charcoal/5 pt-2">
                     {item.edit ? (
                       <button onClick={() => onEdit?.(item.key)}
-                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-gold-dark">
+                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-[#7a5c12]">
                         <Icon d={icons.pencil} className="h-3.5 w-3.5" /> Edit design
                       </button>
                     ) : (
@@ -3484,7 +3484,7 @@ What I'd like changed:
                     )}
                     {item.type === "custom" && (
                       <button onClick={() => onDuplicate?.(item.key)}
-                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-gold-dark">
+                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-[#7a5c12]">
                         <Icon d={icons.copy} className="h-3.5 w-3.5" /> Duplicate
                       </button>
                     )}
@@ -3515,7 +3515,7 @@ What I'd like changed:
                   Proceed to Checkout · चेकआउट →
                 </button>
                 <a href={checkoutMsg} target="_blank" rel="noopener noreferrer"
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-6 py-2.5 text-sm font-semibold text-emerald-600 transition hover:bg-emerald-50">
+                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-6 py-2.5 text-sm font-semibold text-[#047857] transition hover:bg-emerald-50">
                   <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Or order directly on WhatsApp
                 </a>
                 <button onClick={() => setSummary(false)}
@@ -3640,7 +3640,7 @@ function TrackOrderModal({ onClose, localOrders }) {
 
           <a href={wa(`Hi Drucka! I'd like to track my order${id.trim() ? ` ${id.trim().toUpperCase()}` : ""}.`)}
             target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-emerald-600 transition hover:bg-emerald-50">
+            className="flex items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-[#047857] transition hover:bg-emerald-50">
             <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Or ask on WhatsApp
           </a>
         </div>
@@ -3806,7 +3806,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
 
               <a href={wa(`Hi Drucka! I just placed order ${order.id} (${inr(order.total)}, ${order.paymentMode.toUpperCase()}). Please confirm!`)}
                 target="_blank" rel="noopener noreferrer"
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-emerald-600 transition hover:bg-emerald-50">
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-[#047857] transition hover:bg-emerald-50">
                 <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Notify Drucka on WhatsApp
               </a>
             </>
@@ -4029,7 +4029,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                       <div><dt className="font-semibold text-ink/40">Colours</dt><dd>{m.colors.join(", ")}</dd></div>
                       <div><dt className="font-semibold text-ink/40">Sizes</dt><dd>{m.sizes.join(", ")}</dd></div>
                       <div><dt className="font-semibold text-ink/40">Print areas</dt><dd>{m.printAreas.join(", ")}</dd></div>
-                      <div><dt className="font-semibold text-ink/40">Margin</dt><dd className="font-bold text-emerald-600">{(() => {
+                      <div><dt className="font-semibold text-ink/40">Margin</dt><dd className="font-bold text-[#047857]">{(() => {
                           const sp = referenceSellingPrice(m);
                           return sp == null
                             ? <span className="font-normal text-ink/40" title="This mapping has no reference selling price, so no margin can be shown">— no reference price</span>

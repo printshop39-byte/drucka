@@ -498,7 +498,7 @@ export default function MiniPrints({
       style={{ position: "fixed", inset: 0, zIndex: 95 }}>
       <style>{`
         .kd-mono { font-family: 'Courier New', monospace; }
-        .kd-label { color: #c19a3d; letter-spacing: 4px; font-size: 11px; font-weight: 700; }
+        .kd-label { color: #8a6a1f; letter-spacing: 4px; font-size: 11px; font-weight: 700; }
         .kd-heading { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; }
         .kd-size { background: #fff; color: #1a1a1a; border: 1px solid #e6e4df; border-radius: 12px; transition: all 0.2s ease; }
         .kd-size .kd-sub { color: #9a958c; }
@@ -661,7 +661,7 @@ export default function MiniPrints({
           onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); addFiles(e.dataTransfer.files); }}
           style={{ border: '2px dashed rgba(193,154,61,0.5)', borderRadius: '16px' }}
           className="group flex w-full flex-col items-center gap-2 rounded-2xl bg-white px-4 py-8 transition hover:bg-[#fbfaf8] disabled:opacity-40">
-          <span className="grid h-12 w-12 place-items-center rounded-full transition" style={{ backgroundColor: '#fbfaf8', color: '#c19a3d' }}>
+          <span className="grid h-12 w-12 place-items-center rounded-full transition" style={{ backgroundColor: '#fbfaf8', color: '#8a6a1f' }}>
             <Upload size={22} />
           </span>
           <span className="text-sm font-semibold text-charcoal">{busy ? "Processing…" : "Drag & drop your photos here"}</span>
@@ -670,7 +670,7 @@ export default function MiniPrints({
 
         {/* Privacy / security trust badge */}
         <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-black/5 bg-black/[0.025] p-3.5">
-          <ShieldCheck size={16} className="shrink-0 text-emerald-600" />
+          <ShieldCheck size={16} className="shrink-0 text-[#047857]" />
           <p className="text-xs leading-normal text-charcoal/55">
             <strong className="font-semibold text-charcoal/75">End-to-end secure:</strong> your photos are used only for your order, kept confidential, and deleted after printing.
           </p>
@@ -864,7 +864,7 @@ export default function MiniPrints({
                 {/* copies */}
                 <div className="mt-3 flex items-center justify-end gap-1.5 border-t border-black/5 pt-3">
                   <span className="mr-auto text-[10px] font-bold uppercase tracking-wide text-charcoal/40">
-                    Copies{p.autoCopies ? <span className="ml-1 normal-case text-gold-dark">{" · "}set to meet the {V.minPrints}-print minimum</span> : null}
+                    Copies{p.autoCopies ? <span className="ml-1 normal-case text-[#7a5c12]">{" · "}set to meet the {V.minPrints}-print minimum</span> : null}
                   </span>
                   <button onClick={() => setCopies(p.id, p.copies - 1)} className="grid h-7 w-7 place-items-center rounded-full border border-black/15 text-sm font-bold hover:border-charcoal">−</button>
                   <span className="w-6 text-center text-sm font-bold">{p.copies}</span>

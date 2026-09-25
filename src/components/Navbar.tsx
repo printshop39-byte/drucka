@@ -182,7 +182,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                 >
                   <div className="grid grid-cols-2 gap-6 rounded-2xl border border-stone/50 bg-white p-6 shadow-xl">
                     <div className="min-w-[190px]">
-                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Shop</p>
+                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#7a5c12]">Shop</p>
                       {SHOP_LINKS.map((item) => (
                         <a
                           key={item.name}
@@ -195,13 +195,13 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                       ))}
                       <button
                         onClick={() => { setProductsOpen(false); onCollage(); }}
-                        className="block w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-gold-dark transition-colors hover:bg-cream"
+                        className="block w-full rounded-lg px-2 py-2 text-left text-sm font-medium text-[#7a5c12] transition-colors hover:bg-cream"
                       >
                         Collage Maker
                       </button>
                     </div>
                     <div className="min-w-[190px]">
-                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Frame styles</p>
+                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#7a5c12]">Frame styles</p>
                       {FRAME_STYLES.map((item) => (
                         <a
                           key={item.id}
@@ -290,7 +290,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                         <span className="block truncate text-sm font-semibold text-charcoal">{p.name}</span>
                         {p.tag && <span className="block truncate text-xs text-charcoal/50">{p.tag}</span>}
                       </span>
-                      <span className="text-xs font-medium uppercase tracking-wide text-gold-dark">Customise →</span>
+                      <span className="text-xs font-medium uppercase tracking-wide text-[#7a5c12]">Customise →</span>
                     </button>
                   ))
                 ) : (
@@ -323,7 +323,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
               Home
             </a>
 
-            <p className="mb-1 mt-3 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Shop</p>
+            <p className="mb-1 mt-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#7a5c12]">Shop</p>
             {SHOP_LINKS.map((item) => (
               <a
                 key={item.name}
@@ -350,12 +350,12 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
             </a>
             <button
               onClick={() => { setMobileOpen(false); onCollage(); }}
-              className="flex min-h-[44px] w-full items-center text-left text-sm font-medium uppercase tracking-wide text-gold-dark"
+              className="flex min-h-[44px] w-full items-center text-left text-sm font-medium uppercase tracking-wide text-[#7a5c12]"
             >
               Collage Maker
             </button>
 
-            <p className="mb-1 mt-3 text-[11px] font-bold uppercase tracking-[0.18em] text-gold-dark">Frame styles</p>
+            <p className="mb-1 mt-3 text-[11px] font-bold uppercase tracking-[0.18em] text-[#7a5c12]">Frame styles</p>
             <div className="grid grid-cols-2 gap-x-3">
               {FRAME_STYLES.map((item) => (
                 <a

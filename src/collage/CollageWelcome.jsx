@@ -58,7 +58,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
         {/* hero: copy + animated demo */}
         <div className="grid items-center gap-8 lg:grid-cols-2">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8a6a1f]">Make it in minutes</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#7a5c12]">Make it in minutes</span>
             <h1 className="mt-2 font-serif text-3xl font-bold leading-tight text-charcoal sm:text-4xl">
               Turn your photos into a print-ready collage
             </h1>
@@ -115,7 +115,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
               <div className="flex items-center gap-2.5">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-tangerine/10 text-tangerine"><LayoutGrid size={20} /></span>
                 <div>
-                  <p className="text-sm font-bold text-charcoal">Grid Editor <span className="ml-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-emerald-600">Easy</span></p>
+                  <p className="text-sm font-bold text-charcoal">Grid Editor <span className="ml-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#047857]">Easy</span></p>
                   <p className="text-[11px] text-charcoal/50">Best for quick collages</p>
                 </div>
               </div>
@@ -137,7 +137,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
               <p className="mt-3 text-xs leading-relaxed text-charcoal/60">
                 Place photos anywhere, shape-crop, decorative frames, tint, blend, shadows, replace image &amp; draw.
               </p>
-              <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-gold-dark">Open Pro Editor <ArrowRight size={13} /></span>
+              <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#7a5c12]">Open Pro Editor <ArrowRight size={13} /></span>
             </button>
           </div>
         </div>
