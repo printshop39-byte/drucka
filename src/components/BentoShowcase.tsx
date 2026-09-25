@@ -42,7 +42,7 @@ export default function BentoShowcase() {
           <a href="#gallery-walls"
             className="bento-cell b2 relative flex flex-col justify-between"
             style={{ background: '#C9A84C', borderRadius: '14px', padding: '24px', border: '0.5px solid transparent' }}>
-            <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: '10px', letterSpacing: '1px' }}>MOST POPULAR</span>
+            <span style={{ color: 'rgba(26,18,8,0.8)', fontSize: '10px', letterSpacing: '1px' }}>MOST POPULAR</span>
             <div className="flex items-end justify-between">
               <div>
                 <h3 className="font-display" style={{ fontSize: '20px', color: '#1a1208' }}>Gallery Walls</h3>

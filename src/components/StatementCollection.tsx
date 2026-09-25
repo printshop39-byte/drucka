@@ -44,7 +44,7 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
       <style>{`
         @keyframes stFadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
         @keyframes stClip { to { clip-path: inset(0 0 0 0); } }
-        .st-label { letter-spacing: 2px; color: #C9A84C; transition: letter-spacing 1.2s ease; }
+        .st-label { letter-spacing: 2px; color: #1a1208; transition: letter-spacing 1.2s ease; }
         .st-on .st-label { letter-spacing: 5px; }
         .st-word { display: inline-block; opacity: 0; transform: translateY(18px); }
         .st-on .st-word { animation: stFadeUp 0.5s ease forwards; }
@@ -52,13 +52,13 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
         .st-on .st-desc { animation: stClip 0.8s ease forwards; }
         .st-card { transition: transform 0.4s cubic-bezier(0.23,1,0.32,1); border-bottom: 2px solid transparent; }
         .st-card-img { transition: transform 0.4s cubic-bezier(0.23,1,0.32,1); }
-        .st-cta { border: 1.5px solid #C9A84C; color: #C9A84C; transition: all 0.3s ease; }
+        .st-cta { border: 1.5px solid #C9A84C; color: #1a1208; transition: all 0.3s ease; }
         .st-cta .st-arrow { transition: transform 0.3s ease; }
         @media (hover: hover) and (pointer: fine) {
           .st-card { cursor: pointer; }
           .st-card:hover { transform: translateY(-8px); border-bottom-color: #C9A84C; }
           .st-card:hover .st-card-img { transform: scale(1.05); }
-          .st-cta:hover { background: #C9A84C; color: #fff; }
+          .st-cta:hover { background: #C9A84C; color: #1a1208; }
           .st-cta:hover .st-arrow { transform: translateX(4px); }
         }
         @media (max-width: 640px), (prefers-reduced-motion: reduce) {
@@ -125,7 +125,7 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
               </div>
               <div className="flex items-center justify-between">
                 <h3 className="font-serif font-semibold text-charcoal">{s.name}</h3>
-                <span className="font-serif font-semibold text-sm" style={{ color: '#C9A84C' }}>{s.price}</span>
+                <span className="font-serif font-semibold text-sm" style={{ color: '#1a1208' }}>{s.price}</span>
               </div>
             </button>
           ))}

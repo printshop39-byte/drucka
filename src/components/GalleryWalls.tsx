@@ -93,12 +93,12 @@ export default function GalleryWalls() {
         .gw-reveal { opacity: 0; }
         .gw-reveal.gw-in { animation: gwFadeUp 0.6s ease forwards; }
         .gw-img { transition: transform 0.35s cubic-bezier(0.23,1,0.32,1); }
-        .gw-arrow { border: 1.5px solid #C9A84C; color: #C9A84C; transition: all 0.25s ease; }
+        .gw-arrow { border: 1.5px solid #C9A84C; color: #1a1208; transition: all 0.25s ease; }
         @media (hover: hover) and (pointer: fine) {
           .gw-card { transition: transform 0.35s cubic-bezier(0.23,1,0.32,1); cursor: pointer; }
           .gw-card:hover { transform: translateY(-6px); }
           .gw-card:hover .gw-img { transform: scale(1.04); }
-          .gw-arrow:hover { background: #C9A84C; color: #fff; }
+          .gw-arrow:hover { background: #C9A84C; color: #1a1208; }
         }
       `}</style>
 
@@ -168,7 +168,7 @@ export default function GalleryWalls() {
                   <h3 className="font-serif text-lg text-charcoal">{wall.name}</h3>
                   <p className="text-charcoal/50 mt-0.5" style={{ fontSize: '12px' }}>{wall.size}</p>
                 </div>
-                <span className="font-serif font-semibold" style={{ color: '#C9A84C' }}>{wall.price}</span>
+                <span className="font-serif font-semibold" style={{ color: '#1a1208' }}>{wall.price}</span>
               </div>
             </button>
           ))}

@@ -2696,17 +2696,17 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
     <section id="photo-frames" className="scroll-mt-16" style={{ background: '#FAF9F7', paddingTop: 80, paddingBottom: 80 }}>
       <style>{`
         .ef-pill { background: transparent; color: #1a1208; border: 1px solid #1a1208; letter-spacing: 1.5px; border-radius: 1px; transition: all 0.3s ease; }
-        .ef-pill-on { background: #C9A84C; color: #fff; border: 1px solid #C9A84C; letter-spacing: 1.5px; border-radius: 1px; }
+        .ef-pill-on { background: #C9A84C; color: #1a1208; border: 1px solid #C9A84C; letter-spacing: 1.5px; border-radius: 1px; }
         @media (hover: hover) and (pointer: fine) { .ef-card:hover .ef-pill { background: #1a1208; color: #FAF9F7; } }
       `}</style>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* header — editorial minimal */}
         <div className="reveal mx-auto mb-12 max-w-2xl text-center">
-          <span className="block uppercase" style={{ color: '#C9A84C', letterSpacing: '5px', fontSize: '10px', fontWeight: 400 }}>
+          <span className="block uppercase" style={{ color: '#1a1208', letterSpacing: '5px', fontSize: '10px', fontWeight: 400 }}>
             Our Collection
           </span>
           <h2 className="mt-4 font-serif" style={{ fontWeight: 300, fontSize: 'clamp(32px,5vw,56px)', color: '#1a1208', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
-            Photo Prints <span style={{ color: '#C9A84C' }}>&amp;</span> Custom Frames
+            Photo Prints <span style={{ color: '#1a1208' }}>&amp;</span> Custom Frames
           </h2>
           <div style={{ height: '0.5px', width: 60, background: '#C9A84C', opacity: 0.7, margin: '16px auto' }} />
           <p className="mx-auto mt-3 max-w-xl text-charcoal/60">
@@ -2773,7 +2773,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
 
           {/* ═══ Custom Frames ═══ */}
           <div className="reveal group relative overflow-hidden rounded-[1.75rem] border-2 border-gold/30 bg-white p-6 shadow-[0_12px_44px_rgba(180,138,46,0.14)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_26px_56px_rgba(180,138,46,0.22)] sm:p-8">
-            <span className="absolute right-5 top-5 z-10 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[2px] text-white shadow-md" style={{ background: '#C9A84C' }}>
+            <span className="absolute right-5 top-5 z-10 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[2px] text-[#1a1208] shadow-md" style={{ background: '#C9A84C' }}>
               Most Popular
             </span>
 
@@ -2784,7 +2784,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               <div>
                 <h3 className="font-serif text-2xl font-bold text-charcoal">Custom Frames</h3>
                 <p className="mt-1 text-sm text-charcoal/55">Ready-to-hang frames, built around your photo.</p>
-                <p className="mt-2 text-xs font-semibold" style={{ color: '#C9A84C' }}>Selected: {frame.name}</p>
+                <p className="mt-2 text-xs font-semibold" style={{ color: '#1a1208' }}>Selected: {frame.name}</p>
               </div>
             </div>
 
@@ -2844,7 +2844,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               <Icon d={icons.image} className="h-4.5 w-4.5" /> Customize Frame
             </button>
             <button onClick={() => onCustomize("frame")}
-              className="mt-2 w-full text-center text-xs font-semibold underline-offset-2 hover:underline" style={{ color: '#C9A84C' }}>
+              className="mt-2 w-full text-center text-xs font-semibold underline-offset-2 hover:underline" style={{ color: '#1a1208' }}>
               or design &amp; preview your frame online →
             </button>
           </div>
