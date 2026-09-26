@@ -2348,6 +2348,12 @@ function WhatsAppChatbot() {
               <p className="text-sm font-bold">Drucka Assistant</p>
               <p className="text-[11px] text-[#1a1208]">● Online · replies instantly</p>
             </div>
+            {/* the launcher below also closes it, but it sits outside the focus
+                trap and is easy to miss: an explicit control inside the dialog */}
+            <button onClick={() => setOpen(false)} aria-label="Close chat"
+              className="-mr-2 ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-full text-[#1a1208] transition hover:bg-[#1a1208]/10">
+              <Icon d={icons.x} className="h-5 w-5" />
+            </button>
           </div>
 
           <div className="flex-1 space-y-2.5 overflow-y-auto bg-[#f4f1ec] px-3 py-3.5 scroll-thin" aria-live="polite">
