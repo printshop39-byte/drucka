@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   CATEGORIES, LIGHT_COLORS, colorById, defaultProductFor, inr, productById, productsInCategory,
   sizesFor,
@@ -6,6 +6,7 @@ import {
 import { Icon, ic } from "./icons";
 import { DELIVERY_RULE_SHORT } from "../seo/policies";
 import { isEnquiry } from "../lib/orderMode";
+import useModalA11y from "../hooks/useModalA11y";
 
 /* ── Product detail page — one reusable page for every catalog product.
    Category tabs (Men / Women / Kids / Children / Gifts) switch products;
@@ -13,8 +14,11 @@ import { isEnquiry } from "../lib/orderMode";
 
 function SizeChartModal({ product, onClose }) {
   const enquiry = isEnquiry(product.productId);
+  /* takes the focus trap and Escape while it is open; the page beneath hands
+     them over (its hook is disabled while this is shown) */
+  const dialogRef = useModalA11y(onClose);
   return (
-    <div className="fixed inset-0 z-[98] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Size chart">
+    <div ref={dialogRef} className="fixed inset-0 z-[98] grid place-items-center p-4" role="dialog" aria-modal="true" aria-label="Size chart">
       <button className="absolute inset-0 bg-ink/50" onClick={onClose} aria-label="Close size chart" />
       <div className="relative max-h-[80vh] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
@@ -65,19 +69,15 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
   const [chartOpen, setChartOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
-  /* Escape closes the topmost layer — the size chart or details sheet first,
-     then the page itself. Every other overlay on the site already does this;
-     this one only had the "Back to Drucka" button. */
-  useEffect(() => {
-    const onKey = (e) => {
-      if (e.key !== "Escape") return;
-      if (chartOpen) { setChartOpen(false); return; }
-      if (detailsOpen) { setDetailsOpen(false); return; }
-      onClose?.();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [chartOpen, detailsOpen, onClose]);
+  /* Shared modal behaviour (Esc, Tab trap, focus in and restored, page scroll
+     lock). Escape closes the topmost layer: the size chart (its own hook takes
+     over while it is open, so this one is disabled then), then the details
+     sheet, then the page itself. */
+  const chartShown = chartOpen && !!p.sizeChart;
+  const dialogRef = useModalA11y(() => {
+    if (detailsOpen) setDetailsOpen(false);
+    else onClose?.();
+  }, !chartShown);
 
   const switchProduct = (np) => {
     setProductId(np.productId);
@@ -98,7 +98,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
   });
 
   return (
-    <div className="fixed inset-0 z-[94] overflow-y-auto bg-cream" role="dialog" aria-modal="true" aria-label={p.productName}>
+    <div ref={dialogRef} className="fixed inset-0 z-[94] overflow-y-auto bg-cream" role="dialog" aria-modal="true" aria-label={p.productName}>
       {/* top bar */}
       <header className="sticky top-0 z-20 border-b border-ink/10 bg-white/90 backdrop-blur">
         <div className="flex h-14 items-center gap-2 px-3 sm:px-6">
