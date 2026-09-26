@@ -4645,7 +4645,6 @@ export default function App() {
     const scrollToHash = () => scrollToId(window.location.hash.slice(1));
     const applyRoute = () => {
       const p = window.location.pathname.replace(/\/+$/, "").toLowerCase();
-      console.log("[DRUCKA] route resolved:", JSON.stringify(p));
       const slug = p.replace(/^\//, "");
 
       /* The print editors live UNDER their landing pages (/photo-prints is the
@@ -4743,8 +4742,6 @@ export default function App() {
     return () => window.removeEventListener("popstate", applyRoute);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => { console.log("[DRUCKA] print editor:", printEditor); }, [printEditor]);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
