@@ -351,7 +351,7 @@ export function GraphicsPanel({ onAddImage, onClose }) {
     <PanelShell title="Graphics" onClose={onClose}>
       <div className="relative mb-2">
         <Icon d={ic.search} className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search graphics…"
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search graphics…" aria-label="Search graphics"
           className="w-full rounded-full border border-ink/15 bg-white py-2 pl-9 pr-3 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
       </div>
       <div className="mb-3 flex flex-wrap gap-1.5">
