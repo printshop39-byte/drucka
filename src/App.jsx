@@ -2284,6 +2284,9 @@ QUICK_REPLIES.splice(QUICK_REPLIES.length - 1, 0,
 
 function WhatsAppChatbot() {
   const [open, setOpen] = useState(false);
+  /* the popup stays mounted-on-demand, so the trap follows `open`. Esc closes,
+     Tab stays inside, focus moves in and returns to the launcher button. */
+  const dialogRef = useModalA11y(() => setOpen(false), open);
   const [messages, setMessages] = useState([
     { from: "bot", text: "Hi! Welcome to Drucka! How can we help you?" },
   ]);
@@ -2337,8 +2340,8 @@ function WhatsAppChatbot() {
 
       {/* popup */}
       {open && (
-        <div className="animate-sheet fixed bottom-22 right-4 z-[80] flex max-h-[70vh] w-[min(92vw,360px)] flex-col overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-2xl"
-          role="dialog" aria-label="Drucka chat assistant">
+        <div ref={dialogRef} className="animate-sheet fixed bottom-22 right-4 z-[80] flex max-h-[70vh] w-[min(92vw,360px)] flex-col overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-2xl"
+          role="dialog" aria-modal="true" aria-label="Drucka chat assistant">
           <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-3.5 text-[#1a1208]">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-white/20 font-display text-lg font-bold">D</span>
             <div>
