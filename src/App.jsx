@@ -2339,11 +2339,11 @@ function WhatsAppChatbot() {
       {open && (
         <div className="animate-sheet fixed bottom-22 right-4 z-[80] flex max-h-[70vh] w-[min(92vw,360px)] flex-col overflow-hidden rounded-3xl border border-ink/10 bg-white shadow-2xl"
           role="dialog" aria-label="Drucka chat assistant">
-          <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-3.5 text-white">
+          <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-emerald-600 px-4 py-3.5 text-[#1a1208]">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-white/20 font-display text-lg font-bold">D</span>
             <div>
               <p className="text-sm font-bold">Drucka Assistant</p>
-              <p className="text-[11px] text-emerald-100">● Online · replies instantly</p>
+              <p className="text-[11px] text-[#1a1208]">● Online · replies instantly</p>
             </div>
           </div>
 
@@ -2840,7 +2840,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </p>
 
             <button onClick={openFrame}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-charcoal to-gold py-3.5 font-bold text-white shadow-lg shadow-charcoal/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-charcoal/35">
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold to-gold-dark py-3.5 font-bold text-[#1a1208] shadow-lg shadow-charcoal/25 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-charcoal/35">
               <Icon d={icons.image} className="h-4.5 w-4.5" /> Customize Frame
             </button>
             <button onClick={() => onCustomize("frame")}
@@ -2916,7 +2916,7 @@ function ProductTabs({ favs, onFav, onCustomize }) {
             <button key={c.id} role="tab" aria-selected={tab === c.id} onClick={() => setTab(c.id)}
               className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
                 tab === c.id
-                  ? "bg-gradient-to-r from-gold to-gold-dark text-white shadow-lg shadow-charcoal/25"
+                  ? "bg-gradient-to-r from-gold to-gold-dark text-[#1a1208] shadow-lg shadow-charcoal/25"
                   : "bg-white text-charcoal/60 shadow-sm ring-1 ring-charcoal/10 hover:text-[#8a6a1f] hover:ring-gold/30"
               }`}>
               {c.label}
@@ -3504,14 +3504,14 @@ What I'd like changed:
                   <span className="font-serif text-2xl font-bold text-charcoal">{inr(total)}</span>
                 </div>
                 <button onClick={() => setSummary(true)}
-                  className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
+                  className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-[#1a1208] shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
                   Review order · ऑर्डर समरी →
                 </button>
               </>
             ) : (
               <>
                 <button onClick={() => onCheckout?.()}
-                  className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
+                  className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-[#1a1208] shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
                   Proceed to Checkout · चेकआउट →
                 </button>
                 <a href={checkoutMsg} target="_blank" rel="noopener noreferrer"
@@ -3598,7 +3598,7 @@ function TrackOrderModal({ onClose, localOrders }) {
               className="w-full min-h-[44px] rounded-xl border border-charcoal/10 px-3 py-2.5 text-base shadow-sm outline-none focus:border-gold" />
           </div>
           <button onClick={lookup} disabled={busy || !id.trim() || phone.replace(/\D/g, "").length < 10}
-            className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-4 py-3 text-sm font-bold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5 disabled:opacity-40">
+            className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-4 py-3 text-sm font-bold text-[#1a1208] shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5 disabled:opacity-40">
             {busy ? <span className="inline-flex items-center gap-2"><span className="dru-spinner dru-spinner--light h-4 w-4" aria-hidden="true" /> Checking…</span> : "Track my order"}
           </button>
           {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600" role="alert">⚠ {error}</p>}
@@ -3816,7 +3816,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
         {!order && (
           <div className="border-t border-charcoal/8 px-5 py-4">
             <button onClick={submit}
-              className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-white shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
+              className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-[#1a1208] shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
               {form.paymentMode === "cod" ? `Submit Order Request — ${inr(total)}` : `Place order — ${inr(total)}`}
             </button>
             <p className="mt-2 text-center text-[10.5px] text-charcoal/45">Free 2–4 day delivery · UPI · COD on approval · Printed & shipped under the Drucka brand</p>

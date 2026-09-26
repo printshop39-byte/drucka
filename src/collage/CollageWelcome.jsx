@@ -47,7 +47,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
   return (
     <div className="fixed inset-0 z-[95] overflow-y-auto bg-[#eceef1] text-charcoal" role="dialog" aria-modal="true" aria-label="Collage Maker">
       <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-black/10 bg-white/95 px-4 backdrop-blur">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-gold to-tangerine text-sm font-black text-white">D</span>
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-gold to-tangerine text-sm font-black text-[#1a1208]">D</span>
         <p className="text-sm font-bold">Drucka Collage Maker</p>
         <button onClick={onClose} aria-label="Close" className="ml-auto grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal">
           <X size={18} />

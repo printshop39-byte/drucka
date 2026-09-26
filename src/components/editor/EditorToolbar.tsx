@@ -46,7 +46,7 @@ export default function EditorToolbar(p: Props) {
       {/* export menu */}
       <div className="relative shrink-0">
         <button onClick={() => setExportOpen(!exportOpen)} disabled={p.exporting}
-          className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-gold to-gold-dark px-3.5 py-2 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg shadow-gold/25 transition hover:brightness-110 disabled:opacity-50">
+          className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-gold to-gold-dark px-3.5 py-2 text-[11px] font-bold uppercase tracking-wide text-[#1a1208] shadow-lg shadow-gold/25 transition hover:brightness-110 disabled:opacity-50">
           <Download size={13} />
           <span className="hidden sm:inline">{p.exporting ? 'Exporting…' : 'Export'}</span>
           <ChevronDown size={12} className={`transition-transform ${exportOpen ? 'rotate-180' : ''}`} />

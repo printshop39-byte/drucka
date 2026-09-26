@@ -456,7 +456,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
         Confirming attaches a preview of your {isFrame ? 'framed photo' : 'print'}{slots.length > 1 ? 's' : ''} and opens WhatsApp with the order — then attach your original photos in the chat for printing.
       </p>
       <button onClick={submitOrder} disabled={ordering}
-        className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold to-gold-dark py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-lg shadow-gold/30 transition hover:brightness-105 disabled:opacity-70">
+        className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-gold to-gold-dark py-3.5 text-sm font-bold uppercase tracking-wide text-[#1a1208] shadow-lg shadow-gold/30 transition hover:brightness-105 disabled:opacity-70">
         {ordering
           ? <><Loader2 size={16} className="animate-spin" /> Preparing your order…</>
           : <><MessageCircle size={16} /> Order on WhatsApp</>}
