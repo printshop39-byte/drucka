@@ -49,7 +49,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
       <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-black/10 bg-white/95 px-4 backdrop-blur">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-gold to-tangerine text-sm font-black text-[#1a1208]">D</span>
         <p className="text-sm font-bold">Drucka Collage Maker</p>
-        <button onClick={onClose} aria-label="Close" className="ml-auto grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal">
+        <button onClick={onClose} aria-label="Close" className="ml-auto grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal">
           <X size={18} />
         </button>
       </header>
@@ -62,7 +62,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
             <h1 className="mt-2 font-serif text-3xl font-bold leading-tight text-charcoal sm:text-4xl">
               Turn your photos into a print-ready collage
             </h1>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-charcoal/60">
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
               Pick a layout, drop in your photos, add frames, text &amp; effects — then download or order a print delivered across India.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -84,7 +84,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
           <div className="mb-4 flex items-end justify-between">
             <div>
               <h2 className="font-serif text-xl font-bold text-charcoal">Start from a template</h2>
-              <p className="text-xs text-charcoal/50">Tap one — we'll set the layout &amp; style, you add the photos.</p>
+              <p className="text-xs text-muted">Tap one — we'll set the layout &amp; style, you add the photos.</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
@@ -116,10 +116,10 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-tangerine/10 text-[#c2410c]"><LayoutGrid size={20} /></span>
                 <div>
                   <p className="text-sm font-bold text-charcoal">Grid Editor <span className="ml-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#047857]">Easy</span></p>
-                  <p className="text-[11px] text-charcoal/50">Best for quick collages</p>
+                  <p className="text-[11px] text-muted">Best for quick collages</p>
                 </div>
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-charcoal/60">
+              <p className="mt-3 text-xs leading-relaxed text-muted">
                 Fixed grid layouts, drag photos into cells, pan/zoom, spacing, frames, text &amp; one-tap print order.
               </p>
               <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#c2410c]">Open Grid Editor <ArrowRight size={13} /></span>
@@ -131,10 +131,10 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/10 text-[#8a6a1f]"><Wand2 size={20} /></span>
                 <div>
                   <p className="flex items-center gap-1 text-sm font-bold text-charcoal">Pro Editor <Crown size={12} className="text-[#8a6a1f]" /></p>
-                  <p className="text-[11px] text-charcoal/50">Freeform, full control</p>
+                  <p className="text-[11px] text-muted">Freeform, full control</p>
                 </div>
               </div>
-              <p className="mt-3 text-xs leading-relaxed text-charcoal/60">
+              <p className="mt-3 text-xs leading-relaxed text-muted">
                 Place photos anywhere, shape-crop, decorative frames, tint, blend, shadows, replace image &amp; draw.
               </p>
               <span className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-[#7a5c12]">Open Pro Editor <ArrowRight size={13} /></span>

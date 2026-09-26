@@ -68,7 +68,7 @@ const CollageEditor = lazy(() => import("./components/editor/CollageEditor"));
 function EditorFallback() {
   return (
     <div className="fixed inset-0 z-[95] grid place-items-center bg-white/90">
-      <div className="flex flex-col items-center gap-3 text-sm font-semibold text-charcoal/50">
+      <div className="flex flex-col items-center gap-3 text-sm font-semibold text-muted">
         <span className="dru-spinner" aria-hidden="true" />
         Loading…
       </div>
@@ -860,7 +860,7 @@ function CanvasMockup({
         <div className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-ink/15 bg-white/80 p-6 text-center">
           <Icon d={icons.image} className="h-9 w-9 text-ink/25" />
           <p className="text-sm font-bold text-ink/60">Mockup image missing</p>
-          <p className="text-xs text-ink/45">Add file to /public/mockups/</p>
+          <p className="text-xs text-subtle">Add file to /public/mockups/</p>
           {!mini && (
             <code className="rounded-lg bg-ink/5 px-2.5 py-1 text-[10px] font-bold text-plum">
               {candidates[0].replace("/mockups/", "")}
@@ -973,7 +973,7 @@ function Toolbar({ tool, setTool }) {
           onClick={() => setTool(tool === t.id ? null : t.id)}
           aria-pressed={tool === t.id}
           className={`flex flex-col items-center gap-1 rounded-xl px-1.5 py-2 text-[10px] font-semibold transition ${
-            tool === t.id ? "bg-plum/10 text-plum" : "text-ink/55 hover:bg-ink/5 hover:text-ink"
+            tool === t.id ? "bg-plum/10 text-plum" : "text-muted hover:bg-ink/5 hover:text-ink"
           }`}
         >
           <Icon d={t.icon} className="h-5 w-5" />
@@ -1056,7 +1056,7 @@ function UploadPanel({ onClose, onAddImage, showToast }) {
       >
         <Icon d={icons.upload} className="h-6 w-6" />
         {busy ? "Processing…" : "Upload image · फोटो निवडा"}
-        <span className="text-[11px] font-normal text-ink/45">PNG, JPG or SVG · best ≥ 1000px</span>
+        <span className="text-[11px] font-normal text-subtle">PNG, JPG or SVG · best ≥ 1000px</span>
       </button>
       {warn && (
         <div className="mt-3 rounded-xl border border-amber-300 bg-amber-50 p-3 text-[11.5px] leading-relaxed text-amber-900" role="alert">
@@ -1080,7 +1080,7 @@ function UploadPanel({ onClose, onAddImage, showToast }) {
         <strong>Background removal available on request</strong> — फोटोचा background काढून हवा असेल
         तर WhatsApp वर सांगा. Just mention it when you order.
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-ink/45">
+      <p className="mt-3 text-[11px] leading-relaxed text-subtle">
         Your file never leaves this device — it's previewed locally and only shared when you order on WhatsApp.
       </p>
     </PanelShell>
@@ -1145,7 +1145,7 @@ function AIDesignPanel({ onClose, onAddLayers, showToast }) {
       >
         <Icon d={icons.spark} filled className="h-4 w-4" /> Generate design
       </button>
-      <p className="mt-3 text-[11px] leading-relaxed text-ink/45">
+      <p className="mt-3 text-[11px] leading-relaxed text-subtle">
         Rule-based magic that runs entirely in your browser — no AI credits, no waiting. It picks fonts,
         colours and graphics from your idea. Generated layers are fully editable.
       </p>
@@ -1222,7 +1222,7 @@ function LibraryPanel({ onClose, library, onAddImage, onDeleteFromLibrary }) {
   return (
     <PanelShell title="My Library" onClose={onClose}>
       {library.length === 0 ? (
-        <p className="rounded-xl bg-ink/4 px-3 py-6 text-center text-xs text-ink/50">
+        <p className="rounded-xl bg-ink/4 px-3 py-6 text-center text-xs text-muted">
           Images you upload are saved here for quick reuse.
         </p>
       ) : (
@@ -1258,11 +1258,11 @@ function GraphicsPanel({ onClose, onAddImage }) {
           <button key={g.id} onClick={() => onAddImage(g.src, false)}
             className="flex flex-col items-center gap-1 rounded-xl border border-ink/10 bg-white p-2.5 transition hover:border-plum hover:shadow-md">
             <img src={g.src} alt={g.label} className="h-12 w-12" />
-            <span className="text-[10px] font-medium text-ink/55">{g.label}</span>
+            <span className="text-[10px] font-medium text-muted">{g.label}</span>
           </button>
         ))}
       </div>
-      <p className="mt-3 text-[11px] text-ink/45">All graphics are original & royalty-free — print as many as you like.</p>
+      <p className="mt-3 text-[11px] text-subtle">All graphics are original & royalty-free — print as many as you like.</p>
     </PanelShell>
   );
 }
@@ -1316,7 +1316,7 @@ function HelpPanel({ onClose }) {
 function LayersPanel({ layers, selectedId, onSelectLayer, onToggleVisible, onDeleteLayer, onMoveLayerOrder, bgVisible, onToggleBg, colorLabel }) {
   return (
     <div>
-      <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-ink/45">Layers</h4>
+      <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-subtle">Layers</h4>
       <ul className="grid gap-1.5">
         {[...layers].reverse().map((l) => {
           const idx = layers.indexOf(l);
@@ -1334,13 +1334,13 @@ function LayersPanel({ layers, selectedId, onSelectLayer, onToggleVisible, onDel
                 </span>
               </button>
               <button onClick={() => onMoveLayerOrder(idx, 1)} disabled={idx === layers.length - 1} aria-label="Move layer up"
-                className="text-ink/35 hover:text-plum disabled:opacity-25"><Icon d={icons.arrowUp} className="h-3.5 w-3.5" /></button>
+                className="text-subtle hover:text-plum disabled:opacity-25"><Icon d={icons.arrowUp} className="h-3.5 w-3.5" /></button>
               <button onClick={() => onMoveLayerOrder(idx, -1)} disabled={idx === 0} aria-label="Move layer down"
-                className="text-ink/35 hover:text-plum disabled:opacity-25"><Icon d={icons.arrowDown} className="h-3.5 w-3.5" /></button>
+                className="text-subtle hover:text-plum disabled:opacity-25"><Icon d={icons.arrowDown} className="h-3.5 w-3.5" /></button>
               <button onClick={() => onToggleVisible(l.id)} aria-label={l.visible ? "Hide layer" : "Show layer"}
-                className="text-ink/40 hover:text-ink"><Icon d={l.visible ? icons.eye : icons.eyeOff} className="h-4 w-4" /></button>
+                className="text-subtle hover:text-ink"><Icon d={l.visible ? icons.eye : icons.eyeOff} className="h-4 w-4" /></button>
               <button onClick={() => onDeleteLayer(l.id)} aria-label="Delete layer"
-                className="text-ink/35 hover:text-rose-500"><Icon d={icons.trash} className="h-4 w-4" /></button>
+                className="text-subtle hover:text-rose-500"><Icon d={icons.trash} className="h-4 w-4" /></button>
             </li>
           );
         })}
@@ -1351,11 +1351,11 @@ function LayersPanel({ layers, selectedId, onSelectLayer, onToggleVisible, onDel
           </span>
           <span className="flex-1 truncate text-xs font-semibold text-ink/60">Background · {colorLabel}</span>
           <button onClick={onToggleBg} aria-label={bgVisible ? "Hide white print backing" : "Show white print backing"}
-            className="text-ink/40 hover:text-ink"><Icon d={bgVisible ? icons.eye : icons.eyeOff} className="h-4 w-4" /></button>
+            className="text-subtle hover:text-ink"><Icon d={bgVisible ? icons.eye : icons.eyeOff} className="h-4 w-4" /></button>
         </li>
       </ul>
       {layers.length === 0 && (
-        <p className="mt-2 text-[11px] text-ink/40">No design layers yet — upload an image or add text.</p>
+        <p className="mt-2 text-[11px] text-subtle">No design layers yet — upload an image or add text.</p>
       )}
     </div>
   );
@@ -1398,7 +1398,7 @@ function SizeChartModal({ onClose, oversized, kids }) {
         </div>
         <table className="mt-4 w-full text-sm">
           <thead>
-            <tr className="text-left text-[11px] uppercase tracking-wider text-ink/45">
+            <tr className="text-left text-[11px] uppercase tracking-wider text-subtle">
               <th className="pb-2">{kids ? "Age" : "Size"}</th>
               <th className="pb-2">Chest · छाती</th>
               <th className="pb-2">Length · लांबी</th>
@@ -1480,7 +1480,7 @@ function CustomSizeModal({ initial, onSave, onClose }) {
           className="mt-4 w-full rounded-full bg-gradient-to-r from-plum to-plum-soft px-4 py-3 text-sm font-bold text-white shadow-md disabled:opacity-40">
           Save custom size
         </button>
-        <p className="mt-2 text-center text-[10px] text-ink/45">Chest & length required. Our team confirms measurements on WhatsApp before printing.</p>
+        <p className="mt-2 text-center text-[10px] text-subtle">Chest & length required. Our team confirms measurements on WhatsApp before printing.</p>
       </div>
     </div>
   );
@@ -1509,12 +1509,12 @@ function VariantsPanel({
       </select>
 
       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 rounded-xl bg-ink/4 p-3 text-[11px]">
-        <dt className="text-ink/45">Print partner</dt><dd className="text-right font-semibold text-ink/75">{CONFIG.printPartner.split("·")[0]}</dd>
-        <dt className="text-ink/45">Production cost</dt><dd className="text-right font-semibold text-ink/75">{inr(product.cost)}</dd>
-        <dt className="text-ink/45">Selling price</dt><dd className="text-right font-bold text-plum">{inr(product.price)}</dd>
-        <dt className="text-ink/45">Print area</dt><dd className="text-right font-semibold text-ink/75">{product.printArea}</dd>
-        <dt className="text-ink/45">Print quality</dt><dd className="text-right font-semibold text-ink/75">300 DPI</dd>
-        <dt className="text-ink/45">Delivery · डिलिव्हरी</dt><dd className="text-right font-semibold text-[#047857]">2–4 days</dd>
+        <dt className="text-subtle">Print partner</dt><dd className="text-right font-semibold text-ink/75">{CONFIG.printPartner.split("·")[0]}</dd>
+        <dt className="text-subtle">Production cost</dt><dd className="text-right font-semibold text-ink/75">{inr(product.cost)}</dd>
+        <dt className="text-subtle">Selling price</dt><dd className="text-right font-bold text-plum">{inr(product.price)}</dd>
+        <dt className="text-subtle">Print area</dt><dd className="text-right font-semibold text-ink/75">{product.printArea}</dd>
+        <dt className="text-subtle">Print quality</dt><dd className="text-right font-semibold text-ink/75">300 DPI</dd>
+        <dt className="text-subtle">Delivery · डिलिव्हरी</dt><dd className="text-right font-semibold text-[#047857]">2–4 days</dd>
       </dl>
 
       {/* size */}
@@ -1546,7 +1546,7 @@ function VariantsPanel({
         )}
       </div>
       {customSize && (
-        <p className="mt-1.5 text-[10.5px] font-medium text-ink/55">
+        <p className="mt-1.5 text-[10.5px] font-medium text-muted">
           Chest {customSize.chest}{customSize.unit} · Length {customSize.length}{customSize.unit}
           {customSize.shoulder ? ` · Shoulder ${customSize.shoulder}${customSize.unit}` : ""}
           {customSize.sleeve ? ` · Sleeve ${customSize.sleeve}${customSize.unit}` : ""}
@@ -1577,7 +1577,7 @@ function VariantsPanel({
               </button>
             ))}
           </div>
-          <p className="mt-2 rounded-lg bg-ink/4 px-2.5 py-2 text-[10.5px] leading-relaxed text-ink/55">
+          <p className="mt-2 rounded-lg bg-ink/4 px-2.5 py-2 text-[10.5px] leading-relaxed text-muted">
             Edge-to-edge / oversized print available on request. Final alignment confirmed on WhatsApp before printing.
           </p>
         </>
@@ -1684,7 +1684,7 @@ function PreviewMode({ product, colorHex, colorId, dark, side, layers, bgVisible
               view={view} failedMockups={failedMockups} onPhotoError={onPhotoError}
               areaOverride={areaOverride} layers={layers} bgVisible={bgVisible} />
           </div>
-          <p className="mt-2 text-center text-xs font-medium text-ink/50">
+          <p className="mt-2 text-center text-xs font-medium text-muted">
             {product.name} · {side === "front" ? "Front" : side === "back" ? "Back" : "Neck label"} · move your mouse to tilt
           </p>
         </div>
@@ -2369,16 +2369,16 @@ function WhatsAppChatbot() {
             {bulkForm && !typing && (
               <div className="rounded-2xl rounded-bl-md bg-white p-3 shadow-sm">
                 <p className="text-xs font-bold text-ink">Bulk enquiry · बल्क ऑर्डर</p>
-                <label htmlFor="bulk-product" className="mt-2 block text-[10px] font-semibold text-ink/50">Product</label>
+                <label htmlFor="bulk-product" className="mt-2 block text-[10px] font-semibold text-muted">Product</label>
                 <select id="bulk-product" value={bulk.product} onChange={(e) => setBulk((b) => ({ ...b, product: e.target.value }))}
                   className="mt-0.5 w-full rounded-lg border border-ink/10 px-2 py-1.5 text-xs outline-none focus:border-plum">
                   {EDITOR_PRODUCTS.map((p) => <option key={p.id} value={p.name}>{p.name}</option>)}
                 </select>
-                <label htmlFor="bulk-qty" className="mt-2 block text-[10px] font-semibold text-ink/50">Quantity (10+)</label>
+                <label htmlFor="bulk-qty" className="mt-2 block text-[10px] font-semibold text-muted">Quantity (10+)</label>
                 <input id="bulk-qty" type="number" min="10" value={bulk.qty}
                   onChange={(e) => setBulk((b) => ({ ...b, qty: e.target.value }))}
                   className="mt-0.5 w-full rounded-lg border border-ink/10 px-2 py-1.5 text-xs outline-none focus:border-plum" />
-                <label htmlFor="bulk-note" className="mt-2 block text-[10px] font-semibold text-ink/50">Details (optional)</label>
+                <label htmlFor="bulk-note" className="mt-2 block text-[10px] font-semibold text-muted">Details (optional)</label>
                 <input id="bulk-note" type="text" maxLength={80} value={bulk.note} placeholder="College fest, corporate gifting…"
                   onChange={(e) => setBulk((b) => ({ ...b, note: e.target.value }))}
                   className="mt-0.5 w-full rounded-lg border border-ink/10 px-2 py-1.5 text-xs outline-none focus:border-plum" />
@@ -2388,7 +2388,7 @@ function WhatsAppChatbot() {
                     Send enquiry on WhatsApp
                   </button>
                   <button onClick={() => setBulkForm(false)} aria-label="Dismiss bulk enquiry form"
-                    className="rounded-full bg-ink/5 px-3 py-2 text-[11px] font-semibold text-ink/55 hover:bg-ink/10">
+                    className="rounded-full bg-ink/5 px-3 py-2 text-[11px] font-semibold text-muted hover:bg-ink/10">
                     Later
                   </button>
                 </div>
@@ -2709,10 +2709,10 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             Photo Prints <span style={{ color: '#1a1208' }}>&amp;</span> Custom Frames
           </h2>
           <div style={{ height: '0.5px', width: 60, background: '#C9A84C', opacity: 0.7, margin: '16px auto' }} />
-          <p className="mx-auto mt-3 max-w-xl text-charcoal/60">
+          <p className="mx-auto mt-3 max-w-xl text-muted">
             Upload your photo, choose print size, select frame style, and get a ready-to-hang customized frame.
           </p>
-          <p className="mx-auto mt-5 max-w-md font-serif italic text-charcoal/45" style={{ fontWeight: 300 }}>
+          <p className="mx-auto mt-5 max-w-md font-serif italic text-subtle" style={{ fontWeight: 300 }}>
             &ldquo;Every photo deserves a perfect frame.&rdquo;
           </p>
         </div>
@@ -2736,7 +2736,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </div>
 
             <h3 className="font-serif text-2xl font-bold text-charcoal">Photo Prints</h3>
-            <p className="mt-1 text-sm text-charcoal/55">Premium lab-quality prints, delivered crisp and vivid.</p>
+            <p className="mt-1 text-sm text-muted">Premium lab-quality prints, delivered crisp and vivid.</p>
 
             <div className="mt-4 flex flex-wrap gap-2">
               {PRINT_TYPES.map((t) => (
@@ -2749,7 +2749,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               ))}
             </div>
 
-            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-charcoal/40">Choose a size</p>
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-subtle">Choose a size</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {PRINT_SIZES.map((s) => (
                 <button key={s} onClick={() => setPrintSize(printSize === s ? null : s)}
@@ -2761,7 +2761,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               ))}
             </div>
 
-            <p className="mt-4 flex items-center gap-1.5 text-xs text-charcoal/50">
+            <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
               <Icon d={icons.check} className="h-4 w-4 text-[#047857]" /> High quality color print with sharp finishing.
             </p>
 
@@ -2783,7 +2783,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               </div>
               <div>
                 <h3 className="font-serif text-2xl font-bold text-charcoal">Custom Frames</h3>
-                <p className="mt-1 text-sm text-charcoal/55">Ready-to-hang frames, built around your photo.</p>
+                <p className="mt-1 text-sm text-muted">Ready-to-hang frames, built around your photo.</p>
                 <p className="mt-2 text-xs font-semibold" style={{ color: '#1a1208' }}>Selected: {frame.name}</p>
               </div>
             </div>
@@ -2794,7 +2794,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
                 <li key={s} className="flex flex-1 items-center gap-1">
                   <span className="flex flex-col items-center gap-1 text-center">
                     <span className="grid h-7 w-7 place-items-center rounded-full bg-charcoal text-[11px] font-bold text-white">{i + 1}</span>
-                    <span className="text-[9px] font-semibold leading-tight text-charcoal/55">{s}</span>
+                    <span className="text-[9px] font-semibold leading-tight text-muted">{s}</span>
                   </span>
                   {i < FRAME_STEPS.length - 1 && <span className="mb-4 h-px flex-1 bg-charcoal/15" />}
                 </li>
@@ -2802,7 +2802,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </ol>
 
             {/* frame style grid */}
-            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-charcoal/40">Choose your frame</p>
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-subtle">Choose your frame</p>
             <div className="mt-2 grid grid-cols-3 gap-2.5">
               {FRAME_STYLES.map((f) => {
                 const active = frame.id === f.id;
@@ -2823,7 +2823,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
             </div>
 
             {/* size + customization choices */}
-            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-charcoal/40">Print size</p>
+            <p className="mt-5 text-[11px] font-bold uppercase tracking-wider text-subtle">Print size</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {PRINT_SIZES.map((s) => (
                 <button key={s} onClick={() => setFrameSize(frameSize === s ? null : s)}
@@ -2835,7 +2835,7 @@ function PhotoFramesSection({ onCustomize, onOpenCustomizer, framePick }) {
               ))}
             </div>
 
-            <p className="mt-4 flex items-center gap-1.5 text-xs text-charcoal/50">
+            <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
               <Icon d={icons.check} className="h-4 w-4 text-[#047857]" /> Select frame design and we will adjust your photo perfectly.
             </p>
 
@@ -2868,25 +2868,25 @@ function ProductCard({ product, fav, onFav, onCustomize }) {
         <button onClick={() => onFav(product.id)} aria-pressed={fav}
           aria-label={fav ? `Remove ${product.name} from favourites` : `Add ${product.name} to favourites`}
           className={`absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full shadow-md backdrop-blur transition ${
-            fav ? "bg-blush/90 text-rose-600" : "bg-white/85 text-charcoal/50 hover:text-rose-500"
+            fav ? "bg-blush/90 text-rose-600" : "bg-white/85 text-muted hover:text-rose-500"
           }`}>
           <Icon d={icons.heart} filled={fav} className="h-4.5 w-4.5" />
         </button>
       </div>
       <div className="p-5">
-        <p className="text-xs font-semibold uppercase tracking-wider text-charcoal/40">
+        <p className="text-xs font-semibold uppercase tracking-wider text-subtle">
           {CATEGORIES.find((c) => c.id === product.category)?.label}
         </p>
         <h3 className="mt-1 font-serif text-xl font-bold text-charcoal">{product.name}</h3>
-        <p className="mt-0.5 text-sm text-charcoal/55">{product.blurb}</p>
+        <p className="mt-0.5 text-sm text-muted">{product.blurb}</p>
         <div className="mt-3 flex items-center justify-between">
           <div>
             {isEnquiry(product.id)
               ? <p className="text-sm font-extrabold text-[#8a6a1f]">Price on enquiry</p>
-              : <><p className="text-[11px] font-medium text-charcoal/45">Starting at</p>
+              : <><p className="text-[11px] font-medium text-subtle">Starting at</p>
                 <p className="text-lg font-extrabold text-[#8a6a1f]">{inr(product.price)}</p></>}
           </div>
-          <p className="flex items-center gap-1.5 text-xs font-medium text-charcoal/55">
+          <p className="flex items-center gap-1.5 text-xs font-medium text-muted">
             <Icon d={icons.truck} className="h-4 w-4 text-[#7a5c12]" /> {product.delivery}
           </p>
         </div>
@@ -2946,7 +2946,7 @@ function ShopCatalog({ onCustomize }) {
         <div className="reveal text-center">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#7a5c12]">Shop by category</p>
           <h2 className="mt-3 font-serif text-3xl font-bold text-charcoal sm:text-4xl lg:text-5xl">Print it. Gift it. Keep it.</h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">Pick a product, add your photo or design, and we&rsquo;ll print &amp; deliver it across India.</p>
+          <p className="mx-auto mt-4 max-w-xl text-muted">Pick a product, add your photo or design, and we&rsquo;ll print &amp; deliver it across India.</p>
         </div>
         {/* two per row on phones, three from lg — never more than two on mobile */}
         <div className="reveal mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
@@ -2966,7 +2966,7 @@ function ShopCatalog({ onCustomize }) {
               <div className="flex items-center justify-between gap-2 px-4 py-4 sm:px-5">
                 <div className="min-w-0">
                   <p className="truncate font-serif text-base font-bold text-charcoal sm:text-lg">{c.title}</p>
-                  <p className="text-sm text-charcoal/50">{isEnquiry(c.productId) ? "Price on enquiry" : `From ${inr(c.price)}`}</p>
+                  <p className="text-sm text-muted">{isEnquiry(c.productId) ? "Price on enquiry" : `From ${inr(c.price)}`}</p>
                 </div>
                 <span aria-hidden="true" className="hidden shrink-0 items-center rounded-full bg-charcoal px-4 py-2 text-xs font-bold text-white transition group-hover:bg-gold group-hover:text-[#1a1208] sm:flex">
                   Customise →
@@ -3320,20 +3320,20 @@ function OrderSummary({ cart, total, colorLabel }) {
           <li key={i.key} className="flex items-start justify-between gap-3 rounded-xl border border-charcoal/8 px-3 py-2.5 text-sm">
             <div className="min-w-0">
               <p className="font-semibold text-charcoal">{i.name} × {i.qty}</p>
-              <p className="truncate text-xs text-charcoal/50">{[i.size, colorLabel(i.color), i.summary].filter(Boolean).join(" · ")}</p>
-              {i.customSize && <p className="text-[11px] text-charcoal/50">{customSizeText(i.customSize)}</p>}
+              <p className="truncate text-xs text-muted">{[i.size, colorLabel(i.color), i.summary].filter(Boolean).join(" · ")}</p>
+              {i.customSize && <p className="text-[11px] text-muted">{customSizeText(i.customSize)}</p>}
             </div>
             <p className="shrink-0 font-bold text-[#8a6a1f]">{inr(i.price * i.qty)}</p>
           </li>
         ))}
       </ul>
       <dl className="mt-4 grid gap-1.5 rounded-xl bg-charcoal/4 p-3 text-sm">
-        <div className="flex justify-between"><dt className="text-charcoal/55">Subtotal</dt><dd className="font-semibold">{inr(total)}</dd></div>
+        <div className="flex justify-between"><dt className="text-muted">Subtotal</dt><dd className="font-semibold">{inr(total)}</dd></div>
         {/* Derived from deliveryLabel(), never hardcoded — this line used to
             read "FREE · 2–4 days" for every order, contradicting the
             announcement bar and the shipping policy on the same screen.
             Green only when it really is free; neutral otherwise. */}
-        <div className="flex justify-between gap-3"><dt className="shrink-0 text-charcoal/55">Delivery · डिलिव्हरी</dt>
+        <div className="flex justify-between gap-3"><dt className="shrink-0 text-muted">Delivery · डिलिव्हरी</dt>
           <dd className={`text-right font-semibold ${total >= FREE_DELIVERY_MIN ? "text-[#047857]" : "text-charcoal/70"}`}>{deliveryLabel(total)}</dd></div>
         <div className="flex justify-between border-t border-charcoal/10 pt-1.5"><dt className="font-bold text-charcoal">Total</dt><dd className="font-serif text-lg font-bold text-charcoal">{inr(total)}</dd></div>
       </dl>
@@ -3343,7 +3343,7 @@ function OrderSummary({ cart, total, colorLabel }) {
         <p>UPI ID: {CONFIG.upiId}</p>
         <p>Order confirmed on WhatsApp before printing</p>
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-charcoal/45">
+      <p className="mt-3 text-[11px] leading-relaxed text-subtle">
         Background removal available on request — just mention it in the WhatsApp chat.
       </p>
     </div>
@@ -3415,7 +3415,7 @@ What I'd like changed:
         {...(open ? {} : { inert: "", "aria-hidden": "true" })}>
         <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
           <h2 className="font-serif text-xl font-bold text-charcoal">
-            Your Cart {cart.length > 0 && <span className="font-sans text-sm font-medium text-charcoal/50">({cart.length})</span>}
+            Your Cart {cart.length > 0 && <span className="font-sans text-sm font-medium text-muted">({cart.length})</span>}
           </h2>
           <button onClick={onClose} className="grid h-11 w-11 place-items-center rounded-full bg-charcoal/5 transition hover:bg-charcoal/10" aria-label="Close cart">
             <Icon d={icons.x} className="h-4.5 w-4.5" />
@@ -3430,7 +3430,7 @@ What I'd like changed:
                   <Icon d={icons.cart} className="h-7 w-7" />
                 </span>
                 <p className="mt-4 font-semibold text-charcoal">Your cart is empty</p>
-                <p className="mt-1 text-sm text-charcoal/50">Upload a photo and design something beautiful.</p>
+                <p className="mt-1 text-sm text-muted">Upload a photo and design something beautiful.</p>
                 <button onClick={onStartDesigning}
                   className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-charcoal px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-charcoal/90">
                   Choose a product →
@@ -3448,21 +3448,21 @@ What I'd like changed:
                     : <img src={item.img} alt={item.name} className="h-20 w-[68px] rounded-xl object-cover" />}
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-charcoal">{item.name}</p>
-                    <p className="mt-0.5 text-xs text-charcoal/50">
+                    <p className="mt-0.5 text-xs text-muted">
                       {[item.size, colorLabel(item.color)].filter(Boolean).join(" · ")}
                     </p>
-                    {item.customSize && <p className="truncate text-[11px] text-charcoal/50">{customSizeText(item.customSize)}</p>}
-                    {item.summary && <p className="truncate text-xs text-charcoal/50">{item.summary}</p>}
+                    {item.customSize && <p className="truncate text-[11px] text-muted">{customSizeText(item.customSize)}</p>}
+                    {item.summary && <p className="truncate text-xs text-muted">{item.summary}</p>}
                     <div className="mt-2 flex items-center justify-between">
                       <div className="inline-flex items-center rounded-lg border border-charcoal/10">
-                        <button onClick={() => onQty(item.key, -1)} className="px-2.5 py-1 font-bold text-charcoal/60" aria-label="Decrease quantity">−</button>
+                        <button onClick={() => onQty(item.key, -1)} className="px-2.5 py-1 font-bold text-muted" aria-label="Decrease quantity">−</button>
                         <span className="min-w-7 text-center text-sm font-bold">{item.qty}</span>
-                        <button onClick={() => onQty(item.key, 1)} className="px-2.5 py-1 font-bold text-charcoal/60" aria-label="Increase quantity">+</button>
+                        <button onClick={() => onQty(item.key, 1)} className="px-2.5 py-1 font-bold text-muted" aria-label="Increase quantity">+</button>
                       </div>
                       <p className="font-bold text-[#8a6a1f]">{inr(item.price * item.qty)}</p>
                     </div>
                   </div>
-                  <button onClick={() => onRemove(item.key)} className="self-start text-charcoal/30 transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
+                  <button onClick={() => onRemove(item.key)} className="self-start text-subtle transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
                     <Icon d={icons.trash} className="h-4.5 w-4.5" />
                   </button>
 
@@ -3500,7 +3500,7 @@ What I'd like changed:
             {!summary ? (
               <>
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-medium text-charcoal/60">Total</span>
+                  <span className="text-sm font-medium text-muted">Total</span>
                   <span className="font-serif text-2xl font-bold text-charcoal">{inr(total)}</span>
                 </div>
                 <button onClick={() => setSummary(true)}
@@ -3519,12 +3519,12 @@ What I'd like changed:
                   <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Or order directly on WhatsApp
                 </a>
                 <button onClick={() => setSummary(false)}
-                  className="mt-2 w-full text-center text-xs font-semibold text-charcoal/50 transition hover:text-[#8a6a1f]">
+                  className="mt-2 w-full text-center text-xs font-semibold text-muted transition hover:text-[#8a6a1f]">
                   ← Back to cart
                 </button>
               </>
             )}
-            <p className="mt-2.5 text-center text-[11px] leading-relaxed text-charcoal/45">
+            <p className="mt-2.5 text-center text-[11px] leading-relaxed text-subtle">
               Pay securely via {paymentLine()} after we confirm your order. Attach your design photo in the WhatsApp chat.
             </p>
           </div>
@@ -3582,18 +3582,18 @@ function TrackOrderModal({ onClose, localOrders }) {
         aria-label="Track order" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <h2 className="font-serif text-xl font-bold text-charcoal">Track Order · ऑर्डर ट्रॅक करा</h2>
-          <button onClick={onClose} aria-label="Close tracking" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10">
+          <button onClick={onClose} aria-label="Close tracking" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-muted hover:bg-charcoal/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
         </div>
         <div className="mt-4 grid gap-3">
           <div>
-            <label htmlFor="trk-id" className="mb-0.5 block text-[11px] font-semibold text-charcoal/60">Drucka order ID</label>
+            <label htmlFor="trk-id" className="mb-0.5 block text-[11px] font-semibold text-muted">Drucka order ID</label>
             <input id="trk-id" value={id} onChange={(e) => setId(e.target.value)} placeholder="DRK-XXXXXXXX"
               className="w-full min-h-[44px] rounded-xl border border-charcoal/10 px-3 py-2.5 text-base shadow-sm outline-none focus:border-gold" />
           </div>
           <div>
-            <label htmlFor="trk-phone" className="mb-0.5 block text-[11px] font-semibold text-charcoal/60">Mobile number used at checkout</label>
+            <label htmlFor="trk-phone" className="mb-0.5 block text-[11px] font-semibold text-muted">Mobile number used at checkout</label>
             <input id="trk-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="10-digit"
               className="w-full min-h-[44px] rounded-xl border border-charcoal/10 px-3 py-2.5 text-base shadow-sm outline-none focus:border-gold" />
           </div>
@@ -3609,7 +3609,7 @@ function TrackOrderModal({ onClose, localOrders }) {
                 <p className="text-sm font-bold text-charcoal">{result.id}</p>
                 <p className="text-sm font-bold text-[#8a6a1f]">{inr(result.total)}</p>
               </div>
-              <p className="mt-1 text-xs text-charcoal/55">
+              <p className="mt-1 text-xs text-muted">
                 {result.items.map((i) => `${i.name} ×${i.qty}`).join(", ")} · {paymentLabel(result.paymentStatus)}
               </p>
               {/* status timeline */}
@@ -3622,9 +3622,9 @@ function TrackOrderModal({ onClose, localOrders }) {
                   {TRACK_STEPS.map((s, i) => (
                     <li key={s} className="flex items-center gap-2 text-xs">
                       <span className={`grid h-5 w-5 place-items-center rounded-full text-[10px] font-bold ${
-                        i <= stepIdx ? "bg-emerald-500 text-[#1a1208]" : "bg-charcoal/10 text-charcoal/40"
+                        i <= stepIdx ? "bg-emerald-500 text-[#1a1208]" : "bg-charcoal/10 text-subtle"
                       }`}>{i <= stepIdx ? "✓" : i + 1}</span>
-                      <span className={i <= stepIdx ? "font-bold text-charcoal" : "text-charcoal/45"}>{s}</span>
+                      <span className={i <= stepIdx ? "font-bold text-charcoal" : "text-subtle"}>{s}</span>
                       {i === stepIdx && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-bold text-emerald-700">current</span>}
                     </li>
                   ))}
@@ -3681,7 +3681,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
      that is the worst possible place for it. min-h-[44px] meets the tap-target
      minimum too (these were 42px). */
   const inputCls = "w-full min-h-[44px] rounded-xl border border-charcoal/10 px-3 py-2.5 text-base shadow-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20";
-  const lblCls = "mb-0.5 block text-[11px] font-semibold text-charcoal/60";
+  const lblCls = "mb-0.5 block text-[11px] font-semibold text-muted";
 
   return (
     <div className="fixed inset-0 z-[120] grid place-items-center bg-charcoal/50 p-4 backdrop-blur-sm" onClick={onClose}>
@@ -3689,7 +3689,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
         role="dialog" aria-modal="true" aria-label="Checkout" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
           <h2 className="font-serif text-xl font-bold text-charcoal">{order ? "Order request received" : "Checkout · चेकआउट"}</h2>
-          <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-charcoal/60 hover:bg-charcoal/10">
+          <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-muted hover:bg-charcoal/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
         </div>
@@ -3722,7 +3722,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     ).map(([v, l]) => (
                       <button key={v} onClick={() => setForm((s) => ({ ...s, paymentMode: v }))} aria-pressed={form.paymentMode === v}
                         className={`flex-1 rounded-xl border px-2 py-2.5 text-xs font-bold transition ${
-                          form.paymentMode === v ? "border-gold bg-gold text-[#1a1208]" : "border-charcoal/15 text-charcoal/60"
+                          form.paymentMode === v ? "border-gold bg-gold text-[#1a1208]" : "border-charcoal/15 text-muted"
                         }`}>{l}</button>
                     ))}
                   </div></div>
@@ -3735,7 +3735,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
             <>
               {/* order summary */}
               <div className="rounded-2xl bg-charcoal/4 p-3 text-sm">
-                <p className="font-bold text-charcoal">{order.id} <span className="font-sans text-xs font-medium text-charcoal/45">· {order.items.length} item(s)</span></p>
+                <p className="font-bold text-charcoal">{order.id} <span className="font-sans text-xs font-medium text-subtle">· {order.items.length} item(s)</span></p>
                 <ul className="mt-2 grid gap-1 text-xs text-charcoal/65">
                   {order.items.map((i) => (
                     <li key={i.key} className="flex justify-between">
@@ -3751,7 +3751,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
 
               {/* payment status */}
               <div className="mt-3 flex items-center justify-between rounded-2xl border border-charcoal/8 px-3 py-2.5">
-                <span className="text-xs font-semibold text-charcoal/60">Payment status</span>
+                <span className="text-xs font-semibold text-muted">Payment status</span>
                 <span className={`rounded-full px-3 py-1 text-[11px] font-bold ${
                   ["Paid", "COD Approved"].includes(order.paymentStatus) ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
                 }`}>{paymentLabel(order.paymentStatus)}</span>
@@ -3760,7 +3760,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
               {["Paid", "COD Approved"].includes(order.paymentStatus) && (
                 <div className="mt-3 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-center">
                   <p className="font-serif text-lg font-bold text-emerald-700">Order confirmed!</p>
-                  <p className="mt-1 text-xs leading-relaxed text-charcoal/60">
+                  <p className="mt-1 text-xs leading-relaxed text-muted">
                     Save your order ID <strong className="text-charcoal">{order.id}</strong> — track it anytime from the
                     footer → <strong>Track Order</strong> with this ID + your phone number. Updates also come on WhatsApp.
                   </p>
@@ -3819,7 +3819,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
               className="w-full rounded-full bg-gradient-to-r from-gold to-gold-dark px-6 py-3.5 font-semibold text-[#1a1208] shadow-lg shadow-charcoal/30 transition hover:-translate-y-0.5">
               {form.paymentMode === "cod" ? `Submit Order Request — ${inr(total)}` : `Place order — ${inr(total)}`}
             </button>
-            <p className="mt-2 text-center text-[10.5px] text-charcoal/45">Free 2–4 day delivery · UPI · COD on approval · Printed & shipped under the Drucka brand</p>
+            <p className="mt-2 text-center text-[10.5px] text-subtle">Free 2–4 day delivery · UPI · COD on approval · Printed & shipped under the Drucka brand</p>
           </div>
         )}
       </div>
@@ -3847,7 +3847,7 @@ function QikinkServerMode() {
   };
   useEffect(load, []);
 
-  if (state.loading) return <p className="text-xs text-ink/45">Checking which Qikink account this sends to…</p>;
+  if (state.loading) return <p className="text-xs text-subtle">Checking which Qikink account this sends to…</p>;
   if (!state.ok) {
     return (
       <p className="rounded-xl bg-amber-50 px-3 py-2.5 text-[11px] font-semibold text-amber-800">
@@ -3909,7 +3909,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
         <div className="flex items-center justify-between border-b border-ink/8 px-5 py-4">
           <div>
             <h2 className="font-display text-xl font-bold text-ink">Drucka Admin</h2>
-            <p className="text-[11px] text-ink/45">Fulfillment Settings → Qikink · <a href="https://creator.qikink.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-plum underline-offset-2 hover:underline">Qikink dashboard ↗</a></p>
+            <p className="text-[11px] text-subtle">Fulfillment Settings → Qikink · <a href="https://creator.qikink.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-plum underline-offset-2 hover:underline">Qikink dashboard ↗</a></p>
           </div>
           <button onClick={onClose} aria-label="Close admin" className="grid h-9 w-9 place-items-center rounded-full bg-ink/5 text-ink/60 hover:bg-ink/10">
             <Icon d={icons.x} className="h-4 w-4" />
@@ -3919,7 +3919,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
           {[["settings", "Fulfillment Settings"], ["mapping", "Product Mapping"], ["orders", `Orders (${orders.length})`]].map(([id, label]) => (
             <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
               className={`rounded-t-xl px-4 py-2.5 text-xs font-bold transition ${
-                tab === id ? "border border-b-0 border-ink/10 bg-white text-plum" : "text-ink/50 hover:text-ink"
+                tab === id ? "border border-b-0 border-ink/10 bg-white text-plum" : "text-muted hover:text-ink"
               }`}>{label}</button>
           ))}
         </div>
@@ -3942,11 +3942,11 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                   </select></div>
                 <div><label className={lblCls}>Store / Brand name</label>
                   <input value={local.storeName} onChange={set("storeName")} className={inputCls} /></div>
-                <div><label className={lblCls}>Qikink Client ID <span className="font-normal text-ink/40">(demo placeholder)</span></label>
+                <div><label className={lblCls}>Qikink Client ID <span className="font-normal text-subtle">(demo placeholder)</span></label>
                   <input value={local.clientId} onChange={set("clientId")} placeholder="e.g. 1234" className={inputCls} /></div>
                 <div><label className={lblCls}>Qikink Client Secret <span className="font-bold text-rose-500">(never stored)</span></label>
                   <input type="password" value={clientSecret} onChange={(e) => setClientSecret(e.target.value)} placeholder="kept in memory only" className={inputCls} /></div>
-                <div className="sm:col-span-2"><label className={lblCls}>Admin API key <span className="font-normal text-ink/40">(= ADMIN_SECRET on Vercel · session only, authorizes order list/updates)</span></label>
+                <div className="sm:col-span-2"><label className={lblCls}>Admin API key <span className="font-normal text-subtle">(= ADMIN_SECRET on Vercel · session only, authorizes order list/updates)</span></label>
                   <input type="password" value={adminKey}
                     onChange={(e) => { setAdminKeyLocal(e.target.value); setAdminKey(e.target.value); }}
                     placeholder="cleared when this tab closes" className={inputCls} /></div>
@@ -3972,7 +3972,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                   so "Sandbox mode" could sit ticked while a send printed and
                   shipped a real garment. Read from the server instead. */}
               <QikinkServerMode />
-              <p className="rounded-xl bg-ink/4 px-3 py-2.5 text-[11px] leading-relaxed text-ink/55">
+              <p className="rounded-xl bg-ink/4 px-3 py-2.5 text-[11px] leading-relaxed text-muted">
                 ℹ Branding/packing slip options depend on Qikink account settings. Confirm in the Qikink dashboard.
                 Customers always see <strong>{local.packingSlipBrand || "Drucka"}</strong> — never Qikink.
               </p>
@@ -3992,7 +3992,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
           {tab === "mapping" && (
             <div className="grid gap-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-[11px] text-ink/50">
+                <p className="text-[11px] text-muted">
                   Copy REAL product IDs & SKU patterns from the <a href="https://creator.qikink.com/dashboard" target="_blank" rel="noopener noreferrer" className="font-bold text-plum underline-offset-2 hover:underline">Qikink dashboard ↗</a>. Saved to Supabase via <code className="font-bold">/api/admin/product-map</code> (needs Admin API key).
                 </p>
                 <div className="flex gap-2">
@@ -4012,34 +4012,34 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                       </label>
                     </div>
                     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                      <div><label className="mb-0.5 block text-[10px] font-semibold text-ink/40">Qikink Product ID</label>
+                      <div><label className="mb-0.5 block text-[10px] font-semibold text-subtle">Qikink Product ID</label>
                         <input value={m.qikinkProductId} onChange={(e) => editMap(m.druckaId, { qikinkProductId: e.target.value })} className={fieldCls} /></div>
-                      <div><label className="mb-0.5 block text-[10px] font-semibold text-ink/40">Variant / SKU pattern</label>
+                      <div><label className="mb-0.5 block text-[10px] font-semibold text-subtle">Variant / SKU pattern</label>
                         <input value={m.skuPattern} onChange={(e) => editMap(m.druckaId, { skuPattern: e.target.value })} placeholder="ABC-{color}-{size}" className={fieldCls} /></div>
-                      <div><label className="mb-0.5 block text-[10px] font-semibold text-ink/40">Print method</label>
+                      <div><label className="mb-0.5 block text-[10px] font-semibold text-subtle">Print method</label>
                         <select value={m.printMethod} onChange={(e) => editMap(m.druckaId, { printMethod: e.target.value })} className={fieldCls}>
                           {["DTG", "DTF", "Embroidery", "Sublimation"].map((p) => <option key={p}>{p}</option>)}
                         </select></div>
-                      <div><label className="mb-0.5 block text-[10px] font-semibold text-ink/40">Base cost ₹</label>
+                      <div><label className="mb-0.5 block text-[10px] font-semibold text-subtle">Base cost ₹</label>
                         <input type="number" value={m.baseCost} onChange={(e) => editMap(m.druckaId, { baseCost: +e.target.value })} className={fieldCls} /></div>
-                      <div><label className="mb-0.5 block text-[10px] font-semibold text-ink/40">Shipping ₹</label>
+                      <div><label className="mb-0.5 block text-[10px] font-semibold text-subtle">Shipping ₹</label>
                         <input type="number" value={m.shippingCost ?? 0} onChange={(e) => editMap(m.druckaId, { shippingCost: +e.target.value })} className={fieldCls} /></div>
                     </div>
                     <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-[11px] text-ink/60 sm:grid-cols-4">
-                      <div><dt className="font-semibold text-ink/40">Colours</dt><dd>{m.colors.join(", ")}</dd></div>
-                      <div><dt className="font-semibold text-ink/40">Sizes</dt><dd>{m.sizes.join(", ")}</dd></div>
-                      <div><dt className="font-semibold text-ink/40">Print areas</dt><dd>{m.printAreas.join(", ")}</dd></div>
-                      <div><dt className="font-semibold text-ink/40">Margin</dt><dd className="font-bold text-[#047857]">{(() => {
+                      <div><dt className="font-semibold text-subtle">Colours</dt><dd>{m.colors.join(", ")}</dd></div>
+                      <div><dt className="font-semibold text-subtle">Sizes</dt><dd>{m.sizes.join(", ")}</dd></div>
+                      <div><dt className="font-semibold text-subtle">Print areas</dt><dd>{m.printAreas.join(", ")}</dd></div>
+                      <div><dt className="font-semibold text-subtle">Margin</dt><dd className="font-bold text-[#047857]">{(() => {
                           const sp = referenceSellingPrice(m);
                           return sp == null
-                            ? <span className="font-normal text-ink/40" title="This mapping has no reference selling price, so no margin can be shown">— no reference price</span>
-                            : <>{inr(sp - m.baseCost - (m.shippingCost ?? 0))} <span className="font-normal text-ink/40">(after ship)</span></>;
+                            ? <span className="font-normal text-subtle" title="This mapping has no reference selling price, so no margin can be shown">— no reference price</span>
+                            : <>{inr(sp - m.baseCost - (m.shippingCost ?? 0))} <span className="font-normal text-subtle">(after ship)</span></>;
                         })()}</dd></div>
                       {m.baseCostBySize && (
                         /* Qikink charges more for the bigger sizes, so a single
                            base cost understates them — 7XL costs ₹100 more than
                            an M. Shown here rather than hidden in the data. */
-                        <div className="col-span-2 sm:col-span-4"><dt className="font-semibold text-ink/40">Cost by size</dt>
+                        <div className="col-span-2 sm:col-span-4"><dt className="font-semibold text-subtle">Cost by size</dt>
                           <dd>{Object.entries(m.baseCostBySize).map(([sz, c]) => `${sz} ${inr(c)}`).join(" · ")}</dd></div>
                       )}
                     </dl>
@@ -4061,7 +4061,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                 </button>
               </div>
             {orders.length === 0 ? (
-              <p className="rounded-2xl bg-ink/4 px-4 py-10 text-center text-sm text-ink/50">No orders yet — they appear here after customer checkout.</p>
+              <p className="rounded-2xl bg-ink/4 px-4 py-10 text-center text-sm text-muted">No orders yet — they appear here after customer checkout.</p>
             ) : (
               <div className="grid gap-3">
                 {orders.map((o) => {
@@ -4073,7 +4073,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                   return (
                     <div key={o.id} className="rounded-2xl border border-ink/8 bg-white p-3.5">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm font-bold text-ink">{o.id} <span className="font-sans text-[11px] font-medium text-ink/40">· {new Date(o.createdAt).toLocaleString("en-IN")}</span></p>
+                        <p className="text-sm font-bold text-ink">{o.id} <span className="font-sans text-[11px] font-medium text-subtle">· {new Date(o.createdAt).toLocaleString("en-IN")}</span></p>
                         <p className="text-sm font-bold text-plum">{inr(o.total)}</p>
                       </div>
                       <p className="mt-1 text-xs text-ink/60">
@@ -4132,7 +4132,7 @@ function AdminPanel({ onClose, settings, onSaveSettings, orders, onUpdateOrder, 
                     </div>
                   );
                 })}
-                <p className="text-[10.5px] text-ink/45">
+                <p className="text-[10.5px] text-subtle">
                   "Send to Qikink" uploads artwork to Cloudinary and creates the order via <code className="font-bold">/api/qikink/create-order</code>.
                   If sending fails, the order is marked <span className="font-bold text-rose-600">Failed</span> with the error shown above — fix the cause and use "Retry send".
                 </p>

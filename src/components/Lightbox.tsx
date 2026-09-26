@@ -64,7 +64,7 @@ export default function Lightbox({ item, onClose }: { item: LightboxItem | null;
         >
           <MessageCircle size={18} /> Order on WhatsApp
         </a>
-        <span className="text-[11px] text-white/40">We confirm the details & share a payment link on WhatsApp.</span>
+        <span className="text-[11px] text-on-dark-muted">We confirm the details & share a payment link on WhatsApp.</span>
       </div>
     </div>
   );

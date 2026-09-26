@@ -80,7 +80,7 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
               </span>
             ))}
           </h2>
-          <p className="st-desc mx-auto mt-4 max-w-xl text-charcoal/55">
+          <p className="st-desc mx-auto mt-4 max-w-xl text-muted">
             Museum-quality HD-printed frames, crafted for the walls that tell your story.
           </p>
         </div>
@@ -141,7 +141,7 @@ export default function StatementCollection({ onTryMini }: { onTryMini?: () => v
               Try it now
               <span className="st-arrow">→</span>
             </button>
-            <p className="mt-3 text-xs text-charcoal/50">Design your own print in seconds — opens the Mini Print editor</p>
+            <p className="mt-3 text-xs text-muted">Design your own print in seconds — opens the Mini Print editor</p>
           </div>
         )}
       </div>

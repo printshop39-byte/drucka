@@ -23,6 +23,15 @@
   --color-warm: #f4efe7; /* warm light backdrop */
   --color-stone: #e2dcd2; /* soft warm border */
 
+  /* Secondary text. Never use text-charcoal/40..60 or text-ink/40..55 for words:
+     they measure 2.5-4.5:1 on white (WCAG AA needs 4.5:1). These keep two levels
+     of hierarchy and stay above 4.5:1 on every light surface the site uses
+     (white, cream, warm, the editors' grey-lavender panels). */
+  --color-muted: #5f5750;  /* secondary  - about 6-7:1 */
+  --color-subtle: #6b635b; /* tertiary   - about 5-5.9:1, do NOT put on --color-stone */
+  /* Secondary text on the dark surfaces (charcoal, ink, Pro editor). */
+  --color-on-dark-muted: #b3aca4; /* about 7-9:1 */
+
   /* the uploaded components use font-serif for display type */
   --font-serif: "Playfair Display", Georgia, serif;
 }

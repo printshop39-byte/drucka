@@ -35,7 +35,7 @@ export default function StudioTrust() {
         <div className="text-center mb-10 lg:mb-14">
           <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs block mb-3">A real studio you can talk to</span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">Printed by people, not a faceless app</h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">A real Kolhapur print studio you can message before you order.</p>
+          <p className="mx-auto mt-4 max-w-xl text-muted">A real Kolhapur print studio you can message before you order.</p>
         </div>
 
         <div className="grid items-stretch gap-6 lg:grid-cols-2">
@@ -67,7 +67,7 @@ export default function StudioTrust() {
                     {PHONE_DISPLAY}
                     <BadgeCheck size={16} style={{ color: '#1ba34e' }} aria-label="Verified business" />
                   </p>
-                  <p className="text-xs text-charcoal/55">Business WhatsApp · usually replies in minutes</p>
+                  <p className="text-xs text-muted">Business WhatsApp · usually replies in minutes</p>
                 </div>
                 <a href={WA} target="_blank" rel="noopener noreferrer"
                   className="ml-auto shrink-0 rounded-full px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#1a1208] transition hover:brightness-110"
@@ -87,11 +87,11 @@ export default function StudioTrust() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="flex items-start gap-3 rounded-2xl bg-white p-4" style={card}>
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={goldTint}><Truck size={18} /></span>
-                <div><p className="text-sm font-bold text-charcoal">Delivery across India</p><p className="text-xs text-charcoal/55">Carefully packed, 2–4 days</p></div>
+                <div><p className="text-sm font-bold text-charcoal">Delivery across India</p><p className="text-xs text-muted">Carefully packed, 2–4 days</p></div>
               </div>
               <div className="flex items-start gap-3 rounded-2xl bg-white p-4" style={card}>
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full" style={goldTint}><Store size={18} /></span>
-                <div><p className="text-sm font-bold text-charcoal">Studio pickup</p><p className="text-xs text-charcoal/55">Collect from our Kolhapur studio</p></div>
+                <div><p className="text-sm font-bold text-charcoal">Studio pickup</p><p className="text-xs text-muted">Collect from our Kolhapur studio</p></div>
               </div>
             </div>
           </div>
@@ -99,19 +99,19 @@ export default function StudioTrust() {
 
         {/* Sample print closeups */}
         <div className="mt-10">
-          <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-charcoal/45">Real prints, real quality</p>
+          <p className="mb-4 text-center text-sm font-semibold uppercase tracking-wide text-subtle">Real prints, real quality</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {SAMPLES.map((s) => (
               <figure key={s.label} className="overflow-hidden rounded-2xl bg-white" style={card}>
                 <img src={s.src} alt={`${s.label} quality sample by Drucka`} loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
-                <figcaption className="px-3 py-2 text-center text-xs font-medium text-charcoal/60">{s.label}</figcaption>
+                <figcaption className="px-3 py-2 text-center text-xs font-medium text-muted">{s.label}</figcaption>
               </figure>
             ))}
           </div>
         </div>
 
         {/* Privacy promise */}
-        <p className="mx-auto mt-8 flex max-w-xl items-center justify-center gap-2 text-center text-sm text-charcoal/60">
+        <p className="mx-auto mt-8 flex max-w-xl items-center justify-center gap-2 text-center text-sm text-muted">
           <Lock size={15} style={{ color: '#a8863a' }} />
           Uploaded photos are used only for your order — never shared or sold.
         </p>

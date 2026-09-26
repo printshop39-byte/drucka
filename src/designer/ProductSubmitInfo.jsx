@@ -69,20 +69,20 @@ export default function ProductSubmitInfo({
           {/* ── right: form ── */}
           <div className="space-y-5 pb-24">
             <label className="block">
-              <span className="mb-1 block text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Product title</span>
+              <span className="mb-1 block text-[11px] font-extrabold uppercase tracking-wider text-subtle">Product title</span>
               <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80}
                 className="w-full rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
             </label>
 
             <label className="block">
-              <span className="mb-1 block text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Description</span>
+              <span className="mb-1 block text-[11px] font-extrabold uppercase tracking-wider text-subtle">Description</span>
               <textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)}
                 className="w-full resize-y rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm leading-relaxed text-ink outline-none focus:border-tangerine" />
             </label>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-2xl border border-ink/10 bg-white p-4">
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Primary Display Color</p>
+                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Primary Display Color</p>
                 <div className="flex items-center gap-2.5">
                   <span className={`grid h-10 w-10 place-items-center rounded-full border-2 border-tangerine ring-2 ring-tangerine/30`}
                     style={{ backgroundColor: c?.hex }}>
@@ -90,41 +90,41 @@ export default function ProductSubmitInfo({
                   </span>
                   <span className="text-sm font-bold text-ink">{c?.label}</span>
                 </div>
-                <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-ink/40">Colors selected</p>
+                <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-subtle">Colors selected</p>
                 <p className="text-sm font-semibold text-ink/70">{c?.label}</p>
-                <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-ink/40">Sizes selected</p>
+                <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-subtle">Sizes selected</p>
                 <p className="text-sm font-semibold text-ink/70">{size} × {qty}</p>
               </div>
 
               {!enquiry && <div className="rounded-2xl border border-ink/10 bg-white p-4">
-                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Pricing Details</p>
+                <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Pricing Details</p>
                 <dl className="space-y-1.5 text-sm">
-                  <div className="flex justify-between"><dt className="text-ink/55">Price Range</dt><dd className="font-bold text-ink">{inr(price.unit)}</dd></div>
+                  <div className="flex justify-between"><dt className="text-muted">Price Range</dt><dd className="font-bold text-ink">{inr(price.unit)}</dd></div>
                   <div className="flex justify-between">
-                    <dt className="text-ink/55">Tax Rate (GST)</dt>
+                    <dt className="text-muted">Tax Rate (GST)</dt>
                     <dd className="font-bold text-ink">
                       {product.taxRate}%
-                      {product.hsn && <span className="ml-1 font-sans text-[11px] font-medium text-ink/40">HSN {product.hsn}</span>}
+                      {product.hsn && <span className="ml-1 font-sans text-[11px] font-medium text-subtle">HSN {product.hsn}</span>}
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-3">
-                    <dt className="text-ink/55">Profit Margin</dt>
+                    <dt className="text-muted">Profit Margin</dt>
                     <dd className="flex items-center gap-1">
-                      <span className="text-xs font-bold text-ink/45">₹</span>
+                      <span className="text-xs font-bold text-subtle">₹</span>
                       <input type="number" min={0} step={10} value={margin}
                         onChange={(e) => setMargin(Math.max(0, +e.target.value || 0))}
                         className="w-20 rounded-lg border border-ink/15 bg-white px-2 py-1 text-right text-sm font-bold text-ink outline-none focus:border-tangerine" />
                     </dd>
                   </div>
                 </dl>
-                <p className="mt-2 text-[10px] text-ink/40">Price includes {price.method.label} print on {price.printed.length || 1} placement{price.printed.length > 1 ? "s" : ""}. Margin is optional — keep 0 for the standard price.</p>
+                <p className="mt-2 text-[10px] text-subtle">Price includes {price.method.label} print on {price.printed.length || 1} placement{price.printed.length > 1 ? "s" : ""}. Margin is optional — keep 0 for the standard price.</p>
               </div>}
             </div>
 
             <div className="rounded-2xl border border-ink/10 bg-white p-4">
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Product Highlights</p>
-                <span className="text-[11px] font-bold text-ink/40">{tags.length}/10</span>
+                <p className="text-[11px] font-extrabold uppercase tracking-wider text-subtle">Product Highlights</p>
+                <span className="text-[11px] font-bold text-subtle">{tags.length}/10</span>
               </div>
               <div className="flex flex-wrap items-center gap-1.5">
                 {tags.map((t) => (
@@ -147,7 +147,7 @@ export default function ProductSubmitInfo({
                 <div className="mt-2 flex flex-wrap gap-1">
                   {product.productHighlights.filter((h) => !tags.includes(h)).map((h) => (
                     <button key={h} onClick={() => tags.length < 10 && setTags([...tags, h])}
-                      className="rounded-full border border-ink/12 px-2 py-0.5 text-[10px] font-semibold text-ink/50 hover:border-tangerine hover:text-[#c2410c]">
+                      className="rounded-full border border-ink/12 px-2 py-0.5 text-[10px] font-semibold text-muted hover:border-tangerine hover:text-[#c2410c]">
                       + {h}
                     </button>
                   ))}
@@ -164,9 +164,9 @@ export default function ProductSubmitInfo({
           <p className="text-sm font-bold text-ink/70">Price on enquiry</p>
         ) : (
         <div className="leading-tight">
-          <p className="text-[10px] font-bold uppercase tracking-wide text-ink/45">Selling Price</p>
+          <p className="text-[10px] font-bold uppercase tracking-wide text-subtle">Selling Price</p>
           <p className="text-lg font-extrabold text-ink">{inr(selling * qty)}
-            {qty > 1 && <span className="ml-1 text-xs font-semibold text-ink/45">({qty} × {inr(selling)})</span>}
+            {qty > 1 && <span className="ml-1 text-xs font-semibold text-subtle">({qty} × {inr(selling)})</span>}
           </p>
         </div>
         )}

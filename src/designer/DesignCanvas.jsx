@@ -104,9 +104,9 @@ export const MockupImage = ({ product, color, photo, className = "" }) => {
   }
   return (
     <div className={`absolute inset-0 grid place-items-center bg-gradient-to-b from-[#eef0f4] to-[#e2e5ec] ${className}`}>
-      <p className="px-6 text-center text-xs font-semibold text-ink/40">
+      <p className="px-6 text-center text-xs font-semibold text-subtle">
         {product.productName}
-        <span className="mt-1 block text-[10px] font-medium text-ink/30">Mockup photo coming soon — design preview is still accurate</span>
+        <span className="mt-1 block text-[10px] font-medium text-subtle">Mockup photo coming soon — design preview is still accurate</span>
       </p>
     </div>
   );

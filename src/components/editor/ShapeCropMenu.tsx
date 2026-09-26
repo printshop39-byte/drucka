@@ -16,7 +16,7 @@ const SHAPE_CSS: Record<ShapeId, React.CSSProperties> = {
 export default function ShapeCropMenu({ value, onChange }: { value: ShapeId; onChange: (s: ShapeId) => void }) {
   return (
     <div>
-      <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wider text-white/45">Shape crop</p>
+      <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wider text-on-dark-muted">Shape crop</p>
       <div className="grid grid-cols-4 gap-1.5">
         {SHAPES.map((s) => (
           <button key={s.id} title={s.label} onClick={() => onChange(s.id)}
@@ -27,7 +27,7 @@ export default function ShapeCropMenu({ value, onChange }: { value: ShapeId; onC
           </button>
         ))}
       </div>
-      <p className="mt-1.5 text-[9px] leading-relaxed text-white/35">
+      <p className="mt-1.5 text-[9px] leading-relaxed text-on-dark-muted">
         Tip: double-click a photo (or use the crop tool) to slide it inside its shape.
       </p>
     </div>

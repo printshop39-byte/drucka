@@ -26,7 +26,7 @@ export default function PolicyPage({ data, siblings, onNavigate }: {
   return (
     <article className="bg-white pb-16 pt-28 sm:pt-32">
       <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
-        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-charcoal/50">
+        <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted">
           <a href="/" onClick={(e) => { e.preventDefault(); onNavigate('/'); }} className="transition hover:text-charcoal">
             Home
           </a>

@@ -18,7 +18,7 @@ export default function BlendPanel({ blend, onBlend, isMulti, isGroup, onMerge, 
     <div className="space-y-3">
       {!isMulti && (
         <label className="block">
-          <span className="mb-1 block text-[9px] font-bold uppercase tracking-wide text-white/35">Blend mode · how it mixes with layers below</span>
+          <span className="mb-1 block text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Blend mode · how it mixes with layers below</span>
           <select value={blend} onChange={(e) => onBlend(e.target.value)}
             className="w-full rounded-lg border border-white/15 bg-[#221c33] px-2 py-2 text-xs font-bold text-white outline-none focus:border-gold">
             {BLEND_MODES.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
@@ -36,7 +36,7 @@ export default function BlendPanel({ blend, onBlend, isMulti, isGroup, onMerge, 
             className="flex w-full items-center justify-center gap-2 rounded-full bg-white/10 py-2 text-[11px] font-bold text-white/80 transition hover:bg-white/15">
             <GroupIcon size={13} /> Group selection
           </button>
-          <p className="text-[9px] leading-relaxed text-white/35">
+          <p className="text-[9px] leading-relaxed text-on-dark-muted">
             <Layers size={9} className="mr-1 inline" />
             Merge bakes the selected layers (with their blend modes) into a single photo you can shape-crop. Photo borders are not merged — re-add after.
           </p>

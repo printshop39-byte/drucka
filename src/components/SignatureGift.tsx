@@ -18,7 +18,7 @@ export default function SignatureGift() {
             </h2>
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-3xl font-bold">₹2,499</span>
-              <span className="text-white/40 line-through text-lg">₹2,999</span>
+              <span className="text-on-dark-muted line-through text-lg">₹2,999</span>
               <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-sm uppercase">Save 17%</span>
             </div>
             <p className="text-white/60 leading-relaxed mb-8 max-w-md">
@@ -70,9 +70,9 @@ export default function SignatureGift() {
                     <span key={s} className="text-gold text-sm">★</span>
                   ))}
                 </div>
-                <span className="text-xs text-charcoal/50 font-medium">5.0</span>
+                <span className="text-xs text-muted font-medium">5.0</span>
               </div>
-              <p className="text-xs text-charcoal/60 leading-relaxed">
+              <p className="text-xs text-muted leading-relaxed">
                 "The perfect gift for our anniversary. The quality is absolutely stunning!"
               </p>
             </div>

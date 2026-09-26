@@ -21,7 +21,7 @@ const Slider = ({ label, value, min, max, onChange, fmt = (v: number) => `${v}` 
   label: string; value: number; min: number; max: number; onChange: (v: number) => void; fmt?: (v: number) => string;
 }) => (
   <label className="block">
-    <span className="mb-0.5 flex justify-between text-[9.5px] font-bold uppercase tracking-wide text-white/45">
+    <span className="mb-0.5 flex justify-between text-[9.5px] font-bold uppercase tracking-wide text-on-dark-muted">
       {label} <span className="text-white/70">{fmt(value)}</span>
     </span>
     <input type="range" min={min} max={max} value={value}
@@ -34,7 +34,7 @@ export default function ImageEffectsPanel({ meta, onEffect, onStyle }: Props) {
   return (
     <div className="space-y-4">
       <div>
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wider text-white/45">Image effects</p>
+        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wider text-on-dark-muted">Image effects</p>
         <div className="space-y-2.5">
           <Slider label="Blur" value={e.blur} min={0} max={100} onChange={(v) => onEffect({ blur: v })} />
           <Slider label="Brightness" value={e.brightness} min={40} max={160} fmt={(v) => `${v}%`} onChange={(v) => onEffect({ brightness: v })} />
@@ -44,7 +44,7 @@ export default function ImageEffectsPanel({ meta, onEffect, onStyle }: Props) {
       </div>
 
       <div>
-        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wider text-white/45">Style</p>
+        <p className="mb-2 text-[10px] font-extrabold uppercase tracking-wider text-on-dark-muted">Style</p>
         <div className="space-y-2.5">
           <Slider label="Border width" value={meta.border.width} min={0} max={60}
             onChange={(v) => onStyle({ borderWidth: v })} />
@@ -58,10 +58,10 @@ export default function ImageEffectsPanel({ meta, onEffect, onStyle }: Props) {
             ))}
           </div>
           {meta.border.style === 'sketch' && meta.shape === 'heart' && (
-            <p className="text-[9px] text-white/35">Freehand isn't available for hearts — shown solid.</p>
+            <p className="text-[9px] text-on-dark-muted">Freehand isn't available for hearts — shown solid.</p>
           )}
           <label className="flex items-center justify-between">
-            <span className="text-[9.5px] font-bold uppercase tracking-wide text-white/45">Border color</span>
+            <span className="text-[9.5px] font-bold uppercase tracking-wide text-on-dark-muted">Border color</span>
             <span className="flex items-center gap-1.5">
               {['#c19a3d', '#ffffff', '#211c17', '#6e1423', '#22304f'].map((c) => (
                 <button key={c} aria-label={`Border ${c}`} onClick={() => onStyle({ borderColor: c })}
@@ -86,7 +86,7 @@ export default function ImageEffectsPanel({ meta, onEffect, onStyle }: Props) {
           <Slider label="Corner radius" value={meta.radius} min={0} max={100} fmt={(v) => `${v}%`}
             onChange={(v) => onStyle({ radius: v })} />
           {meta.shape !== 'none' && meta.shape !== 'rounded' && meta.radius > 0 && (
-            <p className="text-[9px] text-white/35">Corner radius applies to Original / Rounded shapes.</p>
+            <p className="text-[9px] text-on-dark-muted">Corner radius applies to Original / Rounded shapes.</p>
           )}
         </div>
       </div>

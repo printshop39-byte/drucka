@@ -344,7 +344,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
         </button>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-ink">{product.productName}</p>
-          <p className="hidden text-[10px] text-ink/45 sm:block">Drucka Design Studio</p>
+          <p className="hidden text-[10px] text-subtle sm:block">Drucka Design Studio</p>
         </div>
 
         {!preview && (
@@ -375,7 +375,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
             {["design", "preview"].map((m) => (
               <button key={m} role="tab" aria-selected={mode === m}
                 onClick={() => { setMode(m); setSelectedLayerId(null); }}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition sm:px-4 ${mode === m ? "bg-white text-[#c2410c] shadow" : "text-ink/55"}`}>
+                className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition sm:px-4 ${mode === m ? "bg-white text-[#c2410c] shadow" : "text-muted"}`}>
                 {m}
               </button>
             ))}
@@ -395,7 +395,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
               {TOOLS.map((t) => (
                 <button key={t.id} onClick={() => setTool(tool === t.id ? null : t.id)}
                   className={`flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${
-                    tool === t.id ? "bg-tangerine/10 text-[#c2410c]" : "text-ink/50 hover:bg-ink/4 hover:text-ink"
+                    tool === t.id ? "bg-tangerine/10 text-[#c2410c]" : "text-muted hover:bg-ink/4 hover:text-ink"
                   }`}>
                   <Icon d={t.icon} className="h-5 w-5" />
                   {t.label}
@@ -462,28 +462,28 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
           <div className="z-20 flex shrink-0 items-center gap-3 border-t border-ink/10 bg-white px-3 py-2.5 sm:px-4">
             {!preview && (
               <div className="hidden items-center gap-2 sm:flex">
-                <Icon d={ic.zoomIn} className="h-4 w-4 text-ink/45" />
+                <Icon d={ic.zoomIn} className="h-4 w-4 text-subtle" />
                 <input type="range" min={50} max={160} value={zoom} onChange={(e) => setZoom(+e.target.value)}
                   className="w-28 accent-tangerine" aria-label="Zoom" />
-                <span className="w-10 text-xs font-bold text-ink/50">{zoom}%</span>
+                <span className="w-10 text-xs font-bold text-muted">{zoom}%</span>
               </div>
             )}
             <div className="ml-auto flex items-center gap-3">
               {enquiry ? (
-                <p className="text-xs font-semibold text-ink/55">Price on enquiry</p>
+                <p className="text-xs font-semibold text-muted">Price on enquiry</p>
               ) : hasDesign ? (
                 <div className="text-right leading-tight">
                   <p className="text-base font-extrabold text-ink sm:text-lg">{inr(price.total)}</p>
-                  <p className="text-[10px] text-ink/45">
+                  <p className="text-[10px] text-subtle">
                     {qty > 1 ? `${qty} × ${inr(price.unit)} · ` : ""}{price.method.label} · {price.printed.map((p) => p.label).join(" + ")}
                   </p>
                 </div>
               ) : (
-                <p className="text-xs font-semibold text-ink/45">Add designs to see price</p>
+                <p className="text-xs font-semibold text-subtle">Add designs to see price</p>
               )}
               <button onClick={() => (hasDesign ? setStep("submit") : showToast("Add a design first — upload, text or graphics"))}
                 className={`rounded-full px-6 py-2.5 text-sm font-bold transition ${
-                  hasDesign ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"
+                  hasDesign ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-subtle"
                 }`}>
                 Continue →
               </button>
@@ -505,7 +505,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
         <nav className="z-30 flex shrink-0 items-stretch justify-around border-t border-ink/10 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
           {TOOLS.map((t) => (
             <button key={t.id} onClick={() => { setTool(t.id); setMobilePanel(t.id); }}
-              className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold text-ink/55">
+              className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold text-muted">
               <Icon d={t.icon} className="h-5 w-5" />
               {t.label}
             </button>

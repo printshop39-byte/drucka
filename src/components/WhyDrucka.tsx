@@ -29,7 +29,7 @@ export default function WhyDrucka() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
             Gallery-quality prints. Zero guesswork.
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
+          <p className="mx-auto mt-4 max-w-xl text-muted">
             Everything you'd expect from a premium gifting studio — and nothing you wouldn't.
           </p>
         </div>
@@ -44,7 +44,7 @@ export default function WhyDrucka() {
                 </span>
                 <div>
                   <h3 className="font-serif font-semibold text-lg text-charcoal">{p.title}</h3>
-                  <p className="mt-1 text-sm text-charcoal/55">{p.desc}</p>
+                  <p className="mt-1 text-sm text-muted">{p.desc}</p>
                 </div>
               </div>
             );

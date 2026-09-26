@@ -384,44 +384,44 @@ export default function ProductEditorShell({
         return (
           <div className="space-y-4 p-4">
             <label className="block">
-              <span className="mb-1 block text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Product title</span>
+              <span className="mb-1 block text-[11px] font-extrabold uppercase tracking-wider text-subtle">Product title</span>
               <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80}
                 className="w-full rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
             </label>
             {!enquiry && <label className="flex items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white p-4">
               <span className="min-w-0">
-                <span className="block text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Profit margin (₹ / unit)</span>
-                <span className="block text-[10px] text-ink/40">For resellers — keep 0 for the standard price</span>
+                <span className="block text-[11px] font-extrabold uppercase tracking-wider text-subtle">Profit margin (₹ / unit)</span>
+                <span className="block text-[10px] text-subtle">For resellers — keep 0 for the standard price</span>
               </span>
               <span className="flex items-center gap-1">
-                <span className="text-xs font-bold text-ink/45">₹</span>
+                <span className="text-xs font-bold text-subtle">₹</span>
                 <input type="number" min={0} step={10} value={margin}
                   onChange={(e) => setMargin(Math.max(0, +e.target.value || 0))}
                   className="w-20 rounded-lg border border-ink/15 bg-white px-2 py-1.5 text-right text-sm font-bold text-ink outline-none focus:border-tangerine" />
               </span>
             </label>}
             <div className="rounded-2xl border border-ink/10 bg-white p-4 text-sm">
-              <div className="flex justify-between py-1"><span className="text-ink/55">Product</span><span className="font-bold text-ink">{product.productName}</span></div>
-              <div className="flex justify-between py-1"><span className="text-ink/55">Colour · Size</span><span className="font-bold text-ink">{colorById(sel.selectedColor)?.label ?? sel.selectedColor} · {sel.selectedSize}</span></div>
-              <div className="flex justify-between py-1"><span className="text-ink/55">Print</span><span className="font-bold text-ink">{price.method.label}</span></div>
-              {!enquiry && <div className="flex justify-between py-1"><span className="text-ink/55">Base price</span><span className="font-bold text-ink">{inr(price.unit)}</span></div>}
+              <div className="flex justify-between py-1"><span className="text-muted">Product</span><span className="font-bold text-ink">{product.productName}</span></div>
+              <div className="flex justify-between py-1"><span className="text-muted">Colour · Size</span><span className="font-bold text-ink">{colorById(sel.selectedColor)?.label ?? sel.selectedColor} · {sel.selectedSize}</span></div>
+              <div className="flex justify-between py-1"><span className="text-muted">Print</span><span className="font-bold text-ink">{price.method.label}</span></div>
+              {!enquiry && <div className="flex justify-between py-1"><span className="text-muted">Base price</span><span className="font-bold text-ink">{inr(price.unit)}</span></div>}
               {!enquiry && margin > 0 && (
-                <div className="flex justify-between py-1"><span className="text-ink/55">Margin</span><span className="font-bold text-ink">+ {inr(margin)}</span></div>
+                <div className="flex justify-between py-1"><span className="text-muted">Margin</span><span className="font-bold text-ink">+ {inr(margin)}</span></div>
               )}
-              <div className="flex justify-between py-1"><span className="text-ink/55">Quantity</span><span className="font-bold text-ink">{qty}</span></div>
+              <div className="flex justify-between py-1"><span className="text-muted">Quantity</span><span className="font-bold text-ink">{qty}</span></div>
               {/* the classic editor has shown this on its submit step all
                   along; the shell never did, so the five products that moved
                   to it quietly stopped displaying a GST rate at all */}
               {!enquiry && <div className="flex justify-between py-1">
-                <span className="text-ink/55">Tax Rate (GST)</span>
+                <span className="text-muted">Tax Rate (GST)</span>
                 <span className="font-bold text-ink">
                   {product.taxRate}%
-                  {product.hsn && <span className="ml-1 text-[11px] font-medium text-ink/40">HSN {product.hsn}</span>}
+                  {product.hsn && <span className="ml-1 text-[11px] font-medium text-subtle">HSN {product.hsn}</span>}
                 </span>
               </div>}
               {enquiry
-                ? <p className="mt-2 border-t border-ink/10 pt-2 text-xs text-ink/55">We'll reply on WhatsApp with the price and delivery time. Send your photo or artwork in the chat.</p>
-                : <div className="mt-2 flex justify-between border-t border-ink/10 pt-2"><span className="text-ink/55">Total</span><span className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</span></div>}
+                ? <p className="mt-2 border-t border-ink/10 pt-2 text-xs text-muted">We'll reply on WhatsApp with the price and delivery time. Send your photo or artwork in the chat.</p>
+                : <div className="mt-2 flex justify-between border-t border-ink/10 pt-2"><span className="text-muted">Total</span><span className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</span></div>}
             </div>
             {enquiry ? (
               <button onClick={handleEnquire}
@@ -432,7 +432,7 @@ export default function ProductEditorShell({
             {/* flattening and uploading the artwork takes a moment — say so
                 rather than letting a second tap queue another cart line */}
             <button onClick={handleAddToCart} disabled={!hasDesign || addingToCart}
-              className={`w-full rounded-full px-6 py-3 text-sm font-bold transition ${hasDesign && !addingToCart ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
+              className={`w-full rounded-full px-6 py-3 text-sm font-bold transition ${hasDesign && !addingToCart ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-subtle"}`}>
               {addingToCart
                 ? "Preparing your artwork…"
                 : `${editKey ? "Update cart item" : "Add to cart"} · ${inr(sellingTotal)}`}
@@ -455,8 +455,8 @@ export default function ProductEditorShell({
     return (
       <button key={t.id} onClick={() => pickTool(t.id)} aria-label={t.label} aria-pressed={on}
         className={vertical
-          ? `flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${on ? "bg-tangerine/10 text-[#c2410c]" : "text-ink/50 hover:bg-ink/4 hover:text-ink"}`
-          : `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${on ? "text-[#c2410c]" : "text-ink/55"}`}>
+          ? `flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[10px] font-bold transition ${on ? "bg-tangerine/10 text-[#c2410c]" : "text-muted hover:bg-ink/4 hover:text-ink"}`
+          : `flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-bold ${on ? "text-[#c2410c]" : "text-muted"}`}>
         {t.swatch ? swatch(20) : <Icon d={t.icon} className="h-5 w-5" />}
         {t.label}
       </button>
@@ -491,7 +491,7 @@ export default function ProductEditorShell({
         </button>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-ink">{product.productName}</p>
-          <p className="hidden text-[10px] text-ink/45 sm:block">
+          <p className="hidden text-[10px] text-subtle sm:block">
             {editKey ? "Editing a cart item" : "Drucka Design Studio"}
           </p>
         </div>
@@ -545,24 +545,24 @@ export default function ProductEditorShell({
           <div className="z-20 hidden shrink-0 items-center gap-3 border-t border-ink/10 bg-white px-4 py-2.5 lg:flex">
             {!preview && (
               <div className="flex items-center gap-2">
-                <Icon d={ic.zoomIn} className="h-4 w-4 text-ink/45" />
+                <Icon d={ic.zoomIn} className="h-4 w-4 text-subtle" />
                 <input type="range" min={50} max={160} value={zoom} onChange={(e) => setZoom(+e.target.value)} className="w-28 accent-tangerine" aria-label="Zoom" />
-                <span className="w-10 text-xs font-bold text-ink/50">{zoom}%</span>
+                <span className="w-10 text-xs font-bold text-muted">{zoom}%</span>
               </div>
             )}
             <div className="ml-auto flex items-center gap-3">
               {enquiry ? (
-                <p className="text-xs font-semibold text-ink/55">Price on enquiry</p>
+                <p className="text-xs font-semibold text-muted">Price on enquiry</p>
               ) : hasDesign ? (
                 <div className="text-right leading-tight">
                   <p className="text-lg font-extrabold text-ink">{inr(sellingTotal)}</p>
-                  <p className="text-[10px] text-ink/45">{qty > 1 ? `${qty} × ${inr(selling)} · ` : ""}{price.method.label}</p>
+                  <p className="text-[10px] text-subtle">{qty > 1 ? `${qty} × ${inr(selling)} · ` : ""}{price.method.label}</p>
                 </div>
               ) : (
-                <p className="text-xs font-semibold text-ink/45">Add a design to see price</p>
+                <p className="text-xs font-semibold text-subtle">Add a design to see price</p>
               )}
               <button onClick={() => (hasDesign ? setActiveTool("cart") : showToast("Add a design first — Image or Text"))}
-                className={`rounded-full px-6 py-2.5 text-sm font-bold transition ${hasDesign ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-ink/35"}`}>
+                className={`rounded-full px-6 py-2.5 text-sm font-bold transition ${hasDesign ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-subtle"}`}>
                 {activeTool === "cart" ? "Review ✓" : "Continue →"}
               </button>
             </div>

@@ -33,13 +33,13 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
 
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-white/35">Size</span>
+          <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Size</span>
           <input type="number" min={10} max={400} value={Math.round(text.fontSize ?? 60)}
             onChange={(e) => onPatch({ fontSize: Math.min(400, Math.max(10, +e.target.value || 10)) })}
             className="w-full rounded-lg border border-white/15 bg-white/5 px-2 py-1.5 text-xs font-bold text-white outline-none focus:border-gold" />
         </label>
         <div>
-          <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-white/35">Style</span>
+          <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Style</span>
           <div className="flex gap-1">
             <button title="Bold" onClick={() => onPatch({ fontWeight: bold ? 400 : 700 })}
               className={`h-8 w-8 rounded-lg border-2 text-xs font-black ${bold ? 'border-gold bg-gold text-[#1a1208]' : 'border-white/15 text-white/60'}`}>B</button>
@@ -52,7 +52,7 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="text-[9px] font-bold uppercase tracking-wide text-white/35">Align</span>
+        <span className="text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Align</span>
         <div className="flex gap-1">
           {([['left', AlignLeft], ['center', AlignCenter], ['right', AlignRight]] as const).map(([a, Ic]) => (
             <button key={a} title={`Align ${a}`} onClick={() => onPatch({ textAlign: a })}
@@ -72,7 +72,7 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
           the letterform, so a thick outline turns the word to mush. */}
       <div className="space-y-1.5 rounded-xl border border-white/10 p-2">
         <label className="block">
-          <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+          <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">
             Outline <span className="text-white/70">{Math.round(text.strokeWidth ?? 0)}px</span>
           </span>
           <input type="range" min={0} max={24} value={Math.round(text.strokeWidth ?? 0)}
@@ -99,7 +99,7 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
           past the words. Empty string clears it. */}
       <div className="space-y-1.5 rounded-xl border border-white/10 p-2">
         <div className="flex items-center justify-between">
-          <span className="text-[9px] font-bold uppercase tracking-wide text-white/35">Label behind text</span>
+          <span className="text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Label behind text</span>
           <button onClick={() => onPatch({ textBackgroundColor: text.textBackgroundColor ? '' : '#ffffff' })}
             className={`rounded-full border-2 px-2.5 py-0.5 text-[9px] font-bold transition ${
               text.textBackgroundColor ? 'border-gold bg-gold/15 text-gold' : 'border-white/15 text-white/55'}`}>
@@ -117,7 +117,7 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
           a straight path still changes how Fabric measures and aligns the
           line, so the text would not sit back exactly where it started. */}
       <label className="block">
-        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">
           Curve <span className="text-white/70">{(text as unknown as { druCurve?: number }).druCurve ?? 0}</span>
         </span>
         <input type="range" min={-100} max={100}
@@ -127,7 +127,7 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
       </label>
 
       <label className="block">
-        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">
           Shadow <span className="text-white/70">{(text as unknown as { druShadow?: number }).druShadow ?? 0}</span>
         </span>
         <input type="range" min={0} max={30}
@@ -144,20 +144,20 @@ export default function TextPanel({ text, onPatch, onCurve }: Props) {
       </label>
 
       <label className="block">
-        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">
           Letter spacing <span className="text-white/70">{Math.round((text.charSpacing ?? 0) / 10)}</span>
         </span>
         <input type="range" min={-50} max={800} value={text.charSpacing ?? 0}
           onChange={(e) => onPatch({ charSpacing: +e.target.value })} className="w-full accent-gold" />
       </label>
       <label className="block">
-        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">
           Line height <span className="text-white/70">{(text.lineHeight ?? 1.16).toFixed(2)}</span>
         </span>
         <input type="range" min={0.7} max={2.5} step={0.02} value={text.lineHeight ?? 1.16}
           onChange={(e) => onPatch({ lineHeight: +e.target.value })} className="w-full accent-gold" />
       </label>
-      <p className="text-[9px] text-white/35">Double-click the text on canvas to edit the words.</p>
+      <p className="text-[9px] text-on-dark-muted">Double-click the text on canvas to edit the words.</p>
     </div>
   );
 }

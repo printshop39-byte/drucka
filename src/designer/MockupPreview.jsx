@@ -49,7 +49,7 @@ export default function MockupPreview({ product, color, size, layersByPlacement,
                 placement === p.id ? "border-tangerine ring-2 ring-tangerine/30" : "border-ink/10 hover:border-ink/30"
               }`}>
               <MiniMockup product={product} color={color} size={size} placement={p} layers={layersByPlacement[p.id]} />
-              <span className={`block truncate px-1 py-0.5 text-center text-[9px] font-bold ${placement === p.id ? "text-[#c2410c]" : "text-ink/55"}`}>
+              <span className={`block truncate px-1 py-0.5 text-center text-[9px] font-bold ${placement === p.id ? "text-[#c2410c]" : "text-muted"}`}>
                 {p.label}{n > 0 ? ` · ${n}` : ""}
               </span>
             </button>

@@ -13,10 +13,10 @@ import { BRUSH_TEMPLATES, brushById } from "../lib/editor/brushes";
 const PanelShell = ({ title, onClose, children }) => (
   <div className="flex h-full flex-col">
     <div className="flex items-center justify-between px-4 pb-2 pt-4">
-      <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink/45">{title}</p>
+      <p className="text-[11px] font-extrabold uppercase tracking-wider text-subtle">{title}</p>
       {onClose && (
         <button onClick={onClose} aria-label={`Close ${title} panel`}
-          className="grid h-7 w-7 place-items-center rounded-full text-ink/50 hover:bg-ink/5">
+          className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-ink/5">
           <Icon d={ic.close} className="h-4 w-4" />
         </button>
       )}
@@ -27,7 +27,7 @@ const PanelShell = ({ title, onClose, children }) => (
 
 const Field = ({ label, children }) => (
   <label className="block">
-    <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-ink/45">{label}</span>
+    <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-subtle">{label}</span>
     {children}
   </label>
 );
@@ -46,8 +46,8 @@ const Accordion = ({ title, open, onToggle, children }) => (
   <div className="overflow-hidden rounded-xl border border-ink/10 bg-white">
     <button onClick={onToggle} aria-expanded={open}
       className="flex w-full items-center justify-between px-3 py-2.5 text-left">
-      <span className="text-[11px] font-extrabold uppercase tracking-wider text-ink/55">{title}</span>
-      <Icon d={ic.chev} className={`h-4 w-4 text-ink/40 transition-transform duration-300 ${open ? "rotate-90" : ""}`} />
+      <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted">{title}</span>
+      <Icon d={ic.chev} className={`h-4 w-4 text-subtle transition-transform duration-300 ${open ? "rotate-90" : ""}`} />
     </button>
     <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
       <div className="overflow-hidden">
@@ -80,7 +80,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
         {thumb && <img src={thumb} alt="" className="h-14 w-12 rounded-lg object-cover" />}
         <div>
           <p className="text-sm font-bold leading-tight text-ink">{product.productName}</p>
-          {!isEnquiry(product.productId) && <p className="text-xs text-ink/50">Base {inr(product.basePrice)}</p>}
+          {!isEnquiry(product.productId) && <p className="text-xs text-muted">Base {inr(product.basePrice)}</p>}
         </div>
       </div>
 
@@ -94,9 +94,9 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
                 }`}>
                 <span>
                   <span className="block text-sm font-extrabold text-ink">{m.label}
-                    <span className="ml-1.5 text-[10px] font-semibold text-ink/45">{m.full}</span>
+                    <span className="ml-1.5 text-[10px] font-semibold text-subtle">{m.full}</span>
                   </span>
-                  <span className="block text-[11px] text-ink/50">{m.note}</span>
+                  <span className="block text-[11px] text-muted">{m.note}</span>
                 </span>
                 {m.price > 0 && !isEnquiry(product.productId) && <span className="text-xs font-bold text-[#c2410c]">+{inr(m.price)}</span>}
               </button>
@@ -143,10 +143,10 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
             ))}
           </div>
           {!isEnquiry(product.productId) && product.sizeSurcharge?.[state.selectedSize] > 0 && (
-            <p className="mt-1.5 text-[11px] text-ink/50">{state.selectedSize} adds {inr(product.sizeSurcharge[state.selectedSize])}</p>
+            <p className="mt-1.5 text-[11px] text-muted">{state.selectedSize} adds {inr(product.sizeSurcharge[state.selectedSize])}</p>
           )}
           {product.copy?.careNote && (
-            <p className="mt-2 text-[11px] text-ink/50">{product.copy.careNote}</p>
+            <p className="mt-2 text-[11px] text-muted">{product.copy.careNote}</p>
           )}
         </Accordion>
       </div>
@@ -169,7 +169,7 @@ export function LayersPanel({ layers, selectedId, onSelect, onPatch, onDelete, o
   const list = [...layers].reverse(); // top-most first, like design tools
   return (
     <PanelShell title={`Layers · ${placementLabel}`} onClose={onClose}>
-      {!list.length && <p className="text-sm text-ink/45">No layers yet — upload a design, add text, or pick a graphic.</p>}
+      {!list.length && <p className="text-sm text-subtle">No layers yet — upload a design, add text, or pick a graphic.</p>}
       <ul className="space-y-1.5">
         {list.map((l) => {
           const idx = layers.indexOf(l);
@@ -185,22 +185,22 @@ export function LayersPanel({ layers, selectedId, onSelect, onPatch, onDelete, o
                   )}
                   <span className="min-w-0">
                     <span className="block truncate text-xs font-bold text-ink">{l.name}</span>
-                    <span className="block text-[10px] capitalize text-ink/45">{l.type}{l.locked ? " · locked" : ""}</span>
+                    <span className="block text-[10px] capitalize text-subtle">{l.type}{l.locked ? " · locked" : ""}</span>
                   </span>
                 </button>
                 <div className="flex shrink-0 items-center">
                   <button title="Move up" disabled={idx === layers.length - 1} onClick={() => onMove(l.id, +1)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-ink/50 hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.up} className="h-3.5 w-3.5" /></button>
+                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.up} className="h-3.5 w-3.5" /></button>
                   <button title="Move down" disabled={idx === 0} onClick={() => onMove(l.id, -1)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-ink/50 hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.down} className="h-3.5 w-3.5" /></button>
+                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.down} className="h-3.5 w-3.5" /></button>
                   <button title="Duplicate" onClick={() => onDuplicate(l.id)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-ink/50 hover:bg-ink/5"><Icon d={ic.copy} className="h-3.5 w-3.5" /></button>
+                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5"><Icon d={ic.copy} className="h-3.5 w-3.5" /></button>
                   <button title={l.locked ? "Unlock" : "Lock"} onClick={() => onPatch(l.id, { locked: !l.locked })}
-                    className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-ink/5 ${l.locked ? "text-[#c2410c]" : "text-ink/50"}`}>
+                    className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-ink/5 ${l.locked ? "text-[#c2410c]" : "text-muted"}`}>
                     <Icon d={l.locked ? ic.lock : ic.unlock} className="h-3.5 w-3.5" />
                   </button>
                   <button title={l.visible === false ? "Show" : "Hide"} onClick={() => onPatch(l.id, { visible: l.visible === false })}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-ink/50 hover:bg-ink/5">
+                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5">
                     <Icon d={l.visible === false ? ic.eyeOff : ic.eye} className="h-3.5 w-3.5" />
                   </button>
                   <button title="Delete" onClick={() => onDelete(l.id)}
@@ -231,7 +231,7 @@ export function UploadsPanel({ assets, onUpload, onUse, busy, onClose, uploadTip
         <span className="text-[11px] text-[#c2410c]">or drag & drop here</span>
       </button>
 
-      <ul className="mt-3 space-y-1 text-[11px] text-ink/55">
+      <ul className="mt-3 space-y-1 text-[11px] text-muted">
         <li>• Use a high-resolution image (300 DPI recommended)</li>
         {/* "works best on garments" was being shown inside the MUG editor */}
         <li>• {uploadTip ?? "Transparent PNG works best on garments"}</li>
@@ -240,7 +240,7 @@ export function UploadsPanel({ assets, onUpload, onUse, busy, onClose, uploadTip
 
       {assets.length > 0 && (
         <>
-          <p className="mb-2 mt-5 text-[10px] font-bold uppercase tracking-wide text-ink/45">Uploaded files</p>
+          <p className="mb-2 mt-5 text-[10px] font-bold uppercase tracking-wide text-subtle">Uploaded files</p>
           <ul className="space-y-1.5">
             {assets.map((item) => (
               <li key={item.id}>
@@ -278,7 +278,7 @@ export function TextPanel({ selected, onAddText, onPatch, onClose }) {
             className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-[#1a1208] transition hover:brightness-105 disabled:opacity-40">
             Add text to design
           </button>
-          <p className="mt-3 text-[11px] text-ink/45">Tip: select a text layer on the canvas to edit its font, style and spacing.</p>
+          <p className="mt-3 text-[11px] text-subtle">Tip: select a text layer on the canvas to edit its font, style and spacing.</p>
         </>
       )}
 
@@ -350,7 +350,7 @@ export function GraphicsPanel({ onAddImage, onClose }) {
   return (
     <PanelShell title="Graphics" onClose={onClose}>
       <div className="relative mb-2">
-        <Icon d={ic.search} className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/35" />
+        <Icon d={ic.search} className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search graphics…"
           className="w-full rounded-full border border-ink/15 bg-white py-2 pl-9 pr-3 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
       </div>
@@ -358,13 +358,13 @@ export function GraphicsPanel({ onAddImage, onClose }) {
         {GRAPHIC_CATEGORIES.map((c) => (
           <button key={c} onClick={() => setCat(c)}
             className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold capitalize transition ${
-              cat === c ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/55"
+              cat === c ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-muted"
             }`}>
             {c}
           </button>
         ))}
       </div>
-      {!shown.length && <p className="text-sm text-ink/45">No graphics match "{query}".</p>}
+      {!shown.length && <p className="text-sm text-subtle">No graphics match "{query}".</p>}
       <div className="grid grid-cols-4 gap-2">
         {shown.map((g) => (
           <button key={g.id} title={g.label} onClick={() => onAddImage(graphicDataUrl(g), g.label, 1)}
@@ -392,23 +392,23 @@ export function DrawPanel({
         <Icon d={ic.pen} className="h-4 w-4" />
         {active ? "Pause drawing" : "Start drawing"}
       </button>
-      <p className="mt-1.5 text-[10px] text-ink/45">
+      <p className="mt-1.5 text-[10px] text-subtle">
         Draw inside the blue print area — that is exactly what gets printed.
       </p>
 
-      <p className="mb-1.5 mt-4 text-[10px] font-bold uppercase tracking-wide text-ink/45">Brush</p>
+      <p className="mb-1.5 mt-4 text-[10px] font-bold uppercase tracking-wide text-subtle">Brush</p>
       <div className="grid grid-cols-4 gap-1.5">
         {BRUSH_TEMPLATES.map((t) => (
           <button key={t.id} title={t.hint} onClick={() => onBrush(t.id)}
             className={`rounded-lg border-2 px-1 py-1.5 text-[9px] font-bold leading-tight transition ${
-              brush === t.id ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 bg-white text-ink/55 hover:border-ink/30"}`}>
+              brush === t.id ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 bg-white text-muted hover:border-ink/30"}`}>
             {t.label}
           </button>
         ))}
       </div>
-      <p className="mt-1 text-[10px] text-ink/40">{brushById(brush).hint}</p>
+      <p className="mt-1 text-[10px] text-subtle">{brushById(brush).hint}</p>
 
-      <p className="mb-1.5 mt-4 text-[10px] font-bold uppercase tracking-wide text-ink/45">Colour</p>
+      <p className="mb-1.5 mt-4 text-[10px] font-bold uppercase tracking-wide text-subtle">Colour</p>
       <div className="flex flex-wrap items-center gap-2">
         {TEXT_COLORS.map((c) => (
           <button key={c} onClick={() => onColor(c)} title={c}
@@ -438,7 +438,7 @@ export function DrawPanel({
         className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-xs font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-35">
         Add drawing to design
       </button>
-      <p className="mt-2 text-[10px] text-ink/40">
+      <p className="mt-2 text-[10px] text-subtle">
         {strokes
           ? `${strokes} stroke${strokes > 1 ? "s" : ""} — add them to turn the drawing into a layer you can move and resize.`
           : "Nothing drawn yet."}
@@ -483,9 +483,9 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
   return (
     <div className={`flex h-full flex-col ${disabled ? "opacity-90" : ""}`}>
       <div className="flex items-center justify-between px-4 pb-2 pt-4">
-        <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Layer Settings</p>
+        <p className="text-[11px] font-extrabold uppercase tracking-wider text-subtle">Layer Settings</p>
         {onClose && (
-          <button onClick={onClose} aria-label="Close layer settings" className="grid h-7 w-7 place-items-center rounded-full text-ink/50 hover:bg-ink/5">
+          <button onClick={onClose} aria-label="Close layer settings" className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-ink/5">
             <Icon d={ic.close} className="h-4 w-4" />
           </button>
         )}
@@ -509,7 +509,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
                 <button title={layer.aspectLock ? "Aspect ratio locked" : "Aspect ratio free"}
                   onClick={() => onPatch(layer.id, { aspectLock: !layer.aspectLock })}
                   className={`mb-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2 transition ${
-                    layer.aspectLock ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 text-ink/45"
+                    layer.aspectLock ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 text-subtle"
                   }`}>
                   <Icon d={layer.aspectLock ? ic.link : ic.unlink} className="h-4 w-4" />
                 </button>
@@ -520,7 +520,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
                   </Field>
                 </div>
               </div>
-              <p className="text-[10px] text-ink/45">
+              <p className="text-[10px] text-subtle">
                 Print area {AW}″ × {AH}″
                 {/* effective resolution at the current print size — the check
                     every print shop runs before it accepts artwork */}
@@ -583,7 +583,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
               <NumInput min={0} max={359} value={layer.rot ?? 0}
                 onChange={(e) => set({ rot: Math.min(359, Math.max(0, Math.round(+e.target.value || 0))) })}
                 style={{ width: 64 }} />
-              <span className="text-xs font-bold text-ink/45">°</span>
+              <span className="text-xs font-bold text-subtle">°</span>
             </div>
           </Field>
 
@@ -594,7 +594,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
               <NumInput min={10} max={100} value={Math.round((layer.opacity ?? 1) * 100)}
                 onChange={(e) => set({ opacity: Math.min(100, Math.max(10, Math.round(+e.target.value || 10))) / 100 })}
                 style={{ width: 64 }} />
-              <span className="text-xs font-bold text-ink/45">%</span>
+              <span className="text-xs font-bold text-subtle">%</span>
             </div>
           </Field>
         </fieldset>

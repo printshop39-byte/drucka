@@ -29,7 +29,7 @@ export default function BulkCorporate() {
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-charcoal">
                 Order in Bulk, Save More
               </h2>
-              <p className="mt-4 max-w-md text-charcoal/55">
+              <p className="mt-4 max-w-md text-muted">
                 Personalised prints, frames, mugs & gifts for weddings, events and offices — with volume pricing and a dedicated point of contact.
               </p>
               <a

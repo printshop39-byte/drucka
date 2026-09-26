@@ -85,10 +85,10 @@ export default function ProductLanding({
             {data.tagline && <p className="mt-2 text-lg font-medium text-charcoal/70 sm:text-xl">{data.tagline}</p>}
             <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-1.5" style={card}>
               <span className="text-lg font-bold text-charcoal">{data.fromPrice != null ? `From ₹${data.fromPrice.toLocaleString('en-IN')}` : 'Price on enquiry'}</span>
-              {data.priceNote && <span className="text-xs text-charcoal/55">· {data.priceNote}</span>}
+              {data.priceNote && <span className="text-xs text-muted">· {data.priceNote}</span>}
             </div>
             <p className="mt-5 max-w-md leading-relaxed text-charcoal/65">{data.introEn}</p>
-            <p className="mt-3 max-w-md leading-relaxed text-charcoal/55" lang="mr">{data.introMr}</p>
+            <p className="mt-3 max-w-md leading-relaxed text-muted" lang="mr">{data.introMr}</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               {isWa ? (
                 <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className={waBtn} style={{ background: '#1ba34e' }}>
@@ -148,7 +148,7 @@ export default function ProductLanding({
       <section style={{ backgroundColor: '#FBFAF8' }}>
         <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 lg:px-8">
           <h2 className="font-serif text-2xl font-bold text-charcoal sm:text-3xl">Ready to order?</h2>
-          <p className="mt-2 text-charcoal/55">Upload your photo and order in minutes — every order is confirmed on WhatsApp.</p>
+          <p className="mt-2 text-muted">Upload your photo and order in minutes — every order is confirmed on WhatsApp.</p>
           <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
             {!isWa && (
               <button type="button" onClick={onPrimary} className={goldBtn}>

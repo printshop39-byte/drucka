@@ -21,7 +21,7 @@ export default function DrawingPanel({ brush, onBrush, color, onColor, size, onS
       {/* brush templates — the same set the Grid Editor and the product
           designer offer, so a customer learns them once */}
       <div className="space-y-1.5">
-        <span className="block text-[9px] font-bold uppercase tracking-wide text-white/35">Brush</span>
+        <span className="block text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Brush</span>
         <div className="grid grid-cols-4 gap-1.5">
           {BRUSH_TEMPLATES.map((t) => (
             <button key={t.id} onClick={() => onBrush(t.id)} title={t.hint}
@@ -31,13 +31,13 @@ export default function DrawingPanel({ brush, onBrush, color, onColor, size, onS
             </button>
           ))}
         </div>
-        <p className="text-[9px] text-white/35">{active.hint}</p>
+        <p className="text-[9px] text-on-dark-muted">{active.hint}</p>
       </div>
 
       <ColorShades value={color} onChange={onColor} base={BRUSH_COLORS} />
 
       <label className="block">
-        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-white/35">
+        <span className="mb-0.5 flex justify-between text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">
           Brush size <span className="text-white/70">{size}px</span>
         </span>
         <input type="range" min={2} max={60} value={size} onChange={(e) => onSize(+e.target.value)} className="w-full accent-gold" />
@@ -47,7 +47,7 @@ export default function DrawingPanel({ brush, onBrush, color, onColor, size, onS
         className="flex w-full items-center justify-center gap-1.5 rounded-full bg-red-500/15 py-1.5 text-[10px] font-bold text-red-300 transition hover:bg-red-500/25 disabled:opacity-30">
         <Eraser size={12} /> Clear all drawings
       </button>
-      <p className="text-[9px] leading-relaxed text-white/35">
+      <p className="text-[9px] leading-relaxed text-on-dark-muted">
         Finish drawing (pen button) to select strokes — then move, blend or delete them like any layer.
       </p>
     </div>

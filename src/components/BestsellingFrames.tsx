@@ -120,7 +120,7 @@ export default function BestsellingFrames() {
                 </a>
               </div>
               <h3 className="font-serif font-semibold text-lg text-charcoal mb-1">{frame.name}</h3>
-              <p className="text-sm text-charcoal/50 mb-2">{frame.type}</p>
+              <p className="text-sm text-muted mb-2">{frame.type}</p>
               <p className="font-semibold text-charcoal">{frame.price}</p>
             </div>
           ))}

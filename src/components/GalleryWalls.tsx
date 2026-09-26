@@ -166,7 +166,7 @@ export default function GalleryWalls() {
               <div className="flex items-end justify-between">
                 <div>
                   <h3 className="font-serif text-lg text-charcoal">{wall.name}</h3>
-                  <p className="text-charcoal/50 mt-0.5" style={{ fontSize: '12px' }}>{wall.size}</p>
+                  <p className="text-muted mt-0.5" style={{ fontSize: '12px' }}>{wall.size}</p>
                 </div>
                 <span className="font-serif font-semibold" style={{ color: '#1a1208' }}>{wall.price}</span>
               </div>

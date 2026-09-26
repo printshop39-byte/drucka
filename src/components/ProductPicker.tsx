@@ -65,7 +65,7 @@ export default function ProductPicker({
             <h2 id="picker-title" className="font-serif text-xl text-charcoal sm:text-2xl">
               What would you like to create?
             </h2>
-            <p className="mt-0.5 text-sm text-charcoal/55" lang="mr">
+            <p className="mt-0.5 text-sm text-muted" lang="mr">
               तुम्हाला काय बनवायचं आहे?
             </p>
           </div>
@@ -73,7 +73,7 @@ export default function ProductPicker({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="ml-auto grid h-10 w-10 shrink-0 place-items-center rounded-full text-charcoal/50 transition hover:bg-black/5 hover:text-charcoal"
+            className="ml-auto grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted transition hover:bg-black/5 hover:text-charcoal"
           >
             <X size={18} />
           </button>
@@ -100,14 +100,14 @@ export default function ProductPicker({
                   short tile was clipping its own price line */}
               <span className="flex min-h-[84px] flex-1 flex-col px-3 py-2.5">
                 <span className="text-sm font-bold text-charcoal">{it.title}</span>
-                <span className="mt-0.5 text-[11px] leading-snug text-charcoal/50">{it.sub}</span>
+                <span className="mt-0.5 text-[11px] leading-snug text-muted">{it.sub}</span>
                 <span className="mt-auto pt-1.5 text-[11px] font-bold text-[#7a5c12]">{it.designerId && isEnquiry(it.designerId) ? 'Price on enquiry' : it.price}</span>
               </span>
             </button>
           ))}
         </div>
 
-        <p className="border-t border-stone/50 px-5 py-3 text-center text-[11px] text-charcoal/45 sm:px-7">
+        <p className="border-t border-stone/50 px-5 py-3 text-center text-[11px] text-subtle sm:px-7">
           Not sure? <button type="button" onClick={() => onPick('bulk')} className="font-semibold text-[#7a5c12] underline underline-offset-2">
             Ask us on WhatsApp <ArrowRight size={11} className="inline" />
           </button>

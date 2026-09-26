@@ -49,7 +49,7 @@ export default function PhoneCases() {
           <h2 className="sb-heading text-3xl sm:text-4xl lg:text-5xl">
             Carry Your Memories Everywhere
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
+          <p className="mx-auto mt-4 max-w-xl text-muted">
             Turn your favourite memories into a personalised phone case — the perfect thoughtful gift.
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function PhoneCases() {
                 <h3 className="sb-name">{item.name}</h3>
                 <span className="sb-price shrink-0">Price on enquiry</span>
               </div>
-              <p className="mt-1 px-1 text-sm text-charcoal/55">{item.desc}</p>
+              <p className="mt-1 px-1 text-sm text-muted">{item.desc}</p>
             </button>
           ))}
         </div>

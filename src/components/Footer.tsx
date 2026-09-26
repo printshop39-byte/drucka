@@ -30,7 +30,7 @@ export default function Footer({ onTrack }: FooterProps) {
               </div>
               <span className="text-lg font-serif font-bold tracking-wide">DRUCKA</span>
             </div>
-            <p className="text-white/40 text-sm leading-relaxed mb-6">
+            <p className="text-on-dark-muted text-sm leading-relaxed mb-6">
               Premium custom printing & framing studio from Kolhapur, India. Photo prints, frames, apparel & gifts — printed on demand.
             </p>
             <div className="flex gap-3">
@@ -61,7 +61,7 @@ export default function Footer({ onTrack }: FooterProps) {
             <ul>
               {shopLinks.map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">{item.label}</a>
+                  <a href={item.href} className="flex min-h-[44px] items-center text-sm text-on-dark-muted transition-colors hover:text-white">{item.label}</a>
                 </li>
               ))}
             </ul>
@@ -72,7 +72,7 @@ export default function Footer({ onTrack }: FooterProps) {
             <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Help</h4>
             <ul>
               <li>
-                <button onClick={onTrack} className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">
+                <button onClick={onTrack} className="flex min-h-[44px] items-center text-sm text-on-dark-muted transition-colors hover:text-white">
                   Track Order
                 </button>
               </li>
@@ -86,7 +86,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 <li key={item.href}>
                   <a
                     href={item.href}
-                    className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white"
+                    className="flex min-h-[44px] items-center text-sm text-on-dark-muted transition-colors hover:text-white"
                   >
                     {item.label}
                   </a>
@@ -98,7 +98,7 @@ export default function Footer({ onTrack }: FooterProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Ask about bulk orders on WhatsApp"
-                  className="flex min-h-[44px] items-center gap-1.5 text-sm text-white/40 transition-colors hover:text-white"
+                  className="flex min-h-[44px] items-center gap-1.5 text-sm text-on-dark-muted transition-colors hover:text-white"
                 >
                   Bulk orders
                   <MessageCircle size={12} aria-hidden="true" />
@@ -108,7 +108,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 {/* absolute, like every other footer link — the FAQ section only
                     exists on the homepage, so a bare "#faq" was inert on the
                     landing and policy routes this footer also renders on */}
-                <a href="/#faq" className="flex min-h-[44px] items-center text-sm text-white/40 transition-colors hover:text-white">FAQs</a>
+                <a href="/#faq" className="flex min-h-[44px] items-center text-sm text-on-dark-muted transition-colors hover:text-white">FAQs</a>
               </li>
             </ul>
           </div>
@@ -117,11 +117,11 @@ export default function Footer({ onTrack }: FooterProps) {
           <div>
             <h4 className="font-semibold text-sm uppercase tracking-wider mb-4">Contact</h4>
             <div>
-              <a href="mailto:hello@drucka.in" className="flex min-h-[44px] items-center gap-2 text-sm text-white/40 transition-colors hover:text-white">
+              <a href="mailto:hello@drucka.in" className="flex min-h-[44px] items-center gap-2 text-sm text-on-dark-muted transition-colors hover:text-white">
                 <Mail size={14} />
                 hello@drucka.in
               </a>
-              <a href="tel:+917083811355" className="flex min-h-[44px] items-center gap-2 text-sm text-white/40 transition-colors hover:text-white">
+              <a href="tel:+917083811355" className="flex min-h-[44px] items-center gap-2 text-sm text-on-dark-muted transition-colors hover:text-white">
                 <Phone size={14} />
                 +91 70838 11355
               </a>
@@ -129,7 +129,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 href={wa("Hi Drucka! I'd like to place a custom printing order.")}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-[44px] items-center gap-2 text-sm text-white/40 transition-colors hover:text-white"
+                className="flex min-h-[44px] items-center gap-2 text-sm text-on-dark-muted transition-colors hover:text-white"
               >
                 <MessageCircle size={14} />
                 WhatsApp Order
@@ -139,7 +139,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 it only ever opened WhatsApp. Now it's honestly a WhatsApp opt-in. */}
             <div className="mt-6">
               <h5 className="mb-2 text-sm font-medium">Offers &amp; new designs</h5>
-              <p className="mb-3 text-xs leading-relaxed text-white/40">
+              <p className="mb-3 text-xs leading-relaxed text-on-dark-muted">
                 We send occasional offers on WhatsApp — no spam, leave any time.
               </p>
               <a
@@ -160,7 +160,7 @@ export default function Footer({ onTrack }: FooterProps) {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-white/30">
+            <p className="text-xs text-on-dark-muted">
               © 2026 Drucka · drucka.in · All rights reserved.
             </p>
             {/* Derived from the launch flags, not typed out: this row used to
@@ -168,7 +168,7 @@ export default function Footer({ onTrack }: FooterProps) {
                 and every other payment mention on the site said UPI / COD. */}
             <div className="flex items-center gap-6">
               {paymentMethods().map((m) => (
-                <span key={m} className="text-xs text-white/30">{m}</span>
+                <span key={m} className="text-xs text-on-dark-muted">{m}</span>
               ))}
             </div>
           </div>

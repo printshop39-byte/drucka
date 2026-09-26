@@ -25,7 +25,7 @@ export default function TrustBar() {
               </div>
               <div>
                 <p className="font-semibold text-charcoal text-sm">{stat.label}</p>
-                <p className="text-xs text-charcoal/50">{stat.value}</p>
+                <p className="text-xs text-muted">{stat.value}</p>
               </div>
             </div>
           ))}

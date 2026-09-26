@@ -618,7 +618,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             <span className="text-sm font-bold">Add photos</span>
             <span className="text-[10px] text-gold/65">JPG · PNG · WEBP — multiple allowed</span>
           </button>
-          <p className="text-[10px] leading-relaxed text-white/40">
+          <p className="text-[10px] leading-relaxed text-on-dark-muted">
             Photos land on the artboard — drag, resize, rotate freely. Select one to crop it into shapes and add effects (right panel).
           </p>
         </div>
@@ -631,7 +631,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
               className={`flex w-full items-center justify-between rounded-xl border-2 px-3 py-2 text-left text-xs font-bold transition ${
                 presetId === c.id ? 'border-gold bg-gold/10 text-white' : 'border-white/10 text-white/65 hover:border-white/30'}`}>
               {c.label}
-              <span className="text-[9px] text-white/35">{c.w}×{c.h}</span>
+              <span className="text-[9px] text-on-dark-muted">{c.w}×{c.h}</span>
             </button>
           ))}
         </div>
@@ -644,12 +644,12 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
           </button>
           {isText
             ? <TextPanel text={selected as Textbox} onPatch={patchText} onCurve={curveText} />
-            : <p className="text-[10px] text-white/40">Select a text layer on the canvas to edit its font, style and spacing.</p>}
+            : <p className="text-[10px] text-on-dark-muted">Select a text layer on the canvas to edit its font, style and spacing.</p>}
         </div>
       );
       case 'stickers': return (
         <div>
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-white/40">Tap to add</p>
+          <p className="mb-2 text-[10px] font-bold uppercase tracking-wide text-on-dark-muted">Tap to add</p>
           <div className="grid grid-cols-4 gap-2">
             {GRAPHICS.map((g: any) => (
               <button key={g.id} title={g.label} onClick={() => { addSticker(graphicDataUrl(g)); done(); }}
@@ -663,7 +663,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
       case 'effects': return (
         selected ? (
           <div className="space-y-2">
-            <p className="text-[10px] leading-relaxed text-white/45">Effects apply to the selected layer. Stack as many as you like.</p>
+            <p className="text-[10px] leading-relaxed text-on-dark-muted">Effects apply to the selected layer. Stack as many as you like.</p>
             {selMeta && (
               <>
                 <button onClick={() => replaceRef.current?.click()}
@@ -684,7 +684,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
                             on ? 'border-gold bg-gold/10' : 'border-white/10 hover:border-white/30'}`}>
                           <span className="grid h-8 w-8 place-items-center rounded-sm bg-white/15"
                             style={f.id === 'none' ? undefined : { boxShadow: `inset 0 0 0 ${Math.max(2, f.width / 8)}px ${f.color}` }}>
-                            {f.id === 'none' && <span className="text-[8px] font-bold text-white/40">OFF</span>}
+                            {f.id === 'none' && <span className="text-[8px] font-bold text-on-dark-muted">OFF</span>}
                           </span>
                           <span className="text-[8.5px] font-bold text-white/55">{f.label}</span>
                         </button>
@@ -705,7 +705,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
                         className="h-6 w-6 cursor-pointer rounded-full border border-white/25 bg-transparent" />
                     </div>
                     <label className="block">
-                      <span className="mb-0.5 flex justify-between text-[9.5px] font-bold uppercase tracking-wide text-white/45">
+                      <span className="mb-0.5 flex justify-between text-[9.5px] font-bold uppercase tracking-wide text-on-dark-muted">
                         Strength <span className="text-white/70">{selMeta.effects.tintStrength}%</span>
                       </span>
                       <input type="range" min={0} max={100} value={selMeta.effects.tintStrength}
@@ -724,7 +724,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
                 onMerge={doMerge} onGroup={doGroup} onUngroup={doUngroup} />
             </Section>
             {isText && !selMeta && (
-              <p className="text-[10px] leading-relaxed text-white/40">Editing text? Open the <span className="font-bold text-white/70">Text</span> tab for fonts &amp; styles.</p>
+              <p className="text-[10px] leading-relaxed text-on-dark-muted">Editing text? Open the <span className="font-bold text-white/70">Text</span> tab for fonts &amp; styles.</p>
             )}
           </div>
         ) : (
@@ -732,7 +732,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             <div className="flex items-center gap-2 rounded-xl border border-gold/25 bg-gold/8 px-3 py-2.5 text-[11px] font-bold text-gold">
               <Wand2 size={14} /> Select a photo to unlock effects
             </div>
-            <p className="text-[10px] leading-relaxed text-white/45">
+            <p className="text-[10px] leading-relaxed text-on-dark-muted">
               Tap a photo on the artboard, then come back here for shape crops, filters, borders,
               shadows, fade &amp; blend. Pro effects are marked with a <span className="text-gold-light">crown</span>.
             </p>
@@ -753,7 +753,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             className="w-full rounded-full bg-white/10 py-2.5 text-xs font-bold text-white transition hover:bg-white/15 disabled:opacity-50">
             Download JPEG · white background
           </button>
-          <p className="pt-1 text-[9px] leading-relaxed text-white/35">
+          <p className="pt-1 text-[9px] leading-relaxed text-on-dark-muted">
             Want a framed/canvas print of your collage? Switch to the Grid Editor — its Export tab has the order-print flow.
           </p>
         </div>
@@ -850,7 +850,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
           }} />
       </Section>
       {!selected && !penMode && (
-        <p className="px-1 text-[9px] leading-relaxed text-white/30">
+        <p className="px-1 text-[9px] leading-relaxed text-on-dark-muted">
           Select a layer on the artboard to see its shape-crop, effects, border and blend controls here.
         </p>
       )}
@@ -878,7 +878,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
             {TABS.map((t) => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[9px] font-bold transition ${
-                  tab === t.id ? 'bg-gold/15 text-gold' : 'text-white/45 hover:bg-white/5 hover:text-white'}`}>
+                  tab === t.id ? 'bg-gold/15 text-gold' : 'text-on-dark-muted hover:bg-white/5 hover:text-white'}`}>
                 <t.icon size={19} />
                 {t.label}
               </button>
@@ -916,7 +916,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
               <div className="absolute inset-0 grid place-items-center">
                 <div className="w-[300px] max-w-[88%] rounded-2xl border border-gold/30 bg-[#1d1830] p-5 text-center shadow-2xl">
                   <p className="text-sm font-bold text-white">Add photos, text, or drawings to start</p>
-                  <p className="mt-1 text-[10px] text-white/45">Freeform artboard — everything is draggable, croppable &amp; blendable</p>
+                  <p className="mt-1 text-[10px] text-on-dark-muted">Freeform artboard — everything is draggable, croppable &amp; blendable</p>
                   <div className="mt-4 grid gap-2">
                     <button onClick={() => fileRef.current?.click()}
                       className="flex items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-xs font-bold text-[#1a1208] transition hover:brightness-110">

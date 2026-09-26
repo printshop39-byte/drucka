@@ -23,7 +23,7 @@ export default function BackgroundPanel({ bg, onChange }: { bg: BgState; onChang
       </div>
 
       <div>
-        <p className="mb-1.5 text-[9px] font-bold uppercase tracking-wide text-white/35">Gradients</p>
+        <p className="mb-1.5 text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Gradients</p>
         <div className="grid grid-cols-4 gap-1.5">
           {GRADIENT_PRESETS.map((g) => (
             <button key={g.id} title={g.label} onClick={() => onChange({ type: 'gradient', presetId: g.id })}
@@ -39,7 +39,7 @@ export default function BackgroundPanel({ bg, onChange }: { bg: BgState; onChang
         Reset to white
       </button>
       {bg.type === 'transparent' && (
-        <p className="text-[9px] leading-relaxed text-white/35">PNG exports will have a transparent background. JPEG always gets a white backing.</p>
+        <p className="text-[9px] leading-relaxed text-on-dark-muted">PNG exports will have a transparent background. JPEG always gets a white backing.</p>
       )}
     </div>
   );

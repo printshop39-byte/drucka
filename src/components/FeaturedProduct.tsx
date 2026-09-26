@@ -67,7 +67,7 @@ export default function FeaturedProduct() {
             </h2>
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-3xl font-bold text-charcoal">₹1,499</span>
-              <span className="text-lg text-charcoal/40 line-through">₹1,999</span>
+              <span className="text-lg text-subtle line-through">₹1,999</span>
             </div>
             <div className="space-y-3 mb-8">
               <div className="flex items-center gap-3 text-charcoal/70">

@@ -22,7 +22,7 @@ export default function EditorToolbar(p: Props) {
       </button>
       <div className="min-w-0">
         <p className="truncate text-sm font-bold leading-tight text-white">Collage Maker</p>
-        <p className="hidden text-[9px] text-white/40 sm:block">Drucka Studio</p>
+        <p className="hidden text-[9px] text-on-dark-muted sm:block">Drucka Studio</p>
       </div>
 
       {/* mode toggle — mirrors the one in the grid maker header */}
@@ -63,7 +63,7 @@ export default function EditorToolbar(p: Props) {
                 <button key={id} onClick={() => { setExportOpen(false); p.onExport(id); }}
                   className="block w-full px-3.5 py-2 text-left transition hover:bg-white/8">
                   <span className="block text-[11px] font-bold text-white">{label}</span>
-                  <span className="block text-[9px] text-white/40">{hint}</span>
+                  <span className="block text-[9px] text-on-dark-muted">{hint}</span>
                 </button>
               ))}
             </div>

@@ -38,7 +38,7 @@ export default function ColorShades({ value, onChange, base, label, compact = fa
   const dot = compact ? 'h-6 w-6' : 'h-7 w-7';
   return (
     <div className="space-y-1.5">
-      {label && <span className="block text-[9px] font-bold uppercase tracking-wide text-white/35">{label}</span>}
+      {label && <span className="block text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">{label}</span>}
       <div className="flex flex-wrap items-center gap-1.5">
         {base.map((c) => (
           <button key={c} title={c} onClick={() => onChange(c)}
@@ -51,7 +51,7 @@ export default function ColorShades({ value, onChange, base, label, compact = fa
       </div>
       {/* shades of whatever is currently chosen */}
       <div className="flex items-center gap-1">
-        <span className="mr-0.5 text-[8px] font-bold uppercase tracking-wide text-white/25">Shades</span>
+        <span className="mr-0.5 text-[8px] font-bold uppercase tracking-wide text-on-dark-muted">Shades</span>
         {STEPS.map((t) => {
           const c = shadeOf(value, t);
           return (

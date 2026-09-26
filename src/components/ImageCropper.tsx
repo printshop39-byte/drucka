@@ -182,7 +182,7 @@ export default function ImageCropper({ slot, onCrop, onTransform, frame, border 
       {/* preview box in print-size shape */}
       <div className="mx-auto w-full max-w-[360px]">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-charcoal/45">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-subtle">
             Recommended size: <span className="text-charcoal">{size.label}″</span> · ratio {size.w}:{size.h}
           </span>
           <span className="rounded-full px-2 py-0.5 text-[10px] font-bold text-white" style={{ backgroundColor: quality.color }}>
@@ -283,7 +283,7 @@ export default function ImageCropper({ slot, onCrop, onTransform, frame, border 
       <div className="mx-auto mt-3 grid max-w-sm grid-cols-3 gap-3">
         {([['Brightness', 'bright'], ['Contrast', 'contrast'], ['Saturation', 'sat']] as const).map(([label, key]) => (
           <label key={key} className="block text-center">
-            <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-charcoal/40">{label}</span>
+            <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-subtle">{label}</span>
             <input type="range" min={50} max={150} value={c[key]}
               onChange={(e) => onCrop({ [key]: +e.target.value } as Partial<CropState>)}
               className="w-full accent-gold" />

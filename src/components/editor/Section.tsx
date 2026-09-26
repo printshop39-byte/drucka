@@ -15,7 +15,7 @@ export default function Section({ title, defaultOpen = false, pro = false, child
           {title}
           {pro && <Crown size={11} className="text-gold-light" aria-label="Pro feature" />}
         </span>
-        <ChevronDown size={13} className={`text-white/35 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={13} className={`text-on-dark-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && <div className="px-3 pb-3.5">{children}</div>}
     </div>

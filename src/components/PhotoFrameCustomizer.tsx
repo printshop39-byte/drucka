@@ -66,7 +66,7 @@ function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: 
   const matPad = border === 'No Border' ? '0%' : border === 'White Border' ? '5%' : '9%';
   const [fAspect, setFAspect] = useState(0.85); // frame image natural W/H, measured on load
   const caption = (
-    <p className="mt-2 text-center text-[11px] font-bold text-charcoal/55">{frame.name}{border !== 'No Border' ? ` · ${border}` : ''}</p>
+    <p className="mt-2 text-center text-[11px] font-bold text-muted">{frame.name}{border !== 'No Border' ? ` · ${border}` : ''}</p>
   );
 
   /* real-frame photo: show the exact print-ratio crop, contained & centred
@@ -96,7 +96,7 @@ function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: 
               </div>
             ) : (
               <div className="grid h-full w-full place-items-center bg-cream/90 text-center">
-                <span className="px-2 text-[10px] font-semibold text-charcoal/40">Upload your photo</span>
+                <span className="px-2 text-[10px] font-semibold text-subtle">Upload your photo</span>
               </div>
             )}
           </div>
@@ -115,7 +115,7 @@ function FramePreview({ slot, frame, border }: { slot: PhotoSlot | null; frame: 
             <CroppedThumb slot={slot} />
           ) : (
             <div className="grid place-items-center bg-cream text-center" style={{ aspectRatio: '4 / 5' }}>
-              <span className="px-3 text-[11px] font-semibold text-charcoal/40">Upload your photo to preview</span>
+              <span className="px-3 text-[11px] font-semibold text-subtle">Upload your photo to preview</span>
             </div>
           )}
         </div>
@@ -228,7 +228,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
   /* ── steps ── */
   const stepPhotos = (
     <>
-      <p className="text-center text-sm font-semibold text-charcoal/60">Upload up to 4 photos — each photo gets its own size, crop and quantity.</p>
+      <p className="text-center text-sm font-semibold text-muted">Upload up to 4 photos — each photo gets its own size, crop and quantity.</p>
       <input ref={fileRef} type="file" hidden multiple accept="image/jpeg,image/png,image/webp,image/heic,.heic"
         onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -240,7 +240,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               <button onClick={() => setActiveId(slot.id)} className="block w-full">
                 <CroppedThumb slot={slot} className="rounded-lg" />
               </button>
-              <p className="mt-1.5 truncate text-center text-[10px] font-bold text-charcoal/60">Photo {i + 1}{activeId === slot.id ? ' · selected' : ''}</p>
+              <p className="mt-1.5 truncate text-center text-[10px] font-bold text-muted">Photo {i + 1}{activeId === slot.id ? ' · selected' : ''}</p>
               <div className="mt-1 flex justify-center gap-1">
                 <button onClick={() => { setActiveId(slot.id); setStep(1); }}
                   className="flex items-center gap-1 rounded-full bg-charcoal px-2.5 py-1 text-[10px] font-bold text-white hover:bg-charcoal/85">
@@ -262,7 +262,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
           );
         })}
       </div>
-      <p className="mt-3 text-center text-[11px] text-charcoal/45">Photos stay on your device — you'll share the originals on WhatsApp after confirming.</p>
+      <p className="mt-3 text-center text-[11px] text-subtle">Photos stay on your device — you'll share the originals on WhatsApp after confirming.</p>
     </>
   );
 
@@ -275,13 +275,13 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             {slots.map((p, i) => (
               <button key={p.id} onClick={() => setActiveId(p.id)}
                 className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold transition ${
-                  p.id === active.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone text-charcoal/60'}`}>
+                  p.id === active.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone text-muted'}`}>
                 Photo {i + 1}
               </button>
             ))}
           </div>
         )}
-        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Recommended print size</p>
+        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Recommended print size</p>
         <div className="grid max-h-[38vh] grid-cols-3 gap-1.5 overflow-y-auto pr-1 lg:max-h-[52vh]">
           {PRINT_SIZES.map((s) => (
             <button key={s.id} onClick={() => patchSlot(active.id, { sizeId: s.id })}
@@ -300,22 +300,22 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
 
         {active.sizeId === 'custom' && (
           <div className="mt-3 rounded-lg border-2 border-gold/40 bg-gold/5 p-3">
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Custom size (inches)</p>
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Custom size (inches)</p>
             <div className="flex items-end gap-2">
               {([['Width', 'cw'], ['Height', 'ch']] as const).map(([label, key], idx) => (
                 <div key={key} className="flex flex-1 items-end gap-2">
                   {idx === 1 && <span className="pb-1.5 text-charcoal/40">×</span>}
                   <label className="flex-1">
-                    <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-charcoal/40">{label}</span>
+                    <span className="mb-0.5 block text-[9px] font-bold uppercase tracking-wide text-subtle">{label}</span>
                     <input type="number" min={1} max={60} step={0.5} value={active[key] ?? ''} inputMode="decimal"
                       onChange={(e) => patchSlot(active.id, { [key]: e.target.value === '' ? undefined : Math.min(60, Math.max(1, +e.target.value)) })}
                       className="w-full rounded-md border-2 border-stone bg-white px-2 py-1.5 text-sm font-bold text-charcoal focus:border-gold focus:outline-none" />
                   </label>
                 </div>
               ))}
-              <span className="pb-1.5 text-[11px] font-bold text-charcoal/45">inch</span>
+              <span className="pb-1.5 text-[11px] font-bold text-subtle">inch</span>
             </div>
-            <p className="mt-2 text-[10px] text-charcoal/50">Any size from 1″ to 60″. The preview &amp; quality check update live.</p>
+            <p className="mt-2 text-[10px] text-muted">Any size from 1″ to 60″. The preview &amp; quality check update live.</p>
           </div>
         )}
 
@@ -327,7 +327,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               Live preview · in your frame
             </p>
             <FramePreview slot={active} frame={frame} border={border} />
-            <p className="mt-1 text-center text-[10px] text-charcoal/45">Drag the crop box below — frame updates live</p>
+            <p className="mt-1 text-center text-[10px] text-subtle">Drag the crop box below — frame updates live</p>
           </div>
         )}
         <ImageCropper slot={active}
@@ -343,7 +343,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
     <div className="space-y-5">
       {!isFrame ? (
         <div>
-          <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Print type</p>
+          <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Print type</p>
           <div className="flex flex-wrap gap-2">
             {PRINT_TYPES.map((t) => (
               <button key={t} onClick={() => setPrintType(t)}
@@ -357,7 +357,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
       ) : (
         <>
           <div>
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Frame style</p>
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Frame style</p>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
               {FRAME_STYLES.map((f) => (
                 <button key={f.id} onClick={() => setFrame(f)}
@@ -370,7 +370,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             </div>
           </div>
           <div>
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Border / Matting</p>
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Border / Matting</p>
             <div className="flex flex-wrap gap-2">
               {BORDER_OPTIONS.map((b) => (
                 <button key={b} onClick={() => setBorder(b)}
@@ -382,7 +382,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             </div>
           </div>
           <div>
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Photo fit (applies to all photos)</p>
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Photo fit (applies to all photos)</p>
             <div className="flex flex-wrap gap-2">
               {([['Fit Full Photo', 'fit'], ['Fill Frame / Crop', 'fill'], ['Center Photo', 'center']] as const).map(([label, m]) => (
                 <button key={m}
@@ -398,7 +398,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
       )}
 
       <div>
-        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Quantity per photo</p>
+        <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Quantity per photo</p>
         <div className="space-y-2">
           {slots.map((p, i) => (
             <div key={p.id} className="flex items-center gap-3 rounded-xl border border-stone bg-white p-2">
@@ -415,7 +415,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
       </div>
 
       <label className="block">
-        <span className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wider text-charcoal/45">Note for us (optional)</span>
+        <span className="mb-1.5 block text-[11px] font-extrabold uppercase tracking-wider text-subtle">Note for us (optional)</span>
         <textarea rows={2} value={note} onChange={(e) => setNote(e.target.value)}
           placeholder={isFrame ? 'e.g. Need it gift-wrapped before Saturday…' : 'e.g. Slightly brighten photo 2…'}
           className="w-full resize-none rounded-xl border border-stone bg-white px-3 py-2 text-sm text-charcoal outline-none focus:border-gold" />
@@ -450,9 +450,9 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             );
           })}
         </ul>
-        {note.trim() && <p className="mt-3 text-xs text-charcoal/60"><span className="font-bold">Note:</span> {note}</p>}
+        {note.trim() && <p className="mt-3 text-xs text-muted"><span className="font-bold">Note:</span> {note}</p>}
       </div>
-      <p className="text-center text-[11px] text-charcoal/45">
+      <p className="text-center text-[11px] text-subtle">
         Confirming attaches a preview of your {isFrame ? 'framed photo' : 'print'}{slots.length > 1 ? 's' : ''} and opens WhatsApp with the order — then attach your original photos in the chat for printing.
       </p>
       <button onClick={submitOrder} disabled={ordering}
@@ -474,7 +474,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
         <header className="flex shrink-0 items-center gap-2 border-b border-stone bg-white px-4 py-3">
           {step > 0 && (
             <button onClick={() => setStep(step - 1)} aria-label="Previous step"
-              className="grid h-8 w-8 place-items-center rounded-full text-charcoal/55 hover:bg-cream"><ChevronLeft size={18} /></button>
+              className="grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-cream"><ChevronLeft size={18} /></button>
           )}
           <div className="min-w-0">
             <h2 className="truncate font-serif text-lg font-bold text-charcoal">
@@ -488,7 +488,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               <li key={s} className="flex items-center gap-1">
                 <button onClick={() => (i < step || slots.length) && setStep(i)}
                   className={`grid h-6 w-6 place-items-center rounded-full text-[10px] font-bold transition ${
-                    i === step ? 'bg-gold text-[#1a1208]' : i < step ? 'bg-charcoal text-white' : 'bg-stone text-charcoal/50'}`}>
+                    i === step ? 'bg-gold text-[#1a1208]' : i < step ? 'bg-charcoal text-white' : 'bg-stone text-muted'}`}>
                   {i < step ? <Check size={11} /> : i + 1}
                 </button>
                 {i < STEPS.length - 1 && <span className="h-px w-4 bg-stone" />}
@@ -496,13 +496,13 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             ))}
           </ol>
           <button onClick={onClose} aria-label="Close"
-            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full text-charcoal/55 hover:bg-cream sm:ml-0"><X size={18} /></button>
+            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted hover:bg-cream sm:ml-0"><X size={18} /></button>
         </header>
 
         {/* body */}
         <div className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6">
           {step === 0 && stepPhotos}
-          {step === 1 && (active ? stepSizeCrop : <p className="text-center text-sm text-charcoal/50">Upload a photo first.</p>)}
+          {step === 1 && (active ? stepSizeCrop : <p className="text-center text-sm text-muted">Upload a photo first.</p>)}
           {step === 2 && stepOptions}
           {step === 3 && stepSummary}
         </div>
@@ -510,13 +510,13 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
         {/* footer nav */}
         {step < 3 && (
           <footer className="flex shrink-0 items-center justify-between border-t border-stone bg-white px-4 py-3">
-            <span className="text-[11px] font-semibold text-charcoal/45">
+            <span className="text-[11px] font-semibold text-subtle">
               {slots.length}/{MAX_PHOTOS} photos{slots.length ? ` · ${totalPrints} ${isFrame ? 'frames' : 'prints'}` : ''}
             </span>
             <div className="flex gap-2">
               {step === 1 && slots.length < MAX_PHOTOS && (
                 <button onClick={() => setStep(0)}
-                  className="rounded-full border-2 border-stone px-4 py-2 text-xs font-bold text-charcoal/60 hover:border-gold">+ Add photo</button>
+                  className="rounded-full border-2 border-stone px-4 py-2 text-xs font-bold text-muted hover:border-gold">+ Add photo</button>
               )}
               <button onClick={next}
                 className="rounded-full bg-charcoal px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-charcoal/85">

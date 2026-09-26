@@ -48,7 +48,7 @@ export default function LayoutPanel({ hasSelection, onAlign, onCenterBoth, grid,
           slight tilt is what stops a collage looking machine-laid. Absolute
           angles, so pressing 4° twice does not end up at 8°. */}
       <div>
-        <span className="mb-1 block text-[9px] font-bold uppercase tracking-wide text-white/35">Tilt</span>
+        <span className="mb-1 block text-[9px] font-bold uppercase tracking-wide text-on-dark-muted">Tilt</span>
         <div className="grid grid-cols-5 gap-1">
           {TILTS.map((d) => {
             const on = Math.abs(((angle + 180) % 360) - 180 - d) < 0.5;
@@ -75,7 +75,7 @@ export default function LayoutPanel({ hasSelection, onAlign, onCenterBoth, grid,
           <Magnet size={12} /> Snap
         </button>
       </div>
-      <p className="text-[9px] leading-relaxed text-white/35">Snap pulls layers to the canvas center and edges while dragging; gold guides show when it catches.</p>
+      <p className="text-[9px] leading-relaxed text-on-dark-muted">Snap pulls layers to the canvas center and edges while dragging; gold guides show when it catches.</p>
     </div>
   );
 }

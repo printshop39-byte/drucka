@@ -261,7 +261,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
         {searchOpen && (
           <div className="pb-4">
             <div className="relative">
-              <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-charcoal/40" />
+              <Search size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-subtle" />
               <input
                 ref={searchInputRef}
                 type="search"
@@ -270,7 +270,7 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                 onKeyDown={(e) => { if (e.key === 'Escape') closeSearch(); if (e.key === 'Enter' && results[0]) pickResult(results[0].id); }}
                 placeholder="Search products — t-shirt, mug, frame, canvas…"
                 aria-label="Search products"
-                className="w-full rounded-full border border-stone/60 bg-white py-3 pl-12 pr-4 text-base text-charcoal outline-none transition placeholder:text-charcoal/40 focus:border-gold focus:ring-2 focus:ring-gold/20"
+                className="w-full rounded-full border border-stone/60 bg-white py-3 pl-12 pr-4 text-base text-charcoal outline-none transition placeholder:text-subtle focus:border-gold focus:ring-2 focus:ring-gold/20"
               />
             </div>
 
@@ -288,13 +288,13 @@ export default function Navbar({ topOffset, cartCount, onCartOpen, onCollage, on
                       )}
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-semibold text-charcoal">{p.name}</span>
-                        {p.tag && <span className="block truncate text-xs text-charcoal/50">{p.tag}</span>}
+                        {p.tag && <span className="block truncate text-xs text-muted">{p.tag}</span>}
                       </span>
                       <span className="text-xs font-medium uppercase tracking-wide text-[#7a5c12]">Customise →</span>
                     </button>
                   ))
                 ) : (
-                  <p className="px-4 py-4 text-sm text-charcoal/60">No products match &ldquo;<span className="font-semibold text-charcoal">{query}</span>&rdquo;.</p>
+                  <p className="px-4 py-4 text-sm text-muted">No products match &ldquo;<span className="font-semibold text-charcoal">{query}</span>&rdquo;.</p>
                 )}
               </div>
             )}

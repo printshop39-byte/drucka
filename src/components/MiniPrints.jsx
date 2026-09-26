@@ -85,7 +85,7 @@ function PreviewPlaceholder({ border, aspect }) {
       outlineOffset: c.stroke ? -6 : 0,
     }}>
       <div style={{ width: innerW, height: innerH }}
-        className="flex flex-col items-center justify-center gap-2 rounded-[2px] bg-black/[0.05] text-charcoal/35">
+        className="flex flex-col items-center justify-center gap-2 rounded-[2px] bg-black/[0.05] text-subtle">
         <ImageIcon size={28} />
         <span className="text-[11px] font-semibold">Your print preview</span>
       </div>
@@ -99,7 +99,7 @@ function PreviewPlaceholder({ border, aspect }) {
    sliders could not be dragged, only clicked. */
 const CropSlider = ({ label, val, min, max, step, onChange, fmt }) => (
   <label className="block">
-    <span className="mb-0.5 flex justify-between text-[10px] font-bold uppercase tracking-wide text-charcoal/50">{label}<span className="text-charcoal/70">{fmt(val)}</span></span>
+    <span className="mb-0.5 flex justify-between text-[10px] font-bold uppercase tracking-wide text-muted">{label}<span className="text-charcoal/70">{fmt(val)}</span></span>
     <input type="range" min={min} max={max} step={step} value={val}
       onChange={(e) => onChange(+e.target.value)} className="w-full accent-gold" />
   </label>
@@ -180,7 +180,7 @@ function CropModal({ photo, aspect, onApply, onClose }) {
         className="w-full max-w-sm rounded-2xl bg-white p-4 shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-bold text-charcoal">Crop &amp; adjust</p>
-          <button onClick={onClose} aria-label="Close" className="grid h-8 w-8 place-items-center rounded-full text-charcoal/50 hover:bg-black/5"><X size={16} /></button>
+          <button onClick={onClose} aria-label="Close" className="grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-black/5"><X size={16} /></button>
         </div>
         {/* crop frame */}
         <div ref={frameRef} onPointerDown={pan}
@@ -203,7 +203,7 @@ function CropModal({ photo, aspect, onApply, onClose }) {
           </div>
           <span className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/40" />
         </div>
-        <p className="mt-1.5 text-center text-[10px] text-charcoal/40">Drag the photo to reposition</p>
+        <p className="mt-1.5 text-center text-[10px] text-subtle">Drag the photo to reposition</p>
 
         <div className="mt-3 space-y-3">
           <div className="flex gap-2">
@@ -526,7 +526,7 @@ export default function MiniPrints({
       `}</style>
       <header className="flex h-14 shrink-0 items-center gap-2 border-b border-black/10 bg-white px-3 sm:px-4">
         {/* 44px: this is the only way out of a full-screen editor on a phone */}
-        <button onClick={onClose} aria-label="Back" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal"><ArrowLeft size={20} /></button>
+        <button onClick={onClose} aria-label="Back" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal"><ArrowLeft size={20} /></button>
         <div className="min-w-0">
           <p className="kd-heading truncate text-base">{V.eyebrow}</p>
           <p className="kd-mono hidden text-[10px] sm:block" style={{ color: 'rgba(26,18,8,0.4)' }}>Drucka Studio · {size.label}</p>
@@ -613,7 +613,7 @@ export default function MiniPrints({
             pack minimum. Tops every uploaded photo up to the pack size. */}
         {V.quickPacks && (
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">Quick packs</span>
+            <span className="text-[10px] font-bold uppercase tracking-wide text-subtle">Quick packs</span>
             {V.quickPacks.map((n) => (
               <button key={n} onClick={() => setPack(n)}
                 className={`rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${
@@ -648,7 +648,7 @@ export default function MiniPrints({
             <button key={b.id} onClick={() => setBorder(b.id)}
               className={`flex flex-col items-center gap-1 rounded-lg border-2 p-2 transition ${border === b.id ? "border-gold bg-gold/5" : "border-black/10 hover:border-black/25"}`}>
               <BorderSwatch id={b.id} />
-              <span className="text-[8.5px] font-bold text-charcoal/55">{b.label}</span>
+              <span className="text-[8.5px] font-bold text-muted">{b.label}</span>
             </button>
           ))}
         </div>
@@ -665,13 +665,13 @@ export default function MiniPrints({
             <Upload size={22} />
           </span>
           <span className="text-sm font-semibold text-charcoal">{busy ? "Processing…" : "Drag & drop your photos here"}</span>
-          <span className="text-[11px] text-charcoal/45">JPG · PNG · WEBP · HEIC — {photos.length}/{MAX_PHOTOS}</span>
+          <span className="text-[11px] text-subtle">JPG · PNG · WEBP · HEIC — {photos.length}/{MAX_PHOTOS}</span>
         </button>
 
         {/* Privacy / security trust badge */}
         <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-black/5 bg-black/[0.025] p-3.5">
           <ShieldCheck size={16} className="shrink-0 text-[#047857]" />
-          <p className="text-xs leading-normal text-charcoal/55">
+          <p className="text-xs leading-normal text-muted">
             <strong className="font-semibold text-charcoal/75">End-to-end secure:</strong> your photos are used only for your order, kept confidential, and deleted after printing.
           </p>
         </div>
@@ -691,7 +691,7 @@ export default function MiniPrints({
                 ? `1 photo × ${totalPrints} copies = ${totalPrints} prints · ${inr(subtotal)}`
                 : `${photos.length} photos · ${totalPrints} prints total · ${inr(subtotal)}`}
             </p>
-            <p className="mt-0.5 text-[11px] leading-relaxed text-charcoal/55" lang="mr">
+            <p className="mt-0.5 text-[11px] leading-relaxed text-muted" lang="mr">
               किमान {V.minPrints} prints आवश्यक आहेत — म्हणून copies आपोआप {totalPrints} केल्या आहेत. हव्या तशा बदला.
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
@@ -719,14 +719,14 @@ export default function MiniPrints({
                 {/* header: drag handle + duplicate presets + delete */}
                 <div className="mb-2 flex items-center gap-1">
                   <span draggable onDragStart={() => { dragIdx.current = i; }} title="Drag to reorder"
-                    className="grid h-7 w-7 cursor-grab place-items-center rounded text-charcoal/35 hover:bg-black/5"><GripVertical size={15} /></span>
-                  <span className="text-[10px] font-bold text-charcoal/40">#{i + 1}{p.copies > 1 ? ` · ×${p.copies}` : ""}</span>
+                    className="grid h-7 w-7 cursor-grab place-items-center rounded text-subtle hover:bg-black/5"><GripVertical size={15} /></span>
+                  <span className="text-[10px] font-bold text-subtle">#{i + 1}{p.copies > 1 ? ` · ×${p.copies}` : ""}</span>
                   <div className="ml-auto flex items-center gap-1">
                     {[2, 4, 8].map((n) => (
                       <button key={n} onClick={() => duplicate(p.id, n - 1)} title={`Duplicate ×${n}`}
                         className="rounded-md bg-black/5 px-1.5 py-1 text-[10px] font-bold text-charcoal/70 hover:bg-black/10">×{n}</button>
                     ))}
-                    <button onClick={() => duplicate(p.id, 1)} title="Duplicate" className="grid h-7 w-7 place-items-center rounded text-charcoal/55 hover:bg-black/5"><Copy size={14} /></button>
+                    <button onClick={() => duplicate(p.id, 1)} title="Duplicate" className="grid h-7 w-7 place-items-center rounded text-muted hover:bg-black/5"><Copy size={14} /></button>
                     <button onClick={() => remove(p.id)} aria-label="Remove" className="grid h-7 w-7 place-items-center rounded text-red-500 hover:bg-red-500/10"><Trash2 size={14} /></button>
                   </div>
                 </div>
@@ -748,7 +748,7 @@ export default function MiniPrints({
                     this is where a single photo departs from the step-1 pick */}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <label className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">Size</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-subtle">Size</span>
                     <select value={sizeOf(p).id} onChange={(e) => patch(p.id, { sizeId: e.target.value })}
                       aria-label={`Print size for photo ${i + 1}`}
                       className="rounded-lg border border-black/15 bg-white px-2 py-1.5 text-xs font-semibold text-charcoal outline-none focus:border-gold">
@@ -760,7 +760,7 @@ export default function MiniPrints({
                       {[["auto", "Auto"], ["p", "Portrait"], ["l", "Landscape"]].map(([v, lbl]) => (
                         <button key={v} onClick={() => patch(p.id, { orient: v })}
                           aria-pressed={(p.orient ?? "auto") === v}
-                          className={`px-2.5 py-1.5 text-[11px] font-bold ${(p.orient ?? "auto") === v ? "bg-gold text-[#1a1208]" : "text-charcoal/60"}`}>{lbl}</button>
+                          className={`px-2.5 py-1.5 text-[11px] font-bold ${(p.orient ?? "auto") === v ? "bg-gold text-[#1a1208]" : "text-muted"}`}>{lbl}</button>
                       ))}
                     </div>
                   )}
@@ -786,7 +786,7 @@ export default function MiniPrints({
                 <div className="mt-3 -mx-1 flex gap-1.5 overflow-x-auto scrollbar-none px-1 pb-1">
                   {FILTERS.map((f) => (
                     <button key={f.id} onClick={() => patch(p.id, { filter: f.id })}
-                      className={`shrink-0 rounded-full border-2 px-2.5 py-1 text-[10px] font-bold transition ${p.filter === f.id ? "border-gold bg-gold text-[#1a1208]" : "border-black/10 text-charcoal/60"}`}>{f.label}</button>
+                      className={`shrink-0 rounded-full border-2 px-2.5 py-1 text-[10px] font-bold transition ${p.filter === f.id ? "border-gold bg-gold text-[#1a1208]" : "border-black/10 text-muted"}`}>{f.label}</button>
                   ))}
                 </div>
 
@@ -802,7 +802,7 @@ export default function MiniPrints({
                   <div className="flex overflow-hidden rounded-lg border border-black/15">
                     {["S", "M", "L"].map((s) => (
                       <button key={s} onClick={() => patch(p.id, { captionSize: s })}
-                        className={`px-2.5 py-1.5 text-xs font-bold ${p.captionSize === s ? "bg-gold text-[#1a1208]" : "text-charcoal/60"}`}>{s}</button>
+                        className={`px-2.5 py-1.5 text-xs font-bold ${p.captionSize === s ? "bg-gold text-[#1a1208]" : "text-muted"}`}>{s}</button>
                     ))}
                   </div>
                   <div className="flex items-center gap-1">
@@ -816,11 +816,11 @@ export default function MiniPrints({
                 {/* date + stickers */}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   <button onClick={() => patch(p.id, { dateStamp: !p.dateStamp })}
-                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.dateStamp ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 text-charcoal/60"}`}>
+                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.dateStamp ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 text-muted"}`}>
                     <CalendarDays size={13} /> Date stamp
                   </button>
                   <button onClick={() => setStickerId(stickerId === p.id ? null : p.id)}
-                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.stickers.length ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 text-charcoal/60"}`}>
+                    className={`flex items-center gap-1.5 rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${p.stickers.length ? "border-gold bg-gold/5 text-charcoal" : "border-black/10 text-muted"}`}>
                     <Smile size={13} /> Stickers{p.stickers.length ? ` (${p.stickers.length})` : ""}
                   </button>
                   {p.dateStamp && (
@@ -836,7 +836,7 @@ export default function MiniPrints({
                       <span className="text-sm leading-none">{s.emoji}</span>
                       <button onClick={() => toggleSticker(p.id, s.emoji)}
                         title={`Remove ${s.emoji} sticker`} aria-label={`Remove ${s.emoji} sticker`}
-                        className="grid h-5 w-5 place-items-center rounded-full text-charcoal/45 transition hover:bg-black/10 hover:text-charcoal">
+                        className="grid h-5 w-5 place-items-center rounded-full text-subtle transition hover:bg-black/10 hover:text-charcoal">
                         <X size={11} />
                       </button>
                     </span>
@@ -846,7 +846,7 @@ export default function MiniPrints({
                   <div className="mt-2 rounded-xl border border-black/10 p-2">
                     {STICKER_SETS.map((set) => (
                       <div key={set.label} className="mb-1.5 last:mb-0">
-                        <p className="mb-1 text-[9px] font-bold uppercase tracking-wide text-charcoal/40">{set.label}</p>
+                        <p className="mb-1 text-[9px] font-bold uppercase tracking-wide text-subtle">{set.label}</p>
                         <div className="flex gap-1.5">
                           {set.items.map((emoji) => {
                             const on = p.stickers.some((s) => s.emoji === emoji);
@@ -863,7 +863,7 @@ export default function MiniPrints({
 
                 {/* copies */}
                 <div className="mt-3 flex items-center justify-end gap-1.5 border-t border-black/5 pt-3">
-                  <span className="mr-auto text-[10px] font-bold uppercase tracking-wide text-charcoal/40">
+                  <span className="mr-auto text-[10px] font-bold uppercase tracking-wide text-subtle">
                     Copies{p.autoCopies ? <span className="ml-1 normal-case text-[#7a5c12]">{" · "}set to meet the {V.minPrints}-print minimum</span> : null}
                   </span>
                   <button onClick={() => setCopies(p.id, p.copies - 1)} className="grid h-7 w-7 place-items-center rounded-full border border-black/15 text-sm font-bold hover:border-charcoal">−</button>
@@ -901,13 +901,13 @@ export default function MiniPrints({
               wrap to three lines ("₹0 / free / delivery") and shove the
               buttons off the bar. */}
           <div className="min-w-0 flex-1">
-            <p className="truncate text-[10px] font-bold uppercase tracking-wide text-charcoal/40">
+            <p className="truncate text-[10px] font-bold uppercase tracking-wide text-subtle">
               {totalPrints} {totalPrints === 1 ? "print" : "prints"}
               {sizeIds.length === 1 ? ` · ${sizeIn(V, sizeIds[0]).label}` : sizeIds.length > 1 ? ` · ${sizeIds.length} sizes` : ""}
               {inCartCount > 0 ? ` · ${inCartCount} in cart` : ""}
             </p>
             <p className="kd-price whitespace-nowrap font-bold">{inr(total)}</p>
-            <p className="truncate text-[10px] text-charcoal/50">{shipping ? `incl. ${inr(shipping)} delivery` : "free delivery"}</p>
+            <p className="truncate text-[10px] text-muted">{shipping ? `incl. ${inr(shipping)} delivery` : "free delivery"}</p>
           </div>
           {/* 44px minimum tap target, and neither label may wrap */}
           <div className="flex shrink-0 items-center gap-2">

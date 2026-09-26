@@ -24,7 +24,7 @@ export default function HowItWorks() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
             Upload. Preview. Delivered.
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
+          <p className="mx-auto mt-4 max-w-xl text-muted">
             Three simple steps — choose your photo, preview it live, and order on WhatsApp.
           </p>
         </div>
@@ -41,7 +41,7 @@ export default function HowItWorks() {
                   <Icon size={22} />
                 </span>
                 <h3 className="font-serif font-semibold text-lg text-charcoal">{s.title}</h3>
-                <p className="mt-1.5 text-sm text-charcoal/55">{s.desc}</p>
+                <p className="mt-1.5 text-sm text-muted">{s.desc}</p>
               </div>
             );
           })}

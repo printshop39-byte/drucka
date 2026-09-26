@@ -22,12 +22,12 @@ function SizeChartModal({ product, onClose }) {
       <button className="absolute inset-0 bg-ink/50" onClick={onClose} aria-label="Close size chart" />
       <div className="relative max-h-[80vh] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="font-display text-lg font-bold text-ink">Size chart <span className="text-sm font-medium text-ink/45">(inches)</span></h3>
-          <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-ink/50 hover:bg-ink/5"><Icon d={ic.close} className="h-4 w-4" /></button>
+          <h3 className="font-display text-lg font-bold text-ink">Size chart <span className="text-sm font-medium text-subtle">(inches)</span></h3>
+          <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-ink/5"><Icon d={ic.close} className="h-4 w-4" /></button>
         </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="text-left text-[11px] font-bold uppercase tracking-wide text-ink/45">
+            <tr className="text-left text-[11px] font-bold uppercase tracking-wide text-subtle">
               <th className="pb-2">Size</th><th className="pb-2">Chest</th><th className="pb-2">Length</th>{!enquiry && <th className="pb-2 text-right">Extra</th>}
             </tr>
           </thead>
@@ -37,12 +37,12 @@ function SizeChartModal({ product, onClose }) {
                 <td className="py-1.5 font-bold text-ink">{r.size}</td>
                 <td className="py-1.5 text-ink/70">{r.chest}″</td>
                 <td className="py-1.5 text-ink/70">{r.length}″</td>
-                {!enquiry && <td className="py-1.5 text-right text-xs font-semibold text-ink/55">{product.sizeSurcharge?.[r.size] ? `+${inr(product.sizeSurcharge[r.size])}` : "—"}</td>}
+                {!enquiry && <td className="py-1.5 text-right text-xs font-semibold text-muted">{product.sizeSurcharge?.[r.size] ? `+${inr(product.sizeSurcharge[r.size])}` : "—"}</td>}
               </tr>
             ))}
           </tbody>
         </table>
-        <p className="mt-3 text-[11px] text-ink/45">Measured flat across the garment. Between sizes? Go one up — the fit is classic, not slim.</p>
+        <p className="mt-3 text-[11px] text-subtle">Measured flat across the garment. Between sizes? Go one up — the fit is classic, not slim.</p>
       </div>
     </div>
   );
@@ -105,7 +105,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
           <button onClick={onClose} aria-label="Back to Drucka" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink/60 hover:bg-ink/5 hover:text-ink">
             <Icon d={ic.back} />
           </button>
-          <nav className="min-w-0 truncate text-xs text-ink/50" aria-label="Breadcrumb">
+          <nav className="min-w-0 truncate text-xs text-muted" aria-label="Breadcrumb">
             <span>Product</span><span className="mx-1.5 text-ink/30">/</span>
             <span>{CATEGORIES.find((c) => c.id === category)?.label}</span><span className="mx-1.5 text-ink/30">/</span>
             <span className="font-bold text-ink">{p.productName}</span>
@@ -166,18 +166,18 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
           <p className="mt-3 text-2xl font-extrabold text-ink">
             {isEnquiry(p.productId)
               ? "Price on enquiry"
-              : <>{inr(p.basePrice)} <span className="text-sm font-semibold text-ink/45">base price · printing extra</span></>}
+              : <>{inr(p.basePrice)} <span className="text-sm font-semibold text-subtle">base price · printing extra</span></>}
           </p>
 
           {/* printing option */}
           <div className="mt-6">
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Printing option</p>
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">Printing option</p>
             <div className="grid gap-2 sm:grid-cols-3">
               {p.printingOptions.map((m) => (
                 <button key={m.id} onClick={() => setMethod(m.id)}
                   className={`rounded-xl border-2 px-3 py-2.5 text-left transition ${method === m.id ? "border-tangerine bg-tangerine/5" : "border-ink/10 bg-white hover:border-ink/25"}`}>
                   <span className="block text-sm font-extrabold text-ink">{m.label}</span>
-                  <span className="block text-[11px] text-ink/50">{m.price > 0 && !isEnquiry(p.productId) ? `+${inr(m.price)} · ` : ""}{m.note}</span>
+                  <span className="block text-[11px] text-muted">{m.price > 0 && !isEnquiry(p.productId) ? `+${inr(m.price)} · ` : ""}{m.note}</span>
                 </button>
               ))}
             </div>
@@ -185,7 +185,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
 
           {/* colors */}
           <div className="mt-6">
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-ink/45">
+            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-wider text-subtle">
               Color · <span className="normal-case text-ink/70">{colorById(color)?.label}</span>
             </p>
             <div className="flex flex-wrap gap-2">
@@ -202,7 +202,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
           {/* sizes */}
           <div className="mt-6">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-[11px] font-extrabold uppercase tracking-wider text-ink/45">Size</p>
+              <p className="text-[11px] font-extrabold uppercase tracking-wider text-subtle">Size</p>
               {p.sizeChart && (
                 <button onClick={() => setChartOpen(true)} className="flex items-center gap-1 text-xs font-bold text-[#c2410c] hover:underline">
                   <Icon d={ic.ruler} className="h-3.5 w-3.5" /> View Size Chart
@@ -217,7 +217,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
                 </button>
               ))}
             </div>
-            {!isEnquiry(p.productId) && p.sizeSurcharge?.[size] > 0 && <p className="mt-1.5 text-xs text-ink/50">{size} adds {inr(p.sizeSurcharge[size])}</p>}
+            {!isEnquiry(p.productId) && p.sizeSurcharge?.[size] > 0 && <p className="mt-1.5 text-xs text-muted">{size} adds {inr(p.sizeSurcharge[size])}</p>}
           </div>
 
           {/* highlights */}
@@ -239,10 +239,10 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
               className="rounded-full bg-tangerine px-8 py-3.5 text-base font-bold text-[#1a1208] shadow-lg shadow-tangerine/30 transition hover:brightness-105">
               Start Designing →
             </button>
-            <p className="text-xs text-ink/50">Free design preview · 2–4 day delivery · printed in India</p>
+            <p className="text-xs text-muted">Free design preview · 2–4 day delivery · printed in India</p>
             {/* the delivery rule, from the same constants as the cart, the
                 order summary and the shipping policy page */}
-            <p className="mt-1 text-xs text-ink/50">{DELIVERY_RULE_SHORT}</p>
+            <p className="mt-1 text-xs text-muted">{DELIVERY_RULE_SHORT}</p>
           </div>
         </div>
       </div>

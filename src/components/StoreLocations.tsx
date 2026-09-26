@@ -13,7 +13,7 @@ export default function StoreLocations() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
             Order Online, Delivered Across India
           </h2>
-          <p className="mt-4 text-charcoal/60 max-w-xl mx-auto">
+          <p className="mt-4 text-muted max-w-xl mx-auto">
             No store visit needed — design online, pay online, and we deliver to your doorstep anywhere in India.
           </p>
         </div>

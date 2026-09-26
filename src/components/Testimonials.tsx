@@ -88,7 +88,7 @@ export default function Testimonials() {
               ))}
             </div>
             <h4 className="font-semibold text-charcoal text-lg">{active.author}</h4>
-            <p className="text-sm text-charcoal/50 uppercase tracking-wide mt-1">{active.title}</p>
+            <p className="text-sm text-muted uppercase tracking-wide mt-1">{active.title}</p>
             <a
               href={active.sourceUrl!}
               target="_blank"

@@ -34,7 +34,7 @@ export default function TrustPolicies() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-charcoal">
             100% Quality Guarantee
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-charcoal/55">
+          <p className="mx-auto mt-4 max-w-xl text-muted">
             Your memories and your money are both safe with us.
           </p>
         </div>
@@ -48,7 +48,7 @@ export default function TrustPolicies() {
                   <Icon size={22} />
                 </span>
                 <h3 className="font-serif font-semibold text-lg text-charcoal">{it.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-charcoal/55">{it.desc}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{it.desc}</p>
               </div>
             );
           })}

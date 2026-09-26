@@ -35,7 +35,7 @@ const BRUSH_COLORS = ["#211c17", "#ffffff", "#ff6b35", "#e11d48", "#1d4ed8", "#1
 
 const Slider = ({ label, value, min, max, step, onChange, fmt = (v) => v }) => (
   <label className="block">
-    <span className="mb-1 flex justify-between text-[10px] font-bold uppercase tracking-wide text-charcoal/45">
+    <span className="mb-1 flex justify-between text-[10px] font-bold uppercase tracking-wide text-subtle">
       {label} <span className="text-charcoal/70">{fmt(value)}</span>
     </span>
     <input type="range" min={min} max={max} step={step} value={value}
@@ -69,7 +69,7 @@ const OptionRow = ({ active, onClick, label, price }) => (
     </span>
     <span className="flex-1">{label}</span>
     {price > 0 && <span className="text-xs font-bold text-[#c2410c]">+{inr(price)}</span>}
-    {price === 0 && <span className="text-xs font-bold text-charcoal/35">Free</span>}
+    {price === 0 && <span className="text-xs font-bold text-subtle">Free</span>}
   </button>
 );
 
@@ -375,7 +375,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                       style={{ left: `${c.x * 100 + 2}%`, top: `${c.y * 100 + 2}%`, width: `${c.w * 100 - 4}%`, height: `${c.h * 100 - 4}%` }} />
                   ))}
                 </span>
-                <span className="mt-1 block text-center text-[9px] font-bold text-charcoal/55">{l.label}</span>
+                <span className="mt-1 block text-center text-[9px] font-bold text-muted">{l.label}</span>
               </button>
             ))}
           </div>
@@ -407,7 +407,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             className="mt-2 w-full rounded-full bg-charcoal/5 py-2 text-xs font-bold text-charcoal transition hover:bg-charcoal/10 disabled:opacity-35">
             ⚡ Auto-fill collage
           </button>
-          <p className="mt-2 text-[10px] text-charcoal/40">Drag a photo onto a cell, or tap a photo to fill the next empty cell.</p>
+          <p className="mt-2 text-[10px] text-subtle">Drag a photo onto a cell, or tap a photo to fill the next empty cell.</p>
           <div className="mt-3 grid grid-cols-3 gap-2">
             {photos.map((p) => (
               <button key={p.id} draggable title={p.name}
@@ -450,7 +450,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 <button key={p.id} onClick={() => setPattern(p.id)} title={p.label}
                   className={`overflow-hidden rounded-lg border-2 transition ${pattern === p.id ? "border-tangerine" : "border-black/10 hover:border-black/30"}`}>
                   <PatternSwatch id={p.id} bg={bg} />
-                  <span className={`block truncate px-1 pb-1 pt-0.5 text-[9px] font-bold ${pattern === p.id ? "text-[#c2410c]" : "text-charcoal/55"}`}>
+                  <span className={`block truncate px-1 pb-1 pt-0.5 text-[9px] font-bold ${pattern === p.id ? "text-[#c2410c]" : "text-muted"}`}>
                     {p.label}
                   </span>
                 </button>
@@ -464,7 +464,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 <button key={f.id} disabled={!selectedSlot?.photoId}
                   onClick={() => patchSlot(selected.key, { filter: f.id })}
                   className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold transition disabled:opacity-30 ${
-                    selectedSlot?.filter === f.id ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-black/15 text-charcoal/60"}`}>
+                    selectedSlot?.filter === f.id ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-black/15 text-muted"}`}>
                   {f.label}
                 </button>
               ))}
@@ -497,7 +497,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 className={`flex w-full items-center justify-between rounded-xl border-2 px-3 py-2 text-left text-sm font-semibold transition ${
                   size.id === s.id ? "border-tangerine bg-tangerine/5 text-charcoal" : "border-black/10 text-charcoal/70 hover:border-black/25"}`}>
                 {s.label}
-                <span className="text-[10px] text-charcoal/40">{s.w}×{s.h}</span>
+                <span className="text-[10px] text-subtle">{s.w}×{s.h}</span>
               </button>
             ))}
           </div>
@@ -543,7 +543,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                 onChange={(v) => setTexts((ts) => ts.map((t) => (t.id === selectedText.id ? { ...t, size: v } : t)))} />
               <div className="flex items-center gap-2">
                 <button onClick={() => setTexts((ts) => ts.map((t) => (t.id === selectedText.id ? { ...t, bold: !t.bold } : t)))}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm font-black ${selectedText.bold ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-black/15 text-charcoal/60"}`}>B</button>
+                  className={`h-9 w-9 rounded-lg border-2 text-sm font-black ${selectedText.bold ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-black/15 text-muted"}`}>B</button>
                 <input type="color" value={selectedText.color}
                   onChange={(e) => setTexts((ts) => ts.map((t) => (t.id === selectedText.id ? { ...t, color: e.target.value } : t)))}
                   className="h-9 w-9 cursor-pointer rounded-lg border border-black/15 bg-transparent" />
@@ -552,7 +552,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
               </div>
             </div>
           ) : (
-            <p className="mt-3 text-[11px] text-charcoal/40">Tap a text on the collage to edit it. Drag to move.</p>
+            <p className="mt-3 text-[11px] text-subtle">Tap a text on the collage to edit it. Drag to move.</p>
           )}
         </>
       );
@@ -592,7 +592,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             <Icon d={ic.pen} className="h-4 w-4" />
             {drawOn ? "Done drawing" : "Start drawing"}
           </button>
-          <p className="-mt-2 text-[10px] text-charcoal/45">
+          <p className="-mt-2 text-[10px] text-subtle">
             {drawOn
               ? "Draw anywhere on the collage. Photos stay put while the pen is on."
               : "Turn the pen on, then draw straight onto the collage."}
@@ -604,12 +604,12 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
               {BRUSH_TEMPLATES.map((t) => (
                 <button key={t.id} title={t.hint} onClick={() => { setBrush(t.id); setDrawOn(true); }}
                   className={`rounded-lg border-2 px-1 py-1.5 text-[9px] font-bold leading-tight transition ${
-                    brush === t.id ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-black/10 text-charcoal/55 hover:border-black/30"}`}>
+                    brush === t.id ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-black/10 text-muted hover:border-black/30"}`}>
                   {t.label}
                 </button>
               ))}
             </div>
-            <p className="mt-1 text-[10px] text-charcoal/40">{brushById(brush).hint}</p>
+            <p className="mt-1 text-[10px] text-subtle">{brushById(brush).hint}</p>
           </div>
 
           <div>
@@ -637,7 +637,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
               Clear all
             </button>
           </div>
-          <p className="text-[10px] text-charcoal/40">
+          <p className="text-[10px] text-subtle">
             {strokes.length ? `${strokes.length} stroke${strokes.length > 1 ? "s" : ""} · printed at full resolution` : "Nothing drawn yet."}
           </p>
         </div>
@@ -690,11 +690,11 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
 
           {/* price breakdown */}
           <div className="mt-2 space-y-1.5 rounded-xl bg-charcoal/[0.04] p-3 text-sm">
-            <div className="flex justify-between text-charcoal/60"><span>Unit price</span><span className="font-semibold text-charcoal">{inr(price.unit)}</span></div>
-            <div className="flex justify-between text-charcoal/60"><span>Subtotal ({qty}×)</span><span className="font-semibold text-charcoal">{inr(price.total)}</span></div>
-            <div className="flex justify-between text-charcoal/60"><span>Shipping</span><span className="font-semibold text-charcoal">{price.shipping ? inr(price.shipping) : "FREE"}</span></div>
+            <div className="flex justify-between text-muted"><span>Unit price</span><span className="font-semibold text-charcoal">{inr(price.unit)}</span></div>
+            <div className="flex justify-between text-muted"><span>Subtotal ({qty}×)</span><span className="font-semibold text-charcoal">{inr(price.total)}</span></div>
+            <div className="flex justify-between text-muted"><span>Shipping</span><span className="font-semibold text-charcoal">{price.shipping ? inr(price.shipping) : "FREE"}</span></div>
             <div className="mt-1 flex items-baseline justify-between border-t border-black/10 pt-1.5">
-              <span className="text-xs font-bold uppercase tracking-wide text-charcoal/50">Total</span>
+              <span className="text-xs font-bold uppercase tracking-wide text-muted">Total</span>
               <span className="text-xl font-black text-charcoal">{inr(price.grandTotal)}</span>
             </div>
           </div>
@@ -707,7 +707,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             className="w-full rounded-full bg-[#25D366] py-3 text-sm font-bold text-[#1a1208] transition hover:brightness-105 disabled:opacity-50">
             💬 Order on WhatsApp
           </button>
-          <p className="text-[10px] leading-relaxed text-charcoal/40">Printed &amp; shipped by Drucka in 2–4 days · COD available · {DELIVERY_RULE_SHORT}.</p>
+          <p className="text-[10px] leading-relaxed text-subtle">Printed &amp; shipped by Drucka in 2–4 days · COD available · {DELIVERY_RULE_SHORT}.</p>
         </div>
       );
       default: return null;
@@ -721,14 +721,14 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
 
       {/* header */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-2 border-b border-black/10 bg-white px-3 sm:px-4">
-        <button onClick={onBack ?? onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-charcoal/55 hover:bg-black/5 hover:text-charcoal">
+        <button onClick={onBack ?? onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal">
           <Icon d={ic.back} />
         </button>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold">Collage Maker</p>
-          <p className="hidden text-[10px] text-charcoal/40 sm:block">Drucka Studio · {size.label}</p>
+          <p className="hidden text-[10px] text-subtle sm:block">Drucka Studio · {size.label}</p>
         </div>
-        <div className="mx-auto hidden items-center gap-1 text-[11px] font-semibold text-charcoal/45 sm:flex">
+        <div className="mx-auto hidden items-center gap-1 text-[11px] font-semibold text-subtle sm:flex">
           {filledCount}/{layout.cells.length} photos placed
         </div>
         {onPro && (
@@ -737,7 +737,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             {/* hand the uploaded photos over — Pro used to open blank, which
                 read as the work being thrown away */}
             <button onClick={() => onPro(photos)} title="Freeform mode: shape crops, blend, text, pen, effects"
-              className="rounded-full px-3 py-1.5 text-charcoal/55 transition hover:text-charcoal">
+              className="rounded-full px-3 py-1.5 text-muted transition hover:text-charcoal">
               Pro Editor
             </button>
           </div>
@@ -755,7 +755,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             {TABS.map((t) => (
               <button key={t.id} onClick={() => setTab(t.id)}
                 className={`flex w-16 flex-col items-center gap-1 rounded-xl py-2.5 text-[9px] font-bold transition ${
-                  tab === t.id ? "bg-tangerine/10 text-[#c2410c]" : "text-charcoal/45 hover:bg-black/5 hover:text-charcoal"}`}>
+                  tab === t.id ? "bg-tangerine/10 text-[#c2410c]" : "text-subtle hover:bg-black/5 hover:text-charcoal"}`}>
                 <Icon d={t.icon} className="h-5 w-5" />
                 {t.label}
               </button>
@@ -826,7 +826,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
                         )}
                       </>
                     ) : (
-                      <span className="pointer-events-none absolute inset-0 grid place-items-center text-2xl" style={{ color: "rgba(33,28,23,.3)" }}>+</span>
+                      <span className="pointer-events-none absolute inset-0 grid place-items-center text-2xl" style={{ color: "rgba(33,28,23,.55)" }}>+</span>
                     )}
                   </div>
                 );
@@ -875,7 +875,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
           {/* selected-photo quick bar */}
           {selectedSlot?.photoId && (
             <div className="z-20 mx-auto mb-1 flex w-fit max-w-full items-center gap-3 rounded-full bg-white px-4 py-2 shadow-xl ring-1 ring-black/5">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">Zoom</span>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-subtle">Zoom</span>
               <input type="range" min={1} max={3} step={0.05} value={selectedSlot.zoom ?? 1}
                 onChange={(e) => patchSlot(selected.key, { zoom: +e.target.value })} className="w-28 accent-tangerine sm:w-40" />
               <button onClick={() => patchSlot(selected.key, { zoom: 1, ox: 0, oy: 0 })}
@@ -888,8 +888,8 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
           {/* bottom bar */}
           <div className="z-20 flex shrink-0 items-center gap-3 border-t border-black/10 bg-white px-3 py-2.5 sm:px-4">
             <div className="hidden sm:block">
-              <p className="text-[10px] font-bold uppercase tracking-wide text-charcoal/40">{size.dim || size.label}{frame !== "none" ? " · framed" : ""}</p>
-              <p className="text-sm font-black text-charcoal">{inr(price.grandTotal)} <span className="text-[10px] font-semibold text-charcoal/40">incl. shipping</span></p>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-subtle">{size.dim || size.label}{frame !== "none" ? " · framed" : ""}</p>
+              <p className="text-sm font-black text-charcoal">{inr(price.grandTotal)} <span className="text-[10px] font-semibold text-subtle">incl. shipping</span></p>
             </div>
             <div className="ml-auto flex items-center gap-2">
               <button onClick={shareCollage} disabled={busy}
@@ -907,7 +907,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
       <nav className="z-30 flex shrink-0 items-stretch justify-around border-t border-black/10 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
         {TABS.map((t) => (
           <button key={t.id} onClick={() => { setTab(t.id); setMobilePanel(t.id); }}
-            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[9px] font-bold text-charcoal/55">
+            className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[9px] font-bold text-muted">
             <Icon d={t.icon} className="h-5 w-5" />
             {t.label}
           </button>
