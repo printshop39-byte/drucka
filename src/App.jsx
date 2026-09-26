@@ -3676,16 +3676,30 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
     notes: "",
   });
   const [error, setError] = useState(null);
-  const set = (k) => (e) => setForm((s) => ({ ...s, [k]: e.target.value }));
+  /* the field the error is about, so it can be marked invalid, linked to the
+     message and given focus (a screen-reader user otherwise hears the alert but
+     is left on the submit button, not knowing which field to fix) */
+  const [errorField, setErrorField] = useState(null);
+  const FIELD_ID = { name: "co-name", phone: "co-phone", address1: "co-addr1", city: "co-city", state: "co-state", pincode: "co-pin" };
+  const set = (k) => (e) => {
+    setForm((s) => ({ ...s, [k]: e.target.value }));
+    if (errorField && errorField === FIELD_ID[k]) { setError(null); setErrorField(null); }
+  };
+  const invalidProps = (id) => (errorField === id ? { "aria-invalid": "true", "aria-describedby": "co-error" } : {});
+  const fail = (msg, id) => {
+    setError(msg); setErrorField(id);
+    /* after the re-render, so aria-invalid is already on the field when it is focused */
+    window.setTimeout(() => dialogRef.current?.querySelector("#" + id)?.focus(), 0);
+  };
 
   const submit = () => {
-    if (!form.name.trim()) return setError("Full name is required");
-    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, "").slice(-10))) return setError("Enter a valid 10-digit mobile number");
-    if (!form.address1.trim()) return setError("Address line 1 is required");
-    if (!form.city.trim()) return setError("City is required");
-    if (!form.state.trim()) return setError("State is required");
-    if (!/^\d{6}$/.test(form.pincode)) return setError("Enter a valid 6-digit pincode");
-    setError(null);
+    if (!form.name.trim()) return fail("Full name is required", "co-name");
+    if (!/^\d{10}$/.test(form.phone.replace(/\D/g, "").slice(-10))) return fail("Enter a valid 10-digit mobile number", "co-phone");
+    if (!form.address1.trim()) return fail("Address line 1 is required", "co-addr1");
+    if (!form.city.trim()) return fail("City is required", "co-city");
+    if (!form.state.trim()) return fail("State is required", "co-state");
+    if (!/^\d{6}$/.test(form.pincode)) return fail("Enter a valid 6-digit pincode", "co-pin");
+    setError(null); setErrorField(null);
     setOrder(onPlaceOrder(form));
   };
 
@@ -3723,21 +3737,21 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
             <>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2"><label htmlFor="co-name" className={lblCls}>Full name *</label>
-                  <input id="co-name" value={form.name} onChange={set("name")} className={inputCls} autoComplete="name" /></div>
+                  <input id="co-name" value={form.name} onChange={set("name")} className={inputCls} autoComplete="name" required aria-required="true" {...invalidProps("co-name")} /></div>
                 <div><label htmlFor="co-phone" className={lblCls}>Mobile number *</label>
-                  <input id="co-phone" type="tel" value={form.phone} onChange={set("phone")} placeholder="10-digit" className={inputCls} autoComplete="tel" /></div>
+                  <input id="co-phone" type="tel" value={form.phone} onChange={set("phone")} placeholder="10-digit" className={inputCls} autoComplete="tel" required aria-required="true" {...invalidProps("co-phone")} /></div>
                 <div><label htmlFor="co-email" className={lblCls}>Email</label>
                   <input id="co-email" type="email" value={form.email} onChange={set("email")} className={inputCls} autoComplete="email" /></div>
                 <div className="sm:col-span-2"><label htmlFor="co-addr1" className={lblCls}>Address line 1 *</label>
-                  <input id="co-addr1" value={form.address1} onChange={set("address1")} className={inputCls} autoComplete="address-line1" /></div>
+                  <input id="co-addr1" value={form.address1} onChange={set("address1")} className={inputCls} autoComplete="address-line1" required aria-required="true" {...invalidProps("co-addr1")} /></div>
                 <div className="sm:col-span-2"><label htmlFor="co-addr2" className={lblCls}>Address line 2</label>
                   <input id="co-addr2" value={form.address2} onChange={set("address2")} className={inputCls} autoComplete="address-line2" /></div>
                 <div><label htmlFor="co-city" className={lblCls}>City *</label>
-                  <input id="co-city" value={form.city} onChange={set("city")} className={inputCls} autoComplete="address-level2" /></div>
+                  <input id="co-city" value={form.city} onChange={set("city")} className={inputCls} autoComplete="address-level2" required aria-required="true" {...invalidProps("co-city")} /></div>
                 <div><label htmlFor="co-state" className={lblCls}>State *</label>
-                  <input id="co-state" value={form.state} onChange={set("state")} className={inputCls} autoComplete="address-level1" /></div>
+                  <input id="co-state" value={form.state} onChange={set("state")} className={inputCls} autoComplete="address-level1" required aria-required="true" {...invalidProps("co-state")} /></div>
                 <div><label htmlFor="co-pin" className={lblCls}>Pincode *</label>
-                  <input id="co-pin" inputMode="numeric" maxLength={6} value={form.pincode} onChange={set("pincode")} className={inputCls} autoComplete="postal-code" /></div>
+                  <input id="co-pin" inputMode="numeric" maxLength={6} value={form.pincode} onChange={set("pincode")} className={inputCls} autoComplete="postal-code" required aria-required="true" {...invalidProps("co-pin")} /></div>
                 <div><label className={lblCls}>Payment mode</label>
                   <div className="flex gap-2">
                     {(FEATURES.ENABLE_COD_TESTING
@@ -3753,7 +3767,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                 <div className="sm:col-span-2"><label htmlFor="co-notes" className={lblCls}>Notes (optional)</label>
                   <input id="co-notes" value={form.notes} onChange={set("notes")} maxLength={120} placeholder="Gift wrap, delivery instructions…" className={inputCls} /></div>
               </div>
-              {error && <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600" role="alert">⚠ {error}</p>}
+              {error && <p id="co-error" className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600" role="alert">⚠ {error}</p>}
             </>
           ) : (
             <>
