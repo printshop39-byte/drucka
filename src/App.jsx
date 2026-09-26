@@ -291,6 +291,10 @@ const TEMPLATES = [
   ]},
 ];
 
+/* toast text that is an error/refusal rather than a confirmation: the app marks
+   errors with a leading warning sign; a few plain refusals are listed by pattern */
+const isErrorToast = (m) => /^\s*⚠/.test(m) || /^(Add a design first|Max \d)|\b(cannot|could not|failed)\b/i.test(m);
+
 const wa = (message) =>
   `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(message)}`;
 
@@ -4163,6 +4167,7 @@ export default function App() {
   const [favs, setFavs] = useState(() => load("drucka-favs", []));
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
+  const [toastId, setToastId] = useState(0); // new id per message so a repeated message is announced again
   /* THE single design-customization flow: product page → designer → submit.
      (The legacy in-file ProductEditor is no longer rendered anywhere.) */
   const [designerPage, setDesignerPage] = useState(null); // null | { productId }
@@ -4444,6 +4449,7 @@ export default function App() {
 
   const showToast = (msg) => {
     setToast(msg);
+    setToastId((n) => n + 1);
     window.clearTimeout(showToast.t);
     showToast.t = window.setTimeout(() => setToast(null), 2600);
   };
@@ -5097,8 +5103,18 @@ export default function App() {
 
       <WhatsAppChatbot />
 
+      {/* Screen readers: two PERSISTENT live regions (one that is inserted together
+          with its text is often not announced at all). Messages that start with a
+          warning sign, or are plain refusals, go to the alert region; the rest are
+          polite status. The visible pill is hidden from them so nothing is read twice. */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {toast && !isErrorToast(toast) ? <span key={toastId}>{toast}</span> : null}
+      </div>
+      <div className="sr-only" role="alert" aria-atomic="true">
+        {toast && isErrorToast(toast) ? <span key={toastId}>{toast}</span> : null}
+      </div>
       {toast && (
-        <div className="fixed bottom-24 left-1/2 z-[120] -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-2xl">
+        <div aria-hidden="true" className="fixed bottom-24 left-1/2 z-[120] -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-2xl">
           {toast}
         </div>
       )}
