@@ -39,7 +39,7 @@ export default function WhyDrucka() {
             const Icon = p.icon;
             return (
               <div key={p.title} className="flex items-start gap-4 rounded-2xl bg-white p-6" style={cardStyle}>
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.12)', color: '#a8863a' }}>
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.12)', color: '#8a6a1f' }}>
                   <Icon size={20} />
                 </span>
                 <div>

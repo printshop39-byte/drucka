@@ -4,7 +4,7 @@ import type { Landing } from './landingData';
 
 const ABS = 'https://www.drucka.in';
 const card: React.CSSProperties = { border: '1px solid rgba(26,18,8,0.08)', boxShadow: '0 2px 14px rgba(26,18,8,0.05)' };
-const goldTint: React.CSSProperties = { backgroundColor: 'rgba(201,168,76,0.12)', color: '#a8863a' };
+const goldTint: React.CSSProperties = { backgroundColor: 'rgba(201,168,76,0.12)', color: '#8a6a1f' };
 
 const goldBtn = 'inline-flex items-center justify-center gap-2 rounded-full bg-gold px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-[#1a1208] transition hover:bg-gold-dark';
 const waBtn = 'inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold uppercase tracking-wide text-[#1a1208] transition hover:brightness-110';

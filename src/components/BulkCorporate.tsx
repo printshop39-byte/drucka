@@ -22,7 +22,7 @@ export default function BulkCorporate() {
         >
           <div className="grid items-center gap-8 lg:grid-cols-2">
             <div>
-              <span className="mb-5 grid h-12 w-12 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.12)', color: '#a8863a' }}>
+              <span className="mb-5 grid h-12 w-12 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.12)', color: '#8a6a1f' }}>
                 <Building2 size={22} />
               </span>
               <span className="text-[#8a6a1f] font-medium tracking-[0.2em] uppercase text-xs block mb-3">Bulk &amp; Corporate</span>
@@ -45,7 +45,7 @@ export default function BulkCorporate() {
             <ul className="grid gap-3 sm:grid-cols-2 lg:gap-4">
               {perks.map((perk) => (
                 <li key={perk} className="flex items-center gap-2.5 rounded-xl px-4 py-3.5 text-sm font-medium text-charcoal/75" style={{ backgroundColor: '#FBFAF8' }}>
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.15)', color: '#a8863a' }}>
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.15)', color: '#8a6a1f' }}>
                     <Check size={14} />
                   </span>
                   {perk}

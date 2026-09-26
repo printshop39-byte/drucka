@@ -37,7 +37,7 @@ export default function HowItWorks() {
                 <span className="absolute right-5 top-4 font-serif text-4xl font-bold" style={{ color: 'rgba(201,168,76,0.18)' }}>
                   {i + 1}
                 </span>
-                <span className="mb-4 grid h-12 w-12 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.12)', color: '#a8863a' }}>
+                <span className="mb-4 grid h-12 w-12 place-items-center rounded-full" style={{ backgroundColor: 'rgba(201,168,76,0.12)', color: '#8a6a1f' }}>
                   <Icon size={22} />
                 </span>
                 <h3 className="font-serif font-semibold text-lg text-charcoal">{s.title}</h3>

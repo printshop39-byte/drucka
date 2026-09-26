@@ -25,7 +25,7 @@ const SAMPLES = [
 ];
 
 const card: React.CSSProperties = { border: '1px solid rgba(26,18,8,0.08)', boxShadow: '0 2px 14px rgba(26,18,8,0.05)' };
-const goldTint: React.CSSProperties = { backgroundColor: 'rgba(201,168,76,0.12)', color: '#a8863a' };
+const goldTint: React.CSSProperties = { backgroundColor: 'rgba(201,168,76,0.12)', color: '#8a6a1f' };
 
 export default function StudioTrust() {
   const years = new Date().getFullYear() - EST_YEAR;
@@ -112,7 +112,7 @@ export default function StudioTrust() {
 
         {/* Privacy promise */}
         <p className="mx-auto mt-8 flex max-w-xl items-center justify-center gap-2 text-center text-sm text-muted">
-          <Lock size={15} style={{ color: '#a8863a' }} />
+          <Lock size={15} style={{ color: '#8a6a1f' }} />
           Uploaded photos are used only for your order — never shared or sold.
         </p>
       </div>
