@@ -348,9 +348,14 @@ export default function DesignCanvas({
               onStroke={draw.onStroke} />
           )}
           {!preview && !layers.length && (
-            <p className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 px-2 text-center text-[10px] font-semibold text-sky-600/60">
-              {p.label} print area
-              <span className="block text-[9px] font-medium">{inches.w}″ × {inches.h}″</span>
+            /* this hint sits on the customer's product photo, so its own
+               background must carry the contrast: a dark translucent pill
+               with white text reads on a white mug and on a black hoodie alike */
+            <p className="pointer-events-none absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-center px-2 text-center">
+              <span className="rounded-lg bg-ink/80 px-2.5 py-1 text-[10px] font-semibold text-white">
+                {p.label} print area
+                <span className="block text-[9px] font-medium">{inches.w}″ × {inches.h}″</span>
+              </span>
             </p>
           )}
         </div>
