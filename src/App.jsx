@@ -3700,6 +3700,17 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
     <div className="fixed inset-0 z-[120] grid place-items-center bg-charcoal/50 p-4 backdrop-blur-sm" onClick={onClose}>
       <div ref={dialogRef} className="animate-sheet flex max-h-[90vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
         role="dialog" aria-modal="true" aria-label="Checkout" onClick={(e) => e.stopPropagation()}>
+        {/* What a sighted customer sees change on screen (heading, status badge,
+            verification sentence) is spoken from here. The region is mounted with
+            the dialog and EMPTY, and only then filled: text that arrives together
+            with its live region is usually not announced. Kept inside the dialog
+            because aria-modal hides everything outside it from screen readers. */}
+        <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+          {order
+            ? `Order request received. Order number ${order.id}. Payment status: ${paymentLabel(order.paymentStatus)}.${
+              order.paymentStatus === "Payment Claimed" ? " We will check your payment and confirm on WhatsApp before we start printing." : ""}`
+            : ""}
+        </div>
         <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
           <h2 className="font-serif text-xl font-bold text-charcoal">{order ? "Order request received" : "Checkout · चेकआउट"}</h2>
           <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-muted hover:bg-charcoal/10">
