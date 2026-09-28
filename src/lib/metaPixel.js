@@ -1,16 +1,43 @@
 /* ─────────────────────────────────────────────────────────────
    Meta Pixel (Facebook Pixel) — one place for every event.
 
-   The base pixel + automatic PageView load from index.html <head>.
-   These helpers fire the richer conversion events from the app.
+   initPixel() loads the base pixel + fires the first PageView; the
+   other exports fire the richer conversion events from the app.
 
    Every call is a SAFE no-op if the pixel script hasn't loaded
    (adblock, dev, offline, consent declined) — nothing ever throws.
 
-   Pixel ID: 1572854067777236  (set in index.html)
+   Pixel ID: 1572854067777236
    ───────────────────────────────────────────────────────────── */
 
+const PIXEL_ID = "1572854067777236";
 const CURRENCY = "INR";
+
+/* Fail-closed, not fail-open: this used to be an unconditional <script> in
+   index.html, so every staging/preview deployment and every local
+   `npm run dev` session (including manual QA click-throughs) sent real
+   PageView/InitiateCheckout/Purchase events into the live Meta account.
+   A negative check on VITE_STAGING would still default to "on" for any
+   deployment that simply never set that variable (e.g. a Vercel Preview
+   env with no VITE_STAGING configured) — so this requires an explicit
+   opt-in instead, on top of a real production build. */
+export function initPixel() {
+  if (typeof window === "undefined" || window.fbq) return;
+  const pixelEnabled = import.meta.env.PROD && import.meta.env.VITE_ENABLE_META_PIXEL === "true";
+  if (!pixelEnabled) return;
+  /* eslint-disable */
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  /* eslint-enable */
+  window.fbq("init", PIXEL_ID);
+  window.fbq("track", "PageView");
+}
 
 /* Low-level guarded call. Standard events use fbq('track', …).
    `eventId`, when given, is passed as Meta's eventID so a matching

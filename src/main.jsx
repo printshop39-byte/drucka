@@ -22,6 +22,9 @@ import "@fontsource/caveat/600.css";
 import "@fontsource/archivo-black/400.css";
 import App from "./App.jsx";
 import "./index.css";
+import { initPixel } from "./lib/metaPixel";
+
+initPixel();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
