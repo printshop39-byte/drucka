@@ -49,7 +49,7 @@ export default function CollageWelcome({ onClose, onStartGrid, onStartPro }) {
       <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-black/10 bg-white/95 px-4 backdrop-blur">
         <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-gold to-tangerine text-sm font-black text-[#1a1208]">D</span>
         <p className="text-sm font-bold">Drucka Collage Maker</p>
-        <button onClick={onClose} aria-label="Close" className="ml-auto grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal">
+        <button onClick={onClose} aria-label="Close" className="ml-auto grid h-11 w-11 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal">
           <X size={18} />
         </button>
       </header>

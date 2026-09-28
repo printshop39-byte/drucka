@@ -73,7 +73,7 @@ export default function ProductPicker({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="ml-auto grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted transition hover:bg-black/5 hover:text-charcoal"
+            className="ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted transition hover:bg-black/5 hover:text-charcoal"
           >
             <X size={18} />
           </button>

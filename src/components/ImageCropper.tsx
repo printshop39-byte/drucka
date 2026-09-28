@@ -247,7 +247,7 @@ export default function ImageCropper({ slot, onCrop, onTransform, frame, border 
       <div className="mt-4 flex flex-wrap justify-center gap-1.5">
         {CROP_MODES.map((m) => (
           <button key={m.id} onClick={() => setMode(m.id)} title={m.hint}
-            className={`rounded-full border-2 px-3 py-1.5 text-[11px] font-bold transition ${
+            className={`flex min-h-[44px] items-center rounded-full border-2 px-3 text-[11px] font-bold transition ${
               c.mode === m.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/65 hover:border-gold/60'}`}>
             {m.label}
           </button>
@@ -274,7 +274,7 @@ export default function ImageCropper({ slot, onCrop, onTransform, frame, border 
         <span className="mx-1 h-5 w-px bg-stone" />
         <button onClick={reset} title="Reset crop" className="ctl"><RefreshCw size={15} /></button>
         <button onClick={() => setInspect(true)} title="Inspect detail (check sharpness)"
-          className="flex items-center gap-1.5 rounded-full border border-stone bg-white px-3 h-[34px] text-[11px] font-bold text-charcoal/75 transition hover:border-gold">
+          className="flex min-h-[44px] items-center gap-1.5 rounded-full border border-stone bg-white px-3 text-[11px] font-bold text-charcoal/75 transition hover:border-gold">
           <Search size={14} /> Inspect
         </button>
       </div>
@@ -303,7 +303,7 @@ export default function ImageCropper({ slot, onCrop, onTransform, frame, border 
               </p>
             </div>
             <button onClick={() => setInspect(false)} aria-label="Close inspect"
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25"><X size={18} /></button>
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25"><X size={18} /></button>
           </div>
           <div className="min-h-0 flex-1 overflow-auto p-2" onClick={(e) => e.stopPropagation()}>
             <img src={slot.src} alt={slot.name} draggable={false}
@@ -313,7 +313,7 @@ export default function ImageCropper({ slot, onCrop, onTransform, frame, border 
         </div>
       )}
 
-      <style>{`.ctl{display:grid;place-items:center;width:34px;height:34px;border-radius:9999px;border:1px solid var(--color-stone);color:#211c17;background:#fff;transition:.2s}.ctl:hover{border-color:var(--color-gold)}.ctl:disabled{opacity:.3;pointer-events:none}`}</style>
+      <style>{`.ctl{display:grid;place-items:center;width:44px;height:44px;border-radius:9999px;border:1px solid var(--color-stone);color:#211c17;background:#fff;transition:.2s}.ctl:hover{border-color:var(--color-gold)}.ctl:disabled{opacity:.3;pointer-events:none}`}</style>
     </div>
   );
 }

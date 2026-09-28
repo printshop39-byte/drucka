@@ -16,7 +16,7 @@ const PanelShell = ({ title, onClose, children }) => (
       <p className="text-[11px] font-extrabold uppercase tracking-wider text-subtle">{title}</p>
       {onClose && (
         <button onClick={onClose} aria-label={`Close ${title} panel`}
-          className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-ink/5">
+          className="grid h-11 w-11 place-items-center rounded-full text-muted hover:bg-ink/5">
           <Icon d={ic.close} className="h-4 w-4" />
         </button>
       )}
@@ -45,7 +45,7 @@ const NumInput = (props) => (
 const Accordion = ({ title, open, onToggle, children }) => (
   <div className="overflow-hidden rounded-xl border border-ink/10 bg-white">
     <button onClick={onToggle} aria-expanded={open}
-      className="flex w-full items-center justify-between px-3 py-2.5 text-left">
+      className="flex min-h-[44px] w-full items-center justify-between px-3 text-left">
       <span className="text-[11px] font-extrabold uppercase tracking-wider text-muted">{title}</span>
       <Icon d={ic.chev} className={`h-4 w-4 text-subtle transition-transform duration-300 ${open ? "rotate-90" : ""}`} />
     </button>
@@ -113,8 +113,8 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
             {product.availableColors.map((id) => {
               const c = colorById(id);
               return (
-                <button key={id} title={c.label} onClick={() => pickColor(id)}
-                  className={`h-9 w-9 rounded-full border-2 transition ${
+                <button key={id} title={c.label} aria-label={c.label} onClick={() => pickColor(id)}
+                  className={`h-11 w-11 rounded-full border-2 transition ${
                     state.selectedColor === id ? "border-tangerine ring-2 ring-tangerine/35" : "border-ink/15 hover:border-ink/35"
                   }`}
                   style={{ backgroundColor: c.hex }}>
@@ -135,7 +135,7 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
           <div className="grid grid-cols-5 gap-1.5 pt-1">
             {sizes.map((s) => (
               <button key={s} onClick={() => setSel({ selectedSize: s })}
-                className={`rounded-lg border-2 py-1.5 text-xs font-bold transition ${
+                className={`flex min-h-[44px] items-center justify-center rounded-lg border-2 text-xs font-bold transition ${
                   state.selectedSize === s ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"
                 }`}>
                 {s}
@@ -154,9 +154,9 @@ export function ProductInfoPanel({ product, state, setSel, qty, setQty, onClose 
       <div className="mt-3">
         <Field label="Quantity">
           <div className="flex w-fit items-center gap-3 rounded-full border border-ink/15 bg-white px-2 py-1">
-            <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Decrease quantity" className="grid h-7 w-7 place-items-center rounded-full hover:bg-ink/5"><Icon d={ic.minus} className="h-4 w-4" /></button>
+            <button onClick={() => setQty(Math.max(1, qty - 1))} aria-label="Decrease quantity" className="grid h-11 w-11 place-items-center rounded-full hover:bg-ink/5"><Icon d={ic.minus} className="h-4 w-4" /></button>
             <span className="w-6 text-center text-sm font-extrabold text-ink">{qty}</span>
-            <button onClick={() => setQty(qty + 1)} aria-label="Increase quantity" className="grid h-7 w-7 place-items-center rounded-full hover:bg-ink/5"><Icon d={ic.plus} className="h-4 w-4" /></button>
+            <button onClick={() => setQty(qty + 1)} aria-label="Increase quantity" className="grid h-11 w-11 place-items-center rounded-full hover:bg-ink/5"><Icon d={ic.plus} className="h-4 w-4" /></button>
           </div>
         </Field>
       </div>
@@ -177,7 +177,7 @@ export function LayersPanel({ layers, selectedId, onSelect, onPatch, onDelete, o
             <li key={l.id}
               className={`rounded-xl border-2 p-2 transition ${l.id === selectedId ? "border-tangerine bg-tangerine/5" : "border-ink/10 bg-white"}`}>
               <div className="flex items-center gap-2">
-                <button onClick={() => onSelect(l.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                <button onClick={() => onSelect(l.id)} className="flex min-h-[44px] min-w-0 flex-1 items-center gap-2 text-left">
                   {l.type === "text" ? (
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-ink/5"><Icon d={ic.text} className="h-4 w-4 text-ink/60" /></span>
                   ) : (
@@ -188,23 +188,23 @@ export function LayersPanel({ layers, selectedId, onSelect, onPatch, onDelete, o
                     <span className="block text-[10px] capitalize text-subtle">{l.type}{l.locked ? " · locked" : ""}</span>
                   </span>
                 </button>
-                <div className="flex shrink-0 items-center">
-                  <button title="Move up" disabled={idx === layers.length - 1} onClick={() => onMove(l.id, +1)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.up} className="h-3.5 w-3.5" /></button>
-                  <button title="Move down" disabled={idx === 0} onClick={() => onMove(l.id, -1)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.down} className="h-3.5 w-3.5" /></button>
-                  <button title="Duplicate" onClick={() => onDuplicate(l.id)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5"><Icon d={ic.copy} className="h-3.5 w-3.5" /></button>
-                  <button title={l.locked ? "Unlock" : "Lock"} onClick={() => onPatch(l.id, { locked: !l.locked })}
-                    className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-ink/5 ${l.locked ? "text-[#c2410c]" : "text-muted"}`}>
+                <div className="-mr-1 flex shrink-0 flex-wrap items-center justify-end">
+                  <button title="Move up" aria-label="Move layer up" disabled={idx === layers.length - 1} onClick={() => onMove(l.id, +1)}
+                    className="grid h-11 w-11 place-items-center rounded-lg text-muted hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.up} className="h-3.5 w-3.5" /></button>
+                  <button title="Move down" aria-label="Move layer down" disabled={idx === 0} onClick={() => onMove(l.id, -1)}
+                    className="grid h-11 w-11 place-items-center rounded-lg text-muted hover:bg-ink/5 disabled:opacity-20"><Icon d={ic.down} className="h-3.5 w-3.5" /></button>
+                  <button title="Duplicate" aria-label="Duplicate layer" onClick={() => onDuplicate(l.id)}
+                    className="grid h-11 w-11 place-items-center rounded-lg text-muted hover:bg-ink/5"><Icon d={ic.copy} className="h-3.5 w-3.5" /></button>
+                  <button title={l.locked ? "Unlock" : "Lock"} aria-label={l.locked ? "Unlock layer" : "Lock layer"} onClick={() => onPatch(l.id, { locked: !l.locked })}
+                    className={`grid h-11 w-11 place-items-center rounded-lg hover:bg-ink/5 ${l.locked ? "text-[#c2410c]" : "text-muted"}`}>
                     <Icon d={l.locked ? ic.lock : ic.unlock} className="h-3.5 w-3.5" />
                   </button>
-                  <button title={l.visible === false ? "Show" : "Hide"} onClick={() => onPatch(l.id, { visible: l.visible === false })}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-muted hover:bg-ink/5">
+                  <button title={l.visible === false ? "Show" : "Hide"} aria-label={l.visible === false ? "Show layer" : "Hide layer"} onClick={() => onPatch(l.id, { visible: l.visible === false })}
+                    className="grid h-11 w-11 place-items-center rounded-lg text-muted hover:bg-ink/5">
                     <Icon d={l.visible === false ? ic.eyeOff : ic.eye} className="h-3.5 w-3.5" />
                   </button>
-                  <button title="Delete" onClick={() => onDelete(l.id)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-red-400 hover:bg-red-50"><Icon d={ic.trash} className="h-3.5 w-3.5" /></button>
+                  <button title="Delete" aria-label="Delete layer" onClick={() => onDelete(l.id)}
+                    className="grid h-11 w-11 place-items-center rounded-lg text-red-400 hover:bg-red-50"><Icon d={ic.trash} className="h-3.5 w-3.5" /></button>
                 </div>
               </div>
             </li>
@@ -275,7 +275,7 @@ export function TextPanel({ selected, onAddText, onPatch, onClose }) {
           </Field>
           <button onClick={() => { if (draft.trim()) { onAddText(draft.trim()); setDraft(""); } }}
             disabled={!draft.trim()}
-            className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-[#1a1208] transition hover:brightness-105 disabled:opacity-40">
+            className="mt-2 min-h-[44px] w-full rounded-full bg-tangerine py-2.5 text-sm font-bold text-[#1a1208] transition hover:brightness-105 disabled:opacity-40">
             Add text to design
           </button>
           <p className="mt-3 text-[11px] text-subtle">Tip: select a text layer on the canvas to edit its font, style and spacing.</p>
@@ -303,12 +303,12 @@ export function TextPanel({ selected, onAddText, onPatch, onClose }) {
             </Field>
             <Field label="Style">
               <div className="flex gap-1.5">
-                <button title="Bold" onClick={() => onPatch(editing.id, { bold: !editing.bold })}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm font-black transition ${editing.bold ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>B</button>
-                <button title="Italic" onClick={() => onPatch(editing.id, { italic: !editing.italic })}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm italic transition ${editing.italic ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>I</button>
-                <button title="Underline" onClick={() => onPatch(editing.id, { underline: !editing.underline })}
-                  className={`h-9 w-9 rounded-lg border-2 text-sm font-bold underline transition ${editing.underline ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>U</button>
+                <button title="Bold" aria-label="Bold" onClick={() => onPatch(editing.id, { bold: !editing.bold })}
+                  className={`h-11 w-11 rounded-lg border-2 text-sm font-black transition ${editing.bold ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>B</button>
+                <button title="Italic" aria-label="Italic" onClick={() => onPatch(editing.id, { italic: !editing.italic })}
+                  className={`h-11 w-11 rounded-lg border-2 text-sm italic transition ${editing.italic ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>I</button>
+                <button title="Underline" aria-label="Underline" onClick={() => onPatch(editing.id, { underline: !editing.underline })}
+                  className={`h-11 w-11 rounded-lg border-2 text-sm font-bold underline transition ${editing.underline ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 text-ink/60"}`}>U</button>
               </div>
             </Field>
           </div>
@@ -325,12 +325,12 @@ export function TextPanel({ selected, onAddText, onPatch, onClose }) {
           <Field label="Text colour">
             <div className="flex flex-wrap items-center gap-2">
               {TEXT_COLORS.map((c) => (
-                <button key={c} onClick={() => onPatch(editing.id, { color: c })}
-                  className={`h-8 w-8 rounded-full border-2 ${editing.color === c ? "border-tangerine ring-2 ring-tangerine/35" : "border-ink/15"}`}
+                <button key={c} aria-label={`Text colour ${c}`} onClick={() => onPatch(editing.id, { color: c })}
+                  className={`h-11 w-11 rounded-full border-2 ${editing.color === c ? "border-tangerine ring-2 ring-tangerine/35" : "border-ink/15"}`}
                   style={{ backgroundColor: c }} />
               ))}
               <input type="color" value={editing.color} onChange={(e) => onPatch(editing.id, { color: e.target.value })}
-                className="h-8 w-8 cursor-pointer rounded-full border border-ink/15" title="Custom colour" />
+                className="h-11 w-11 cursor-pointer rounded-full border border-ink/15" title="Custom colour" aria-label="Custom text colour" />
             </div>
           </Field>
         </div>
@@ -352,12 +352,12 @@ export function GraphicsPanel({ onAddImage, onClose }) {
       <div className="relative mb-2">
         <Icon d={ic.search} className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
         <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search graphics…" aria-label="Search graphics"
-          className="w-full rounded-full border border-ink/15 bg-white py-2 pl-9 pr-3 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
+          className="min-h-[44px] w-full rounded-full border border-ink/15 bg-white py-2 pl-9 pr-3 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
       </div>
       <div className="mb-3 flex flex-wrap gap-1.5">
         {GRAPHIC_CATEGORIES.map((c) => (
           <button key={c} onClick={() => setCat(c)}
-            className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold capitalize transition ${
+            className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border-2 px-3 text-[11px] font-bold capitalize transition ${
               cat === c ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-muted"
             }`}>
             {c}
@@ -387,7 +387,7 @@ export function DrawPanel({
   return (
     <PanelShell title="Draw" onClose={onClose}>
       <button onClick={onToggle}
-        className={`flex w-full items-center justify-center gap-2 rounded-full border-2 py-2.5 text-xs font-bold transition ${
+        className={`flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border-2 text-xs font-bold transition ${
           active ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/15 text-ink/70 hover:border-tangerine"}`}>
         <Icon d={ic.pen} className="h-4 w-4" />
         {active ? "Pause drawing" : "Start drawing"}
@@ -400,7 +400,7 @@ export function DrawPanel({
       <div className="grid grid-cols-4 gap-1.5">
         {BRUSH_TEMPLATES.map((t) => (
           <button key={t.id} title={t.hint} onClick={() => onBrush(t.id)}
-            className={`rounded-lg border-2 px-1 py-1.5 text-[9px] font-bold leading-tight transition ${
+            className={`flex min-h-[44px] items-center justify-center rounded-lg border-2 px-1 text-[9px] font-bold leading-tight transition ${
               brush === t.id ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 bg-white text-muted hover:border-ink/30"}`}>
             {t.label}
           </button>
@@ -411,12 +411,12 @@ export function DrawPanel({
       <p className="mb-1.5 mt-4 text-[10px] font-bold uppercase tracking-wide text-subtle">Colour</p>
       <div className="flex flex-wrap items-center gap-2">
         {TEXT_COLORS.map((c) => (
-          <button key={c} onClick={() => onColor(c)} title={c}
-            className={`h-8 w-8 rounded-full border-2 ${color === c ? "border-tangerine ring-2 ring-tangerine/40" : "border-ink/15"}`}
+          <button key={c} onClick={() => onColor(c)} title={c} aria-label={`Brush colour ${c}`}
+            className={`h-11 w-11 rounded-full border-2 ${color === c ? "border-tangerine ring-2 ring-tangerine/40" : "border-ink/15"}`}
             style={{ backgroundColor: c }} />
         ))}
-        <input type="color" value={color} onChange={(e) => onColor(e.target.value)} title="Custom colour"
-          className="h-8 w-8 cursor-pointer rounded-full border border-ink/15 bg-transparent" />
+        <input type="color" value={color} onChange={(e) => onColor(e.target.value)} title="Custom colour" aria-label="Custom brush colour"
+          className="h-11 w-11 cursor-pointer rounded-full border border-ink/15 bg-transparent" />
       </div>
 
       <Field label={`Brush size · ${size}`}>
@@ -426,16 +426,16 @@ export function DrawPanel({
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <button onClick={onUndo} disabled={!strokes}
-          className="rounded-full bg-ink/5 py-2 text-[11px] font-bold text-ink transition hover:bg-ink/10 disabled:opacity-35">
+          className="min-h-[44px] rounded-full bg-ink/5 py-2 text-[11px] font-bold text-ink transition hover:bg-ink/10 disabled:opacity-35">
           Undo stroke
         </button>
         <button onClick={onClear} disabled={!strokes}
-          className="rounded-full bg-red-500/10 py-2 text-[11px] font-bold text-red-500 transition hover:bg-red-500/20 disabled:opacity-35">
+          className="min-h-[44px] rounded-full bg-red-500/10 py-2 text-[11px] font-bold text-red-500 transition hover:bg-red-500/20 disabled:opacity-35">
           Clear
         </button>
       </div>
       <button onClick={onFinish} disabled={!strokes}
-        className="mt-2 w-full rounded-full bg-tangerine py-2.5 text-xs font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-35">
+        className="mt-2 min-h-[44px] w-full rounded-full bg-tangerine py-2.5 text-xs font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110 disabled:opacity-35">
         Add drawing to design
       </button>
       <p className="mt-2 text-[10px] text-subtle">
@@ -485,7 +485,7 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
       <div className="flex items-center justify-between px-4 pb-2 pt-4">
         <p className="text-[11px] font-extrabold uppercase tracking-wider text-subtle">Layer Settings</p>
         {onClose && (
-          <button onClick={onClose} aria-label="Close layer settings" className="grid h-7 w-7 place-items-center rounded-full text-muted hover:bg-ink/5">
+          <button onClick={onClose} aria-label="Close layer settings" className="grid h-11 w-11 place-items-center rounded-full text-muted hover:bg-ink/5">
             <Icon d={ic.close} className="h-4 w-4" />
           </button>
         )}
@@ -507,8 +507,9 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
                   </Field>
                 </div>
                 <button title={layer.aspectLock ? "Aspect ratio locked" : "Aspect ratio free"}
+                  aria-label={layer.aspectLock ? "Aspect ratio locked" : "Aspect ratio free"}
                   onClick={() => onPatch(layer.id, { aspectLock: !layer.aspectLock })}
-                  className={`mb-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border-2 transition ${
+                  className={`mb-0.5 grid h-11 w-11 shrink-0 place-items-center rounded-lg border-2 transition ${
                     layer.aspectLock ? "border-tangerine bg-tangerine/10 text-[#c2410c]" : "border-ink/12 text-subtle"
                   }`}>
                   <Icon d={layer.aspectLock ? ic.link : ic.unlink} className="h-4 w-4" />
@@ -550,13 +551,13 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
             <div className="grid grid-cols-6 gap-1">
               {[["left", ic.alignL], ["center", ic.alignC], ["right", ic.alignR]].map(([k, d]) => (
                 <button key={k} title={`Align ${k}`} onClick={() => set({ x: alignX[k] })}
-                  className="grid h-9 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-[#c2410c]">
+                  className="grid h-11 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-[#c2410c]">
                   <Icon d={d} className="h-4 w-4" />
                 </button>
               ))}
               {[["top", ic.alignT], ["middle", ic.alignM], ["bottom", ic.alignB]].map(([k, d]) => (
                 <button key={k} title={`Align ${k}`} onClick={() => set({ y: alignY[k] })}
-                  className="grid h-9 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-[#c2410c]">
+                  className="grid h-11 place-items-center rounded-lg border border-ink/12 text-ink/60 hover:border-tangerine hover:text-[#c2410c]">
                   <Icon d={d} className="h-4 w-4" />
                 </button>
               ))}
@@ -566,11 +567,11 @@ export function LayerSettingsPanel({ layer, product, placement, size, onPatch, o
           <Field label="Flip">
             <div className="flex gap-1.5">
               <button onClick={() => set({ flipH: !layer.flipH })}
-                className={`flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipH ? "border-tangerine bg-tangerine/5 text-[#c2410c]" : "border-ink/12 text-ink/60"}`}>
+                className={`flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipH ? "border-tangerine bg-tangerine/5 text-[#c2410c]" : "border-ink/12 text-ink/60"}`}>
                 <Icon d={ic.flipH} className="h-4 w-4" /> Horizontal
               </button>
               <button onClick={() => set({ flipV: !layer.flipV })}
-                className={`flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipV ? "border-tangerine bg-tangerine/5 text-[#c2410c]" : "border-ink/12 text-ink/60"}`}>
+                className={`flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg border-2 text-xs font-bold transition ${layer.flipV ? "border-tangerine bg-tangerine/5 text-[#c2410c]" : "border-ink/12 text-ink/60"}`}>
                 <Icon d={ic.flipV} className="h-4 w-4" /> Vertical
               </button>
             </div>

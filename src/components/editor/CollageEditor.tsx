@@ -919,16 +919,16 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
                   <p className="mt-1 text-[10px] text-on-dark-muted">Freeform artboard — everything is draggable, croppable &amp; blendable</p>
                   <div className="mt-4 grid gap-2">
                     <button onClick={() => fileRef.current?.click()}
-                      className="flex items-center justify-center gap-2 rounded-full bg-gold py-2.5 text-xs font-bold text-[#1a1208] transition hover:brightness-110">
+                      className="flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-gold text-xs font-bold text-[#1a1208] transition hover:brightness-110">
                       <ImagePlus size={14} /> Add Photos
                     </button>
                     <div className="grid grid-cols-2 gap-2">
                       <button onClick={handleAddText}
-                        className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 py-2 text-[11px] font-bold text-white transition hover:bg-white/15">
+                        className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-white/10 text-[11px] font-bold text-white transition hover:bg-white/15">
                         <Type size={13} /> Add Text
                       </button>
                       <button onClick={togglePen}
-                        className="flex items-center justify-center gap-1.5 rounded-full bg-white/10 py-2 text-[11px] font-bold text-white transition hover:bg-white/15">
+                        className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-full bg-white/10 text-[11px] font-bold text-white transition hover:bg-white/15">
                         <Pen size={13} /> Pen Tool
                       </button>
                     </div>
@@ -958,7 +958,7 @@ export default function CollageEditor({ onBackToGrid, showToast, initialPhotos, 
           {/* mobile: contextual tools entry */}
           {(selected || penMode) && (
             <button onClick={() => setMobilePanel('tools')}
-              className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-bold text-[#1a1208] shadow-xl lg:hidden">
+              className="absolute bottom-3 left-1/2 z-20 flex min-h-[44px] -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-4 text-xs font-bold text-[#1a1208] shadow-xl lg:hidden">
               <Settings2 size={14} /> {penMode ? 'Brush settings' : 'Layer tools'}
             </button>
           )}

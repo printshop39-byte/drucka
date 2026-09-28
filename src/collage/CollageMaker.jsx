@@ -721,7 +721,7 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
 
       {/* header */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-2 border-b border-black/10 bg-white px-3 sm:px-4">
-        <button onClick={onBack ?? onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal">
+        <button onClick={onBack ?? onClose} aria-label="Back" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal">
           <Icon d={ic.back} />
         </button>
         <div className="min-w-0">
@@ -733,17 +733,17 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
         </div>
         {onPro && (
           <div className="mr-1 flex rounded-full bg-black/5 p-0.5 text-[10px] font-bold" role="tablist" aria-label="Editor mode">
-            <span className="rounded-full bg-tangerine px-3 py-1.5 text-[#1a1208]">Grid Editor</span>
+            <span className="flex min-h-[44px] items-center rounded-full bg-tangerine px-3 text-[#1a1208]">Grid Editor</span>
             {/* hand the uploaded photos over — Pro used to open blank, which
                 read as the work being thrown away */}
             <button onClick={() => onPro(photos)} title="Freeform mode: shape crops, blend, text, pen, effects"
-              className="rounded-full px-3 py-1.5 text-muted transition hover:text-charcoal">
+              className="flex min-h-[44px] items-center rounded-full px-3 text-muted transition hover:text-charcoal">
               Pro Editor
             </button>
           </div>
         )}
         <button onClick={() => exportFile("jpg")} disabled={busy}
-          className="rounded-full bg-tangerine px-4 py-2 text-xs font-bold text-[#1a1208] transition hover:brightness-110 disabled:opacity-50">
+          className="flex min-h-[44px] items-center rounded-full bg-tangerine px-4 text-xs font-bold text-[#1a1208] transition hover:brightness-110 disabled:opacity-50">
           {busy ? "…" : "Download"}
         </button>
       </header>
@@ -893,9 +893,9 @@ export default function CollageMaker({ onClose, onBack, onAddToCart, onOpenCart,
             </div>
             <div className="ml-auto flex items-center gap-2">
               <button onClick={shareCollage} disabled={busy}
-                className="rounded-full bg-black/5 px-4 py-2 text-xs font-bold text-charcoal transition hover:bg-black/10 disabled:opacity-50">Share</button>
+                className="flex min-h-[44px] items-center rounded-full bg-black/5 px-4 text-xs font-bold text-charcoal transition hover:bg-black/10 disabled:opacity-50">Share</button>
               <button onClick={() => { setTab("order"); setMobilePanel("order"); }}
-                className="rounded-full bg-tangerine px-5 py-2 text-xs font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110">
+                className="flex min-h-[44px] items-center rounded-full bg-tangerine px-5 text-xs font-bold text-[#1a1208] shadow-lg shadow-tangerine/25 transition hover:brightness-110">
                 Order print →
               </button>
             </div>

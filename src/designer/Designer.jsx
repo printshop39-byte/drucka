@@ -339,7 +339,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
     <div ref={dialogRef} className="fixed inset-0 z-[95] flex flex-col bg-[#f1f0f5]" role="dialog" aria-modal="true" aria-label="Drucka product designer">
       {/* ─── header ─── */}
       <header className="z-30 flex h-14 shrink-0 items-center gap-1.5 border-b border-ink/10 bg-white px-3 sm:px-4">
-        <button onClick={onClose} aria-label="Back" className="grid h-9 w-9 place-items-center rounded-full text-ink/60 hover:bg-ink/5 hover:text-ink">
+        <button onClick={onClose} aria-label="Back" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/60 hover:bg-ink/5 hover:text-ink">
           <Icon d={ic.back} />
         </button>
         <div className="min-w-0">
@@ -368,14 +368,14 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
 
         <div className="mx-auto flex items-center gap-1">
           <button onClick={undo} disabled={!historyRef.current.past.length} aria-label="Undo"
-            className="grid h-9 w-9 place-items-center rounded-full text-ink/60 hover:bg-ink/5 disabled:opacity-25"><Icon d={ic.undo} className="h-4.5 w-4.5" /></button>
+            className="grid h-11 w-11 place-items-center rounded-full text-ink/60 hover:bg-ink/5 disabled:opacity-25"><Icon d={ic.undo} className="h-4.5 w-4.5" /></button>
           <button onClick={redo} disabled={!historyRef.current.future.length} aria-label="Redo"
-            className="grid h-9 w-9 place-items-center rounded-full text-ink/60 hover:bg-ink/5 disabled:opacity-25"><Icon d={ic.redo} className="h-4.5 w-4.5" /></button>
+            className="grid h-11 w-11 place-items-center rounded-full text-ink/60 hover:bg-ink/5 disabled:opacity-25"><Icon d={ic.redo} className="h-4.5 w-4.5" /></button>
           <div className="ml-1 flex rounded-full bg-ink/6 p-0.5" role="tablist" aria-label="Editor mode">
             {["design", "preview"].map((m) => (
               <button key={m} role="tab" aria-selected={mode === m}
                 onClick={() => { setMode(m); setSelectedLayerId(null); }}
-                className={`rounded-full px-3.5 py-1.5 text-xs font-bold capitalize transition sm:px-4 ${mode === m ? "bg-white text-[#c2410c] shadow" : "text-muted"}`}>
+                className={`flex min-h-[44px] items-center rounded-full px-3.5 text-xs font-bold capitalize transition sm:px-4 ${mode === m ? "bg-white text-[#c2410c] shadow" : "text-muted"}`}>
                 {m}
               </button>
             ))}
@@ -415,7 +415,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
                 const n = (layersByPlacement[p.id] ?? []).filter((l) => l.visible !== false).length;
                 return (
                   <button key={p.id} onClick={() => { setSelectedPlacement(p.id); setSelectedLayerId(null); clearDrawing(); }}
-                    className={`relative shrink-0 rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
+                    className={`relative flex min-h-[44px] shrink-0 items-center rounded-full border-2 px-3.5 text-xs font-bold transition ${
                       selectedPlacement === p.id ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
                     }`}>
                     {p.label}
@@ -453,7 +453,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
           {/* selected-layer quick bar (mobile settings entry) */}
           {selectedLayer && !preview && (
             <button onClick={() => setMobilePanel("settings")}
-              className="absolute bottom-20 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-4 py-2 text-xs font-bold text-white shadow-xl xl:hidden">
+              className="absolute bottom-20 left-1/2 z-20 flex min-h-[44px] -translate-x-1/2 items-center gap-2 rounded-full bg-ink px-4 text-xs font-bold text-white shadow-xl xl:hidden">
               <Icon d={ic.settings} className="h-4 w-4" /> Layer settings
             </button>
           )}
@@ -482,7 +482,7 @@ export default function ProductDesigner({ product, initial = {}, onClose, onAddT
                 <p className="text-xs font-semibold text-subtle">Add designs to see price</p>
               )}
               <button onClick={() => (hasDesign ? setStep("submit") : showToast("Add a design first — upload, text or graphics"))}
-                className={`rounded-full px-6 py-2.5 text-sm font-bold transition ${
+                className={`flex min-h-[44px] items-center justify-center rounded-full px-6 text-sm font-bold transition ${
                   hasDesign ? "bg-tangerine text-[#1a1208] shadow-lg shadow-tangerine/30 hover:brightness-105" : "bg-ink/10 text-subtle"
                 }`}>
                 Continue →

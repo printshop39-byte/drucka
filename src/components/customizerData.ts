@@ -129,11 +129,15 @@ export function effectiveDpi(slot: PhotoSlot): number {
 }
 
 export interface Quality { id: string; label: string; message: string; color: string }
+/* These colours double as text-on-white (the DPI message) and white-on-colour
+   (the small badge), both at 9-11px — so both directions need 4.5:1, not the
+   3:1 that would be enough for a large label alone. The original shades
+   (#16a34a/#65a30d/#d97706/#dc2626) read as low as 3.09:1 either way. */
 export function qualityFor(dpi: number): Quality {
-  if (dpi >= 300) return { id: "excellent", label: "Excellent", message: "Excellent quality for this size", color: "#16a34a" };
-  if (dpi >= 200) return { id: "good", label: "Good", message: "Good quality for this size", color: "#65a30d" };
-  if (dpi >= 150) return { id: "fair", label: "Fair", message: "Fair quality, suitable for normal viewing", color: "#d97706" };
-  return { id: "low", label: "Low", message: "Low quality, print may look blurry. Try smaller size or upload higher resolution image.", color: "#dc2626" };
+  if (dpi >= 300) return { id: "excellent", label: "Excellent", message: "Excellent quality for this size", color: "#15803d" };
+  if (dpi >= 200) return { id: "good", label: "Good", message: "Good quality for this size", color: "#3f6212" };
+  if (dpi >= 150) return { id: "fair", label: "Fair", message: "Fair quality, suitable for normal viewing", color: "#b45309" };
+  return { id: "low", label: "Low", message: "Low quality, print may look blurry. Try smaller size or upload higher resolution image.", color: "#b91c1c" };
 }
 export const slotQuality = (slot: PhotoSlot) => qualityFor(effectiveDpi(slot));
 

@@ -3470,14 +3470,14 @@ What I'd like changed:
                     {item.summary && <p className="truncate text-xs text-muted">{item.summary}</p>}
                     <div className="mt-2 flex items-center justify-between">
                       <div className="inline-flex items-center rounded-lg border border-charcoal/10">
-                        <button onClick={() => onQty(item.key, -1)} className="px-2.5 py-1 font-bold text-muted" aria-label="Decrease quantity">−</button>
+                        <button onClick={() => onQty(item.key, -1)} className="flex min-h-[44px] min-w-[44px] items-center justify-center font-bold text-muted" aria-label="Decrease quantity">−</button>
                         <span className="min-w-7 text-center text-sm font-bold">{item.qty}</span>
-                        <button onClick={() => onQty(item.key, 1)} className="px-2.5 py-1 font-bold text-muted" aria-label="Increase quantity">+</button>
+                        <button onClick={() => onQty(item.key, 1)} className="flex min-h-[44px] min-w-[44px] items-center justify-center font-bold text-muted" aria-label="Increase quantity">+</button>
                       </div>
                       <p className="font-bold text-[#8a6a1f]">{inr(item.price * item.qty)}</p>
                     </div>
                   </div>
-                  <button onClick={() => onRemove(item.key)} className="self-start text-subtle transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
+                  <button onClick={() => onRemove(item.key)} className="grid h-11 w-11 shrink-0 -m-1 place-items-center self-start text-subtle transition hover:text-rose-500" aria-label={`Remove ${item.name}`}>
                     <Icon d={icons.trash} className="h-4.5 w-4.5" />
                   </button>
 
@@ -3488,18 +3488,18 @@ What I'd like changed:
                   <div className="mt-2 flex basis-full gap-2 border-t border-charcoal/5 pt-2">
                     {item.edit ? (
                       <button onClick={() => onEdit?.(item.key)}
-                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-[#7a5c12]">
+                        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-[#7a5c12]">
                         <Icon d={icons.pencil} className="h-3.5 w-3.5" /> Edit design
                       </button>
                     ) : (
                       <a href={changeRequest(item)} target="_blank" rel="noopener noreferrer"
-                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-emerald-500 hover:text-emerald-700">
+                        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-emerald-500 hover:text-emerald-700">
                         <Icon d={icons.whatsapp} filled className="h-3.5 w-3.5" /> Request a change
                       </a>
                     )}
                     {item.type === "custom" && (
                       <button onClick={() => onDuplicate?.(item.key)}
-                        className="inline-flex min-h-[36px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-[#7a5c12]">
+                        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-charcoal/12 px-3 text-xs font-semibold text-charcoal/70 transition hover:border-gold hover:text-[#7a5c12]">
                         <Icon d={icons.copy} className="h-3.5 w-3.5" /> Duplicate
                       </button>
                     )}
@@ -3530,11 +3530,11 @@ What I'd like changed:
                   Proceed to Checkout · चेकआउट →
                 </button>
                 <a href={checkoutMsg} target="_blank" rel="noopener noreferrer"
-                  className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-6 py-2.5 text-sm font-semibold text-[#047857] transition hover:bg-emerald-50">
+                  className="mt-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-6 text-sm font-semibold text-[#047857] transition hover:bg-emerald-50">
                   <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Or order directly on WhatsApp
                 </a>
                 <button onClick={() => setSummary(false)}
-                  className="mt-2 w-full text-center text-xs font-semibold text-muted transition hover:text-[#8a6a1f]">
+                  className="mt-2 flex min-h-[44px] w-full items-center justify-center text-center text-xs font-semibold text-muted transition hover:text-[#8a6a1f]">
                   ← Back to cart
                 </button>
               </>
@@ -3596,8 +3596,8 @@ function TrackOrderModal({ onClose, localOrders }) {
       <div ref={dialogRef} className="animate-sheet w-full max-w-md rounded-3xl bg-white p-5 shadow-2xl" role="dialog" aria-modal="true"
         aria-label="Track order" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h2 className="font-serif text-xl font-bold text-charcoal">Track Order · ऑर्डर ट्रॅक करा</h2>
-          <button onClick={onClose} aria-label="Close tracking" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-muted hover:bg-charcoal/10">
+          <h2 className="min-w-0 font-serif text-xl font-bold text-charcoal">Track Order · ऑर्डर ट्रॅक करा</h2>
+          <button onClick={onClose} aria-label="Close tracking" className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-charcoal/5 text-muted hover:bg-charcoal/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
         </div>
@@ -3655,7 +3655,7 @@ function TrackOrderModal({ onClose, localOrders }) {
 
           <a href={wa(`Hi Drucka! I'd like to track my order${id.trim() ? ` ${id.trim().toUpperCase()}` : ""}.`)}
             target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-[#047857] transition hover:bg-emerald-50">
+            className="flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-[#047857] transition hover:bg-emerald-50">
             <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Or ask on WhatsApp
           </a>
         </div>
@@ -3729,7 +3729,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
         </div>
         <div className="flex items-center justify-between border-b border-charcoal/8 px-5 py-4">
           <h2 className="font-serif text-xl font-bold text-charcoal">{order ? "Order request received" : "Checkout · चेकआउट"}</h2>
-          <button onClick={onClose} aria-label="Close checkout" className="grid h-9 w-9 place-items-center rounded-full bg-charcoal/5 text-muted hover:bg-charcoal/10">
+          <button onClick={onClose} aria-label="Close checkout" className="grid h-11 w-11 place-items-center rounded-full bg-charcoal/5 text-muted hover:bg-charcoal/10">
             <Icon d={icons.x} className="h-4 w-4" />
           </button>
         </div>
@@ -3761,7 +3761,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                       : [["prepaid", "UPI"], ["cod", "COD request"]]
                     ).map(([v, l]) => (
                       <button key={v} onClick={() => setForm((s) => ({ ...s, paymentMode: v }))} aria-pressed={form.paymentMode === v}
-                        className={`flex-1 rounded-xl border px-2 py-2.5 text-xs font-bold transition ${
+                        className={`flex min-h-[44px] flex-1 items-center justify-center rounded-xl border px-2 text-xs font-bold transition ${
                           form.paymentMode === v ? "border-gold bg-gold text-[#1a1208]" : "border-charcoal/15 text-muted"
                         }`}>{l}</button>
                     ))}
@@ -3827,7 +3827,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
                     <p className="font-bold text-emerald-700">Or pay via UPI manually · पेमेंट करा</p>
                     <p className="mt-1">Send {inr(order.total)} to <strong>{CONFIG.upiId}</strong> (GPay / PhonePe / Paytm), then tap below. Our team verifies before printing.</p>
                     <button onClick={() => setOrder(onMarkPaid(order.id))}
-                      className="mt-2 w-full rounded-full bg-emerald-500 px-4 py-2.5 text-xs font-bold text-[#1a1208] transition hover:bg-emerald-600">
+                      className="mt-2 flex min-h-[44px] w-full items-center justify-center rounded-full bg-emerald-500 px-4 text-xs font-bold text-[#1a1208] transition hover:bg-emerald-600">
                       ✓ I've paid via UPI
                     </button>
                   </div>
@@ -3846,7 +3846,7 @@ function CheckoutModal({ cart, total, onClose, onPlaceOrder, onMarkPaid, onPayRa
 
               <a href={wa(`Hi Drucka! I just placed order ${order.id} (${inr(order.total)}, ${order.paymentMode.toUpperCase()}). Please confirm!`)}
                 target="_blank" rel="noopener noreferrer"
-                className="mt-2 flex w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 py-2.5 text-xs font-bold text-[#047857] transition hover:bg-emerald-50">
+                className="mt-2 flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-emerald-500 px-4 text-xs font-bold text-[#047857] transition hover:bg-emerald-50">
                 <Icon d={icons.whatsapp} filled className="h-4 w-4" /> Notify Drucka on WhatsApp
               </a>
             </>

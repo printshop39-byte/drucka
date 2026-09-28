@@ -501,15 +501,15 @@ export default function MiniPrints({
         .kd-label { color: #8a6a1f; letter-spacing: 4px; font-size: 11px; font-weight: 700; }
         .kd-heading { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; }
         .kd-size { background: #fff; color: #1a1a1a; border: 1px solid #e6e4df; border-radius: 12px; transition: all 0.2s ease; }
-        .kd-size .kd-sub { color: #9a958c; }
+        .kd-size .kd-sub { color: #6b635b; }
         .kd-size-title { font-family: 'Playfair Display', Georgia, serif; }
         .kd-size-on { border-color: #c19a3d !important; box-shadow: 0 0 0 1px #c19a3d, 0 2px 10px rgba(0,0,0,0.05) !important; }
         .kd-photo { border: 1px solid rgba(26,18,8,0.08); border-radius: 12px; background: #f5f4f0; }
         .kd-photo-img { transition: all 0.35s cubic-bezier(0.23,1,0.32,1); }
         .kd-cart { background: #111; color: #fff; letter-spacing: 1px; border: 1px solid #111; transition: all 0.25s ease; }
         .kd-price { color: #1a1a1a; font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 15px; }
-        .kd-watermark { font-family: 'Courier New', monospace; font-size: 9px; color: #b8b3a8; letter-spacing: 2px; text-transform: uppercase; pointer-events: none; }
-        .kd-bottominfo { font-size: 11px; color: rgba(26,18,8,0.5); letter-spacing: 0.3px; }
+        .kd-watermark { font-family: 'Courier New', monospace; font-size: 9px; color: #6b635b; letter-spacing: 2px; text-transform: uppercase; pointer-events: none; }
+        .kd-bottominfo { font-size: 11px; color: #6b635b; letter-spacing: 0.3px; }
         .kd-divider { border-top: 1px solid rgba(26,18,8,0.08); }
         .scrollbar-none::-webkit-scrollbar { display: none; }
         .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
@@ -529,7 +529,7 @@ export default function MiniPrints({
         <button onClick={onClose} aria-label="Back" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:bg-black/5 hover:text-charcoal"><ArrowLeft size={20} /></button>
         <div className="min-w-0">
           <p className="kd-heading truncate text-base">{V.eyebrow}</p>
-          <p className="kd-mono hidden text-[10px] sm:block" style={{ color: 'rgba(26,18,8,0.4)' }}>Drucka Studio · {size.label}</p>
+          <p className="kd-mono hidden text-[10px] sm:block" style={{ color: '#6b635b' }}>Drucka Studio · {size.label}</p>
         </div>
         {/* same gate as the bottom bar — a disabled control at one end and a
             live one at the other is how the minimum got bypassed */}
@@ -565,7 +565,7 @@ export default function MiniPrints({
                 ))}
               </div>
             )}
-            <p className="kd-mono text-center text-[10px]" style={{ color: "rgba(26,18,8,0.4)", letterSpacing: "1px" }}>
+            <p className="kd-mono text-center text-[10px]" style={{ color: "#6b635b", letterSpacing: "1px" }}>
               {previewPhoto
                 ? `Live preview · ${sizeOf(previewPhoto).label} · ${cardAspectOf(previewPhoto) >= 1 ? "landscape" : "portrait"} · ${border}`
                 : `Upload a photo to preview your ${size.label} print`}
@@ -796,7 +796,7 @@ export default function MiniPrints({
 
                 {/* caption */}
                 <input value={p.caption} maxLength={40} onChange={(e) => patch(p.id, { caption: e.target.value })}
-                  placeholder="Add a caption (optional)…"
+                  placeholder="Add a caption (optional)…" aria-label="Add a caption (optional)"
                   className="mt-3 min-h-[44px] w-full rounded-lg border border-black/15 bg-black/[0.03] px-3 py-2 text-sm font-semibold text-charcoal outline-none focus:border-gold" />
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <select value={p.captionFont} onChange={(e) => patch(p.id, { captionFont: e.target.value })}

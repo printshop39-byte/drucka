@@ -71,7 +71,7 @@ export default function ProductSubmitInfo({
             <label className="block">
               <span className="mb-1 block text-[11px] font-extrabold uppercase tracking-wider text-subtle">Product title</span>
               <input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={80}
-                className="w-full rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
+                className="min-h-[44px] w-full rounded-xl border border-ink/15 bg-white px-3 py-2.5 text-sm font-semibold text-ink outline-none focus:border-tangerine" />
             </label>
 
             <label className="block">
@@ -130,7 +130,8 @@ export default function ProductSubmitInfo({
                 {tags.map((t) => (
                   <span key={t} className="flex items-center gap-1 rounded-full bg-tangerine/10 px-2.5 py-1 text-xs font-bold text-[#c2410c]">
                     {t}
-                    <button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`Remove ${t}`}>
+                    <button onClick={() => setTags(tags.filter((x) => x !== t))} aria-label={`Remove ${t}`}
+                      className="-m-1.5 grid h-6 w-6 place-items-center">
                       <Icon d={ic.close} className="h-3 w-3" />
                     </button>
                   </span>
@@ -140,14 +141,15 @@ export default function ProductSubmitInfo({
                     onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTag(); } }}
                     onBlur={addTag}
                     placeholder={tags.length ? "Add more…" : "e.g. 100% Cotton — press Enter"}
-                    className="min-w-36 flex-1 rounded-lg border border-dashed border-ink/20 bg-white px-2.5 py-1.5 text-xs font-semibold text-ink outline-none focus:border-tangerine" />
+                    aria-label="Add a product highlight"
+                    className="min-h-[44px] min-w-36 flex-1 rounded-lg border border-dashed border-ink/20 bg-white px-2.5 py-1.5 text-xs font-semibold text-ink outline-none focus:border-tangerine" />
                 )}
               </div>
               {product.productHighlights?.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1">
                   {product.productHighlights.filter((h) => !tags.includes(h)).map((h) => (
                     <button key={h} onClick={() => tags.length < 10 && setTags([...tags, h])}
-                      className="rounded-full border border-ink/12 px-2 py-0.5 text-[10px] font-semibold text-muted hover:border-tangerine hover:text-[#c2410c]">
+                      className="flex min-h-[44px] items-center rounded-full border border-ink/12 px-2 text-[10px] font-semibold text-muted hover:border-tangerine hover:text-[#c2410c]">
                       + {h}
                     </button>
                   ))}
@@ -173,12 +175,12 @@ export default function ProductSubmitInfo({
         <div className="ml-auto flex items-center gap-2">
           {enquiry ? (
             <button onClick={() => onEnquire?.({ title: submitPayload().title })}
-              className="rounded-full bg-[#25D366] px-6 py-2.5 text-sm font-bold text-[#1a1208] shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
+              className="flex min-h-[44px] items-center justify-center rounded-full bg-[#25D366] px-6 text-sm font-bold text-[#1a1208] shadow-lg shadow-[#25D366]/30 transition hover:brightness-105">
               Enquire on WhatsApp
             </button>
           ) : (
           <button onClick={() => onSubmit(submitPayload())}
-            className="rounded-full bg-tangerine px-6 py-2.5 text-sm font-bold text-[#1a1208] shadow-lg shadow-tangerine/30 transition hover:brightness-105">
+            className="flex min-h-[44px] items-center justify-center rounded-full bg-tangerine px-6 text-sm font-bold text-[#1a1208] shadow-lg shadow-tangerine/30 transition hover:brightness-105">
             Submit for Review →
           </button>
           )}

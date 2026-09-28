@@ -274,7 +274,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
           <div className="mb-3 flex flex-wrap gap-1.5">
             {slots.map((p, i) => (
               <button key={p.id} onClick={() => setActiveId(p.id)}
-                className={`rounded-full border-2 px-3 py-1 text-[11px] font-bold transition ${
+                className={`flex min-h-[44px] items-center rounded-full border-2 px-3 text-[11px] font-bold transition ${
                   p.id === active.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone text-muted'}`}>
                 Photo {i + 1}
               </button>
@@ -285,14 +285,14 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
         <div className="grid max-h-[38vh] grid-cols-3 gap-1.5 overflow-y-auto pr-1 lg:max-h-[52vh]">
           {PRINT_SIZES.map((s) => (
             <button key={s.id} onClick={() => patchSlot(active.id, { sizeId: s.id })}
-              className={`relative rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
+              className={`relative flex min-h-[44px] items-center justify-center rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
                 active.sizeId === s.id ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/70 hover:border-gold/50'}`}>
               {s.label}
               {s.tag && <span className={`absolute -top-1.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 text-[8px] font-black uppercase ${active.sizeId === s.id ? 'bg-charcoal text-white' : 'bg-gold/15 text-[#7a5c12]'}`}>{s.tag}</span>}
             </button>
           ))}
           <button onClick={() => { const cur = slotSize(active); patchSlot(active.id, { sizeId: 'custom', cw: active.cw ?? cur.w, ch: active.ch ?? cur.h }); }}
-            className={`relative rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
+            className={`relative flex min-h-[44px] items-center justify-center rounded-lg border-2 px-1.5 py-2 text-xs font-bold transition ${
               active.sizeId === 'custom' ? 'border-gold bg-gold text-[#1a1208]' : 'border-dashed border-gold/50 bg-white text-[#7a5c12] hover:border-gold'}`}>
             Custom
           </button>
@@ -347,7 +347,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
           <div className="flex flex-wrap gap-2">
             {PRINT_TYPES.map((t) => (
               <button key={t} onClick={() => setPrintType(t)}
-                className={`rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
+                className={`flex min-h-[44px] items-center rounded-full border-2 px-3.5 text-xs font-bold transition ${
                   printType === t ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/65'}`}>
                 {t}
               </button>
@@ -374,7 +374,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             <div className="flex flex-wrap gap-2">
               {BORDER_OPTIONS.map((b) => (
                 <button key={b} onClick={() => setBorder(b)}
-                  className={`rounded-full border-2 px-3.5 py-1.5 text-xs font-bold transition ${
+                  className={`flex min-h-[44px] items-center rounded-full border-2 px-3.5 text-xs font-bold transition ${
                     border === b ? 'border-gold bg-gold text-[#1a1208]' : 'border-stone bg-white text-charcoal/65'}`}>
                   {b}
                 </button>
@@ -387,7 +387,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               {([['Fit Full Photo', 'fit'], ['Fill Frame / Crop', 'fill'], ['Center Photo', 'center']] as const).map(([label, m]) => (
                 <button key={m}
                   onClick={() => { setSlots((s) => s.map((p) => ({ ...p, crop: { ...p.crop, mode: m, ...(m !== 'fill' ? { ox: 0, oy: 0 } : {}) } }))); showToast(`${label} applied to all photos ✓`); }}
-                  className="rounded-full border-2 border-stone bg-white px-3.5 py-1.5 text-xs font-bold text-charcoal/65 transition hover:border-gold">
+                  className="flex min-h-[44px] items-center rounded-full border-2 border-stone bg-white px-3.5 text-xs font-bold text-charcoal/65 transition hover:border-gold">
                   {label}
                 </button>
               ))}
@@ -405,9 +405,9 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
               <CroppedThumb slot={p} className="w-10 rounded-md" />
               <span className="min-w-0 flex-1 text-xs font-bold text-charcoal/70">Photo {i + 1} · {slotSize(p).label}″</span>
               <div className="flex items-center gap-2">
-                <button onClick={() => patchSlot(p.id, { qty: Math.max(1, p.qty - 1) })} aria-label="Decrease quantity" className="grid h-7 w-7 place-items-center rounded-full border border-stone hover:border-gold"><Minus size={12} /></button>
+                <button onClick={() => patchSlot(p.id, { qty: Math.max(1, p.qty - 1) })} aria-label="Decrease quantity" className="grid h-11 w-11 place-items-center rounded-full border border-stone hover:border-gold"><Minus size={12} /></button>
                 <span className="w-5 text-center text-sm font-extrabold">{p.qty}</span>
-                <button onClick={() => patchSlot(p.id, { qty: p.qty + 1 })} aria-label="Increase quantity" className="grid h-7 w-7 place-items-center rounded-full border border-stone hover:border-gold"><Plus size={12} /></button>
+                <button onClick={() => patchSlot(p.id, { qty: p.qty + 1 })} aria-label="Increase quantity" className="grid h-11 w-11 place-items-center rounded-full border border-stone hover:border-gold"><Plus size={12} /></button>
               </div>
             </div>
           ))}
@@ -474,7 +474,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
         <header className="flex shrink-0 items-center gap-2 border-b border-stone bg-white px-4 py-3">
           {step > 0 && (
             <button onClick={() => setStep(step - 1)} aria-label="Previous step"
-              className="grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-cream"><ChevronLeft size={18} /></button>
+              className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:bg-cream"><ChevronLeft size={18} /></button>
           )}
           <div className="min-w-0">
             <h2 className="truncate font-serif text-lg font-bold text-charcoal">
@@ -496,7 +496,7 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             ))}
           </ol>
           <button onClick={onClose} aria-label="Close"
-            className="ml-auto grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted hover:bg-cream sm:ml-0"><X size={18} /></button>
+            className="ml-auto grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted hover:bg-cream sm:ml-0"><X size={18} /></button>
         </header>
 
         {/* body */}
@@ -516,10 +516,10 @@ export default function PhotoFrameCustomizer({ mode, initial, onClose, showToast
             <div className="flex gap-2">
               {step === 1 && slots.length < MAX_PHOTOS && (
                 <button onClick={() => setStep(0)}
-                  className="rounded-full border-2 border-stone px-4 py-2 text-xs font-bold text-muted hover:border-gold">+ Add photo</button>
+                  className="flex min-h-[44px] items-center rounded-full border-2 border-stone px-4 text-xs font-bold text-muted hover:border-gold">+ Add photo</button>
               )}
               <button onClick={next}
-                className="rounded-full bg-charcoal px-6 py-2.5 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-charcoal/85">
+                className="flex min-h-[44px] items-center justify-center rounded-full bg-charcoal px-6 text-xs font-bold uppercase tracking-wide text-white transition hover:bg-charcoal/85">
                 Continue →
               </button>
             </div>

@@ -23,7 +23,7 @@ function SizeChartModal({ product, onClose }) {
       <div className="relative max-h-[80vh] w-full max-w-sm overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-display text-lg font-bold text-ink">Size chart <span className="text-sm font-medium text-subtle">(inches)</span></h3>
-          <button onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-ink/5"><Icon d={ic.close} className="h-4 w-4" /></button>
+          <button onClick={onClose} aria-label="Close size chart" className="grid h-11 w-11 place-items-center rounded-full text-muted hover:bg-ink/5"><Icon d={ic.close} className="h-4 w-4" /></button>
         </div>
         <table className="w-full text-sm">
           <thead>
@@ -102,12 +102,12 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
       {/* top bar */}
       <header className="sticky top-0 z-20 border-b border-ink/10 bg-white/90 backdrop-blur">
         <div className="flex h-14 items-center gap-2 px-3 sm:px-6">
-          <button onClick={onClose} aria-label="Back to Drucka" className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-ink/60 hover:bg-ink/5 hover:text-ink">
+          <button onClick={onClose} aria-label="Back to Drucka" className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-ink/60 hover:bg-ink/5 hover:text-ink">
             <Icon d={ic.back} />
           </button>
           <nav className="min-w-0 truncate text-xs text-muted" aria-label="Breadcrumb">
-            <span>Product</span><span className="mx-1.5 text-ink/30">/</span>
-            <span>{CATEGORIES.find((c) => c.id === category)?.label}</span><span className="mx-1.5 text-ink/30">/</span>
+            <span>Product</span><span className="mx-1.5 text-ink/30" aria-hidden="true">/</span>
+            <span>{CATEGORIES.find((c) => c.id === category)?.label}</span><span className="mx-1.5 text-ink/30" aria-hidden="true">/</span>
             <span className="font-bold text-ink">{p.productName}</span>
           </nav>
         </div>
@@ -115,7 +115,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
         <div className="flex gap-1.5 overflow-x-auto px-3 pb-2.5 sm:px-6">
           {CATEGORIES.map((c) => (
             <button key={c.id} onClick={() => switchCategory(c.id)}
-              className={`shrink-0 rounded-full border-2 px-4 py-1.5 text-xs font-bold transition ${
+              className={`flex min-h-[44px] shrink-0 items-center rounded-full border-2 px-4 text-xs font-bold transition ${
                 category === c.id ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
               }`}>
               {c.label}
@@ -146,7 +146,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
             <div className="mt-4 flex flex-wrap gap-1.5">
               {siblings.map((sp) => (
                 <button key={sp.productId} onClick={() => switchProduct(sp)}
-                  className={`rounded-full border-2 px-3 py-1.5 text-xs font-bold transition ${
+                  className={`flex min-h-[44px] items-center rounded-full border-2 px-3 text-xs font-bold transition ${
                     sp.productId === p.productId ? "border-ink bg-ink text-white" : "border-ink/12 bg-white text-ink/60 hover:border-ink/30"
                   }`}>
                   {sp.productName}
@@ -190,8 +190,8 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
             </p>
             <div className="flex flex-wrap gap-2">
               {p.availableColors.map((cid) => (
-                <button key={cid} title={colorById(cid)?.label} onClick={() => pickColor(cid)}
-                  className={`h-10 w-10 rounded-full border-2 transition ${color === cid ? "border-tangerine ring-2 ring-tangerine/35" : "border-ink/15 hover:border-ink/35"}`}
+                <button key={cid} title={colorById(cid)?.label} aria-label={colorById(cid)?.label} onClick={() => pickColor(cid)}
+                  className={`h-11 w-11 rounded-full border-2 transition ${color === cid ? "border-tangerine ring-2 ring-tangerine/35" : "border-ink/15 hover:border-ink/35"}`}
                   style={{ backgroundColor: colorById(cid)?.hex }}>
                   {color === cid && <Icon d={ic.check} className={`mx-auto h-4 w-4 ${LIGHT_COLORS.includes(cid) ? "text-ink" : "text-white"}`} />}
                 </button>
@@ -204,7 +204,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-subtle">Size</p>
               {p.sizeChart && (
-                <button onClick={() => setChartOpen(true)} className="flex items-center gap-1 text-xs font-bold text-[#c2410c] hover:underline">
+                <button onClick={() => setChartOpen(true)} className="flex min-h-[44px] items-center gap-1 text-xs font-bold text-[#c2410c] hover:underline">
                   <Icon d={ic.ruler} className="h-3.5 w-3.5" /> View Size Chart
                 </button>
               )}
@@ -212,7 +212,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
             <div className="flex flex-wrap gap-1.5">
               {sizesFor(p, color).map((s) => (
                 <button key={s} onClick={() => setSize(s)}
-                  className={`min-w-12 rounded-lg border-2 px-3 py-2 text-sm font-bold transition ${size === s ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"}`}>
+                  className={`flex min-h-[44px] min-w-12 items-center justify-center rounded-lg border-2 px-3 text-sm font-bold transition ${size === s ? "border-tangerine bg-tangerine text-[#1a1208]" : "border-ink/12 bg-white text-ink/70 hover:border-ink/30"}`}>
                   {s}
                 </button>
               ))}
@@ -228,7 +228,7 @@ export default function ProductPage({ initialProductId = "tshirt", onClose, onSt
           </div>
 
           {/* details */}
-          <button onClick={() => setDetailsOpen(!detailsOpen)} className="mt-4 flex items-center gap-1 text-xs font-bold text-[#c2410c] hover:underline">
+          <button onClick={() => setDetailsOpen(!detailsOpen)} className="mt-4 flex min-h-[44px] items-center gap-1 text-xs font-bold text-[#c2410c] hover:underline">
             View Details <Icon d={ic.chev} className={`h-3.5 w-3.5 transition ${detailsOpen ? "rotate-90" : ""}`} />
           </button>
           {detailsOpen && <p className="mt-2 max-w-prose text-sm leading-relaxed text-ink/65">{p.description}</p>}
