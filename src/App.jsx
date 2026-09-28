@@ -3363,10 +3363,12 @@ function OrderSummary({ cart, total, colorLabel }) {
   );
 }
 
-function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartDesigning, onEdit, onDuplicate }) {
+function CartDrawer({ open, onClose, cart, onRemove, onQty, onCheckout, onStartDesigning, onEdit, onDuplicate, trapEnabled = true }) {
   /* the drawer stays mounted and slides in, so the trap has to follow `open`
-     rather than the component's lifetime */
-  const dialogRef = useModalA11y(onClose, open);
+     rather than the component's lifetime. Checkout stacks on top of it
+     without unmounting it, so `trapEnabled` lets the parent hand the trap
+     over to Checkout instead of the two dialogs' Tab handlers fighting. */
+  const dialogRef = useModalA11y(onClose, open && trapEnabled);
   const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
   // designer cart items already store the colour LABEL (e.g. "White"); legacy
   // items store the id. Look up the id, else fall back to the value as-is so
@@ -5091,6 +5093,7 @@ export default function App() {
           });
           setCheckoutOpen(true);
         }}
+        trapEnabled={!checkoutOpen}
         onStartDesigning={() => { setCartOpen(false); setPickerOpen(true); }}
       />
 
