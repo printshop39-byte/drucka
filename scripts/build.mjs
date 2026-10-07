@@ -772,6 +772,33 @@ if (SAMPLE) {
   });
 }
 
+/* ORDER TRACKING — the old site had a tracking page; saved /track and /track-order links (307 redirects in
+   vercel.json) land here instead of on a 404. Tracking now happens on WhatsApp. */
+const TRACK_WA = wa(["Hi Drucka! I'd like to know the status of my order.", "Order number: "]);
+pages.push({
+  path: "/order-tracking",
+  file: "order-tracking/index.html",
+  noindex: true,
+  waLink: TRACK_WA,
+  title: "Order Tracking | Drucka",
+  description: "Order tracking for Drucka orders is handled on WhatsApp. Send us your order number and we tell you the status of your order.",
+  body: `${crumbs("Order tracking")}
+<section>
+  <div class="wrap prose">
+    <div>
+      <p class="eyebrow">Order tracking</p>
+      <h1>Order tracking has moved</h1>
+      <p class="lead">Order tracking is currently handled via WhatsApp. Please contact us with your order number.</p>
+      <p class="mr muted">Order चा status जाणून घेण्यासाठी तुमचा order number WhatsApp वर पाठवा.</p>
+      <div class="row">
+        ${waBtn(TRACK_WA, "Ask about my order on WhatsApp")}
+        <a class="btn btn-outline" href="mailto:${CONTACT.email}">Email us instead</a>
+      </div>
+    </div>
+  </div>
+</section>`,
+});
+
 /* POLICIES */
 for (const p of POLICIES) {
   pages.push({

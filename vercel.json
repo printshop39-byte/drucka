@@ -31,6 +31,18 @@
     { "source": "/corporate-gifting", "destination": "/", "permanent": false },
     { "source": "/stickers", "destination": "/", "permanent": false },
     { "source": "/invitation-cards", "destination": "/", "permanent": false },
-    { "source": "/posters", "destination": "/", "permanent": false }
+    { "source": "/posters", "destination": "/", "permanent": false },
+    { "source": "/shop", "destination": "/", "permanent": false },
+    { "source": "/catalog", "destination": "/", "permanent": false },
+    { "source": "/catalogue", "destination": "/", "permanent": false },
+    { "source": "/cart", "destination": "/", "permanent": false },
+    { "source": "/login", "destination": "/", "permanent": false },
+    { "source": "/account", "destination": "/", "permanent": false },
+    { "source": "/admin", "destination": "/", "permanent": false },
+    { "source": "/customize", "destination": "/photo-decor", "permanent": false },
+    { "source": "/customise", "destination": "/photo-decor", "permanent": false },
+    { "source": "/mini", "destination": "/photo-prints#mini", "permanent": false },
+    { "source": "/track", "destination": "/order-tracking", "permanent": false },
+    { "source": "/track-order", "destination": "/order-tracking", "permanent": false }
   ]
 }

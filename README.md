@@ -82,6 +82,9 @@ Needs Node 18+. There are no dependencies to install.
 Vercel serves the `dist/` folder (`vercel.json`: `npm run build`, output `dist`, strict security headers incl. a
 CSP that allows nothing but this site's own files). No environment variables are needed. Old product URLs
 (t-shirts, mugs, etc.) redirect to the home page; `/mini-prints` goes to the Mini Prints section.
+The old app's pages also redirect (all temporary 307s, checked by the guard): `/shop`, `/catalog`, `/catalogue`,
+`/cart`, `/login`, `/account`, `/admin` -> home; `/customize`, `/customise` -> `/photo-decor`; `/mini` -> Mini Prints;
+`/track`, `/track-order` -> `/order-tracking` (a noindex page: tracking now happens on WhatsApp).
 
 ## NOT production-ready yet
 

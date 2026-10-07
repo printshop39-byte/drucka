@@ -132,6 +132,14 @@ for (const f of files.map(rel).filter((x) => x.startsWith("images/"))) {
   if (f.startsWith("images/frames/")) bad(`frame-style picture shipped (not approved): ${f}`);
 }
 
+/* 7. every redirect in vercel.json must land on a page that exists, and stay temporary (307) for now */
+const vercel = JSON.parse(readFileSync(join(root, "vercel.json"), "utf8"));
+for (const r of vercel.redirects ?? []) {
+  if (!exists(r.destination)) bad(`vercel.json: redirect ${r.source} -> ${r.destination} lands on a missing page`);
+  if (r.permanent !== false) bad(`vercel.json: redirect ${r.source} must be temporary ("permanent": false) until the site is final`);
+  if (exists(r.source) && r.source !== "/") bad(`vercel.json: redirect ${r.source} shadows a real page`);
+}
+
 if (problems.length) {
   console.error(`\nverify: ${problems.length} problem(s)\n - ${problems.join("\n - ")}\n`);
   process.exit(1);
