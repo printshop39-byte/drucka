@@ -1,32 +1,17 @@
 {
-  "name": "drucka",
+  "name": "drucka-static",
+  "version": "2.0.0",
   "private": true,
-  "version": "1.0.0",
+  "description": "Drucka — plain static storefront. No backend, no database, no JavaScript on the site; orders happen on WhatsApp.",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build && node scripts/prerender.js",
-    "preview": "vite preview"
+    "build": "node scripts/build.mjs && node scripts/verify.mjs",
+    "verify": "node scripts/verify.mjs",
+    "dev": "node scripts/build.mjs && node scripts/serve.mjs",
+    "dev:sample": "node scripts/build.mjs --sample && node scripts/verify.mjs --sample && node scripts/serve.mjs",
+    "start": "node scripts/serve.mjs"
   },
-  "dependencies": {
-    "@fontsource/archivo-black": "^5.2.8",
-    "@fontsource/caveat": "^5.2.8",
-    "@fontsource/dancing-script": "^5.2.8",
-    "@fontsource/inter": "^5.2.8",
-    "@fontsource/lato": "^5.2.7",
-    "@fontsource/playfair-display": "^5.2.8",
-    "@fontsource/poppins": "^5.2.7",
-    "fabric": "^7.4.0",
-    "gsap": "^3.15.0",
-    "lenis": "^1.3.25",
-    "lucide-react": "^1.17.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.1.4",
-    "@vitejs/plugin-react": "^4.3.4",
-    "tailwindcss": "^4.1.4",
-    "vite": "^6.3.2"
+  "engines": {
+    "node": ">=18"
   }
 }

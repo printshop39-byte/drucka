@@ -1,5 +1,5 @@
 {
-  "framework": "vite",
+  "framework": null,
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
@@ -9,15 +9,40 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data: blob: https:; font-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://connect.facebook.net; connect-src 'self' https://*.razorpay.com https://*.supabase.co https://api.cloudinary.com https://www.facebook.com https://connect.facebook.net; frame-src https://*.razorpay.com; upgrade-insecure-requests" }
+        { "key": "Content-Security-Policy", "value": "default-src 'none'; img-src 'self' data:; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" }
       ]
+    },
+    {
+      "source": "/(fonts|images)/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
   ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
-  "crons": [{ "path": "/api/cron/poll-orders", "schedule": "0 3 * * *" }]
+  "redirects": [
+    { "source": "/mini-prints", "destination": "/photo-prints#mini", "permanent": false },
+    { "source": "/mini-prints/studio", "destination": "/photo-prints#mini", "permanent": false },
+    { "source": "/photo-prints/studio", "destination": "/photo-prints", "permanent": false },
+    { "source": "/custom-tshirts", "destination": "/", "permanent": false },
+    { "source": "/custom-mugs", "destination": "/", "permanent": false },
+    { "source": "/corporate-gifting", "destination": "/", "permanent": false },
+    { "source": "/stickers", "destination": "/", "permanent": false },
+    { "source": "/invitation-cards", "destination": "/", "permanent": false },
+    { "source": "/posters", "destination": "/", "permanent": false },
+    { "source": "/shop", "destination": "/", "permanent": false },
+    { "source": "/catalog", "destination": "/", "permanent": false },
+    { "source": "/catalogue", "destination": "/", "permanent": false },
+    { "source": "/cart", "destination": "/", "permanent": false },
+    { "source": "/login", "destination": "/", "permanent": false },
+    { "source": "/account", "destination": "/", "permanent": false },
+    { "source": "/admin", "destination": "/", "permanent": false },
+    { "source": "/customize", "destination": "/photo-decor", "permanent": false },
+    { "source": "/customise", "destination": "/photo-decor", "permanent": false },
+    { "source": "/mini", "destination": "/photo-prints#mini", "permanent": false },
+    { "source": "/track", "destination": "/order-tracking", "permanent": false },
+    { "source": "/track-order", "destination": "/order-tracking", "permanent": false }
+  ]
 }
