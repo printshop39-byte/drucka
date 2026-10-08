@@ -101,11 +101,14 @@ it (commit `4ea2591`). The owner checks these in their own dashboards; Claude do
 
 ### Checks, in this order
 
-- [ ] **Razorpay:** any real payments taken on www.drucka.in recently? Note them before merging.
-- [ ] **Supabase (the project that really holds the orders):** any paid / processing orders not yet delivered?
-      Finish them by hand. Identifying this project also settles the two test orders `TEST-DUPE-9f3k2a` and
-      `TEST-TAMPER-7q2m9x` (do not delete them until the project is confirmed).
-- [ ] **Qikink:** any in-flight orders? After merge their status no longer updates automatically.
+- [ ] **Razorpay — deferred by the owner (2026-10-08), check later, before merging:** any real payments taken on
+      www.drucka.in recently? Note them before merging.
+- [ ] **Supabase — deferred by the owner (2026-10-08), check later, before merging:** in the project that really
+      holds the orders, any paid / processing orders not yet delivered? Finish them by hand. Identifying this project
+      also settles the two test orders `TEST-DUPE-9f3k2a` and `TEST-TAMPER-7q2m9x` (do not delete them until the
+      project is confirmed).
+- **Qikink — not needed (owner, 2026-10-08):** Drucka does not use Qikink. All Qikink code was already removed in
+  `4ea2591`; its Vercel env vars go with the other backend env vars below.
 - [ ] **Owner confirms** retiring the old admin / order-management flow. It is recoverable if needed: the code stays
       on `main` (`3412618`) and on the PR #46 branch, and Vercel's Instant Rollback can restore the previous deployment.
 - [ ] Push this branch → check the Vercel **preview**: redirects (incl. `/track` → `/order-tracking`), WhatsApp
