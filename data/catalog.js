@@ -19,7 +19,6 @@ export const SITE = {
   name: "Drucka",
   url: "https://www.drucka.in",
   tagline: "Your memories, beautifully printed.",
-  taglineMr: "तुमचे फोटो, आता सुंदर प्रिंट्समध्ये.",
   /* owner confirmed 2026-10-07: printing since 29 June 1996. Shown as "since 1996" so it never goes out of date. */
   printingSince: 1996,
   foundingDate: "1996-06-29",
@@ -116,7 +115,7 @@ export const COMMERCIAL_SERVICES = [
 
 /* ── Schools & Hospitals (blueprint /institutions; quote-based) ── */
 export const INSTITUTION_THEMES = {
-  schools: ["Alphabet", "World map", "Solar system", "Animals", "Marathi बाराखडी", "History timeline"],
+  schools: ["Alphabet", "World map", "Solar system", "Animals", "Marathi alphabet (Barakhadi)", "History timeline"],
   hospitals: ["Pediatric interiors", "Wayfinding", "Calm nature walls"],
 };
 

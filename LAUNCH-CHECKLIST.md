@@ -15,7 +15,7 @@ No status below is assumed. "Unknown" means nobody has shown a source or licence
 | `static/favicon.svg` ("D" mark) | browser tab, every page | AI-generated with known source | Drawn as SVG code by Claude in this branch; no third-party artwork. |
 | Five line icons on cards (wallpaper, photo, prints, shop, school) | Home, cards | AI-generated with known source | Inline SVG drawn in `scripts/build.mjs` by Claude in this branch. |
 | WhatsApp glyph | every WhatsApp button | Unknown / needs confirmation | Standard WhatsApp logo shape, carried over from the old site; source of the SVG path not recorded. It is Meta's trademark, used only to link to WhatsApp. Check WhatsApp's brand guidelines. |
-| Fonts: Inter, Fraunces, Mukta | all pages | Confirmed licensed | SIL Open Font License. Fraunces and Mukta downloaded from Google Fonts on 2026-10-07 with the owner's permission; Inter carried over from the old site. |
+| Fonts: Inter, Fraunces, Mukta | all pages | Confirmed licensed | SIL Open Font License. Fraunces and Mukta downloaded from Google Fonts on 2026-10-07 with the owner's permission; Mukta is used only for the ₹ sign since the Marathi text was removed (2026-10-08); Inter carried over from the old site. |
 | Photos | none | — | The build fails if any raster image or `<img>` ships while `IMAGES_APPROVED = false`. |
 
 ### Old site pictures (NOT shipped by this branch, but still live on www.drucka.in until this branch is deployed)
@@ -79,7 +79,7 @@ own photo), then set `IMAGES_APPROVED = true` in `data/catalog.js`.
 
 ## 6. Claims the build refuses (`scripts/verify.mjs`)
 
-"Free reprint guarantee", any 24-hour / "24 तास" turnaround, same-day promises, any WP code, waterproof / washable /
+Any Marathi (Devanagari) text, including inside pre-filled WhatsApp messages (owner, 2026-10-08). "Free reprint guarantee", any 24-hour / "24 तास" turnaround, same-day promises, any WP code, waterproof / washable /
 eco-friendly / fire- or flame-retardant / non-toxic claims, a wallpaper "₹X / sq ft" without "from", the ₹49 /
 ₹2,999 rule on the wallpaper page, any unapproved ₹ figure, and any ₹ on the quote-only pages.
 

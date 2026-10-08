@@ -51,7 +51,6 @@ const helpBand = `<section class="band">
   <div class="wrap band-row">
     <div>
       <h2>Need help measuring your wall?</h2>
-      <p class="mr">माप घ्यायला मदत हवी? भिंतीचा photo WhatsApp करा.</p>
       <p>Send us a photo of the wall and its rough size. We will tell you what to measure and what it will cost.</p>
     </div>
     <a class="btn btn-light" href="${MEASURE_WA}" target="_blank" rel="noopener noreferrer">${WA_ICON}<span>Send a photo of your wall</span></a>
@@ -215,7 +214,6 @@ pages.push({
       <p class="eyebrow">Custom wallpaper · Photo prints · Canvas &amp; frames</p>
       <h1>${esc(SITE.tagline)}</h1>
       <p class="lead">Custom wallpaper made to the size of your wall, photo prints, canvas prints and photo frames, all printed in our Kolhapur studio. We also print for shops, offices, schools and hospitals. Tell us what you need on WhatsApp and we take care of the rest.</p>
-      <p class="mr muted">${esc(SITE.taglineMr)} तुमच्या भिंतीच्या मापाने print. WhatsApp वर सांगा, बाकी आम्ही बघू.</p>
       <div class="row">
         ${waBtn(GENERAL_WA, "Order on WhatsApp")}
         <a class="btn btn-outline" href="/wallpapers">See wallpapers</a>
@@ -224,7 +222,7 @@ pages.push({
   </div>
   <div class="wrap">
     <ul class="trustbar" aria-label="Why Drucka">
-      <li>Printing since ${SITE.printingSince} <span class="mr">(${SITE.printingSince} पासून मुद्रण अनुभव)</span></li>
+      <li>Printing since ${SITE.printingSince}</li>
       <li>Made-to-size wallpaper</li>
       <li>Premium print quality</li>
       <li>Secure packaging</li>
@@ -257,7 +255,6 @@ ${helpBand}
   <div class="wrap">
     <p class="eyebrow">Simple ordering</p>
     <h2>How to order</h2>
-    <p class="mr muted">WhatsApp वर ऑर्डर कशी करायची</p>
     <ol class="steps">
       <li><h3>Choose</h3><p>Pick a product and size on this website.</p></li>
       <li><h3>Message us</h3><p>Tap Order on WhatsApp. Your choice is already filled into the message.</p></li>
@@ -435,7 +432,7 @@ const actionCard = ({ title, text, waLines, href, cta, sr = "" }) => `<article c
     ${waLines ? waBtn(wa(waLines), cta, "btn-outline", "", sr) : `<a class="btn btn-outline" href="${href}">${esc(cta)}</a>`}
   </div>
 </article>`;
-const previewLine = `<p class="trust">We send you a digital preview on WhatsApp and print only after you approve it. <span class="mr">Preview approve केल्यानंतरच print होतो.</span></p>`;
+const previewLine = `<p class="trust">We send you a digital preview on WhatsApp and print only after you approve it.</p>`;
 
 /* WALLPAPERS (blueprint: made-to-size wallpaper). No live calculator: the site has no JavaScript. */
 const wallLines = (style = "", media = "") => ["Hi Drucka! I'd like a wallpaper for my wall.", "Wall size (width × height): ", `Style: ${style}`, `Media: ${media}`, "I'll send a photo of the wall here."];
@@ -471,7 +468,6 @@ pages.push({
     <div>
       <p class="eyebrow">Made-to-size wallpaper</p>
       <h1>Wallpapers</h1>
-      <p class="mr muted">तुमची भिंत, तुमच्या मापाने.</p>
       <p class="lead muted">Wallpaper printed to the exact size of your wall. Choose a style and a wallpaper media, send us the width and height of your wall, and we send you the price and a digital preview.</p>
       <p class="price-line">${esc(wpPriceLabel)}</p>
       <p class="muted">A starting price, not a flat rate: the exact price depends on the media, your wall size and any customisation. We confirm it on WhatsApp before printing.</p>
@@ -500,7 +496,6 @@ pages.push({
   <div class="wrap">
     ${tierTable}
     <p class="muted mt-sm">${esc(dispatchLine)} ${esc(largeDeliveryLine)}</p>
-    <p class="mr muted">Design approval नंतर साधारण 3–5 कामकाजाच्या दिवसांत dispatch. Delivery साधारण 2–4 कामकाजाचे दिवस, location आणि courierनुसार बदलू शकते.</p>
   </div>
 </section>
 <section class="tint" id="measure">
@@ -543,7 +538,6 @@ pages.push({
     <div>
       <p class="eyebrow">Your own photo</p>
       <h1>Your Photo, Your Wall</h1>
-      <p class="mr muted">तुमचा photo, तुमची भिंत.</p>
       <p class="lead muted">Turn your own photo into a wallpaper for a whole wall, a décor print, a canvas, a framed print or a mobile back cover. There is no upload on this website: you send the photo to us on WhatsApp.</p>
       ${waBtn(DECOR_WA, "Send your photo on WhatsApp")}
       ${previewLine}
@@ -641,14 +635,13 @@ pages.push({
   current: "/institutions",
   waLink: INST_WA,
   title: "Learning Walls for Schools & Calm Walls for Hospitals | Drucka",
-  description: "Printed wall graphics for classrooms, corridors, wards and waiting areas: alphabet, world map, solar system, Marathi बाराखडी, wayfinding and calm nature walls. One combined quote on WhatsApp.",
+  description: "Printed wall graphics for classrooms, corridors, wards and waiting areas: alphabet, world map, solar system, the Marathi alphabet (Barakhadi), wayfinding and calm nature walls. One combined quote on WhatsApp.",
   body: `${crumbs("Schools & Hospitals")}
 <section>
   <div class="wrap prose">
     <div>
       <p class="eyebrow">Schools &amp; Hospitals</p>
       <h1>Learning Walls and Calm Walls</h1>
-      <p class="mr muted">शिकणाऱ्या भिंती.</p>
       <p class="lead muted">Printed wall graphics for classrooms, corridors, wards and waiting areas. Tell us how many walls you have and their sizes, and we send one combined quote for all of them.</p>
       <div class="row">
         ${waBtn(INST_WA, "Get an institution quote")}
@@ -661,7 +654,7 @@ pages.push({
   <div class="wrap two">
     <div>
       <h2>For schools</h2>
-      <p class="muted">Tap a theme to ask about it on WhatsApp. Includes Maharashtra designs such as Marathi बाराखडी and a history timeline.</p>
+      <p class="muted">Tap a theme to ask about it on WhatsApp. Includes Maharashtra designs such as the Marathi alphabet (Barakhadi) and a history timeline.</p>
       ${waChips(INSTITUTION_THEMES.schools, (t) => instLines(t))}
     </div>
     <div>
@@ -789,7 +782,6 @@ pages.push({
       <p class="eyebrow">Order tracking</p>
       <h1>Order tracking has moved</h1>
       <p class="lead">Order tracking is currently handled via WhatsApp. Please contact us with your order number.</p>
-      <p class="mr muted">Order चा status जाणून घेण्यासाठी तुमचा order number WhatsApp वर पाठवा.</p>
       <div class="row">
         ${waBtn(TRACK_WA, "Ask about my order on WhatsApp")}
         <a class="btn btn-outline" href="mailto:${CONTACT.email}">Email us instead</a>

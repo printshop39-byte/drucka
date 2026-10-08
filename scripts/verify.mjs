@@ -73,6 +73,10 @@ for (const f of files.filter((x) => [".html", ".css", ".xml", ".txt", ".svg"].in
     if (new Set(text.match(/https:\/\/wa\.me\/[^"]+/g)).size > 1) bad(`${where}: sample page has an order/enquiry button (only the generic header/footer link is allowed)`);
   }
 
+  /* 3b2. no Marathi on the site (owner, 2026-10-08): visible text, attributes and WhatsApp messages */
+  const decoded = text.replace(/text=([^"&]+)/g, (_, t) => { try { return decodeURIComponent(t); } catch { return t; } });
+  if (/[\u0900-\u097F]/.test(decoded)) bad(`${where}: Marathi (Devanagari) text found`);
+
   /* 3c. claims the owner has ruled out (2026-10-07) */
   const plain = text.replace(/<[^>]+>/g, " ");
   if (/free reprint guarantee|reprint guarantee/i.test(plain)) bad(`${where}: "free reprint guarantee" is not approved`);

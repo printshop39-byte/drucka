@@ -7,11 +7,10 @@
 @font-face { font-family: "Inter"; font-weight: 700; font-style: normal; font-display: swap; src: url("/fonts/inter-700.woff2") format("woff2"); }
 /* serif headings: Fraunces (variable, one file covers 600-700), per the blueprint */
 @font-face { font-family: "Fraunces"; font-weight: 600 700; font-style: normal; font-display: swap; src: url("/fonts/fraunces-var.woff2") format("woff2"); }
-/* Marathi text (and the ₹ sign, which the Latin Inter subset does not carry): Mukta, per the blueprint */
-@font-face { font-family: "Mukta"; font-weight: 500; font-style: normal; font-display: swap; src: url("/fonts/mukta-deva-500.woff2") format("woff2"); unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF; }
-@font-face { font-family: "Mukta"; font-weight: 600; font-style: normal; font-display: swap; src: url("/fonts/mukta-deva-600.woff2") format("woff2"); unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF; }
-@font-face { font-family: "Mukta"; font-weight: 500; font-style: normal; font-display: swap; src: url("/fonts/mukta-latin-500.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD; }
-@font-face { font-family: "Mukta"; font-weight: 600; font-style: normal; font-display: swap; src: url("/fonts/mukta-latin-600.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD; }
+/* the ₹ sign only: Inter's Latin subset has no ₹. Mukta (OFL) supplies just that one character; the
+   browser downloads it only on pages that show a price, because of the unicode-range. */
+@font-face { font-family: "Mukta"; font-weight: 500; font-style: normal; font-display: swap; src: url("/fonts/mukta-deva-500.woff2") format("woff2"); unicode-range: U+20B9; }
+@font-face { font-family: "Mukta"; font-weight: 600; font-style: normal; font-display: swap; src: url("/fonts/mukta-deva-600.woff2") format("woff2"); unicode-range: U+20B9; }
 
 :root {
   --green: #0f6e56;          /* primary: buttons, links, active states (5.5:1 on cream) */
@@ -26,7 +25,7 @@
   --wa-ink: #052e14;
   --radius: 12px;
   --max: 1240px;
-  --font-body: "Inter", "Mukta", system-ui, -apple-system, "Segoe UI", "Noto Sans Devanagari", "Nirmala UI", sans-serif;
+  --font-body: "Inter", "Mukta", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: "Fraunces", Georgia, "Mukta", serif;
 }
 
@@ -47,7 +46,6 @@ h3 { font-size: 1.25rem; line-height: 1.36; }
   h3 { font-size: 1.375rem; line-height: 1.3636; }
 }
 p { margin: 0 0 1em; }
-.mr { font-family: "Mukta", "Noto Sans Devanagari", "Nirmala UI", sans-serif; font-weight: 500; }
 .muted { color: var(--muted); }
 .eyebrow { font-size: .8125rem; line-height: 1.54; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--green); margin: 0 0 .75rem; }
 
@@ -124,10 +122,9 @@ table.prices td.go { text-align: right; }
 .chips a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border: 1.5px solid var(--green); border-radius: 999px; background: #fff; color: var(--green); font-weight: 600; text-decoration: none; }
 .chips a:hover { background: var(--green); color: #fff; }
 
-/* "preview approve केल्यानंतरच print होतो" */
+/* "we print only after you approve the preview" */
 .trust { position: relative; margin: 16px 0 0; padding-left: 28px; color: var(--muted); font-size: .95rem; }
 .trust::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
-.trust .mr { display: block; }
 
 /* ── help band (green) ── */
 .band { background: var(--green); color: #fff; }
@@ -206,5 +203,4 @@ section.tight { padding-top: 40px; }
 .trustbar { list-style: none; margin: 40px 0 0; padding: 20px 0 0; border-top: 1px solid var(--sand); display: flex; flex-wrap: wrap; gap: 10px 28px; font-weight: 600; font-size: .95rem; }
 .trustbar li { position: relative; padding-left: 24px; }
 .trustbar li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
-.trustbar .mr { font-weight: 500; color: var(--muted); }
 .trustbar a { color: var(--green); display: inline-block; padding: 12px 0; margin: -12px 0; }
