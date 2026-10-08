@@ -82,3 +82,36 @@ own photo), then set `IMAGES_APPROVED = true` in `data/catalog.js`.
 "Free reprint guarantee", any 24-hour / "24 तास" turnaround, same-day promises, any WP code, waterproof / washable /
 eco-friendly / fire- or flame-retardant / non-toxic claims, a wallpaper "₹X / sq ft" without "from", the ₹49 /
 ₹2,999 rule on the wallpaper page, any unapproved ₹ figure, and any ₹ on the quote-only pages.
+
+## 7. Before merging to `main` (retiring the old app)
+
+Production (`main`, commit `3412618`) still runs the old React app **with a live backend**. Merging this branch removes
+it (commit `4ea2591`). The owner checks these in their own dashboards; Claude does not log in to them.
+
+### What stops working at merge
+
+| Old feature | Where | After merge |
+| --- | --- | --- |
+| Online checkout | `/api/razorpay/create-order` | gone |
+| Razorpay webhook (mark paid → upload artwork → create Qikink order) | `/api/razorpay/webhook` | 404; Razorpay keeps retrying until disabled |
+| Daily order-status cron (Qikink sync, COD Purchase event) | `/api/cron/poll-orders`, 03:00 | removed from `vercel.json` |
+| Orders and tracking | `/api/orders`, `/api/orders/track`, `/track` | gone; `/track` now redirects to `/order-tracking` (WhatsApp) |
+| Admin and artwork upload | `/admin`, `/api/admin/product-map`, `/api/upload-artwork` | gone; `/admin` redirects home |
+| Meta Pixel and CAPI Purchase events | site-wide | gone (affects ads that optimise on Purchase) |
+
+### Checks, in this order
+
+- [ ] **Razorpay:** any real payments taken on www.drucka.in recently? Note them before merging.
+- [ ] **Supabase (the project that really holds the orders):** any paid / processing orders not yet delivered?
+      Finish them by hand. Identifying this project also settles the two test orders `TEST-DUPE-9f3k2a` and
+      `TEST-TAMPER-7q2m9x` (do not delete them until the project is confirmed).
+- [ ] **Qikink:** any in-flight orders? After merge their status no longer updates automatically.
+- [ ] **Owner confirms** retiring the old admin / order-management flow. It is recoverable if needed: the code stays
+      on `main` (`3412618`) and on the PR #46 branch, and Vercel's Instant Rollback can restore the previous deployment.
+- [ ] Push this branch → check the Vercel **preview**: redirects (incl. `/track` → `/order-tracking`), WhatsApp
+      buttons and messages, policies, SEO tags, mobile layout.
+- [ ] Merge to `main` only after the preview is approved → smoke-test production.
+- [ ] **At merge:** disable the Razorpay webhook in the Razorpay dashboard.
+- [ ] **Only after merge + smoke test + a few stable days:** remove the old backend env vars in Vercel (Razorpay,
+      Supabase, Qikink, Cloudinary, CAPI, `CRON_SECRET`). Not earlier: a rollback to the old deployment needs them.
+- [ ] Redirects stay temporary (307) for now; consider 308 once the site is final (the guard enforces 307 until then).
